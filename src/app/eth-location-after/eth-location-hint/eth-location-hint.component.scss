@@ -1,0 +1,12 @@
+.eth-location-hint-container{
+    background-color: var(--lightBG);
+    margin: 0;
+    padding: 0 1rem 1rem 1rem;
+}
+.eth-location-hint-container a{
+    color: var(--sys-primary);
+    text-decoration: none;
+}
+.eth-location-hint-container a:focus, .eth-location-hint-container a:hover {
+    text-decoration: underline;
+}

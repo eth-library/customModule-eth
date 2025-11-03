@@ -1,0 +1,21 @@
+@if(showWarning$ | async) {
+    <div role="alert" class="eth-idp-warning">
+        <p>
+            Verknüpfen Sie Ihre SWITCH edu-ID mit Ihrem ETH-Benutzerkonto in 
+            <a target="_blank" rel="noopener" href="https://www.password.ethz.ch/" [attr.aria-label]="'www.password.ethz.ch' + ('nui.aria.newWindow' | translate)">
+                <span>www.password.ethz.ch</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                    <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+                </svg>
+            </a>, um von den Vorteilen für ETH-Angehörige zu profitieren.
+        </p>
+        <p>
+            <a target="_blank" rel="noopener" href="https://library.ethz.ch/ausleihen-und-bestellen/medien-suchen-finden-und-nutzen/swisscovery.html#registrierung-eth" [attr.aria-label]="'Anleitung' + ('nui.aria.newWindow' | translate)">
+                <span>Anleitung</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                    <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+                </svg>
+            </a>
+        </p>
+    </div>
+}

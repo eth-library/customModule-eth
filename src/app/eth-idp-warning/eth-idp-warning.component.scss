@@ -1,0 +1,25 @@
+.eth-idp-warning{
+    background-color: var(--sys-inverse-on-surface);
+    color: var(--sys-outline);
+    font-size: var(--mat-expansion-container-text-size, var(--mat-sys-body-large-size));        
+    padding: 1rem;
+    border-radius: .5rem;
+    max-width: 100%;
+ }
+.eth-idp-warning a{
+    text-decoration: none;
+    color: var(--sys-primary);
+    display: inline-flex;
+}
+.eth-idp-warning a:hover, .eth-idp-warning a:focus{
+    text-decoration: underline;
+}
+.eth-idp-warning svg{
+    height: 1.25rem;
+    width: 1.25rem;
+    margin-inline-start: .2rem;
+    align-self: flex-end;    
+    align-items: center;
+    justify-content: center;    
+    fill: var(--sys-primary);
+}

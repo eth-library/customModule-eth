@@ -1,0 +1,26 @@
+* /* filter group tlevel - hide values */
+nde-search-filters-side-nav nde-filters-group:nth-of-type(1) nde-filters-value{
+  display:none;
+}
+/* filter group ETH Library - hide values */
+ nde-search-filters-side-nav nde-filters-group:nth-of-type(4) nde-filters-value{
+    display:none;
+ }
+
+// /* filter group ETH Library - hide header */
+ nde-search-filters-side-nav nde-filters-group:nth-of-type(4) mat-expansion-panel-header{
+     display: none;
+ }
+
+ /* reduce space divider between filter groups "Data Source" and "ETH Library" */
+ nde-search-filters-side-nav nde-filters-group:nth-of-type(3) mat-expansion-panel{
+     padding-block: 0.75rem 0!important;
+ }
+ nde-search-filters-side-nav nde-filters-group:nth-of-type(4) mat-expansion-panel{
+     padding-block: 0 0.75rem!important; 
+ }
+
+ /* divider between filter groups "Data Source" and "ETH Library" */
+ nde-search-filters-side-nav nde-filters-group:nth-of-type(3) mat-divider{
+     display: none;
+ }

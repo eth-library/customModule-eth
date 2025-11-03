@@ -1,0 +1,13 @@
+@if (links$ | async; as links) { 
+    @if (links.length > 0) {
+    <div class="eth-compose-nb">
+        @for (link of links; track link.url) {
+            @if (link.url) {
+                <div>
+                    <a [href]="link.url">{{ link.label }}</a>
+                </div>
+            }
+        }
+    </div>
+    }    
+}

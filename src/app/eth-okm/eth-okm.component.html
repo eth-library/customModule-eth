@@ -1,0 +1,15 @@
+@if (searchValue$ | async; as searchValue) {
+  <div class="eth-okm">
+    <span>Suche nach "{{ searchValue }}" in Open Knowledge Maps:</span>
+    <a [href]="'https://openknowledgemaps.org/search?service=base&type=get&sorting=most-relevant&min_descsize=300&q=' + encode(searchValue)"
+       target="_blank" rel="noopener"
+       class="advanced-search-button basic-button mdc-button mat-mdc-button mat-unthemed mat-mdc-button-base">
+      <span class="mdc-button__label">BASE</span>
+    </a>
+    <a [href]="'https://openknowledgemaps.org/search?service=pubmed&type=get&sorting=most-relevant&min_descsize=300&q=' + encode(searchValue)"
+       target="_blank" rel="noopener"
+       class="advanced-search-button basic-button mdc-button mat-mdc-button mat-unthemed mat-mdc-button-base">
+      <span class="mdc-button__label">Pubmed</span>
+    </a>
+  </div>
+}

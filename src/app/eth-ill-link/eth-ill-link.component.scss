@@ -1,0 +1,18 @@
+.eth-ill-link{
+    background-color: var(--sys-inverse-on-surface);
+    color: var(--sys-outline);
+    font-size: var(--mat-expansion-container-text-size, var(--mat-sys-body-large-size));     
+    padding: 1.2rem;
+    border-radius: .5rem;
+    max-width: 100%;
+    margin-block-start: 1rem;      
+    margin-block-end: 1rem;          
+}
+.eth-ill-link a{
+    text-decoration: none;
+    color: var(--sys-primary);
+    /*font-size: .875rem;*/
+}
+.eth-ill-link a:hover, .eth-ill-link a:focus{
+    text-decoration: underline;
+}

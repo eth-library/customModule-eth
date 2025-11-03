@@ -1,0 +1,174 @@
+@if (placeData$ | async; as place) {
+  <div class="eth-placepage">
+    @if (place?.wikidata) { 
+        <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
+
+        <mat-expansion-panel #panel1 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
+          <mat-expansion-panel-header class="eth-expansion-panel-header">
+            <mat-panel-title>
+              <h2>{{ place.wikidata.name }}</h2>
+            </mat-panel-title>
+            <mat-panel-description class="eth-expansion-panel-description">
+              <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ panel1.expanded ? 'remove' : 'add' }}</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <section class="eth-expansion-panel-content">
+            <div class="eth-place-image-container">
+                @if (place.wikidata.image){<img *ngIf="place.wikidata.image" [src]="place.wikidata.image" alt="Bild:{{ place.wikidata.name }}" class="eth-place-image"/>} 
+                <div *ngIf="place.wikidata.description">{{place.wikidata.description}}</div>
+            </div>
+          </section>
+        </mat-expansion-panel>  
+    }
+
+    @if (place.topics?.length) {
+        <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
+
+        <mat-expansion-panel #panel2 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
+          <mat-expansion-panel-header class="eth-expansion-panel-header">
+            <mat-panel-title>
+              <h2>Geografisches Schlagwort in Swisscovery</h2>
+            </mat-panel-title>
+            <mat-panel-description class="eth-expansion-panel-description">
+              <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ panel2.expanded ? 'remove' : 'add' }}</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <section class="eth-expansion-panel-content">
+            @for (link of place.topics; track link) {
+                @if (link.url){
+                    <a *ngIf="link.url" [href]="link.url">
+                        <span>{{link.name}}</span>
+                    </a>
+                }
+            }
+          </section>
+        </mat-expansion-panel>  
+    }  
+
+    @if (place.ethorama?.links?.length) {
+        <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
+
+        <mat-expansion-panel #panel3 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
+          <mat-expansion-panel-header class="eth-expansion-panel-header">
+            <mat-panel-title>
+              <h2>Dokumente in ETHorama</h2>
+            </mat-panel-title>
+            <mat-panel-description class="eth-expansion-panel-description">
+              <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ panel3.expanded ? 'remove' : 'add' }}</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <section class="eth-expansion-panel-content">
+            @for (link of place.ethorama.links; track link) {
+                @if (link.url){
+                    <div><a *ngIf="link.url" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + (labelOpenInNew$ | async)">
+                        <span>{{link.text}}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                          <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+                        </svg>                     
+                    </a></div>
+                }
+            }
+        </section>
+        </mat-expansion-panel>          
+    }
+
+    @if (place.poi?.dossiers?.length) {
+        <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
+
+        <mat-expansion-panel #panel4 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
+          <mat-expansion-panel-header class="eth-expansion-panel-header">
+            <mat-panel-title>
+              <h2>ETHorama Themensammlungen</h2>
+            </mat-panel-title>
+            <mat-panel-description class="eth-expansion-panel-description">
+              <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ panel4.expanded ? 'remove' : 'add' }}</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <section class="eth-expansion-panel-content">
+            <ul>
+                @for (link of place.poi.dossiers; track link) {
+                    @if (link.url){
+                        <li>
+                            <a *ngIf="link.url" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + (labelOpenInNew$ | async)">
+                              <span>{{link.text}}</span>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                                <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+                              </svg>         
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+          </section>
+        </mat-expansion-panel>  
+    }    
+
+    @if (place.poi?.routes?.length) {
+        <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
+
+        <mat-expansion-panel #panel5 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
+          <mat-expansion-panel-header class="eth-expansion-panel-header">
+            <mat-panel-title>
+              <h2>ETHorama Historische Reisen</h2>
+            </mat-panel-title>
+            <mat-panel-description class="eth-expansion-panel-description">
+              <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ panel5.expanded ? 'remove' : 'add' }}</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <section class="eth-expansion-panel-content">
+            <ul>
+                @for (link of place.poi.routes; track link) {
+                    @if (link.url){
+                        <li>
+                            <a *ngIf="link.url" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + (labelOpenInNew$ | async)">
+                                <span>{{link.text}}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                                  <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+                                </svg>       
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+          </section>
+        </mat-expansion-panel>  
+    }    
+
+    @if (place.wikidata?.links?.length) {
+        <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
+
+        <mat-expansion-panel #panel6 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
+          <mat-expansion-panel-header class="eth-expansion-panel-header">
+            <mat-panel-title>
+              <h2>Externe Links aus Wikidata</h2>
+            </mat-panel-title>
+            <mat-panel-description class="eth-expansion-panel-description">
+              <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ panel6.expanded ? 'remove' : 'add' }}</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <section class="eth-expansion-panel-content">
+            <ul>
+                @for (link of place.wikidata.links; track link) {
+                    @if (link.url){
+                        <li>
+                            <a *ngIf="link.url" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + (labelOpenInNew$ | async)">
+                                <span>{{link.text}}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                                  <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+                                </svg>                     
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+          </section>
+        </mat-expansion-panel>  
+    }
+  </div>
+}

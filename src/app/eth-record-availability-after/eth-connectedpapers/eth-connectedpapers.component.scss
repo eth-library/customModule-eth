@@ -1,0 +1,24 @@
+.eth-connectedpapers-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 64px;
+    vertical-align: middle;
+    background: rgba(0, 0, 0, 0);
+    border-radius: .3125rem;
+    border: 1px solid var(--sys-primary);
+    color: var(--sys-primary);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-top: .25rem;
+    height: 32px;
+    line-height: 32px;    
+    font-size: var(--mdc-filled-button-label-text-size, var(--mat-app-label-large-size));
+    letter-spacing: var(--mdc-filled-button-label-text-tracking, var(--mat-app-label-large-tracking));
+    text-decoration: none;
+    font-weight: var(--mdc-filled-button-label-text-weight, var(--mat-app-label-large-weight));    
+}
+.eth-connectedpapers-link:hover, .eth-connectedpapers-link:focus {
+    background-color: var(--mat-standard-button-toggle-selected-state-background-color);
+}

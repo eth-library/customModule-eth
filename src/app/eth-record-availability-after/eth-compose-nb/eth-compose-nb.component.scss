@@ -1,0 +1,16 @@
+.eth-compose-nb{
+    margin-bottom: 1em;
+    margin-top: 1em;
+} 
+.eth-compose-nb a{
+    color: var(--sys-primary);
+    font-size: var(--mdc-text-button-label-text-size, var(--mat-sys-label-large-size));
+    text-decoration: none;
+}
+.eth-compose-nb a:hover,.eth-compose-nb a:focus {
+    box-shadow: inset 0 -2px 0 0 var(--sys-primary);
+    text-decoration: none;
+}
+
+
+

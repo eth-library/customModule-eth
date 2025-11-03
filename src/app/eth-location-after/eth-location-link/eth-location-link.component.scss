@@ -1,0 +1,24 @@
+.eth-location-link-container {
+  display: flex;
+  align-items: center;
+  gap: 6px; 
+  background-color: var(--lightBG);    
+  padding: 0 1rem 0.5rem 1rem;
+  margin-top: -1.3rem;
+}
+.eth-location-link-container svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0; 
+  fill: var(--sys-primary);
+}
+.eth-location-link-container div {
+  word-break: break-word; 
+}
+.eth-location-link-container a {
+  color: var(--sys-primary)!important;
+  text-decoration: none;
+}
+.eth-location-link-container a:focus, .eth-location-link-container a:hover {
+    text-decoration: underline;
+}

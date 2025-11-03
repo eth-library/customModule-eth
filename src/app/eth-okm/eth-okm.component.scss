@@ -1,0 +1,19 @@
+.eth-okm {
+  display: flex;
+  justify-content: end;
+  margin-top: 0.5rem;
+  margin-right: 0.5rem;
+  font-size: var(--mdc-text-button-label-text-size, var(--mat-sys-label-large-size));
+}
+
+.eth-okm a{
+  color: var(--sys-primary);
+  height:auto;
+  padding-right:0;
+  min-width: auto;
+}
+
+.eth-okm a:first-of-type{
+  padding-left: 0.5rem;
+}
+

@@ -1,0 +1,111 @@
+.eth-place-cards {
+  border: 1px solid var(--border);
+  border-radius: var(--mat-expansion-container-shape, 12px);
+  background-color: var(--whiteBG);
+  margin: 1rem 0;
+  color: var(--mat-expansion-container-text-color, var(--mat-sys-on-surface));
+}
+summary {
+    height: var(--mat-expansion-header-collapsed-state-height, 48px);
+    padding: 0 24px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    border-radius: 10px;
+}
+summary:hover, summary:focus {
+    background: var(--mat-expansion-header-hover-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-hover-state-layer-opacity) * 100%), transparent));
+}
+summary h4 {
+  color: var(--darkText);
+  font-weight: 600;
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+summary::marker {
+  display: none;
+}
+
+.marker {
+  width: 24px;
+  height: 24px;
+  margin: 0 -8px;
+  vertical-align: middle;
+  fill: var(--mat-expansion-header-indicator-color, var(--mat-sys-on-surface-variant));
+  display: var(--mat-expansion-header-indicator-display, inline-block);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+details[open] .marker {
+  transform: rotate(180deg);
+}
+
+.eth-place-cards h5 {
+  all: unset;
+  color: var(--sys-primary);
+  font: var(--sys-title-medium);
+  font-weight: 600;
+  letter-spacing: var(--sys-title-medium-tracking);
+}
+
+.eth-place-cards ul {
+  list-style: none;
+  padding: 0 24px;  
+}
+.eth-place-card {
+  display: flex;
+  gap: 1rem;
+  margin-block: .75rem;
+  font-size: .875rem;
+  color: var(--mat-expansion-container-text-color, var(--mat-sys-on-surface));
+}
+
+.eth-place-card:nth-of-type(1) {
+  padding-top: 8px;
+}
+
+.eth-place-card__image-container {
+  min-width: 4.063rem;
+  min-height: 4.063rem;
+}
+
+.eth-place-card__image {
+  max-width: 4.063rem;
+  max-height: 4.063rem;
+  object-fit: cover;
+}
+
+.eth-place-card__text a {
+  color: var(--sys-primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.eth-place-card__text a:hover,
+.eth-place-card__text a:focus {
+  text-decoration: underline;
+}
+
+.eth-entity-type-wrapper {
+  margin-top: .5rem;
+}
+
+.entity-type {
+  display: block;
+  font-size: .75rem;
+  color: var(--sys-outline);
+  background-color: var(--sys-inverse-on-surface);
+  border-radius: 1.25rem;
+  padding-inline: .375rem;
+  width: fit-content;
+  word-break: break-word;
+}
+
+.mat-divider {
+  display: block;
+  border-top: var(--mat-divider-width, 1px) dashed var(--sys-outline-variant);
+  margin: 0;
+}

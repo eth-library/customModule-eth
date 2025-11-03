@@ -1,0 +1,22 @@
+{
+"apiKey": "92744492-5d9e-425e-8edd-7aae8f6859f9",
+"libraryId": "1165",
+"unpaywallEmailAddressKey": "bernd.uttenweiler@library.ethz.ch",
+"journalCoverImagesEnabled": "true",
+"journalBrowZineWebLinkTextEnabled": "true",
+"articleBrowZineWebLinkTextEnabled": "true",
+"articlePDFDownloadLinkEnabled": "true",
+"articleLinkEnabled": "true",
+"printRecordsIntegrationEnabled": "true",
+"showFormatChoice": "false",
+"showLinkResolverLink": "true",
+"enableLinkOptimizer": "true",
+"articleRetractionWatchEnabled": "true",
+"articleExpressionOfConcernEnabled": "true",
+"problematicJournalEnabled": "true",
+"articlePDFDownloadViaUnpaywallEnabled": "true",
+"articleLinkViaUnpaywallEnabled": "true",
+"articleAcceptedManuscriptPDFViaUnpaywallEnabled": "true",
+"articleAcceptedManuscriptArticleLinkViaUnpaywallEnabled": "true",
+"viewOption": "stack-plus-browzine"
+}

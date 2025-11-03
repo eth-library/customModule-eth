@@ -1,0 +1,21 @@
+.eth-online-problem{
+    font-family: var(--mat-expansion-container-text-font, var(--mat-sys-body-large-font));
+    font-size: var(--mat-expansion-container-text-size, var(--mat-sys-body-large-size));
+    font-weight: var(--mat-expansion-container-text-weight, var(--mat-sys-body-large-weight));
+    background-color: var(--lightBG);
+    border-radius: .25rem;
+    padding: .613rem 1rem;
+    margin-block-start: 1rem;    
+    margin-block-end: 1rem;    
+}
+.eth-online-problem span{
+    color: var(--sys-primary);
+}
+.eth-online-problem a{
+    text-decoration: none;
+    color: var(--sys-primary);
+    /*font-size: .875rem;*/
+}
+.eth-online-problem a:hover, .eth-online-problem a:focus{
+    text-decoration: underline;
+}

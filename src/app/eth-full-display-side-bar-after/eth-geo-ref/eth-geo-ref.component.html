@@ -1,0 +1,43 @@
+
+@if (placeLinks$ | async; as placeLinks) { 
+  @if (placeLinks.ethorama.length > 0) {
+    <div class="eth-place-cards" role="region" aria-labelledby="ethGeoRefCards">
+      <details open>
+        <summary>
+          <h4 id="ethGeoRefCards">Related Places ({{placeLinks.ethorama.length}})</h4>
+          <svg class="marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+            <path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"></path>
+          </svg>
+        </summary>
+        <ul role="list">
+          @for (place of placeLinks.ethorama; track place; let last = $last) {
+            <li role="listitem">
+              <div class="eth-place-card">
+                <div class="eth-place-card__image-container">
+                    <img class="eth-place-card__image" [attr.src]="place.thumbnail" alt="{{ place.label }}">
+                </div>
+                <div class="eth-place-card__text">
+                    <h5>
+                      <a [href]="place.url">
+                        {{ place.label }}
+                      </a>
+                    </h5>
+                    <div *ngIf="place.description">{{place.description}}</div>
+                    <!--div>
+                      <a target="_blank" [href]="'https://ethorama.library.ethz.ch/de/orte/' + place.id" rel="noopener">
+                        <span>Ort in ETHorama</span>
+                      </a>
+                    </div-->
+                    <div class="eth-entity-type-wrapper"><span class="entity-type">Place</span></div>
+                </div>
+              </div>
+              @if (!last) {
+                <mat-divider role="separator" class="mat-divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
+              }
+            </li>
+          }
+        </ul>
+      </details>
+    </div>
+  }
+}

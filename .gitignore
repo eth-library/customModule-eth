@@ -1,0 +1,30 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# Compiled output
+/dist
+
+# Node
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# Visual Studio Code
+.vscode/
+
+
+# Miscellaneous
+angular.json
+/.angular/cache
+.sass-cache/
+/readme-files
+.editorconfig
+package.json
+package-lock.json
+postbuild.js
+prebuild.js
+tsconfig*
+webpack* 
+
+# System files
+.DS_Store
+Thumbs.db

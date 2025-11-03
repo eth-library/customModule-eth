@@ -1,0 +1,35 @@
+@if (news$ | async; as news) {
+  <div class="eth-news-container">
+    <div class="eth-all-news">
+      @for (news of news.entries; track news.link) {
+        <div class="eth-news">
+          <header class="flex-column gap-1">
+            <a target="_blank" rel="noopener external" [href]="news.link">
+              <h3 class="mat-title eth-news-headline" role="heading" aria-level="3">
+                {{ news.title }}
+              </h3>
+            </a>
+          </header>
+          <article class="eth-news-content">
+            <a target="_blank" rel="noopener external" [href]="news.link" class="eth-news-image-link">
+              @if (news.image) {
+                <img [src]="news.image" alt="">
+              }
+            </a>
+            <p>
+              <a class="eth-news-teaser" target="_blank" rel="noopener external" [href]="news.link">
+                {{ news.lead }}
+              </a>
+            </p>
+          </article>
+        </div>
+      }
+    </div>
+    <div class="eth-news-footer">
+      <a target="_blank" rel="noopener external"
+         href="https://library.ethz.ch/news-und-kurse/news-swisscovery.html">
+        <span>Alle News</span>
+      </a>
+    </div>
+  </div>
+}
