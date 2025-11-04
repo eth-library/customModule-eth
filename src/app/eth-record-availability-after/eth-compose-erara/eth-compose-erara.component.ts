@@ -1,11 +1,12 @@
-import { Component, Input, AfterViewInit } from '@angular/core';
+import { Component, Input, AfterViewInit, Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, of, forkJoin } from 'rxjs';
 import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthComposeEraraService } from './eth-compose-erara.service';
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService } from "@ngx-translate/core";
+import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 
 type Link = { 
   label: string;
@@ -16,15 +17,14 @@ type Link = {
 @Component({
   selector: 'custom-eth-compose-erara',
   standalone: true,
-  imports: [CommonModule,TranslateModule],
+  imports: [CommonModule, SafeTranslatePipe],
   templateUrl: './eth-compose-erara.component.html',
   styleUrls: ['./eth-compose-erara.component.scss']
 })
-export class EthComposeEraraComponent implements AfterViewInit {
+export class EthComposeEraraComponent {
   @Input() hostComponent: any = {};
 
   links$!: Observable<Link[]>;
-  labelOpenInNew$!: Observable<string>;
 
   constructor(
     private ethComposeEraraService: EthComposeEraraService,
@@ -36,8 +36,8 @@ export class EthComposeEraraComponent implements AfterViewInit {
   // Online: 99117338116605503
   // Print: 990042488650205503
   // e-maps: 99117999030205503
+
   ngAfterViewInit(): void {
-    this.labelOpenInNew$ = this.translate.get(`nui.aria.newWindow`);
     this.links$ = this.ethStoreService.isFullview$().pipe(
       filter(Boolean),
       switchMap(() => this.ethStoreService.getFullviewRecord$()),
@@ -48,6 +48,7 @@ export class EthComposeEraraComponent implements AfterViewInit {
       })
     );
   }
+
 
   private getLinks(record: any): Observable<Link[]> {
     

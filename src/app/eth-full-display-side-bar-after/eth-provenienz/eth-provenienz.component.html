@@ -21,7 +21,7 @@
                     }
                     <div>Datierung: {{ item.eth_dating || 'Unbekannt' }}</div>
                     <div>
-                        <a [href]="'https://ad-provenienz.e-pics.ethz.ch/#detail-asset=' + item.id" rel="noopener" target="_blank"  [attr.aria-label]="'Provenienz in E-Pics' + (labelOpenInNew$ | async)">
+                        <a [href]="'https://ad-provenienz.e-pics.ethz.ch/#detail-asset=' + item.id" rel="noopener" target="_blank"  [attr.aria-label]="'Provenienz in E-Pics' + ('nui.aria.newWindow' | safeTranslate | async)">
                           <span>Provenienz in E-Pics</span>
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                           <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>

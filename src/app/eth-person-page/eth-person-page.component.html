@@ -43,7 +43,7 @@
         <ul role="list">
           @if (person.gnd) {
             <li>
-              <a target="_blank"  [href]="'https://d-nb.info/gnd/' + person.gnd" rel="noopener noreferrer" [attr.aria-label]="'GND' + (labelOpenInNew$ | async)">
+              <a target="_blank"  [href]="'https://d-nb.info/gnd/' + person.gnd" rel="noopener noreferrer" [attr.aria-label]="'GND' + ('nui.aria.newWindow' | safeTranslate | async)">
                 GND
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -53,7 +53,7 @@
           }
           @if (person.wiki && person.wiki.loc) {
             <li>
-              <a target="_blank" href="https://id.loc.gov/authorities/names/{{ person.wiki.loc }}.html" [attr.aria-label]="'Library of Congress' + (labelOpenInNew$ | async)">
+              <a target="_blank" href="https://id.loc.gov/authorities/names/{{ person.wiki.loc }}.html" [attr.aria-label]="'Library of Congress' + ('nui.aria.newWindow' | safeTranslate | async)">
                 Library of Congress
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -83,7 +83,7 @@
           <ul role="list">
             @for (link of person.wiki.profiles; track link) {
               <li>
-                <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + (labelOpenInNew$ | async)">
+                <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>{{ link.label }}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -114,7 +114,7 @@
             @for (link of person.wikiArchivesAtLinks; track link) {
               <li>
                 @if (link.url) {
-                  <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label  + (labelOpenInNew$ | async)">
+                  <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label  + ('nui.aria.newWindow' | safeTranslate | async)">
                     @if (link.label) {
                       <span>{{ link.label }}</span>
                     }
@@ -155,7 +155,7 @@
 
         <section class="eth-expansion-panel-content">
           <p class="eth-person__links-hint">Links powered by 
-            <a href="https://www.metagrid.ch/" target="_blank" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'Metagrid' + (labelOpenInNew$ | async)">
+            <a href="https://www.metagrid.ch/" target="_blank" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'Metagrid' + ('nui.aria.newWindow' | safeTranslate | async)">
               Metagrid
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -165,7 +165,7 @@
           <ul role="list">
             @for (link of person.metagridLinks; track link) {
               <li>
-                <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + (labelOpenInNew$ | async)">
+                <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>{{ link.label }}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -195,7 +195,7 @@
           <ul role="list">
             @if (person.wikipediaUrl) {
               <li>
-                <a class="arrow-link md-primoExplore-theme" [href]="person.wikipediaUrl" target="_blank" rel="noopener" [attr.aria-label]="'Wikipedia' + (labelOpenInNew$ | async)">
+                <a class="arrow-link md-primoExplore-theme" [href]="person.wikipediaUrl" target="_blank" rel="noopener" [attr.aria-label]="'Wikipedia' + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>Wikipedia</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -205,7 +205,7 @@
             }
             @for (link of person.wiki.links; track link) {
               <li>
-                <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + (labelOpenInNew$ | async)">
+                <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>{{ link.label }}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -234,14 +234,14 @@
         <section class="eth-expansion-panel-content">
           <p class="eth-person__links-hint">
             Links vom 
-            <a href="https://de.wikipedia.org/wiki/Wikipedia:BEACON" target="_blank" rel="noopener" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'BEACON' + (labelOpenInNew$ | async)">
+            <a href="https://de.wikipedia.org/wiki/Wikipedia:BEACON" target="_blank" rel="noopener" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'BEACON' + ('nui.aria.newWindow' | safeTranslate | async)">
               BEACON
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
               </svg>         
             </a>
             Aggregator des
-            <a href="https://www.itg.uni-muenchen.de/index.html" target="_blank" rel="noopener" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'LMU Center for Digital Humanities' + (labelOpenInNew$ | async)">
+            <a href="https://www.itg.uni-muenchen.de/index.html" target="_blank" rel="noopener" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'LMU Center for Digital Humanities' + ('nui.aria.newWindow' | safeTranslate | async)">
               LMU Center for Digital Humanities
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -251,7 +251,7 @@
           <ul role="list">
             @for (link of person.prometheusLinks; track link) {
               <li>
-                <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + (labelOpenInNew$ | async)">
+                <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>{{ link.label }}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>

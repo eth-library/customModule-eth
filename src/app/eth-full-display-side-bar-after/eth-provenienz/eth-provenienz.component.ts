@@ -6,7 +6,8 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { EthUtilsService } from '../../services/eth-utils.service';
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import { TranslateService } from "@ngx-translate/core";
+import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 
 interface EthProvenienzItem {
   id: string;
@@ -27,7 +28,7 @@ interface EthProvenienzItem {
   imports: [
     CommonModule,
     MatDividerModule,
-    TranslateModule    
+    SafeTranslatePipe    
   ]     
 })
 export class EthProvenienzComponent{
@@ -38,7 +39,6 @@ export class EthProvenienzComponent{
     @Input() hostComponent: any = {};
     private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
     private cardPositioned = false;
-    labelOpenInNew$!: Observable<string>;
 
     constructor(
       private ethProvenienzService: EthProvenienzService,
@@ -52,7 +52,6 @@ export class EthProvenienzComponent{
       this.vid = this.ethStoreService.getVid();
       this.tab = this.ethStoreService.getTab();
       this.scope = this.ethStoreService.getScope();
-      this.labelOpenInNew$ = this.translate.get(`nui.aria.newWindow`);
 
       this.items$ = this.ethStoreService.getDeliveryEntity$().pipe(
         map(deliveryEntity => {

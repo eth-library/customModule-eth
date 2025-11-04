@@ -3,7 +3,9 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { EthStoreService } from '../../services/eth-store.service';
 import { CommonModule } from '@angular/common';
 import { catchError, Observable, of, switchMap, tap } from 'rxjs';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from "@ngx-translate/core";
+import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
+
 
 type Links = { erara: string | null; swisscovery: string | null};
 
@@ -15,13 +17,12 @@ type Links = { erara: string | null; swisscovery: string | null};
   standalone: true,   
   imports: [
     CommonModule,
-    TranslateModule
+    SafeTranslatePipe
   ]   
 })
 export class EthProvenienzEraraLinkComponent {
   @Input() hostComponent: any = {};
   links$!: Observable<Links>;
-  labelOpenInNew$!: Observable<string>;
 
   constructor(
     private ethErrorHandlingService: EthErrorHandlingService,
@@ -30,7 +31,6 @@ export class EthProvenienzEraraLinkComponent {
   ) {}
 
   ngAfterViewInit() {
-    this.labelOpenInNew$ = this.translate.get(`nui.aria.newWindow`);
     this.links$ = this.ethStoreService.getFullviewRecord$().pipe(
       switchMap(record => this.getLinks(record)),
       catchError(error => {

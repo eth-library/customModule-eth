@@ -8,7 +8,7 @@ import { EthUtilsService } from '../../services/eth-utils.service';
 import { Doc } from '../../models/search.model';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
-import {TranslateModule} from "@ngx-translate/core";
+import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 
 @Component({
   selector: 'custom-eth-person-cards',
@@ -18,7 +18,7 @@ import {TranslateModule} from "@ngx-translate/core";
   imports: [
     CommonModule,
     MatDividerModule,
-    TranslateModule
+    SafeTranslatePipe
   ]     
 })
 

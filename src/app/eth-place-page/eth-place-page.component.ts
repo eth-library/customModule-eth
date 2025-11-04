@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from "@ngx-translate/core";
+import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 
 
 @Component({
@@ -23,7 +23,7 @@ import { TranslateModule } from "@ngx-translate/core";
     MatDividerModule,
     MatExpansionModule,
     MatIconModule,
-    TranslateModule    
+    SafeTranslatePipe    
   ]    
 })
 export class EthPlacePageComponent {
@@ -33,7 +33,6 @@ export class EthPlacePageComponent {
   vid!: string|null;
   lang!: string
   searchValue$!: Observable<string>;
-  labelOpenInNew$!: Observable<string>;
 
   constructor(
     private translate: TranslateService,
@@ -44,7 +43,6 @@ export class EthPlacePageComponent {
   ){}  
 
   ngOnInit(): void {
-    this.labelOpenInNew$ = this.translate.get(`nui.aria.newWindow`);
     this.searchValue$ = this.ethStoreService.searchValue$;
     this.placeData$ = this.searchValue$.pipe(
       switchMap((searchValue: string) => {

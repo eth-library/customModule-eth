@@ -4,7 +4,8 @@ import { EthDnbTocService } from './eth-dnb-toc.service'
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import { TranslateService } from "@ngx-translate/core";
+import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 
 
 // 991029346049705501
@@ -15,13 +16,12 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
   standalone: true,   
   imports: [
     CommonModule,
-    TranslateModule
+    SafeTranslatePipe
   ]     
 })
 export class EthDnbTocComponent {
   contentLinks$!: Observable<{ almaLinks: any[]; dnbLinks: any[] }>;
   @Input() hostComponent: any = {};
-  labelOpenInNew$!: Observable<string>;
   
   constructor(
     private ethDnbTocService: EthDnbTocService,
@@ -31,7 +31,6 @@ export class EthDnbTocComponent {
   ){}
 
   ngOnInit() {
-    this.labelOpenInNew$ = this.translate.get(`nui.aria.newWindow`);
     this.contentLinks$ = this.ethStoreService.isFullview$().pipe(
       filter(Boolean),
       switchMap(() => this.ethStoreService.getDeliveryEntity$()),

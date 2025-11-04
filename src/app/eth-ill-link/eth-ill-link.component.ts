@@ -30,20 +30,18 @@ export class EthIllLinkComponent {
     // Article: cdi_proquest_miscellaneous_2479421945
     this.qs$ = this.ethStoreService.getFullviewRecord$().pipe(
       switchMap(record => {
-        const recordId = record?.pnx?.control?.['recordid']?.[0];
+        /*const recordId = record?.pnx?.control?.['recordid']?.[0];
         if (recordId && recordId.indexOf('cdi_') === -1) {
-          //return of(null);
-        }
-
+          return of(null);
+        }*/
         return this.ethStoreService.getDeliveryEntity$().pipe(
           switchMap(deliveryEntity => {
-            //console.error("deliveryEntity?.delivery?.availability", deliveryEntity?.delivery?.availability)
             if (deliveryEntity?.delivery?.availability[0] !== 'no_inventory') {
               return of(null);
             }
             // check GetIt from Other
             if(this.document.querySelector('nde-get-it-from-other')){
-                return of(null)
+                return of(null);
             }
             return new Observable<any>(observer => {
               const mo = new MutationObserver((_mutations, obs) => {

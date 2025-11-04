@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule } from '@ngx-translate/core';
+import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 
 @Component({ 
   selector: 'custom-eth-person-page',
@@ -21,7 +21,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MatDividerModule,
     MatExpansionModule,
     MatIconModule,
-    TranslateModule
+    SafeTranslatePipe
   ]   
 })
 
@@ -33,7 +33,6 @@ export class EthPersonPageComponent{
   
   person$!: Observable<any | null>;
   linkedDataEntityId$!: Observable<string>;
-  labelOpenInNew$!: Observable<string>;
   
   constructor(
     private translate: TranslateService,
@@ -53,7 +52,6 @@ export class EthPersonPageComponent{
       this.lang = 'de';
     }
 
-    this.labelOpenInNew$ = this.translate.get(`nui.aria.newWindow`);
     this.person$ = this.loadPerson();
   }
 
