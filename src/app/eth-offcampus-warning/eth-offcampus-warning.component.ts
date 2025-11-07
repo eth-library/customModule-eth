@@ -3,7 +3,7 @@ import { Component} from '@angular/core';
 import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { TranslateModule } from "@ngx-translate/core";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'custom-eth-offcampus-warning',
@@ -72,3 +72,17 @@ export class EthOffcampusWarningComponent {
   }
   
 }
+
+/**
+eth.offcampusWarning.text1
+ETH Library’s licensed e-resources are accessible via the ETH network or 
+Lizenzierte E-Ressourcen der ETH-Bibliothek sind über das ETH-Netzwerk oder 
+
+eth.offcampusWarning.text2
+.
+zugänglich.
+
+eth.offcampusWarning.url
+https://unlimited.ethz.ch/en/help/network/vpn
+https://unlimited.ethz.ch/help/network/vpn
+*/

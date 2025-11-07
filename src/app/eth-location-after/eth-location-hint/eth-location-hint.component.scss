@@ -1,12 +1,14 @@
-.eth-location-hint-container{
+.eth-location-hint{
     background-color: var(--lightBG);
     margin: 0;
-    padding: 0 1rem 1rem 1rem;
+    padding: 1rem;
+    border-radius: 0 0 .5rem .5rem;
+    background-color: var(--sys-inverse-on-surface);
 }
-.eth-location-hint-container a{
+.eth-location-hint a{
     color: var(--sys-primary);
     text-decoration: none;
 }
-.eth-location-hint-container a:focus, .eth-location-hint-container a:hover {
+.eth-location-hint a:focus, .eth-location-hint a:hover {
     text-decoration: underline;
 }

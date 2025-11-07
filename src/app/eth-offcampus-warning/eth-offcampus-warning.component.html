@@ -1,3 +1,13 @@
 @if (showWarning$ | async) {
-  <div role="alert" class="eth-offcampus-warning">Licensed electronic resources of ETH Library are accessible only within the network of ETH Zurich.</div>
+  <div role="alert" class="eth-offcampus-warning">
+      <span>{{'eth.offcampusWarning.text1' | translate}} </span>
+      <a target="_blank" rel="noopener" href="{{'eth.offcampusWarning.url' | translate}}"
+      [attr.aria-label]="(('eth.offcampusWarning.linktext' | translate) ?? '') + (('nui.aria.newWindow' | translate) ?? '')">
+        {{'eth.offcampusWarning.linktext' | translate}}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+            <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+        </svg>
+      </a> 
+      <span>{{'eth.offcampusWarning.text2' | translate}}</span>
+    </div>
 }

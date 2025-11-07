@@ -5,5 +5,21 @@
     padding: 1.2rem;
     border-radius: .5rem;
     max-width: 100%;
-    margin-block-end: 1rem;        
+    margin-block-end: 2rem;        
  }
+ .eth-offcampus-warning a{
+    text-decoration: none;
+    color: var(--sys-primary);
+    display: inline-flex;
+}
+.eth-offcampus-warning a:hover, .eth-offcampus-warning a:focus{
+    text-decoration: underline;
+}
+.eth-offcampus-warning svg{
+    height: 1.25rem;
+    width: 1.25rem;
+    align-self: center;    
+    align-items: center;
+    justify-content: center;    
+    fill: var(--sys-primary);
+}
