@@ -1,21 +1,22 @@
 
 @if (placeLinks$ | async; as placeLinks) { 
-  @if (placeLinks.ethorama.length > 0) {
+  @if (placeLinks.allPlaces.length > 0) {
     <div class="eth-place-cards" role="region" aria-labelledby="ethGeoRefCards">
       <details open>
         <summary>
-          <h4 id="ethGeoRefCards">Related Places ({{placeLinks.ethorama.length}})</h4>
+          <h4 id="ethGeoRefCards">Related Places ({{placeLinks.allPlaces.length}})</h4>
           <svg class="marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
             <path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"></path>
           </svg>
         </summary>
         <ul role="list">
-          @for (place of placeLinks.ethorama; track place; let last = $last) {
+          @for (place of placeLinks.allPlaces; track place; let last = $last) {
             <li role="listitem">
               <div class="eth-place-card">
+                @if(place.thumbnail){
                 <div class="eth-place-card__image-container">
                     <img class="eth-place-card__image" [attr.src]="place.thumbnail" alt="{{ place.label }}">
-                </div>
+                </div>}
                 <div class="eth-place-card__text">
                     <h5>
                       <a [href]="place.url">

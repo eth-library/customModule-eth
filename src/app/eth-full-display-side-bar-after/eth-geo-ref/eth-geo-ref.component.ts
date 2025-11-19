@@ -2,14 +2,14 @@ import { Component, Input } from '@angular/core';
 import { EthGeoRefService } from './eth-geo-ref.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
-import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, map, Observable, of, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { Doc } from '../../models/search.model';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { EthUtilsService } from '../../services/eth-utils.service';
 
-type placeLinks = { ethorama: any[]; hasPlace: boolean; counter: number }
+type placeLinks = { ethorama: any[]; eraraPlaces: any[]; emapsPlaces: any[]; allPlaces: any[] }
 
 @Component({
   selector: 'custom-eth-geo-ref',
@@ -24,8 +24,6 @@ type placeLinks = { ethorama: any[]; hasPlace: boolean; counter: number }
 export class EthGeoRefComponent {
 
   @Input() hostComponent: any = {};
-  aPlacePageLinksETHorama$: Observable<any[]> = of([]);
-  aPlacePageLinksTopics$: Observable<any[]> = of([]);
   placeLinks$!: Observable<placeLinks>;
   private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
   private cardPositioned = false;
@@ -73,7 +71,66 @@ export class EthGeoRefComponent {
       this.scope = this.ethStoreService.getScope();
 
       const docId = this.getSourceRecordId(record);
-      //const lds03 = this.getLds03(record);
+
+      const emapsPlaces$ = this.isEmaps(record) && docId
+        ? this.ethGeoRefService.getEmapsRelatedPlacesFromGraph(docId).pipe(
+              map((data: any) => {
+                const places = data?.features?.[0]?.properties?.places;
+                const uniquePlaces = new Map();
+                if(places){
+                  places.forEach((p:any) => {
+                    if (p.qid && !uniquePlaces.has(p.qid)) {
+                      uniquePlaces.set(p.qid, {
+                        id: p.gnd,
+                        qid: p.qid,
+                        thumbnail: p.image,
+                        label: p.name,
+                        description: p.description,
+                        url: `/discovery/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
+                      });
+                    }
+                  });
+                }
+                return Array.from(uniquePlaces.values()).sort((a,b) => a.label.localeCompare(b.label));
+              }
+            ),
+            catchError((error) => {
+              this.ethErrorHandlingService.handleError(error, 'EthGeoRefComponent.getEmapsRelatedPlacesFromGraph()')
+              return of([]);
+            })      
+        )
+        : of([]);
+
+        //const eraraPlaces$ = this.getSourceSystem(record) === 'ILS' && docId && docId.endsWith('5503')
+        const eraraPlaces$ = docId && docId.endsWith('5503')
+        ? this.ethGeoRefService.getEraraRelatedPlacesFromGraph(docId).pipe(
+              map((data: any) => {
+                const places = data?.features?.[0]?.properties?.places;
+                const uniquePlaces = new Map();
+                if(places){
+                  places.forEach((p:any) => {
+                    if (p.qid && !uniquePlaces.has(p.qid)) {
+                      uniquePlaces.set(p.qid, {
+                        id: p.gnd,
+                        qid: p.qid,
+                        thumbnail: p.image,
+                        label: p.name,
+                        description: p.description,
+                        url: `/discovery/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
+                      });
+                    }
+                  });
+                }
+                return Array.from(uniquePlaces.values()).sort((a,b) => a.label.localeCompare(b.label));
+              }
+            ),
+            catchError((error) => {
+              this.ethErrorHandlingService.handleError(error, 'EthGeoRefComponent.getEraraRelatedPlacesFromGraph()')
+              return of([]);
+            })      
+        )
+        : of([]);
+
 
       const ethorama$ = docId 
         ? this.ethGeoRefService.getPlacesFromETHorama(docId).pipe(
@@ -101,32 +158,41 @@ export class EthGeoRefComponent {
           )
         : of([]);
       
-        return ethorama$.pipe(
-          map(ethorama => {
-            const counter = ethorama?.length ?? 0;
-            const hasPlace = counter > 0;
-            return {
-              ethorama,
-              hasPlace,
-              counter
-            };
-          })
+        return combineLatest([ethorama$, emapsPlaces$, eraraPlaces$]).pipe(
+          map(([ethorama, emapsPlaces, eraraPlaces]) => ({
+            ethorama,
+            emapsPlaces,
+            eraraPlaces,
+            allPlaces: [...ethorama, ...emapsPlaces, ...eraraPlaces]
+          })),
+          //tap(data=>console.error(data))
         );
     }
     catch (error) {
       this.ethErrorHandlingService.handleSynchronError(error, 'EthGeoRefComponent.getPlaceLinks');
-      return of({ ethorama: [], topics: [], hasPlace: false, counter: 0 });      
+      return of({ ethorama: [],eraraPlaces: [], emapsPlaces: [], allPlaces: []});      
     }
   }
 
   private getSourceRecordId(record: Doc): string | null{
     return record?.pnx?.control?.['sourcerecordid']?.[0] || null;
   }
+
+  private getType(record: Doc): string {
+    return record?.pnx?.display?.['type']?.[0] || '';
+  }
   
-  private getLds03(record: Doc): string[] | null{
-    return record?.pnx?.display?.['lds03'] || [];
+  private getLds50(record: Doc): string[] {
+    return record?.pnx?.display?.['lds50'] || [];
   }
 
+  private isEmaps(record: Doc): boolean {
+    return this.getType(record) === 'map' && this.getLds50(record)?.some((i: string) => i.includes('E01emaps')) 
+  }
+
+  private getSourceSystem(record: Doc): string {
+    return record?.pnx?.control?.['sourcesystem']?.[0] || '';
+  }  
 }
 
 

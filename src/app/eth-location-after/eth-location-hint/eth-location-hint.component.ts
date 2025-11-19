@@ -1,9 +1,9 @@
-import { OnInit, Component, Input, ViewEncapsulation } from '@angular/core';
+import { OnInit, Component, Input, ViewEncapsulation, Inject, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { catchError, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthUtilsService } from '../../services/eth-utils.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { SafeHtml } from '@angular/platform-browser';
 
 @Component({
@@ -16,7 +16,7 @@ import { SafeHtml } from '@angular/platform-browser';
     CommonModule,
   ]     
 })
-export class EthLocationHintComponent implements OnInit  {
+export class EthLocationHintComponent {
 
   hint$!: Observable<SafeHtml | null>;
   libraryCode!: string;
@@ -24,14 +24,17 @@ export class EthLocationHintComponent implements OnInit  {
   id!: string;
 
   @Input() hostComponent: any = {};
+  @ViewChild('locationHint', { static: false }) locationHint!: ElementRef<HTMLDivElement>;
   
   constructor(
     private translate: TranslateService,
     private ethErrorHandlingService: EthErrorHandlingService,
-    private ethUtilsService: EthUtilsService
+    private ethUtilsService: EthUtilsService,
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document        
   ){} 
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     // 990010808770205503 
     this.libraryCode = this.hostComponent.location.libraryCode
     this.subLocationCode = this.hostComponent.location.subLocationCode
@@ -39,7 +42,9 @@ export class EthLocationHintComponent implements OnInit  {
 
     if(this.libraryCode.substring(0,1) === 'E'){
       this.hint$ = this.getLocationHint().pipe(
-        map(hint => this.ethUtilsService.sanitizeText(hint))
+        map(hint => this.ethUtilsService.sanitizeText(hint)),
+        take(1),
+        tap(() => {this.moveHint()})
       );
     }
   }  
@@ -62,6 +67,28 @@ export class EthLocationHintComponent implements OnInit  {
       catchError((error) => this.ethErrorHandlingService.handleError(error, 'EthLocationHintComponent.getLocationHint'))
     )
   }
+
+  private moveHint() {
+    setTimeout(() => {
+      if(this.locationHint){
+        const hintElement = this.locationHint.nativeElement;
+        const location = this.findLocationElement(hintElement);
+        const newParentElement= location?.querySelector('.getit-holding-info')
+        if (newParentElement) {
+          this.renderer.appendChild(newParentElement, hintElement);
+        }
+      }
+    }, 100);
+  }  
+
+
+  private findLocationElement(el: HTMLElement): HTMLElement | null {
+      let parent = el.parentElement;
+      while (parent && parent.tagName.toLowerCase() !== 'nde-location') {
+        parent = parent.parentElement;
+      }
+      return parent;
+  }    
 }
 
 

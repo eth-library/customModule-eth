@@ -11,6 +11,8 @@ export class EthGeoRefService {
 
   private readonly graphUrlPlaces = 'https://daas.library.ethz.ch/rib/v3/graph/places-by-gnd-list';
   private readonly graphUrlPois = 'https://daas.library.ethz.ch/rib/v3/graph/pois';
+  private readonly graphUrlEmaps = 'https://daas.library.ethz.ch/rib/v3/graph/e-maps';
+  private readonly graphUrlErara = 'https://daas.library.ethz.ch/rib/v3/graph/e-rara-items';
   //private readonly wikipediaApiUrl = 'https://de.wikipedia.org/w/api.php?action=query&prop=pageprops&format=json&origin=*';
   private readonly ethoramaUrl = 'https://api.library.ethz.ch/ethorama/v1/pois?apikey=BKFefOQWF3VGq2sreNcyLqK7Gob61xO9jnLQAd0wy82ktIYn&pageSize=100&details=false';
 
@@ -75,6 +77,29 @@ export class EthGeoRefService {
       })      
     );
   }  
+
+  // https://daas.library.ethz.ch/rib/v3/graph/e-rara-items/990038990900205503?edges=true
+  getEraraRelatedPlacesFromGraph(docId: string): Observable<any> {
+    const url = `${this.graphUrlErara}/${docId}?edges=true`;
+    return this.httpClient.get(url).pipe(
+      catchError((error) => {
+        this.ethErrorHandlingService.handleError(error, 'EthGeoRefService.getEraraRelatedPlacesFromGraph')
+        return of([]);
+      })      
+    );
+  }  
+  
+  // https://daas.library.ethz.ch/rib/v3/graph/e-maps/99117998955005503?edges=true
+  getEmapsRelatedPlacesFromGraph(docId: string): Observable<any> {
+    const url = `${this.graphUrlEmaps}/${docId}?edges=true`;
+    return this.httpClient.get(url).pipe(
+      catchError((error) => {
+        this.ethErrorHandlingService.handleError(error, 'EthGeoRefService.getEmapsRelatedPlacesFromGraph')
+        return of([]);
+      })      
+    );
+  }  
+ 
 }
 
 

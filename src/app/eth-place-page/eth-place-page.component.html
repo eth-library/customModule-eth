@@ -22,7 +22,7 @@
         </mat-expansion-panel>  
     }
 
-    @if (place.topics?.length) {
+    @if (place.topics?.length) { 
         <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
         <mat-expansion-panel #panel2 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
@@ -38,7 +38,7 @@
           <section class="eth-expansion-panel-content">
             @for (link of place.topics; track link) {
                 @if (link.url){
-                    <a *ngIf="link.url" [href]="link.url">
+                    <a [href]="link.url">
                         <span>{{link.name}}</span>
                     </a>
                 }
@@ -63,9 +63,9 @@
           <section class="eth-expansion-panel-content">
             @for (link of place.ethorama.links; track link) {
                 @if (link.url){
-                    <div><a *ngIf="link.url" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
+                    <div><a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
                         <span>{{link.text}}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                        <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                           <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                         </svg>                     
                     </a></div>
@@ -93,9 +93,9 @@
                 @for (link of place.poi.dossiers; track link) {
                     @if (link.url){
                         <li>
-                            <a *ngIf="link.url" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
+                            <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
                               <span>{{link.text}}</span>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                              <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                               </svg>         
                             </a>
@@ -125,9 +125,9 @@
                 @for (link of place.poi.routes; track link) {
                     @if (link.url){
                         <li>
-                            <a *ngIf="link.url" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
+                            <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
                                 <span>{{link.text}}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                                <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                                 </svg>       
                             </a>
@@ -157,9 +157,9 @@
                 @for (link of place.wikidata.links; track link) {
                     @if (link.url){
                         <li>
-                            <a *ngIf="link.url" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
+                            <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
                                 <span>{{link.text}}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                                <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                                 </svg>                     
                             </a>
@@ -170,5 +170,56 @@
           </section>
         </mat-expansion-panel>  
     }
+
+    @if (place.maps?.length) {
+        <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
+
+        <mat-expansion-panel #panel6 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
+          <mat-expansion-panel-header class="eth-expansion-panel-header">
+            <mat-panel-title>
+              <h2>Karten</h2>
+            </mat-panel-title>
+            <mat-panel-description class="eth-expansion-panel-description">
+              <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ panel6.expanded ? 'remove' : 'add' }}</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <section class="eth-expansion-panel-content">
+            <div id="mapid" class="map"></div>
+          </section>
+        </mat-expansion-panel>  
+
+        <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
+
+        <mat-expansion-panel #panel7 [expanded]="false" hideToggle="true" class="eth-expansion-panel">
+          <mat-expansion-panel-header class="eth-expansion-panel-header">
+            <mat-panel-title>
+              <h2>Karten als Liste</h2>
+            </mat-panel-title>
+            <mat-panel-description class="eth-expansion-panel-description">
+              <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ panel7.expanded ? 'remove' : 'add' }}</mat-icon>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <section class="eth-expansion-panel-content">
+            <ul>
+                @for (map of place.maps; track map) {
+                    @if (map.url){
+                        <li>
+                            <a [href]="map.url" target="_blank" rel="noopener" [attr.aria-label]="map.title + ('nui.aria.newWindow' | safeTranslate | async)">
+                                {{map.title}}
+                                <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                                  <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+                                </svg>                     
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+          </section>
+        </mat-expansion-panel>  
+
+    }
+
   </div>
 }

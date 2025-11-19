@@ -126,12 +126,10 @@
                     </svg>         
                   </a>
                 } @else {
-                  <span>
-                    <span>{{ link.label }}</span>
-                    @if (link.inventoryno) {
-                      <span> (Inventarnummer: {{ link.inventoryno }})</span>
-                    }
-                  </span>
+                  <span>{{ link.label }}</span>
+                  @if (link.inventoryno) {
+                    <span> (Inventarnummer: {{ link.inventoryno }})</span>
+                  }
               }
               </li>
             }

@@ -13,7 +13,6 @@ yarn-error.log
 
 
 # Miscellaneous
-angular.json
 /.angular/cache
 .sass-cache/
 /readme-files

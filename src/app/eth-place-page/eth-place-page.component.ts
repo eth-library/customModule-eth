@@ -10,12 +10,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
+import * as L from 'leaflet';
 
 
 @Component({
   selector: 'custom-eth-place-page',
   templateUrl: './eth-place-page.component.html',
-  styleUrls: ['./eth-place-page.component.scss'],
+  styleUrls: ['./eth-place-page.component.scss',
+    '../../../node_modules/leaflet/dist/leaflet.css'],
   standalone: true,   
   encapsulation: ViewEncapsulation.None,
   imports: [
@@ -31,8 +33,13 @@ export class EthPlacePageComponent {
   placeData$!: Observable<any>;
   qid: string = '';
   vid!: string|null;
+  tab!: string|null;
+  scope!: string|null;
   lang!: string
   searchValue$!: Observable<string>;
+  map!: any;
+  polygonsWithCenters!: any;
+  openWeight!: number;
 
   constructor(
     private translate: TranslateService,
@@ -46,20 +53,32 @@ export class EthPlacePageComponent {
     this.searchValue$ = this.ethStoreService.searchValue$;
     this.placeData$ = this.searchValue$.pipe(
       switchMap((searchValue: string) => {
-          return this.initPlacePage(searchValue);
-      })
+        return this.initPlacePage(searchValue);
+      }),
+      //tap(val => console.error(val))
     )
   }  
 
   initPlacePage(searchValue: string): Observable<any | null> {
     this.lang = this.translate.currentLang;
     this.vid = this.ethStoreService.getVid();
+    this.tab = this.ethStoreService.getTab();
+    this.scope = this.ethStoreService.getScope();
     if(searchValue && searchValue.includes('[wd/place]')){
       this.qid = searchValue.substring(searchValue.indexOf(']') + 1);
     }
     if(this.qid === '') {
       return of(null);
     }
+    // hide search result container
+    const observer = new MutationObserver(() => {
+      const target = document.querySelector('.search-result-content');
+      if (target) {
+        this.renderer.setStyle(target, 'display', 'none');
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });        
 
     return forkJoin({
       geoTopics: this.ethPlacePageService.getTopicsFromGeoGraph(this.qid, this.lang).pipe(catchError(() => of(null))),
@@ -72,19 +91,73 @@ export class EthPlacePageComponent {
           return this.processAllData(geoTopics, geoPoi, ethorama, wikidata);
         }
       ),
-      tap(()=>{
-        // hide search result container
-        const observer = new MutationObserver(() => {
-          const target = document.querySelector('.search-result-content');
-          if (target) {
-            this.renderer.setStyle(target, 'display', 'none');
-            observer.disconnect();
-          }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });        
+      switchMap( (data:any) => {
+        let point = data.wikidata.coordinate_location?.value || null;
+        let lng = point?.substring(6,point.indexOf(' '))  || null;
+        let lat = point?.substring(point.indexOf(' ') + 1, point.length-1)  || null;        
+        if (lat && lng) {
+          return this.ethPlacePageService.getMapsFromGeoGraph(lat, lng).pipe(
+            catchError((e) => {
+              return of(null)
+            }),
+            map(mapsData => {
+              if (!mapsData) {
+                return { ...data, maps: null };
+              }
+              let filteredFeatures = mapsData.features?.filter((f:any) => {
+                const scale = f.properties?.scale;
+                return scale && parseInt(scale, 10) <= 50000;
+              }) || [];
+              //console.error(filteredFeatures)
+              try {
+                filteredFeatures = filteredFeatures.sort((a:any, b:any) =>
+                  a.properties.title.localeCompare(b.properties.title, 'de', { ignorePunctuation: true })
+                );
+              } catch (e) {
+                filteredFeatures = filteredFeatures.sort((a:any, b:any) =>
+                  a.properties.title.localeCompare(b.properties.title)
+                );
+              }
+              
+              setTimeout(() => this.initMap(filteredFeatures, lat, lng))
+
+              const maps = filteredFeatures.map( (f:any) => {
+                let title = f.properties.title;
+                if (f.properties.attribution){
+                  title += ' ,' + f.properties.attribution;                  
+                }
+                if (f.properties?.source === 'e-maps'){
+                    title += ' ' +  '(e-maps, georeferenced)';
+                }
+                else if(f.properties?.source === 'e-rara'){
+                    title += ' ' +  '(e-rara)';
+                }
+                let url = null;
+                if(f.properties.url){
+                  url = f.properties.url;
+                  url = url.replace('http://', '');
+                  if(url.indexOf('https://') === -1){
+                      url = 'https://' + url;
+                  }
+                }
+                return {
+                  'url': url,
+                  'title': title,
+                  'description':f.properties.description                  
+                }
+              })              
+              return {
+                ...data,
+                maps: maps
+              };
+            })
+          )
+        }
+        else {
+          return of({ ...data, maps: null });          
+        }        
       })
     );
-
   }
     
   private processAllData(geoTopics: any,geoPoi: any, ethorama: any, wikidata: any): any {
@@ -93,7 +166,6 @@ export class EthPlacePageComponent {
     const etho = this.processETHorama(ethorama);
     const wiki = this.processWikidata(wikidata);
     //console.error('all', {topics: topics,poi: poi,ethorama: etho,wikidata: wiki});
-
     return {
       topics: topics,
       poi: poi,
@@ -169,9 +241,9 @@ export class EthPlacePageComponent {
                 'title': i.title
             });
         });
-        topics.push({
+        topics.push({ 
             'name': f.properties.name,
-            'url': '/nde/search?mode=advanced&vid=' + this.vid + '&query=sub,exact,' + encodeURIComponent(f.properties.name),
+            'url': '/nde/search?mode=advanced&vid=' + this.vid + '&tab=' + this.tab + '&search_scope=' + this.scope + '&query=sub,exact,' + encodeURIComponent(f.properties.name),
             'gnd': f.properties.gnd,
             'eRaraItems': eRaraItems,
             'eMaps': eMaps
@@ -232,7 +304,7 @@ export class EthPlacePageComponent {
       let place = response.results.bindings[0];
       place.name = response.results.bindings[0].itemLabel.value;
       place.description = response.results.bindings[0].itemDescription.value;
-      place.image = response.results.bindings[0].image.value;
+      place.image = response.results.bindings[0].image?.value || null;
 
       place.links = [];
 
@@ -255,10 +327,10 @@ export class EthPlacePageComponent {
         });
       }
       if(place.gnd){
-          place.gnd = place.gnd.value;
+        place.gnd = place.gnd.value;
         place.links.push({
           text: 'GND',
-          url: 'http://d-nb.info/gnd/' + place.gnd.value
+          url: 'http://d-nb.info/gnd/' + place.gnd
         });
       }
       if(place.hls){
@@ -274,6 +346,110 @@ export class EthPlacePageComponent {
         });
       }
       return place; 
+  }
+
+  initMap(filteredFeatures:any, lat: any, lng: any): void {
+    let opacity = 0.03;
+    this.openWeight = 4;
+    if(filteredFeatures.length > 10){
+        opacity = 0;
+        this.openWeight = 6;
+    }
+    // initialize Map
+    if (this.map) {
+      this.map.remove(); 
+    }
+    if(!document.getElementById('mapid')){
+      return;
+    }
+    this.map = L.map('mapid', {
+      center: L.latLng(lat,lng),
+      zoom: 10
+    });
+    
+    // basic layer
+    var openStreetLayer = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/map-feedback/">Mapbox</a>',
+      tileSize: 512,
+      maxZoom: 18,
+      zoomOffset: -1,
+    });
+    openStreetLayer.addTo(this.map);    
+
+    // marker for place
+    var placeIcon = L.icon({
+      iconUrl: "custom/" + this.vid?.replace(':','-') + "/assets/images/marker.png",
+      iconSize: [25, 41],
+    });
+    L.marker([lat, lng],{alt:'Place', icon: placeIcon}).addTo(this.map);    
+
+    // prepare layer group for polygons
+    this.polygonsWithCenters = L.layerGroup();
+    
+    // add geoJson features
+    const geoJsonLayer = L.geoJSON(filteredFeatures, {
+      onEachFeature: (feature, layer) => this.onEachFeature(feature, layer),
+      style: {
+        color: "#356947",
+        weight: 1,
+        fillOpacity: opacity
+      }
+    });
+
+    this.polygonsWithCenters.addLayer(geoJsonLayer);
+    this.polygonsWithCenters.addTo(this.map);
+  }
+
+  onEachFeature(feature:any, layer:any){
+      // marker
+      let center = layer.getBounds().getCenter();
+      //iconUrl: "custom/MOCKINST-MOCKVID/assets/images/map.png", 
+      //iconUrl: "custom/41SLSP_ETH-ETH_CUSTOMIZING/assets/images/map.png",
+      let mapIcon = L.icon({
+        iconUrl: "custom/" + this.vid?.replace(':','-') + "/assets/images/map.png",   
+        iconSize: [25, 25],
+      });
+      
+      let markerOptions = {
+          clickable: true,
+          color: "#356947",
+          alt: 'Marker ' + feature.properties.title,
+          icon: mapIcon
+      }
+      let marker = L.marker(center, markerOptions);
+      // popup content
+      let popupContent = '<div class="eth-map-info">';
+      popupContent += '<div class="eth-map-info-title">' + feature.properties.title + '</div>';
+      if(feature.properties.attribution){
+          popupContent += '<div class="eth-map-info-text">' + feature.properties.attribution + '</div>';
+      }
+      popupContent += '<div class="eth-map-info-hint">Please click on the marker to see details of this map.</div>';
+      popupContent += '</div>';
+      marker.bindPopup(popupContent);
+      // marker events
+      marker.on('mouseover', (e: any) => {
+        marker.openPopup();
+        layer.setStyle({ weight: this.openWeight });
+      });
+      // touch: long press (1sec)
+      marker.on('contextmenu', (e: any) => {
+        marker.openPopup();
+        layer.setStyle({ weight: this.openWeight });
+      });
+      marker.on('mouseout', (e: any) => {
+        marker.closePopup();
+        layer.setStyle({ weight: 1});
+      });
+      marker.on('click', (e: any) => {
+        let url = feature.properties.url;
+        if(url.indexOf('10.3931/e-rara') > -1 && url.indexOf('dx.doi.org') === -1){
+            url = 'https://dx.doi.org/' + url;
+        }
+        window.open(url, "_blank");
+      });
+      // add marker to layerGroup
+      let polygonAndItsCenter = L.layerGroup([layer, marker]);
+      polygonAndItsCenter.addTo(this.polygonsWithCenters);
   }
 
 }

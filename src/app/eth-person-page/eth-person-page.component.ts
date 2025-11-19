@@ -64,9 +64,9 @@ export class EthPersonPageComponent{
           map(data => {
             let person = this.ethPersonService.processPersonsResponse(data.results, this.lang);
             person['qid'] = data.qid?.[0] || null;
-            person['label'] = person['entityfacts']?.preferredName || person['wiki'].label || '';
+            person['label'] = person['entityfacts']?.preferredName || person['wiki']?.label || '';
             person['gnd'] = data.gnd?.find((g: string) => g !== '') || '';
-            person['yearOfBirth'] = person['wiki'].birth?.split('-')[0] 
+            person['yearOfBirth'] = person['wiki']?.birth?.split('-')[0] 
                                 || person['entityfacts']?.dateOfBirth?.split(' ').pop() 
                                 || '';
             return person;

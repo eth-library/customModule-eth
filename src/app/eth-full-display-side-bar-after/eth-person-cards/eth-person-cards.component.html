@@ -1,15 +1,22 @@
 @if (persons$ | async; as persons) {
-  @if (persons.length > 0) {
+  @if (persons.filteredPersons.length > 0) {
     <div class="eth-person-cards" role="region" aria-labelledby="ethPersonCards">
       <details open>
         <summary>
-          <h4 id="ethPersonCards">More related Persons ({{ persons.length }})</h4>
+          <h4 id="ethPersonCards">
+            @if(persons.otbPersons.length > 0){
+              More related Persons ({{ persons.filteredPersons.length }})
+            }
+            @else {
+              Related Persons ({{ persons.filteredPersons.length }})
+            }
+          </h4>
           <svg class="marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
             <path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"></path>
           </svg>
         </summary>
         <ul role="list">
-          @for (person of persons; track person; let last = $last) {
+          @for (person of persons.filteredPersons; track person; let last = $last) {
             <li role="listitem">
               <div class="eth-person-card">
                 @if (person.entityfacts?.depiction || person.wiki?.image_url) {

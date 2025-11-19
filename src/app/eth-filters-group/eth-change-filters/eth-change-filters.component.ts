@@ -39,14 +39,8 @@ export class EthChangeFiltersComponent {
       }
     }
 
-    ngOnDestroy(): void {
-      if (this.subscription) {
-        this.subscription.unsubscribe();
-      }
-    }    
-
     private changeTLevelElements(): void {
-      //this.hostComponent.filterList$.subscribe((f:any)=>console.log(f))
+      //this.hostComponent.filterList$.pipe(takeUntilDestroyed()).subscribe((f:any)=>console.log(f))
       setTimeout(() => {
         this.subscription = this.hostComponent.filterList$.pipe(
           map((list: any) => list[0]?.values.some((i: any) => i.value === "open_access")),

@@ -3,17 +3,21 @@ import { Router, NavigationEnd } from '@angular/router';
 import { BehaviorSubject, distinctUntilChanged, map, Subscription, catchError, of, EMPTY, filter } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+//import {SHELL_ROUTER} from "../../injection-tokens";
+
 
 @Injectable({
   providedIn: 'root',
 })
 
-export class EthMatomoService implements OnDestroy{
+export class EthMatomoService{
   private trackerUrl = 'https://library-ethz.opsone-analytics.ch/';
   private siteId = '66';
   private initialized = new BehaviorSubject<boolean>(false);
-  private routerSubscription?: Subscription;
-  
+  //private router = inject(SHELL_ROUTER);
+
   constructor(
     private router: Router,
     private ethStoreService:EthStoreService,
@@ -58,7 +62,7 @@ export class EthMatomoService implements OnDestroy{
   private initializeTrackingOld(): void {
     (window as any)._paq.push(['trackPageView']);
     (window as any)._paq.push(['enableLinkTracking']);
-    this.routerSubscription = this.router.events.subscribe((event) => {
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         (window as any)._paq.push(['setCustomUrl', event.urlAfterRedirects]);
         (window as any)._paq.push(['trackPageView']);
@@ -97,10 +101,6 @@ export class EthMatomoService implements OnDestroy{
     } else {
       console.warn('Matomo tracker not initialized');
     }
-  }
-
-  ngOnDestroy(): void {
-    this.routerSubscription?.unsubscribe();
   }
   
 }

@@ -31,8 +31,7 @@ export class EthOffcampusWarningComponent {
     this.showWarning$ = this.isOnCampus$.pipe(
       switchMap(onCampus => {
         // onCampus -> no warning
-        // todo: remove inversion
-        if (!onCampus) {
+        if (onCampus) {
           return of(false);
         }
         // offCampus -> check open access

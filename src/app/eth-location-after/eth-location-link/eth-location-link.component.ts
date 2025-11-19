@@ -38,8 +38,6 @@ export class EthLocationLinkComponent implements OnInit  {
     this.hostComponent.expanded = true;
     this.subLocationCode = this.hostComponent?.location?.subLocationCode ?? '';
     this.libraryCode = this.hostComponent?.location?.libraryCode ?? '';
-console.error("library",this.libraryCode,this.subLocationCode )
-
     this.mainLocation = this.hostComponent?.location?.mainLocation ?? '';
     this.link$ = this.getLink().pipe(
       map(text => this.ethUtilsService.sanitizeText(text))

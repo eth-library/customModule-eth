@@ -1,8 +1,9 @@
 import { Component, Inject, Renderer2 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { catchError, filter, map, Observable, of, Subscription, switchMap, take, tap } from 'rxjs';
+import { catchError, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 @Component({
@@ -17,7 +18,6 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 export class EthWaybackComponent {
 
   showHint$!: Observable<boolean>;
-  private subscription!: Subscription;
    
   constructor(
     private ethStoreService:EthStoreService,
@@ -28,7 +28,7 @@ export class EthWaybackComponent {
 
   ngAfterViewInit() {
     // 99117429500405503
-    this.subscription = this.ethStoreService.getDeliveryEntity$().pipe(
+    this.ethStoreService.getDeliveryEntity$().pipe(
       //tap(deliveryEntity => {console.error("deliveryEntity",deliveryEntity)}),
       map(deliveryEntity => {
         return deliveryEntity?.delivery?.link?.some(
@@ -42,7 +42,9 @@ export class EthWaybackComponent {
         this.ethErrorHandlingService.handleError(err, 'EthWaybackComponent');
         return of(false);
       })      
-    ).subscribe();
+    )
+    //.pipe(takeUntilDestroyed()) todo
+    .subscribe();
   }
 
   changeDOM() {
@@ -64,11 +66,4 @@ export class EthWaybackComponent {
     });
     observer.observe(this.document.body, { childList: true, subtree: true });
   }
-
-  ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }    
-
 }

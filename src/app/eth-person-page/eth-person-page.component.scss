@@ -87,9 +87,13 @@
     object-fit: contain;   
     float: left;
     margin-right: 1rem;
+    margin-bottom: 1rem;
 }
 .eth-personpage-links .eth-person__links-hint{
     color: var(--sys-on-background);
+    font: var(--sys-body-medium);
+}
+.eth-personpage-links span{
     font: var(--sys-body-medium);
 }
 .eth-personpage-links .clearfix:after{
