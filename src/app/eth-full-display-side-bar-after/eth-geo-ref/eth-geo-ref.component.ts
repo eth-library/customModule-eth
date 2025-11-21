@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { EthGeoRefService } from './eth-geo-ref.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
-import { catchError, combineLatest, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { Doc } from '../../models/search.model';
 import { CommonModule } from '@angular/common';
@@ -158,7 +158,7 @@ export class EthGeoRefComponent {
           )
         : of([]);
       
-        return combineLatest([ethorama$, emapsPlaces$, eraraPlaces$]).pipe(
+        return forkJoin([ethorama$, emapsPlaces$, eraraPlaces$]).pipe(
           map(([ethorama, emapsPlaces, eraraPlaces]) => ({
             ethorama,
             emapsPlaces,
@@ -218,7 +218,7 @@ export class EthGeoRefComponent {
         )
         : of([]);
 
-        return combineLatest([ethorama$, topics$]).pipe(
+        return forkJoin([ethorama$, topics$]).pipe(
           map(([ethorama, topics]) => ({
             ethorama,
             topics,

@@ -13,13 +13,13 @@ type SearchState = {searchParams: SearchParams, ids: string[], entities: Record<
 const selectSearchState = createFeatureSelector<SearchState>('Search');
 const selectSearchEntities = createSelector(selectSearchState, state => state.entities);
 
-export const selectListviewRecord = (recordId: string) =>
+const selectListviewRecord = (recordId: string) =>
   createSelector(
     selectSearchEntities,
     entities => entities[recordId] ?? null
   );
 
-export const selectFullviewRecord = createSelector(
+const selectFullDisplayRecord = createSelector(
   selectFullDisplayRecordId,
   selectSearchEntities,
   (selectedId, entities) =>
@@ -99,7 +99,7 @@ export class EthConnectedpapersComponent{
 
   getRecord$(hostComponent: any) {
     const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0];
-    return this.store.select(selectFullviewRecord).pipe(
+    return this.store.select(selectFullDisplayRecord).pipe(
       switchMap(record =>
         record
           ? of(record)

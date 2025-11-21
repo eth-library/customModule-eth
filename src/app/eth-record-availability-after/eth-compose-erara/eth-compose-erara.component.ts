@@ -40,7 +40,7 @@ export class EthComposeEraraComponent {
   ngAfterViewInit(): void {
     this.links$ = this.ethStoreService.isFullview$().pipe(
       filter(Boolean),
-      switchMap(() => this.ethStoreService.getFullviewRecord$()),
+      switchMap(() => this.ethStoreService.getFullDisplayRecord$()),
       switchMap(record => this.getLinks(record)),
       catchError(error => {
         this.ethErrorHandlingService.handleError(error, 'EthComposeEraraComponent.ngAfterViewInit');

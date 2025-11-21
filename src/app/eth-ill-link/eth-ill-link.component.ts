@@ -28,7 +28,7 @@ export class EthIllLinkComponent {
 
   ngAfterViewInit() {
     // Article: cdi_proquest_miscellaneous_2479421945
-    this.qs$ = this.ethStoreService.getFullviewRecord$().pipe(
+    this.qs$ = this.ethStoreService.getFullDisplayRecord$().pipe(
       switchMap(record => {
         /*const recordId = record?.pnx?.control?.['recordid']?.[0];
         if (recordId && recordId.indexOf('cdi_') === -1) {

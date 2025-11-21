@@ -35,7 +35,7 @@ export class EthOffcampusWarningComponent {
           return of(false);
         }
         // offCampus -> check open access
-        return this.ethStoreService.getFullviewRecord$().pipe(
+        return this.ethStoreService.getFullDisplayRecord$().pipe(
           switchMap(record => {
             if (record?.pnx?.addata?.['openaccess']?.[0] === 'true') {
               // oa -> no warning

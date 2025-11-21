@@ -91,8 +91,6 @@ const selectRouter = createSelector(selectRouterState,state => state.state);
 
 const selectQuery = createSelector(selectRouterState,state => state.state.root.queryParams['query']);
 
-const selectRecordById = (recordId: string) => createSelector(selectSearchEntities,searchEntities => recordId ? searchEntities[recordId] : null );
-
 const selectFullDisplayRecordId = createSelector(selectFullDisplayState, state => state.selectedRecordId ?? null);
 
 const selectFullDisplayDeliveryEntities = createSelector(selectFullDisplayRecordId, selectDeliveryEntities, (recordId, deliveryEntities) => deliveryEntities[recordId]);
@@ -121,14 +119,6 @@ export const selectListviewRecord = (recordId: string) =>
     selectSearchEntities,
     entities => entities[recordId] ?? null
   );
-
-export const selectFullviewRecord = createSelector(
-  selectFullDisplayRecordId,
-  selectSearchEntities,
-  (selectedId, entities) =>
-    selectedId ? entities[selectedId] : null
-);
-
 
 @Injectable({
   providedIn: 'root'
@@ -199,7 +189,7 @@ export class EthStoreService {
         );        
         
         this.record$ = this.store.pipe(
-            select(selectFullviewRecord)
+            select(selectFullDisplayRecord)
         );        
 
     }
@@ -271,10 +261,10 @@ export class EthStoreService {
         );
     }
 
-    getFullviewRecord$() {
+    getFullDisplayRecord$() {
         return this.store.select(selectFullDisplayRecord).pipe(
             catchError((e) => {
-                this.ethErrorHandlingService.handleError(e, 'EthStoreService.getFullviewRecord$');
+                this.ethErrorHandlingService.handleError(e, 'EthStoreService.getFullDisplayRecord$');
                 return of(null);
             })
         );
@@ -282,7 +272,7 @@ export class EthStoreService {
 
     getRecord$(hostComponent: any) {
         const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0];
-        return this.store.select(selectFullviewRecord).pipe(
+        return this.store.select(selectFullDisplayRecord).pipe(
             switchMap(record =>
                 record
                 ? of(record)
@@ -293,7 +283,7 @@ export class EthStoreService {
 
     getLocation$(hostComponent: any) {
         const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0];
-        return this.store.select(selectFullviewRecord).pipe(
+        return this.store.select(selectFullDisplayRecord).pipe(
             switchMap(record =>
                 record
                 ? of(record)

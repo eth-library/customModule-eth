@@ -3,29 +3,18 @@ import { of, Observable, catchError, map, forkJoin, tap, switchMap } from 'rxjs'
 import { EthMetagridService, Person } from './eth-metagrid.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
+import {TranslateModule} from "@ngx-translate/core";
 import { createFeatureSelector, createSelector, Store } from '@ngrx/store';
 
-type FullDisplayState = {selectedRecordId:string};
-const selectFullDisplayState = createFeatureSelector<FullDisplayState>('full-display');
-const selectFullDisplayRecordId = createSelector(selectFullDisplayState, state => state.selectedRecordId ?? null);
 
+type FullDisplayState = {selectedRecordId:string};
 type SearchParams = {q:string, tab:string, scope:string}
 type SearchState = {searchParams: SearchParams, ids: string[], entities: Record<string, any>}
+const selectFullDisplayState = createFeatureSelector<FullDisplayState>('full-display');
+const selectFullDisplayRecordId = createSelector(selectFullDisplayState, state => state.selectedRecordId ?? null);
 const selectSearchState = createFeatureSelector<SearchState>('Search');
 const selectSearchEntities = createSelector(selectSearchState, state => state.entities);
-
-export const selectListviewRecord = (recordId: string) =>
-  createSelector(
-    selectSearchEntities,
-    entities => entities[recordId] ?? null
-  );
-
-export const selectFullviewRecord = createSelector(
-  selectFullDisplayRecordId,
-  selectSearchEntities,
-  (selectedId, entities) =>
-    selectedId ? entities[selectedId] : null
-);
+const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId,selectSearchEntities,(selectedId, entities) => selectedId ? entities[selectedId] : null);
 
 @Component({
   selector: 'addon-eth-metagrid',
@@ -33,7 +22,8 @@ export const selectFullviewRecord = createSelector(
   styleUrls: ['./eth-metagrid.component.scss'],
   standalone: true,
   imports: [
-    CommonModule
+    CommonModule,
+    TranslateModule
   ]  
 })
 
@@ -42,12 +32,14 @@ export class EthMetagridComponent implements AfterViewInit {
   @Input() hostComponent: any = {};
   gndIds: string[] | null = [];
   persons$!: Observable<Person[]>;
-  public moduleParameters2: any = {};
+  public moduleParametersDev: any = {};
   openedCards = new Set<string>();
   lang!: string | 'de';
-  openLink$!: Observable<any>;
-  closeLink$!: Observable<any>;
+  openLink$!: Observable<string>;
+  closeLink$!: Observable<string>;
+  newTab$!:  Observable<string>;
   
+
   constructor(
     @Inject('MODULE_PARAMETERS') public moduleParameters: any,
     private metagridService: EthMetagridService,
@@ -55,14 +47,17 @@ export class EthMetagridComponent implements AfterViewInit {
     @Inject(DOCUMENT) private document: Document    
   ) {}
 
+
   ngAfterViewInit() {
-    this.persons$ = this.getRecord$(this.hostComponent).pipe(
+    this.persons$ = this.store.select(selectFullDisplayRecord).pipe(
       switchMap(record => this.getPersons(record))
     )
   } 
 
+
   getPersons(record: any) {
-    this.moduleParameters2 = {
+    // [de,en,fr,it]
+    this.moduleParametersDev = {
       "whitelist": [
         "sudoc",
         "hallernet",
@@ -71,7 +66,6 @@ export class EthMetagridComponent implements AfterViewInit {
         "elites-suisses-au-xxe-siecle",
         "bsg",
         "dodis",
-        "helveticarchives",
         "helveticat",
         "hls-dhs-dss",
         "histoirerurale",
@@ -80,42 +74,38 @@ export class EthMetagridComponent implements AfterViewInit {
         "alfred-escher",
         "geschichtedersozialensicherheit"
       ],
-      "translations": "{linkTextOpen={de=Metagrid-Links zeigen, en=Show Metagrid links}, linkTextClose={de=Metagrid-Links ausblenden, en=Hide Metagrid links}} ",
-      "sudoc": "Editions- und Forschungsplattform hallerNet",
-      "hallernet": "Editions- und Forschungsplattform hallerNet",
-      "fotostiftung": "Fotostiftung Schweiz",
-      "sikart": "SIKART",
-      "elites-suisses-au-xxe-siecle": "Schweizerische Eliten im 20. Jahrhundert",
-      "bsg": "Bibliographie der Schweizergeschichte",
-      "dodis": "Diplomatische Dokumente der Schweiz",
-      "helveticat": "Helveticat",
-      "hls-dhs-dss": "Historisches Lexikon der Schweiz",
-      "histoirerurale": "Archiv für Agrargeschichte",
-      "lonsea": "Lonsea",
-      "ssrq": "Sammlung Schweizerischer Rechtsquellen",
-      "alfred-escher": "Alfred Escher-Briefedition",
-      "geschichtedersozialensicherheit": "Geschichte der sozialen Sicherheit",
-      "helveticarchives": "Helveticat"
+      "sudoc": ["Bibliographic Agency for Higher Education","Bibliographic Agency for Higher Education","Agence Bibliographique de l’Enseignement Supérieur", "Bibliographic Agency for Higher Education"],
+      "hallernet": ["Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet"],
+      "fotostiftung": ["Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz"],
+      "sikart": ["SIKART","SIKART","SIKART","SIKART"],
+      "elites-suisses-au-xxe-siecle": ["Schweizerische Eliten im 20. Jahrhundert",  "Swiss elites database","Elites suisses au XXe siècle","Elites suisses au XXe siècle"],
+      "bsg": ["Bibliographie der Schweizergeschichte","Bibliography on Swiss History","Bibliographie de l'histoire suisse","Bibliografia della storia svizzera"],
+      "dodis": ["Diplomatische Dokumente der Schweiz","Diplomatic Documents of Switzerland","Documents diplomatiques suisses","Documenti diplomatici svizzeri"],
+      "helveticat": ["Helveticat","Helveticat","Helveticat","Helveticat"],
+      "hls-dhs-dss": ["Historisches Lexikon der Schweiz","Historical Dictionary of Switzerland","Dictionnaire historique de la Suisse","Dizionario storico della Svizzera"],
+      "histoirerurale": ["Archiv für Agrargeschichte","Archives of rural history","Archives de l'histoire rurale","Archivio della storia rurale"],
+      "lonsea": ["Lonsea","Lonsea","Lonsea","Lonsea"],
+      "ssrq": ["Sammlung Schweizerischer Rechtsquellen","Collection of Swiss Law Sources","Collection des sources du droit suisse","Collana Fonti del diritto svizzero"],
+      "alfred-escher": ["Alfred Escher-Briefedition","Alfred Escher letters edition","Edition des lettres Alfred Escher","Edizione lettere Alfred Escher"],
+      "geschichtedersozialensicherheit": ["Geschichte der sozialen Sicherheit","Geschichte der sozialen Sicherheit","Histoire de la sécurité sociale","Storia della sicurezza sociale svizzera"]
     }
-    if(!this.moduleParameters || !this.moduleParameters.whitelist)this.moduleParameters = this.moduleParameters2; 
+    if(!this.moduleParameters || !this.moduleParameters.whitelist)this.moduleParameters = this.moduleParametersDev; 
 
-    this.openLink$ = this.getI18nText('customizing.addon.metagrid.open', {
+    this.openLink$ = this.getI18nText('metagrid.link.open', {
       de: 'Metagrid-Links zeigen',
       en: 'Show Metagrid links',
       fr: '..',
       it: '..'
     });      
 
-    this.closeLink$ = this.getI18nText('item.not.exist.333', {
+    this.closeLink$ = this.getI18nText('metagrid.close', {
       de: 'Metagrid-Links ausblenden',
       en: 'Hide Metagrid links'
     });      
     
-    const gndIdsLds03 = this.getGndIdsLds03(record);
-    const gndIdsLds90 = this.getGndIdsLds90(record);
-    const gndIds = Array.from(new Set([...(gndIdsLds03 ?? []), ...(gndIdsLds90 ?? [])]));
-    const idRefs = this.getIdRefs(record);
-    this.gndIds = gndIds;
+    this.newTab$ = this.translate.get('nui.aria.newWindow');
+
+    const gndIds = this.getGndIds(record);
     const gnd$ = gndIds?.length
       ? this.metagridService.getResourcesForGndIds(gndIds, this.moduleParameters?.whitelist).pipe(
           catchError(error => {
@@ -125,6 +115,7 @@ export class EthMetagridComponent implements AfterViewInit {
         )
       : of([]);
 
+    const idRefs = this.getIdRefs(record);      
     const idRef$ = idRefs?.length
       ? this.metagridService.getResourcesForIdRefs(idRefs, this.moduleParameters?.whitelist).pipe(
           catchError(error => {
@@ -133,6 +124,7 @@ export class EthMetagridComponent implements AfterViewInit {
           })
         )
       : of([]);
+
 
     return forkJoin([gnd$, idRef$]).pipe(
       map(([gndPersons, idRefPersons]) => {
@@ -143,21 +135,27 @@ export class EthMetagridComponent implements AfterViewInit {
         // const dedupedPersons = this.deduplicatePersons(allPersons);
         return allPersons;
       }),
-      tap(persons => setTimeout(() => this.copyMetagridLinks(persons), 900))
+      tap(persons => setTimeout(() => this.copyMetagridLinks(persons), 1000))
     );
   
   }
 
-  private getGndIdsLds03(record:any): string[] | null {
+  private getGndIds(record:any): string[] | null {
     const lds03 = record?.pnx?.display?.['lds03'] || [];
     const gndIds: string[] = lds03.map((l: any) => {
       l = l.replace('(DE-588)', '');
-      // Alma
+      // ALMA Ressources: link in value
+      // http://d-nb.info/gnd/4113615-9\
       if (l.includes('http://d-nb.info/gnd')) {
         return l.substring(l.indexOf('gnd/') + 4, l.indexOf('">'));
       }
-      // external data (Prelog, Vladimir (rela): 119247496)
-      else if (typeof l === 'string' && l.includes(':')) {
+      // external data since dec 25
+      else if (typeof l === 'string' && l.includes('GND: ')) {
+        let value = l.slice(l.lastIndexOf(': ') + 2).trim();
+        return value;
+      }
+      // external data (Prelog, Vladimir (rela): 119247496) todo until dec 25
+      else if (typeof l === 'string' && l.includes(':') && !l.includes('idref.fr')) {
         const value = l.slice(l.lastIndexOf(':') + 1).trim();
         // not: "Frisch, Max : 1911-1991"
         if (/^\d+$/.test(value)) {
@@ -169,12 +167,11 @@ export class EthMetagridComponent implements AfterViewInit {
     return gndIds.length ? gndIds : null;
   }
 
-  
   private getIdRefs(record:any): string[] | null {
-    const lds90 = record?.pnx?.display?.['lds90'] || [];
+    const lds03 = record?.pnx?.display?.['lds03'] || [];
     return Array.from(
       new Set(
-        lds90.map((entry: any) => {
+        lds03.map((entry: any) => {
           const match = entry.match(/idref\.fr\/([^">]+)/);
           return match?.[1] ?? null;
         }).filter((id: any): id is string => Boolean(id))
@@ -182,20 +179,8 @@ export class EthMetagridComponent implements AfterViewInit {
     );
   }
 
-  private getGndIdsLds90(record:any): string[] {
-    const lds90 = record?.pnx?.display?.['lds90'] || [];
-    return Array.from(
-      new Set(
-        lds90.map((entry: any) => {
-          const match = entry.match(/d-nb\.info\/gnd\/([^">]+)/);
-          return match?.[1] ?? null;
-        }).filter((id: any): id is string => Boolean(id))
-      )
-    );
-  }
-
   copyMetagridLinks(persons: Person[]): void {
-    const personIdToTargetElement = new Map<string, Element>();
+    const personIdToTargetElementMap = new Map<string, Element>();
 
     const personIdsWithResources = persons
       .filter(p => (p.resources?.length ?? 0) > 0)
@@ -213,7 +198,7 @@ export class EthMetagridComponent implements AfterViewInit {
         const href = selectorLink.getAttribute('href');
         const personIdFromHref = href ? extractId(href) : null;
         if (!personIdFromHref || !personIdsWithResources.includes(personIdFromHref)) return;
-        personIdToTargetElement.set(personIdFromHref, selectorLink);
+        personIdToTargetElementMap.set(personIdFromHref, selectorLink);
       });
     });
 
@@ -222,7 +207,7 @@ export class EthMetagridComponent implements AfterViewInit {
     spans.forEach(s => {
       if(s.innerHTML.lastIndexOf(':')>-1){
         const personIdFromSpan = s.innerHTML.substring(s.innerHTML.lastIndexOf(':')+1).replace('(DE-588)', '').trim();
-        personIdToTargetElement.set(personIdFromSpan, s);
+        personIdToTargetElementMap.set(personIdFromSpan, s);
       }
     })    
 
@@ -230,7 +215,7 @@ export class EthMetagridComponent implements AfterViewInit {
       if(personId){
           const link = this.document.getElementById('metagrid-link-' + personId);
           const card = this.document.getElementById('metagrid-card-' + personId)
-          const target = personIdToTargetElement.get(personId);
+          const target = personIdToTargetElementMap.get(personId)?.parentElement;
           if (link && target?.parentNode) {
             target.parentNode.insertBefore(link, target.nextSibling);
             if (card) {
@@ -262,7 +247,7 @@ export class EthMetagridComponent implements AfterViewInit {
     return this.translate.get(key).pipe(
       map(value => {
         if (value === key) {
-          const lang = this.translate.currentLang || 'en';
+          const lang = this.translate.currentLang || 'de';
           return fallback[lang] ?? fallback['en'] ?? key;
         }
         return value;
@@ -270,15 +255,17 @@ export class EthMetagridComponent implements AfterViewInit {
     );
   }
 
-  getRecord$(hostComponent: any) {
-    const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0];
-    return this.store.select(selectFullviewRecord).pipe(
-      switchMap(record =>
-        record
-          ? of(record)
-          : this.store.select(selectListviewRecord(recordId))
-      )
-    );
+  getProviderLabel(slug: string): string {
+    const lang = this.translate.currentLang || 'de';
+    const langIndex = { de: 0, en: 1, fr: 2, it: 3 }[lang] ?? 0;
+    let entry = this.moduleParameters?.[slug];
+    if(!Array.isArray(entry)){
+      entry = entry?.replace(/^\[|\]$/g, "").split(/\s*,\s*/) || null;
+    }
+    if (!entry || !entry[langIndex]) {
+      return slug; 
+    }
+    return entry[langIndex];
   }
 
 }

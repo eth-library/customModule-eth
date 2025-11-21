@@ -31,7 +31,7 @@ export class EthProvenienzEraraLinkComponent {
   ) {}
 
   ngAfterViewInit() {
-    this.links$ = this.ethStoreService.getFullviewRecord$().pipe(
+    this.links$ = this.ethStoreService.getFullDisplayRecord$().pipe(
       switchMap(record => this.getLinks(record)),
       catchError(error => {
         this.ethErrorHandlingService.handleError(error, 'EthProvenienzEraraLinkComponent.ngAfterViewInit');

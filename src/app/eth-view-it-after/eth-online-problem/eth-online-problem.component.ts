@@ -26,7 +26,7 @@ export class EthOnlineProblemComponent {
   ){}
 
   ngOnInit() {
-    this.showLink$ = this.ethStoreService.getFullviewRecord$().pipe(
+    this.showLink$ = this.ethStoreService.getFullDisplayRecord$().pipe(
       switchMap(record => {
         //console.error("record",record)
         /*const isFromHSA = record?.pnx?.control?.originalsourceid?.[0]?.includes('hochschularchiv-der-eth') ?? false;

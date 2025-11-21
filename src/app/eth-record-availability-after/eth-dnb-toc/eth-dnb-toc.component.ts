@@ -51,7 +51,7 @@ export class EthDnbTocComponent {
       switchMap(almaLinks =>
         almaLinks.length > 0
           ? of({ almaLinks, dnbLinks: [] })
-          : this.ethStoreService.getFullviewRecord$().pipe(
+          : this.ethStoreService.getFullDisplayRecord$().pipe(
               distinctUntilChanged(),
               switchMap((record: any) => this.getDnbLinks(record)),
               map((dnbLinks: any[] | null) => {

@@ -59,6 +59,7 @@ export class EthPersonPageComponent{
     return this.ethStoreService.linkedDataEntityId$.pipe(
       filter(id => !!id),
       switchMap(id => {
+        console.error("id",id)
         return this.ethPersonService.getPerson(id, this.lang).pipe(
           filter(data => !!data),
           map(data => {

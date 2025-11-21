@@ -3,12 +3,12 @@
     <div [attr.id]="'metagrid-card-' + person.personId" class="metagrid-card">
       <div class="metagrid-powered">
         Links powered by 
-        <a href="https://metagrid.ch" target="_blank" rel="noopener" class="metagrid-link">Metagrid</a>
+        <a href="https://metagrid.ch" target="_blank" rel="noopener" class="metagrid-link" [attr.aria-label]="'Metagrid' + (newTab$ | async)">Metagrid</a>
       </div>
 
       @for (entry of person.resources; track entry.uri) {
-        <div><a [href]="entry.uri" target="_blank" rel="noopener" class="metagrid-link">
-          {{ moduleParameters?.[entry.provider] || entry.provider }}
+        <div><a [href]="entry.uri" target="_blank" rel="noopener" class="metagrid-link" [attr.aria-label]="getProviderLabel(entry.provider) + (newTab$ | async)">
+          {{ getProviderLabel(entry.provider) }}
         </a></div>
       }
     </div>
@@ -17,13 +17,13 @@
 @for (person of persons$ | async; track person.personId) {
   @if ((person.resources?.length ?? 0) > 0 && person.personId) {
     <button #button
-      class="metagrid-toggle-link"
-      (click)="toggleCard(person.personId, button)"
-      [attr.id]="'metagrid-link-' + person.personId"
-      [attr.aria-controls]="'metagrid-card-' + person.personId"
-      aria-expanded="false">
-          <span>{{ openedCards.has(person.personId) ? (closeLink$ | async) : (openLink$ | async) }}</span>
-          <span>{{ openedCards.has(person.personId) ? '▼' : '▶' }}</span>
+        class="metagrid-toggle-link"
+        (click)="toggleCard(person.personId, button)"
+        [attr.id]="'metagrid-link-' + person.personId"
+        [attr.aria-controls]="'metagrid-card-' + person.personId"
+        aria-expanded="false">
+        <span>{{ openedCards.has(person.personId) ? (closeLink$ | async) : (openLink$ | async) }}</span>
+        <span>{{ openedCards.has(person.personId) ? '▼' : '▶' }}</span>
     </button>    
   }
 }

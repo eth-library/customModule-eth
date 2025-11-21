@@ -31,7 +31,7 @@ export class EthComposeNbComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.links$ = this.ethStoreService.isFullview$().pipe(
       filter(Boolean),
-      switchMap(() => this.ethStoreService.getFullviewRecord$()),
+      switchMap(() => this.ethStoreService.getFullDisplayRecord$()),
       distinctUntilChanged(),
       switchMap(record => this.getLinks(record)),
       catchError(error => {
