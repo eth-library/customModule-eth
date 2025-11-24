@@ -47,8 +47,8 @@ export class EthComposeNbComponent implements AfterViewInit {
     const source = record.pnx.display?.source?.[0];
     const links: Link[] = [];
 
-    const labelPrint = 'Print Item in in ETH-Bibliothek @ swisscovery';
-    const labelOnline = 'Online Item in ETH-Bibliothek @ swisscovery';
+    const labelPrint = 'Print Item in in ETH swisscovery';
+    const labelOnline = 'Online Item in ETH swisscovery';
 
     // online -> search print record
     // oai:agora.ch:004261444_08  - 99118814985305503  -> multiple online/one print
@@ -128,12 +128,12 @@ export class EthComposeNbComponent implements AfterViewInit {
 /**
  *         label: {
             print:{
-                de: 'Print-Exemplar in ETH-Bibliothek @ swisscovery',
-                en: 'Print Item in in ETH-Bibliothek @ swisscovery'
+                de: 'Print-Exemplar in ETH swisscovery',
+                en: 'Print Item in in ETH swisscovery'
             },
             online: {
-                de: 'Online-Exemplar in ETH-Bibliothek @ swisscovery',
-                en: 'Online Item in ETH-Bibliothek @ swisscovery'
+                de: 'Online-Exemplar in ETH swisscovery',
+                en: 'Online Item in ETH swisscovery'
             }
         }
  * 

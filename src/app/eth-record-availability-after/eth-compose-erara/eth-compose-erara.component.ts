@@ -61,9 +61,9 @@ export class EthComposeEraraComponent {
     const sourceSystem = record.pnx.control.sourcesystem?.[0];
     const links: Link[] = [];
 
-    const labelPrint = 'Print Item in ETH Library @ swisscovery';
-    const labelOnline = 'Online Item in ETH Library @ swisscovery (from e-rara)';
-    const labelEMap = 'Georeferenced online Item in ETH Library @ swisscovery (from e-maps)';
+    const labelPrint = 'Print Item in ETH swisscovery';
+    const labelOnline = 'Online Item in ETH swisscovery (from e-rara)';
+    const labelEMap = 'Georeferenced online Item in ETH swisscovery (from e-maps)';
     const labelGeoTIFF = 'GeoTIFF map via e-maps';
 
     // check if this an emap record
@@ -190,16 +190,16 @@ export class EthComposeEraraComponent {
 
 /*
   print:{
-      de: 'Print-Exemplar in ETH-Bibliothek @ swisscovery',
-      en: 'Print Item in ETH Library @ swisscovery'
+      de: 'Print-Exemplar in ETH swisscovery',
+      en: 'Print Item in ETH swisscovery'
   },
   online: {
-      de: 'Online-Exemplar in ETH-Bibliothek @ swisscovery (e-rara)',
-      en: 'Online Item in ETH Library @ swisscovery (e-rara)'
+      de: 'Online-Exemplar in ETH swisscovery (e-rara)',
+      en: 'Online Item in ETH swisscovery (e-rara)'
   },
   onlineEMap: {
-      de: 'Georeferenziertes Online-Exemplar in ETH-Bibliothek @ swisscovery (e-maps)',
-      en: 'Georeferenced online Item in ETH Library @ swisscovery (e-maps)'
+      de: 'Georeferenziertes Online-Exemplar in ETH swisscovery (e-maps)',
+      en: 'Georeferenced online Item in ETH swisscovery (e-maps)'
   },
   onlineGeoTIFF: {
       de: 'GeoTIFF via e-maps',

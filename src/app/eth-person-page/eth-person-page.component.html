@@ -144,7 +144,7 @@
       <mat-expansion-panel #ethPanel5 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
         <mat-expansion-panel-header class="eth-expansion-panel-header">
           <mat-panel-title>
-            <h2>Metagrid</h2>
+            <h2>Metagrid</h2> 
           </mat-panel-title>
           <mat-panel-description class="eth-expansion-panel-description">
             <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel5.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -163,8 +163,8 @@
           <ul role="list">
             @for (link of person.metagridLinks; track link) {
               <li>
-                <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + ('nui.aria.newWindow' | safeTranslate | async)">
-                  <span>{{ link.label }}</span>
+                <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="ethPersonService.getProviderLabel(link.slug) + ('nui.aria.newWindow' | safeTranslate | async)">
+                  <span>{{ ethPersonService.getProviderLabel(link.slug) }}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                   </svg>         

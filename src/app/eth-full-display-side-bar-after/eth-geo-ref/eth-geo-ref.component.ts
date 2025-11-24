@@ -8,6 +8,7 @@ import { Doc } from '../../models/search.model';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { EthUtilsService } from '../../services/eth-utils.service';
+import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 
 type placeLinks = { ethorama: any[]; eraraPlaces: any[]; emapsPlaces: any[]; allPlaces: any[] }
 
@@ -38,7 +39,8 @@ export class EthGeoRefComponent {
     private ethGeoRefService: EthGeoRefService,
     private ethStoreService:EthStoreService,     
     private translate: TranslateService,
-    private ethUtilsService: EthUtilsService    
+    private ethUtilsService: EthUtilsService,
+    private matomoService: EthMatomoService    
   ) {}
 
   ngAfterViewInit() {
@@ -193,6 +195,12 @@ export class EthGeoRefComponent {
   private getSourceSystem(record: Doc): string {
     return record?.pnx?.control?.['sourcesystem']?.[0] || '';
   }  
+
+  navigateToPlacePage(url: string){
+    this.matomoService.trackEvent('lod','click','georef->placepage');
+    window.location.href = url;
+    // router.navigateByUrl(url);
+  }
 }
 
 

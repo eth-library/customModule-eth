@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { EthErrorHandlingService } from './eth-error-handling.service';
-
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +17,7 @@ export class EthPersonService {
     constructor(
         private http: HttpClient,
         private ethErrorHandlingService: EthErrorHandlingService,
+        private translate: TranslateService,
     ) {}
 
     getPersons(gnds:string, lang:string): Observable<any> {
@@ -234,11 +235,11 @@ export class EthPersonService {
             if(binding.sfa && binding.sfa.value)wiki['links'].push({'url': 'https://www.swiss-archives.ch/archivplansuche.aspx?ID=' + binding.sfa.value, 'label': 'Schweizerisches Bundesarchiv'});
             if(binding.loc && binding.loc.value)wiki['links'].push({'url': 'http://id.loc.gov/authorities/names/' + binding.loc.value + '.html', 'label': 'Library of Congress'});
             wiki['profiles'] = [];
-            if(binding.orcid && binding.orcid.value)wiki['profiles'].push({'url': 'https://orcid.org/' + binding.orcid.value, 'label': 'linkOrcid'});
-            if(binding.scholar && binding.scholar.value)wiki['profiles'].push({'url': 'https://scholar.google.com/citations?user=' + binding.scholar.value, 'label': 'linkScholar'});
-            if(binding.scopus && binding.scopus.value)wiki['profiles'].push({'url': 'https://www.scopus.com/authid/detail.uri?authorId=' + binding.scopus.value, 'label': 'linkScopus'});
-            if(binding.researchgate && binding.researchgate.value)wiki['profiles'].push({'url': 'https://www.researchgate.net/profile/' + binding.researchgate.value, 'label': 'linkResearchgate'});
-            if(binding.dimension && binding.dimension.value)wiki['profiles'].push({'url': 'https://app.dimensions.ai/discover/publication?and_facet_researcher=ur.' + binding.dimension.value, 'label': 'linkDimension'});
+            if(binding.orcid && binding.orcid.value)wiki['profiles'].push({'url': 'https://orcid.org/' + binding.orcid.value, 'label': 'ORCID'});
+            if(binding.scholar && binding.scholar.value)wiki['profiles'].push({'url': 'https://scholar.google.com/citations?user=' + binding.scholar.value, 'label': 'Scholar'});
+            if(binding.scopus && binding.scopus.value)wiki['profiles'].push({'url': 'https://www.scopus.com/authid/detail.uri?authorId=' + binding.scopus.value, 'label': 'Scopus'});
+            if(binding.researchgate && binding.researchgate.value)wiki['profiles'].push({'url': 'https://www.researchgate.net/profile/' + binding.researchgate.value, 'label': 'Researchgate'});
+            if(binding.dimension && binding.dimension.value)wiki['profiles'].push({'url': 'https://app.dimensions.ai/discover/publication?and_facet_researcher=ur.' + binding.dimension.value, 'label': 'Dimension'});
             return wiki;
         }
         catch(error: any){
@@ -354,7 +355,7 @@ export class EthPersonService {
 
     processMetagridResponse(metagridResult:any){
         try{
-            let sourcesWhitelist = ["sudoc","hallernet", "fotostiftung", "sikart","elites-suisses-au-xxe-siecle","bsg", "dodis", "helveticarchives", "helveticat", "hls-dhs-dss", "histoirerurale","lonsea","ssrq","alfred-escher","geschichtedersozialensicherheit"];
+            let sourcesWhitelist = ["sudoc","hallernet", "fotostiftung", "sikart","elites-suisses-au-xxe-siecle","bsg", "dodis", "helveticat", "hls-dhs-dss", "histoirerurale","lonsea","ssrq","alfred-escher","geschichtedersozialensicherheit"];
             let resources = metagridResult[0].resp.concordances[0].resources;
             let whitelistedMetagridLinks: any[] = [];
             let whitelistedMetagridLinksSorted: string[] = [];
@@ -371,7 +372,7 @@ export class EthPersonService {
                     if (sourcesWhitelist.indexOf(slug) === -1) {
                         continue;
                     }
-                    whitelistedMetagridLinks.push({'slug': slug,'url': url, 'label': slug});
+                    whitelistedMetagridLinks.push({'slug': slug,'url': url, 'label': this.getProviderLabel(slug)});
                 }
                 // Dodis and HLS first
                 let dodis = whitelistedMetagridLinks.filter(e => {
@@ -508,6 +509,27 @@ export class EthPersonService {
         }
     }
 
+  getProviderLabel(slug: string): string {
+    const providerLabel: Record<string, [string, string, string, string]> = {
+      "sudoc": ["Bibliographic Agency for Higher Education","Bibliographic Agency for Higher Education","Agence Bibliographique de l’Enseignement Supérieur", "Bibliographic Agency for Higher Education"],
+      "hallernet": ["Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet"],
+      "fotostiftung": ["Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz"],
+      "sikart": ["SIKART","SIKART","SIKART","SIKART"],
+      "elites-suisses-au-xxe-siecle": ["Schweizerische Eliten im 20. Jahrhundert",  "Swiss elites database","Elites suisses au XXe siècle","Elites suisses au XXe siècle"],
+      "bsg": ["Bibliographie der Schweizergeschichte","Bibliography on Swiss History","Bibliographie de l'histoire suisse","Bibliografia della storia svizzera"],
+      "dodis": ["Diplomatische Dokumente der Schweiz","Diplomatic Documents of Switzerland","Documents diplomatiques suisses","Documenti diplomatici svizzeri"],
+      "helveticat": ["Helveticat","Helveticat","Helveticat","Helveticat"],
+      "hls-dhs-dss": ["Historisches Lexikon der Schweiz","Historical Dictionary of Switzerland","Dictionnaire historique de la Suisse","Dizionario storico della Svizzera"],
+      "histoirerurale": ["Archiv für Agrargeschichte","Archives of rural history","Archives de l'histoire rurale","Archivio della storia rurale"],
+      "lonsea": ["Lonsea","Lonsea","Lonsea","Lonsea"],
+      "ssrq": ["Sammlung Schweizerischer Rechtsquellen","Collection of Swiss Law Sources","Collection des sources du droit suisse","Collana Fonti del diritto svizzero"],
+      "alfred-escher": ["Alfred Escher-Briefedition","Alfred Escher letters edition","Edition des lettres Alfred Escher","Edizione lettere Alfred Escher"],
+      "geschichtedersozialensicherheit": ["Geschichte der sozialen Sicherheit","Geschichte der sozialen Sicherheit","Histoire de la sécurité sociale","Storia della sicurezza sociale svizzera"]
+    }
+    const lang = this.translate.currentLang || 'de';
+    const langIndex = { de: 0, en: 1, fr: 2, it: 3 }[lang] ?? 0;
+    return providerLabel[slug]?.[langIndex] ?? slug;  
+   }
 }
 
 

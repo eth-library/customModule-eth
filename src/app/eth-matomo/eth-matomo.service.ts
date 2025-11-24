@@ -1,106 +1,111 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { BehaviorSubject, distinctUntilChanged, map, Subscription, catchError, of, EMPTY, filter } from 'rxjs';
-import { EthStoreService } from 'src/app/services/eth-store.service';
-import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-//import {SHELL_ROUTER} from "../../injection-tokens";
-
+import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 
-export class EthMatomoService{
-  private trackerUrl = 'https://library-ethz.opsone-analytics.ch/';
-  private siteId = '66';
-  private initialized = new BehaviorSubject<boolean>(false);
-  //private router = inject(SHELL_ROUTER);
+export class EthMatomoService {
 
-  constructor(
-    private router: Router,
-    private ethStoreService:EthStoreService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-  ) {}
+  private initialized = false;
+  private queue: any[][] = [];   // Events that are fired before Matomo is fully initialized
 
-  public loadMatomo(): void {
-    if ((document.querySelector('script[src="' + this.trackerUrl + 'matomo.js"]'))) {
-      console.log("Matomo script already loaded.");
-      return;
-    }
-    
+  constructor() {
+    // Ensure _paq exists (Matomo will normally create it, but we guarantee it early)
     (window as any)._paq = (window as any)._paq || [];
 
-    // track initial load
-    // (window as any)._paq.push(['trackPageView']); 
-
-    // configure matomo
-    (window as any)._paq.push(['setTrackerUrl', `${this.trackerUrl}matomo.php`]);
-    (window as any)._paq.push(['setSiteId', this.siteId]);
-
-    // initialize automatic page tracking 
-    this.initializeTracking();
-
-    // load script
-    const matomoScript = document.createElement('script');
-    matomoScript.type = 'text/javascript';
-    matomoScript.async = true;
-    matomoScript.src = `${this.trackerUrl}matomo.js`;
-    document.head.appendChild(matomoScript);
-
-    matomoScript.onload = () => {
-      this.initialized.next(true);
-      console.log('Matomo script loaded successfully');
-    };
-    matomoScript.onerror = () => {
-      console.error('Failed to load Matomo script');
-    };
-    console.log("MatomoService instantiated", this)
+    // Detect when Matomo is fully initialized
+    this.waitForMatomo();
   }
 
-  private initializeTrackingOld(): void {
-    (window as any)._paq.push(['trackPageView']);
-    (window as any)._paq.push(['enableLinkTracking']);
-    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        (window as any)._paq.push(['setCustomUrl', event.urlAfterRedirects]);
-        (window as any)._paq.push(['trackPageView']);
-        console.log('Tracking PageView: ', event.urlAfterRedirects);
+  /**
+   * Repeatedly checks whether Matomo has initialized.
+   * Matomo loads asynchronously, so initialization may occur late.
+   */
+  private waitForMatomo() {
+    const check = () => {
+      const paq = (window as any)._paq;
+
+      const hasPush =
+        Array.isArray(paq) || typeof paq.push === 'function';
+
+      if (hasPush && this.matomoIsInitialized()) {
+        this.initialized = true;
+        this.flushQueue();
+      } else {
+        // Retry until Matomo is ready (lightweight polling)
+        setTimeout(check, 200);
       }
-    });
+    };
+
+    check();
   }
 
-  private initializeTracking(): void {
-    (window as any)._paq.push(['trackPageView']);
-    (window as any)._paq.push(['enableLinkTracking']);
-
-    this.ethStoreService.getRouter$().pipe(
-      map(state => state?.url),
-      distinctUntilChanged(),
-      filter(Boolean), 
-      catchError(error => {
-        this.ethErrorHandlingService.handleError(error,'EthMatomoService.initializeTracking');
-        return EMPTY; 
-      })
-    ).subscribe(url => {
-      (window as any)._paq.push(['setCustomUrl', url]);
-      (window as any)._paq.push(['trackPageView']);
-      console.log('Matomo:', url);
-    });
+  /**
+   * Checks whether Matomo has finished setting up its global tracker object.
+   * This provides more certainty than just checking _paq.
+   */
+  private matomoIsInitialized(): boolean {
+    const w = (window as any);
+    return !!(w.Piwik || w.Matomo);
   }
 
-  // method for event tracking
-  trackEvent(category?: string, action?: string, name?: string, value?: number): void {
-    if (this.initialized.value && (window as any)._paq) {
-      const eventCategory = category || 'defaultCategory';   
-      const eventAction = action || 'defaultAction';        
-      const eventName = name || 'defaultName';              
-      const eventValue = value !== undefined ? value : 0;   
-      (window as any)._paq.push(['trackEvent', eventCategory, eventAction, eventName, eventValue]);
+  /**
+   * Flushes all queued events to the real Matomo tracker once it becomes ready.
+   */
+  private flushQueue() {
+    const paq = (window as any)._paq;
+    for (const entry of this.queue) {
+      paq.push(entry);
+    }
+    this.queue = []; // Clear queue after flushing
+  }
+
+  /**
+   * Pushes a tracking event into Matomo.
+   * If Matomo is not ready yet, events are queued.
+   */
+  private push(event: any[]) {
+    // Always ensure _paq exists
+    (window as any)._paq = (window as any)._paq || [];
+
+    if (this.initialized) {
+      (window as any)._paq.push(event);
     } else {
-      console.warn('Matomo tracker not initialized');
+      // Queue event until Matomo is ready
+      this.queue.push(event);
     }
   }
-  
+
+  // ---------------------------------------------------------------------
+  // Public API
+  // ---------------------------------------------------------------------
+
+  /**
+   * Tracks a Matomo event.
+   * 1) Send tracking event
+   * this.matomo.trackEvent('Customizing','Click','personcard->personpage');
+   *
+   * // 2) Navigate to new page
+   * this.router.navigateByUrl('/bla/blub');
+   */
+  trackEvent(
+    category: string = 'defaultCategory',
+    action: string = 'defaultAction',
+    name: string = 'defaultName',
+    value: number = 0
+  ): void {
+    this.push(['trackEvent', category, action, name, value]);
+    console.log('Matomo event:', name);
+  }
+
+  /**
+   * Tracks a virtual page view in Matomo.
+   */
+  trackVirtualPage(url: string): void {
+    if (!url.startsWith('/')) url = '/' + url;
+
+    this.push(['setCustomUrl', url]);
+    this.push(['trackPageView']);
+    console.log('Matomo virtual page:', url);
+  }
 }
