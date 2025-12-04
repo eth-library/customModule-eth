@@ -2,7 +2,10 @@
 mat-option[aria-label='Français']{
     display: none; 
 }
-mat-option[aria-label='Italiano']
-{ 
+mat-option[aria-label='Italiano']{ 
     display: none; 
+}
+/* online quicklink button */
+.eth-quicklink-expand-button.mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
+    border-radius: unset;
 }

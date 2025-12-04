@@ -38,7 +38,7 @@
           <section class="eth-expansion-panel-content">
             @for (link of place.topics; track link) {
                 @if (link.url){
-                    <a [href]="link.url">
+                    <a [href]="'/nde'+link.url" (click)="navigate(link.url,$event)">
                         <span>{{link.name}}</span>
                     </a>
                 }

@@ -1,4 +1,4 @@
-import { Component, Renderer2, ViewEncapsulation } from '@angular/core';
+import { Component, inject, Renderer2, ViewEncapsulation } from '@angular/core';
 import { catchError, forkJoin, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthPlacePageService } from './eth-place-page.service';
@@ -11,6 +11,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import * as L from 'leaflet';
+import { SHELL_ROUTER } from "../injection-tokens";
 
 
 @Component({
@@ -29,7 +30,8 @@ import * as L from 'leaflet';
   ]    
 })
 export class EthPlacePageComponent {
-  
+  private router = inject(SHELL_ROUTER);   
+
   placeData$!: Observable<any>;
   qid: string = '';
   vid!: string|null;
@@ -243,7 +245,7 @@ export class EthPlacePageComponent {
         });
         topics.push({ 
             'name': f.properties.name,
-            'url': '/nde/search?mode=advanced&vid=' + this.vid + '&tab=' + this.tab + '&search_scope=' + this.scope + '&query=sub,exact,' + encodeURIComponent(f.properties.name),
+            'url': '/search?mode=advanced&vid=' + this.vid + '&tab=' + this.tab + '&search_scope=' + this.scope + '&query=sub,exact,' + encodeURIComponent(f.properties.name),
             'gnd': f.properties.gnd,
             'eRaraItems': eRaraItems,
             'eMaps': eMaps
@@ -452,6 +454,10 @@ export class EthPlacePageComponent {
       polygonAndItsCenter.addTo(this.polygonsWithCenters);
   }
 
+    navigate(url: string, event: Event){
+      event.preventDefault();  
+      this.router.navigateByUrl(url);
+    }      
 }
 
 

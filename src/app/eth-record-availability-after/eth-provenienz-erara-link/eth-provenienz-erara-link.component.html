@@ -11,7 +11,7 @@
   }
   @if (links.swisscovery) {
     <div class="eth-provenienz-erara">
-      <a [href]="links.swisscovery">
+      <a [href]="'/nde'+links.swisscovery"  (click)="navigate(links.swisscovery,$event)">
         <span>Details Provenienzvermerk</span>
       </a>
     </div>

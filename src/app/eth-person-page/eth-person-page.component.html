@@ -17,7 +17,7 @@
           <ul role="list">
             @for (variant of person.searchVariants; track variant) {
               <li role="listitem">
-                <a class="arrow-link md-primoExplore-theme" [href]="variant.url">
+                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + variant.url" (click)="navigate(variant.url,$event)">
                   <span>{{ variant.label }} ({{ variant.total }} Ergebnisse)</span>
                 </a>
               </li>
@@ -43,7 +43,7 @@
         <ul role="list">
           @if (person.gnd) {
             <li>
-              <a target="_blank"  [href]="'https://d-nb.info/gnd/' + person.gnd" rel="noopener noreferrer" [attr.aria-label]="'GND' + ('nui.aria.newWindow' | safeTranslate | async)">
+              <a target="_blank"  [href]="'https://d-nb.info/gnd/' + person.gnd" rel="noopener" [attr.aria-label]="'GND' + ('nui.aria.newWindow' | safeTranslate | async)">
                 GND
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -283,7 +283,7 @@
                   @if (object.image_url) {
                     <img class="eth-personpage-links-image" [alt]="object.label" [src]="object.image_url + '?width=100px'" />
                   }
-                  <a [href]="ethPersonService.getPersonPageLink(object?.gnd)">
+                  <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object?.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object?.gnd),$event)">
                     <span>{{ object.label }} ({{ object.description }}, Geboren: {{ object.birth.split('T')[0] }})</span>
                   </a>
                 </li>
@@ -315,7 +315,7 @@
                   @if (object.image_url) {
                     <img class="eth-personpage-links-image" [alt]="object.label" [src]="object.image_url + '?width=100px'" />
                   }
-                  <a [href]="ethPersonService.getPersonPageLink(object?.gnd)">
+                  <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object?.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object?.gnd),$event)">
                     <span>{{ object.label }} ({{ object.description }}, Geboren: {{ object.birth.split('T')[0] }})</span>
                   </a>
                 </li>
@@ -344,7 +344,7 @@
             <ul role="list">
               @for (object of person.entityfacts.relatedPersons; track object.gnd) {
                 <li>
-                  <a [href]="ethPersonService.getPersonPageLink(object?.gnd)">
+                  <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object?.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object?.gnd),$event)">
                       {{ object.preferredName }}
                       @if (object.relationship) {
                         <span> ({{ object.relationship }})</span>

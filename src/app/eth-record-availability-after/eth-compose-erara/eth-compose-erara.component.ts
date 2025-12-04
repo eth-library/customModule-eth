@@ -1,4 +1,4 @@
-import { Component, Input, AfterViewInit, Pipe, PipeTransform } from '@angular/core';
+import { Component, Input, AfterViewInit, Pipe, PipeTransform, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, of, forkJoin } from 'rxjs';
 import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -7,6 +7,7 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { EthComposeEraraService } from './eth-compose-erara.service';
 import { TranslateService } from "@ngx-translate/core";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
+import { SHELL_ROUTER } from "../../injection-tokens";
 
 type Link = { 
   label: string;
@@ -23,7 +24,8 @@ type Link = {
 })
 export class EthComposeEraraComponent {
   @Input() hostComponent: any = {};
-
+  private router = inject(SHELL_ROUTER);   
+  
   links$!: Observable<Link[]>;
 
   constructor(
@@ -184,8 +186,14 @@ export class EthComposeEraraComponent {
     const vid = this.ethStoreService.getVid();
     const tab = this.ethStoreService.getTab();
     const scope = this.ethStoreService.getScope();
-    return `/nde/fulldisplay?vid=${vid}&docid=alma${mmsid}&tab=${tab}&search_scope=${scope}`;
+    return `/fulldisplay?vid=${vid}&docid=alma${mmsid}&tab=${tab}&search_scope=${scope}`;
   }
+
+  navigate(url: string, event: Event){
+    event.preventDefault();  
+    this.router.navigateByUrl(url);
+  }    
+
 }
 
 /*

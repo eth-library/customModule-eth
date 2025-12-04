@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../../services/eth-person.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,6 +9,9 @@ import { Doc } from '../../models/search.model';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
+import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
+import { SHELL_ROUTER } from "../../injection-tokens";
+
 
 @Component({
   selector: 'custom-eth-person-cards',
@@ -23,6 +26,7 @@ import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 })
 
 export class EthPersonCardsComponent {
+    private router = inject(SHELL_ROUTER);  
     openGnd: string | null = null;
     persons$!: Observable<any | null>; 
     @Input() hostComponent: any = {};
@@ -34,7 +38,8 @@ export class EthPersonCardsComponent {
       public ethPersonService: EthPersonService,
       private ethErrorHandlingService: EthErrorHandlingService,
       private ethStoreService:EthStoreService,    
-      private ethUtilsService: EthUtilsService          
+      private ethUtilsService: EthUtilsService,
+      private matomoService: EthMatomoService                    
     ){}
 
     ngOnInit(): void {
@@ -172,4 +177,9 @@ export class EthPersonCardsComponent {
     isOpen(gnd: string) {
       return this.openGnd === gnd;
     }        
+
+    navigate(url: string, event: Event){
+      event.preventDefault(); 
+      this.router.navigateByUrl(url);
+    }    
 }

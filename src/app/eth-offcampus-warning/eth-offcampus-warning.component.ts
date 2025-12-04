@@ -42,7 +42,7 @@ export class EthOffcampusWarningComponent {
               return of(false);
             }
             // no oa -> check delivery category
-            return this.ethStoreService.getDeliveryEntity$().pipe(
+            return this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
               map(deliveryEntity => {
                 //console.error("deliveryEntity",deliveryEntity)
                 const category = deliveryEntity?.delivery?.deliveryCategory ?? "";

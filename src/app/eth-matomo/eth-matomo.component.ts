@@ -1,11 +1,10 @@
 import { DestroyRef, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, NavigationEnd } from '@angular/router';
-import { BehaviorSubject, distinctUntilChanged, map, Subscription, catchError, of, EMPTY, filter } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, map, Subscription, catchError, of, EMPTY, filter, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-//import {SHELL_ROUTER} from "../../injection-tokens";
+import { SHELL_ROUTER } from "../injection-tokens";
 
 @Component({
   selector: 'custom-eth-matomo',
@@ -18,14 +17,14 @@ import { EthErrorHandlingService } from '../services/eth-error-handling.service'
 })
 
 export class EthMatomoComponent {
+  private router = inject(SHELL_ROUTER);
+
   private trackerUrl = 'https://library-ethz.opsone-analytics.ch/';
   private siteId = '66';
   private initialized = new BehaviorSubject<boolean>(false);
-  //private router = inject(SHELL_ROUTER);
   private destroyRef = inject(DestroyRef);
 
   constructor(
-    private router: Router,
     private ethStoreService:EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService
   ) {}
@@ -37,9 +36,6 @@ export class EthMatomoComponent {
       }
       
       (window as any)._paq = (window as any)._paq || [];
-
-      // track initial load
-      // (window as any)._paq.push(['trackPageView']); 
 
       // configure matomo
       (window as any)._paq.push(['setTrackerUrl', `${this.trackerUrl}matomo.php`]);
@@ -66,15 +62,16 @@ export class EthMatomoComponent {
     
   }
 
-  private initializeTrackingOld(): void {
+  private initializeTracking(): void {
     (window as any)._paq.push(['trackPageView']);
     (window as any)._paq.push(['enableLinkTracking']);
-
     this.router.events
       .pipe(
-        takeUntilDestroyed(),             
-        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-        map(event => event.urlAfterRedirects),
+        takeUntilDestroyed(this.destroyRef),  
+        filter((event: any) => 'urlAfterRedirects' in event && typeof event.urlAfterRedirects === 'string'),
+        map(event => {
+          return event.urlAfterRedirects;
+        }),
         distinctUntilChanged(),
         catchError(error => {
           this.ethErrorHandlingService.handleError(error,'EthMatomoComponent.initializeTracking');
@@ -89,7 +86,7 @@ export class EthMatomoComponent {
   }
 
 
-  private initializeTracking(): void {
+  private initializeTrackingOld(): void {
     (window as any)._paq.push(['trackPageView']);
     (window as any)._paq.push(['enableLinkTracking']);
     this.ethStoreService.getRouter$()

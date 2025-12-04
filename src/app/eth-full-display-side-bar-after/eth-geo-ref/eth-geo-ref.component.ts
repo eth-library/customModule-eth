@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { EthGeoRefService } from './eth-geo-ref.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { EthUtilsService } from '../../services/eth-utils.service';
 import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
+import { SHELL_ROUTER } from "../../injection-tokens";
 
 type placeLinks = { ethorama: any[]; eraraPlaces: any[]; emapsPlaces: any[]; allPlaces: any[] }
 
@@ -23,7 +24,7 @@ type placeLinks = { ethorama: any[]; eraraPlaces: any[]; emapsPlaces: any[]; all
   ]     
 })
 export class EthGeoRefComponent {
-
+  private router = inject(SHELL_ROUTER);
   @Input() hostComponent: any = {};
   placeLinks$!: Observable<placeLinks>;
   private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
@@ -88,7 +89,7 @@ export class EthGeoRefComponent {
                         thumbnail: p.image,
                         label: p.name,
                         description: p.description,
-                        url: `/discovery/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
+                        url: `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
                       });
                     }
                   });
@@ -118,7 +119,7 @@ export class EthGeoRefComponent {
                         thumbnail: p.image,
                         label: p.name,
                         description: p.description,
-                        url: `/discovery/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
+                        url: `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
                       });
                     }
                   });
@@ -147,7 +148,7 @@ export class EthGeoRefComponent {
                     thumbnail: p.thumbnail,
                     label: p.name,
                     description: p.descriptionWikidata,
-                    url: `/discovery/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
+                    url: `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
                   });
                 }
               });
@@ -196,14 +197,14 @@ export class EthGeoRefComponent {
     return record?.pnx?.control?.['sourcesystem']?.[0] || '';
   }  
 
-  navigateToPlacePage(url: string){
-    this.matomoService.trackEvent('lod','click','georef->placepage');
-    window.location.href = url;
-    // router.navigateByUrl(url);
+  navigate(url: string, event: Event){
+    event.preventDefault(); 
+    this.router.navigateByUrl(url);
   }
 }
 
-
+// /discovery/search?tab=discovery_network&search_scope=DN_and_CI&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=de&query=any,contains,[wd/place]Q911159
+//http://localhost:4201/nde/search?vid=41SLSP_ETH:ETH_CUSTOMIZING&tab=discovery_network&search_scope=DN_and_CI&lang=de&query=%5Bwd%2Fplace%5DQ3985163
       /*
       type placeLinks = { ethorama: any[]; topics: any[]; hasPlace: boolean; counter: number }
 
@@ -214,7 +215,7 @@ export class EthGeoRefComponent {
                 .filter((p: any) => p.qid)
                 .map((p: any) => ({
                   ...p,
-                  url: `/discovery/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=[wd/place]${p.qid}`
+                  url: `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=[wd/place]${p.qid}`
                 }))
                 : []
             ),

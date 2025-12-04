@@ -19,7 +19,7 @@
                 </div>}
                 <div class="eth-place-card__text">
                     <h5>
-                      <a (click)="navigateToPlacePage(place.url)">
+                      <a [href]="'/nde'+place.url" (click)="navigate(place.url,$event)">
                         {{ place.label }}
                       </a>
                     </h5>

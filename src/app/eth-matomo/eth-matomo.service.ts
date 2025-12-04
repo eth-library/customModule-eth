@@ -85,7 +85,7 @@ export class EthMatomoService {
    * 1) Send tracking event
    * this.matomo.trackEvent('Customizing','Click','personcard->personpage');
    *
-   * // 2) Navigate to new page
+   * 2) Navigate to new page
    * this.router.navigateByUrl('/bla/blub');
    */
   trackEvent(
@@ -103,7 +103,6 @@ export class EthMatomoService {
    */
   trackVirtualPage(url: string): void {
     if (!url.startsWith('/')) url = '/' + url;
-
     this.push(['setCustomUrl', url]);
     this.push(['trackPageView']);
     console.log('Matomo virtual page:', url);

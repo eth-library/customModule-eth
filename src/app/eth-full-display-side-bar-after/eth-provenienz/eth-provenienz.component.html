@@ -17,7 +17,7 @@
                 </div>
                 <div class="eth-provenance-card__text">
                     @if (item.description) {
-                        <h5><a [href]="'/discovery/search?vid=' + vid + '&tab=' + tab + '&search_scope=' + scope + '&query=' + (item.eth_doi_link.includes('doi.org/') ? item.eth_doi_link.split('doi.org/')[1] : '')">{{ item.description }}</a></h5>
+                        <h5><a [href]="'/nde'+item.url" (click)="navigate(item.url,$event)">{{ item.description }}</a></h5>
                     }
                     <div>Datierung: {{ item.eth_dating || 'Unbekannt' }}</div>
                     <div>

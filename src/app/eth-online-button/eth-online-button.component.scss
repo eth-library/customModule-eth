@@ -1,0 +1,41 @@
+.eth-quicklink-button.mat-mdc-button {
+    height: 32px;
+    line-height: 32px;
+    border-radius: .3125rem;
+    border: 1px solid var(--sys-primary);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-top: .25rem;
+    white-space: nowrap;
+}
+.eth-quicklink-button.mat-mdc-button:not(:last-of-type) {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+}
+.eth-quicklink-button:hover,.eth-quicklink-button:focus {
+    background-color: var(--mat-standard-button-toggle-selected-state-background-color);
+}
+.eth-quicklink-expand-button.mat-mdc-icon-button.mdc-icon-button{
+    padding: 0;
+    margin-top: 4px;
+    height: 32px;
+    border-color: var(--sys-primary);
+    border-start-end-radius: .3125rem;
+    border-start-start-radius: 0;
+    border-end-end-radius: .3125rem;
+    border-end-start-radius: 0;
+    border-block-start: 1px solid;
+    border-block-end: 1px solid;
+    border-inline-start: 0;
+    border-inline-end: 1px solid;
+    font-size: 1rem;
+}
+.eth-quicklink-expand-button.mat-mdc-icon-button svg {
+    width: 20px;
+    height: 20px;
+}
+/* also in custom.css */
+.eth-quicklink-expand-button.mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
+    border-radius: unset;
+}
+/* also in custom.css end */

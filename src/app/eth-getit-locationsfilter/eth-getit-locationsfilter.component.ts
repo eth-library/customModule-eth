@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, Input, Optional } from '@angular/core';
-import { tap } from 'rxjs';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'custom-eth-getit-locationsfilter',

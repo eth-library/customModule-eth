@@ -34,7 +34,7 @@ export class EthIllLinkComponent {
         if (recordId && recordId.indexOf('cdi_') === -1) {
           return of(null);
         }*/
-        return this.ethStoreService.getDeliveryEntity$().pipe(
+        return this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
           switchMap(deliveryEntity => {
             if (deliveryEntity?.delivery?.availability[0] !== 'no_inventory') {
               return of(null);

@@ -50,12 +50,7 @@
                   </div>
                 }
                 <div class="eth-person-card__text">
-                  @if (person.entityfacts?.preferredName) {
-                    <h5><a [href]="person.url">{{ person.entityfacts.preferredName }}</a></h5>
-                  }
-                  @else if (person.wiki?.label) {
-                    <h5><a [href]="person.url">{{ person.wiki.label }}</a></h5>
-                  }
+                  <h5><a [href]="'/nde'+person.url" (click)="navigate(person.url,$event)">{{ person.name }}</a></h5>
                   @if (person.entityfacts?.professionOrOccupation) {
                     <div>{{ person.entityfacts.professionOrOccupation }} (GND)</div>
                   }

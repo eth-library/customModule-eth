@@ -33,7 +33,7 @@ export class EthDnbTocComponent {
   ngOnInit() {
     this.contentLinks$ = this.ethStoreService.isFullview$().pipe(
       filter(Boolean),
-      switchMap(() => this.ethStoreService.getDeliveryEntity$()),
+      switchMap(() => this.ethStoreService.getFullDisplayDeliveryEntity$()),
       distinctUntilChanged(),
       map((deliveryEntity: any) => {
         let aExclude = ['https://vls.hsa.ethz.ch', 'http://hdl.handle.net','http://dx.doi.org/10.7891/e-manuscripta','https://wayback.archive-It.org/','https://vls.mfa.ethz.ch/','https://vls.tma.ethz.ch/','doi.org/10.24448', 'doi.org/10.3931/e-rara-'];

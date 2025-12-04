@@ -18,7 +18,10 @@ import { EthViewItAfterComponent } from '../eth-view-it-after/eth-view-it-after.
 //import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
 import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offcampus-warning.component';
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
-import { EthFullDisplayServiceContainerAfterComponent } from '../eth-full-display-service-container-after/eth-full-display-service-container-after.component'
+import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
+import { EthFullDisplayServiceContainerAfterComponent } from '../eth-full-display-service-container-after/eth-full-display-service-container-after.component';
+
+
 
 // Define the map
 export const selectorComponentMap = new Map<string, any>([
@@ -31,9 +34,10 @@ export const selectorComponentMap = new Map<string, any>([
     //['nde-full-display-links-top', EthProvenienzEraraLinkComponent],
     ['nde-record-citations-indicators-top',EthConnectedpapersComponent],
     ['nde-record-availability-after', EthRecordAvailabilityAfterComponent],
+    ['nde-online-availability-before', EthOnlineButtonComponent],
     ['nde-search-results-container-after', EthPlacePageComponent],
     ['nde-entity-layout-bottom', EthPersonPageComponent],
-    ['nde-get-it-after',EthGetitLocationsfilterComponent],
+    ['nde-get-it-bottom',EthGetitLocationsfilterComponent],
     ['nde-location-bottom', EthLocationAfterComponent],
     //['nde-login-dialog-after', EthRegistrationLinkComponent],
     ['nde-login-form-content-bottom', EthRegistrationLinkComponent],

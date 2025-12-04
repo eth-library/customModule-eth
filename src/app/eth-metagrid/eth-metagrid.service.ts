@@ -33,7 +33,7 @@ export class EthMetagridService {
   /**
    * @param gndIds    list of GND IDs
    * @param whitelist whitelist of provider.slugs (e.g. ['gnd', 'viaf'])
-   * @returns Observable of a person array,
+   * @returns Observable of a person array
   */
   getResourcesForGndIds( gndIds: string[], whitelist: string[] ): Observable<Person[]> {
     const requests = gndIds.map(gndId => {
@@ -79,6 +79,11 @@ export class EthMetagridService {
     return forkJoin(requests);
   }
 
+  /**
+   * @param gndIds    list of idRefs
+   * @param whitelist whitelist of provider.slugs (e.g. ['gnd', 'viaf'])
+   * @returns Observable of a person array
+  */
   getResourcesForIdRefs( idRefs: string[], whitelist: string[] ): Observable<Person[]> {
     const requests = idRefs.map(idRef => {
       const url = `${this.BASE_URL}?group=1&skip=0&take=50&provider=sudoc&query=${encodeURIComponent(idRef)}`;

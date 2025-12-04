@@ -3,10 +3,10 @@ import { of, Observable, catchError, map, forkJoin, tap, switchMap } from 'rxjs'
 import { EthMetagridService, Person } from './eth-metagrid.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import {TranslateModule} from "@ngx-translate/core";
 import { createFeatureSelector, createSelector, Store } from '@ngrx/store';
 
 
+// get data from app store
 type FullDisplayState = {selectedRecordId:string};
 type SearchParams = {q:string, tab:string, scope:string}
 type SearchState = {searchParams: SearchParams, ids: string[], entities: Record<string, any>}
@@ -16,28 +16,29 @@ const selectSearchState = createFeatureSelector<SearchState>('Search');
 const selectSearchEntities = createSelector(selectSearchState, state => state.entities);
 const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId,selectSearchEntities,(selectedId, entities) => selectedId ? entities[selectedId] : null);
 
+
 @Component({
   selector: 'addon-eth-metagrid',
   templateUrl: './eth-metagrid.component.html',
   styleUrls: ['./eth-metagrid.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
-    TranslateModule
+    CommonModule
   ]  
 })
 
 export class EthMetagridComponent implements AfterViewInit {
   private store = inject(Store);
   @Input() hostComponent: any = {};
+  
   gndIds: string[] | null = [];
   persons$!: Observable<Person[]>;
-  public moduleParametersDev: any = {};
+  moduleParametersDev: any = {};
   openedCards = new Set<string>();
   lang!: string | 'de';
-  openLink$!: Observable<string>;
-  closeLink$!: Observable<string>;
-  newTab$!:  Observable<string>;
+  openLinkText$!: Observable<string>;
+  closeLinkText$!: Observable<string>;
+  newTabText$!:  Observable<string>;
   
 
   constructor(
@@ -49,6 +50,7 @@ export class EthMetagridComponent implements AfterViewInit {
 
 
   ngAfterViewInit() {
+    // select data from store to check for GND and IdRef
     this.persons$ = this.store.select(selectFullDisplayRecord).pipe(
       switchMap(record => this.getPersons(record))
     )
@@ -56,6 +58,7 @@ export class EthMetagridComponent implements AfterViewInit {
 
 
   getPersons(record: any) {
+    // fallback of config for local development
     // [de,en,fr,it]
     this.moduleParametersDev = {
       "whitelist": [
@@ -91,22 +94,25 @@ export class EthMetagridComponent implements AfterViewInit {
     }
     if(!this.moduleParameters || !this.moduleParameters.whitelist)this.moduleParameters = this.moduleParametersDev; 
 
-    this.openLink$ = this.getI18nText('metagrid.link.open', {
+
+    // multilingual Text
+    this.openLinkText$ = this.getI18nText('metagrid.link.open', {
       de: 'Metagrid-Links zeigen',
       en: 'Show Metagrid links',
       fr: '..',
       it: '..'
     });      
 
-    this.closeLink$ = this.getI18nText('metagrid.close', {
+    this.closeLinkText$ = this.getI18nText('metagrid.close', {
       de: 'Metagrid-Links ausblenden',
       en: 'Hide Metagrid links'
     });      
-    
-    this.newTab$ = this.translate.get('nui.aria.newWindow');
+  
+    this.newTabText$ = this.translate.get('nui.aria.newWindow');
 
+    // extract GND from data and request metagrid service
     const gndIds = this.getGndIds(record);
-    const gnd$ = gndIds?.length
+    const gndPersons$ = gndIds?.length
       ? this.metagridService.getResourcesForGndIds(gndIds, this.moduleParameters?.whitelist).pipe(
           catchError(error => {
             console.error('error in Metagrid addon ngAfterViewInit() gnd:', error);
@@ -115,8 +121,9 @@ export class EthMetagridComponent implements AfterViewInit {
         )
       : of([]);
 
+    // extract idRef from data and request metagrid service
     const idRefs = this.getIdRefs(record);      
-    const idRef$ = idRefs?.length
+    const idRefPersons$ = idRefs?.length
       ? this.metagridService.getResourcesForIdRefs(idRefs, this.moduleParameters?.whitelist).pipe(
           catchError(error => {
             console.error('error in Metagrid addon ngAfterViewInit() idref:', error);
@@ -125,28 +132,30 @@ export class EthMetagridComponent implements AfterViewInit {
         )
       : of([]);
 
-
-    return forkJoin([gnd$, idRef$]).pipe(
+    return forkJoin([gndPersons$, idRefPersons$]).pipe(
+      // join persons and resources from responses    
       map(([gndPersons, idRefPersons]) => {
         const allPersons = [...gndPersons, ...idRefPersons].map(p => ({
           ...p,
           personId: p.gnd ?? p.idRef
         }));
-        // const dedupedPersons = this.deduplicatePersons(allPersons);
         return allPersons;
       }),
+      // copy toggle links and cards to target place
       tap(persons => setTimeout(() => this.copyMetagridLinks(persons), 1000))
     );
   
   }
 
+  
+  // extract GND 
   private getGndIds(record:any): string[] | null {
     const lds03 = record?.pnx?.display?.['lds03'] || [];
     const gndIds: string[] = lds03.map((l: any) => {
       l = l.replace('(DE-588)', '');
       // ALMA Ressources: link in value
       // http://d-nb.info/gnd/4113615-9\
-      if (l.includes('http://d-nb.info/gnd')) {
+      if (l.includes('//d-nb.info/gnd')) {
         return l.substring(l.indexOf('gnd/') + 4, l.indexOf('">'));
       }
       // external data since dec 25
@@ -167,6 +176,8 @@ export class EthMetagridComponent implements AfterViewInit {
     return gndIds.length ? gndIds : null;
   }
 
+
+  // extract idRef
   private getIdRefs(record:any): string[] | null {
     const lds03 = record?.pnx?.display?.['lds03'] || [];
     return Array.from(
@@ -178,10 +189,15 @@ export class EthMetagridComponent implements AfterViewInit {
       )
     );
   }
-
+  
+  
+  // copy toggle links and cards to target place
   copyMetagridLinks(persons: Person[]): void {
+    
+    // map person to target element
     const personIdToTargetElementMap = new Map<string, Element>();
 
+    // persons with resources
     const personIdsWithResources = persons
       .filter(p => (p.resources?.length ?? 0) > 0)
       .map(p => p.personId!);
@@ -198,7 +214,10 @@ export class EthMetagridComponent implements AfterViewInit {
         const href = selectorLink.getAttribute('href');
         const personIdFromHref = href ? extractId(href) : null;
         if (!personIdFromHref || !personIdsWithResources.includes(personIdFromHref)) return;
-        personIdToTargetElementMap.set(personIdFromHref, selectorLink);
+        const span = selectorLink.parentElement;
+        if(span){
+          personIdToTargetElementMap.set(personIdFromHref, span);
+        }
       });
     });
 
@@ -211,15 +230,16 @@ export class EthMetagridComponent implements AfterViewInit {
       }
     })    
 
+    // copy link and card
     personIdsWithResources.forEach(personId => {
       if(personId){
           const link = this.document.getElementById('metagrid-link-' + personId);
           const card = this.document.getElementById('metagrid-card-' + personId)
-          const target = personIdToTargetElementMap.get(personId)?.parentElement;
-          if (link && target?.parentNode) {
-            target.parentNode.insertBefore(link, target.nextSibling);
+          const target = personIdToTargetElementMap.get(personId);
+          if (link && target?.parentElement) {
+            target.parentElement.insertBefore(link, target.nextSibling);
             if (card) {
-              target.parentNode.append(card);
+              target.parentElement.append(card);
             }
           }
       }
@@ -227,6 +247,8 @@ export class EthMetagridComponent implements AfterViewInit {
 
   }
 
+  
+  // open and close card
   toggleCard(personId: string, link: HTMLElement): void {
     const card = this.document.querySelector(`#metagrid-card-${personId}`) as HTMLElement;
     if (!card || !link) return;
@@ -255,6 +277,7 @@ export class EthMetagridComponent implements AfterViewInit {
     );
   }
 
+  // get provider label from moduleParameters config
   getProviderLabel(slug: string): string {
     const lang = this.translate.currentLang || 'de';
     const langIndex = { de: 0, en: 1, fr: 2, it: 3 }[lang] ?? 0;

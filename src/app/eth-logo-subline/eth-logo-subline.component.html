@@ -1,7 +1,5 @@
-@if( url ){
 <div>
-    <a [href]="url" class="eth-subline-link">
+    <a [href]="'/nde'+url" (click)="navigate($event)" class="eth-subline-link">
         ETH swisscovery
     </a>
 </div>
-}

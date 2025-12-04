@@ -3,6 +3,7 @@ import { EthConnectedpapersService } from './eth-connectedpapers.service'
 import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { createFeatureSelector, createSelector, Store } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
+import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 
 type FullDisplayState = {selectedRecordId:string};
 const selectFullDisplayState = createFeatureSelector<FullDisplayState>('full-display');
@@ -33,7 +34,8 @@ const selectFullDisplayRecord = createSelector(
   standalone: true,
   encapsulation: ViewEncapsulation.None,
   imports: [
-    CommonModule
+    CommonModule,
+    SafeTranslatePipe
   ]    
 })
 

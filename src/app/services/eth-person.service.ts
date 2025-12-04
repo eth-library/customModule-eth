@@ -413,7 +413,6 @@ export class EthPersonService {
             if(entityfactsResult.length > 0){
                 person['entityfacts'] = this.processEntityfactsResponse(entityfactsResult);
             }
-
             // Metagrid
             let metagridResult = results.filter( (e:any) => {
                 return e.provider === 'api.metagrid.ch';
@@ -468,10 +467,10 @@ export class EthPersonService {
             }
             //personId=n80002513&inst=41SLSP_ETH&vid=41SLSP_ETH:ETH&lang=de&docid=alma990016261860205503&context=L&adaptor=Local%20Search%20Engine
             if(person['wiki'] && person['wiki'].loc && person['wiki'].loc != ''){
-                person['url'] = `/nde/entity/person?entityId=${person['wiki'].loc}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
+                person['url'] = `/entity/person?entityId=${person['wiki'].loc}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
             }
             else if(person['gnd']) {
-                person['url'] = `/nde/entity/person?entityId=${person['gnd']}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;            
+                person['url'] = `/entity/person?entityId=${person['gnd']}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;            
             }
             // name
             if(person['entityfacts']?.preferredName){
@@ -487,14 +486,14 @@ export class EthPersonService {
         }
     }
 
-    getPersonPageLink(identifier:string): string{
+    getPersonPageUrl(identifier:string): string{
         try{
            
-            let url = `/nde/entity/person?entityId=${identifier}&vid=41SLSP_ETH:ETH_CUSTOMIZING`;
+            let url = `/entity/person?entityId=${identifier}&vid=41SLSP_ETH:ETH_CUSTOMIZING`;
             return url;
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'EthPersonService.getPersonPageLink');
+            return this.ethErrorHandlingService.handleSynchronError(error, 'EthPersonService.getPersonPageUrl');
         }
     }
 

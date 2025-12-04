@@ -3,7 +3,6 @@ import { EthDnbTocComponent } from './eth-dnb-toc/eth-dnb-toc.component';
 import { EthComposeEraraComponent } from './eth-compose-erara/eth-compose-erara.component';
 import { EthComposeNbComponent } from './eth-compose-nb/eth-compose-nb.component'
 import { EthProvenienzEraraLinkComponent } from './eth-provenienz-erara-link/eth-provenienz-erara-link.component';
-import { EthConnectedpapersComponent } from './eth-connectedpapers/eth-connectedpapers.component';
 
 @Component({
   selector: 'custom-eth-record-availability-after',
@@ -15,7 +14,6 @@ import { EthConnectedpapersComponent } from './eth-connectedpapers/eth-connected
     EthComposeEraraComponent,
     EthComposeNbComponent,
     EthProvenienzEraraLinkComponent,
-    EthConnectedpapersComponent
   ]
 })
 export class EthRecordAvailabilityAfterComponent {

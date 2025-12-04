@@ -1,6 +1,6 @@
 @if (articleLink$ | async; as articleLink) {
   @if (articleLink.fulltext) {
-    <a [href]="articleLink.fulltext" target="_blank" rel="noopener noreferrer" class="eth-fulltext-link">
+    <a [href]="articleLink.fulltext" target="_blank" rel="noopener" class="eth-fulltext-link">
       @if (articleLink.fromLibkey) {
         <span>{{ articleLink.type }} von Libkey</span>
       }

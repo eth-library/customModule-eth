@@ -1,4 +1,4 @@
-import {ApplicationRef, CUSTOM_ELEMENTS_SCHEMA, DoBootstrap, Injector, ModuleWithProviders, NgModule} from '@angular/core';
+import {ApplicationRef, CUSTOM_ELEMENTS_SCHEMA, DoBootstrap, Injector, NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {AppComponent} from './app.component';
 import {createCustomElement, NgElementConstructor} from "@angular/elements";
@@ -7,9 +7,11 @@ import {selectorComponentMap} from "./custom1-module/customComponentMappings";
 import {TranslateModule} from "@ngx-translate/core";
 import { CommonModule } from '@angular/common';
 import { AutoAssetSrcDirective } from './services/auto-asset-src.directive';
+import {SHELL_ROUTER} from "./injection-tokens";
 import { provideHttpClient } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-export const AppModule = ({providers}: {providers:any}) => {
+export const AppModule = ({providers, shellRouter}: {providers:any, shellRouter: Router}) => {
    @NgModule({
     declarations: [
       AppComponent,
@@ -19,11 +21,13 @@ export const AppModule = ({providers}: {providers:any}) => {
     imports: [
       BrowserModule,
       CommonModule,
+      BrowserAnimationsModule,
       TranslateModule.forRoot({})
     ],
     providers: [
       ...providers, 
-      provideHttpClient() 
+      {provide: SHELL_ROUTER, useValue: shellRouter},
+      provideHttpClient()
     ],
     bootstrap: [],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]    
@@ -36,10 +40,12 @@ export const AppModule = ({providers}: {providers:any}) => {
     }
 
     ngDoBootstrap(appRef: ApplicationRef) {
+      (window as any).ngDevMode = false;
       for (const [key, value] of selectorComponentMap) {
         const customElement = createCustomElement(value, {injector: this.injector});
         this.webComponentSelectorMap.set(key, customElement);
       }
+
     }
 
     /**

@@ -1,10 +1,11 @@
-import { Component, Input, AfterViewInit } from '@angular/core';
+import { Component, Input, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { of, Observable } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
 import { EthComposeNbService } from './eth-compose-nb.service';
 import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
+import { SHELL_ROUTER } from "../../injection-tokens";
 
 type Link = { label: string; url: string };
 
@@ -19,7 +20,8 @@ type Link = { label: string; url: string };
 })
 export class EthComposeNbComponent implements AfterViewInit {
   @Input() hostComponent: any = {};
-
+  private router = inject(SHELL_ROUTER);   
+  
   links$!: Observable<Link[]>;
 
   constructor(
@@ -119,8 +121,13 @@ export class EthComposeNbComponent implements AfterViewInit {
     const vid = this.ethStoreService.getVid();
     const tab = this.ethStoreService.getTab();
     const scope = this.ethStoreService.getScope();
-    return `/nde/fulldisplay?vid=${vid}&docid=alma${mmsid}&tab=${tab}&search_scope=${scope}`;
+    return `/fulldisplay?vid=${vid}&docid=alma${mmsid}&tab=${tab}&search_scope=${scope}`;
   }
+
+  navigate(url: string, event: Event){
+    event.preventDefault();  
+    this.router.navigateByUrl(url);
+  }    
 
 }
 

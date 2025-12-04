@@ -28,7 +28,7 @@ export class EthLibraryStackComponent {
 
   ngAfterViewInit() {
     // cdi_librarystack_primary_159090
-    this.ethStoreService.getDeliveryEntity$().pipe(
+    this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
       //tap(deliveryEntity => {console.error("deliveryEntity",deliveryEntity)}),
       map(deliveryEntity => {
         return deliveryEntity?.delivery?.link?.some(

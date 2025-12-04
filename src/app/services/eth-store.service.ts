@@ -114,9 +114,15 @@ const selectUserGroup = createSelector(selectUserState, state => state?.decodedJ
 const selectAuthenticationProfile = createSelector(selectUserState, state => state?.decodedJwt?.authenticationProfile ?? null);
 
 
-export const selectListviewRecord = (recordId: string) =>
+const selectListviewRecord = (recordId: string) =>
   createSelector(
     selectSearchEntities,
+    entities => entities[recordId] ?? null
+  );
+
+const selectListviewDeliveryEntity = (recordId: string) =>
+  createSelector(
+    selectDeliveryEntities,
     entities => entities[recordId] ?? null
   );
 
@@ -293,13 +299,25 @@ export class EthStoreService {
     }
 
 
-    getDeliveryEntity$(): Observable<any | null> {
+    getFullDisplayDeliveryEntity$(): Observable<any | null> {
         return this.store.select(selectFullDisplayDeliveryEntities).pipe(
             catchError((e) => {
-                this.ethErrorHandlingService.handleError(e, 'EthStoreService.getDeliveryEntity$');
+                this.ethErrorHandlingService.handleError(e, 'EthStoreService.getFullDisplayDeliveryEntity$');
                 return of(null);
             })
         );
     }
+
+    getDeliveryEntity$(hostComponent: any) {
+        const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0];
+        return this.store.select(selectFullDisplayDeliveryEntities).pipe(
+            switchMap(record =>
+                record
+                ? of(record)
+                : this.store.select(selectListviewDeliveryEntity(recordId))
+            )
+        );
+    }
+
 
 }

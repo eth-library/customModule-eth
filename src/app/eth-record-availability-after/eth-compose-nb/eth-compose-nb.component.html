@@ -4,7 +4,7 @@
         @for (link of links; track link.url) {
             @if (link.url) {
                 <div>
-                    <a [href]="link.url">{{ link.label }}</a>
+                    <a [href]="'/nde'+link.url" (click)="navigate(link.url,$event)">{{ link.label }}</a>
                 </div>
             }
         }

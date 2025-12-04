@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { catchError, filter, forkJoin, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../services/eth-person.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
@@ -9,6 +9,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
+import { SHELL_ROUTER } from "../injection-tokens";
 
 @Component({ 
   selector: 'custom-eth-person-page',
@@ -26,6 +27,7 @@ import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 })
 
 export class EthPersonPageComponent{
+  private router = inject(SHELL_ROUTER); 
   private tab!: string;
   private scope!: string;
   private vid!: string;  
@@ -59,7 +61,6 @@ export class EthPersonPageComponent{
     return this.ethStoreService.linkedDataEntityId$.pipe(
       filter(id => !!id),
       switchMap(id => {
-        console.error("id",id)
         return this.ethPersonService.getPerson(id, this.lang).pipe(
           filter(data => !!data),
           map(data => {
@@ -139,7 +140,7 @@ export class EthPersonPageComponent{
         if(query.indexOf('lds03')===-1){
           query = query.replace('any,contains,','');
         }
-        let url = `/nde/search?query=${query}&tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}`;
+        let url = `/search?query=${query}&tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}`;
         if(query.indexOf('lds03')>-1){
           url += '&mode=advanced';
         }
@@ -151,5 +152,10 @@ export class EthPersonPageComponent{
       })
     );
   }
+
+  navigate(url: string, event: Event){
+    event.preventDefault();  
+    this.router.navigateByUrl(url);
+  }      
 
 }

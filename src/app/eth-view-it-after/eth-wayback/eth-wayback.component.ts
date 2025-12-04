@@ -28,7 +28,7 @@ export class EthWaybackComponent {
 
   ngAfterViewInit() {
     // 99117429500405503
-    this.ethStoreService.getDeliveryEntity$().pipe(
+    this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
       //tap(deliveryEntity => {console.error("deliveryEntity",deliveryEntity)}),
       map(deliveryEntity => {
         return deliveryEntity?.delivery?.link?.some(

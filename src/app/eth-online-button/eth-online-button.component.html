@@ -1,0 +1,28 @@
+@if (links$ | async; as links) { 
+  @if (links && links.length > 1) {
+  <div class="flex-row flex-layout-center">
+    <ng-container>
+      <button  mat-button color="primary"
+              [attr.aria-label]="links[0].ariaLabel"
+              (click)="navigate(links[0].source,links[0].url,$event)"
+               class="eth-quicklink-button">
+        <span>{{ links[0].label }}</span>
+      </button>
+      <button class="eth-quicklink-expand-button mat-mdc-icon-button"
+              mat-icon-button
+              [matMenuTriggerFor]="menu"
+              [attr.aria-label]="'nde.aria.onlineOptions' | safeTranslate | async">
+              <mat-icon role="img" color="primary" class="mat-icon notranslate nde-mat-icon-size mat-primary ng-star-inserted" aria-hidden="true" data-mat-icon-type="svg" data-mat-icon-name="Arrow-down-filled"><svg xmlns="http://www.w3.org/2000/svg" height="100%" viewBox="0 -960 960 960" width="100%" fit="" preserveAspectRatio="xMidYMid meet" focusable="false"><path d="M480-360 280-560h400L480-360Z"></path></svg></mat-icon>
+      </button>
+    </ng-container>
+
+    <mat-menu #menu="matMenu" class="quicklinks-menu">
+      <button mat-menu-item 
+        class="quicklink-menu-item"
+        [attr.aria-label]="links[1].ariaLabel"
+        (click)="navigate(links[1].source,links[1].url,$event)">
+        <span class="quicklinks-menu-item-text">{{'nde.delivery.code.otherOnlineOptions' | safeTranslate | async}}</span>
+      </button>
+    </mat-menu>
+  </div>
+}}
