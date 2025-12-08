@@ -5,8 +5,8 @@
         @for (link of links; track link.url) {
             <div>
                 @if(link.external){
-                    <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + ('nui.aria.newWindow' | safeTranslate | async)">
-                        <span>{{ link.label }}</span>
+                    <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="((link.label$ | async) ?? '') + ((labelNewWindow$ | async) ?? '')">
+                        <span>{{ link.label$ | async }}</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                           <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                         </svg>                     
@@ -14,7 +14,7 @@
                 }
                 @else {
                     <a [href]="'/nde'+link.url" (click)="navigate(link.url,$event)">
-                        <span>{{ link.label }}</span>
+                        <span>{{ link.label$ | async }}</span>
                     </a>
                 }
             </div>

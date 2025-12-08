@@ -50,12 +50,12 @@ export class EthLocationHintComponent {
   }  
 
   private getLocationHint(): Observable<string | null> {
-    return this.translate.get('eth.locationHint.' + this.libraryCode + '.' + this.subLocationCode, {id: this.id}).pipe( 
+    return this.translate.stream('eth.locationHint.' + this.libraryCode + '.' + this.subLocationCode, {id: this.id}).pipe( 
       switchMap(translation1 => {
         if (translation1 !== 'eth.locationHint.' + this.libraryCode + '.' + this.subLocationCode) {
           return of(translation1); 
         }
-        return this.translate.get('eth.locationHint.' + this.libraryCode, {id: this.id}).pipe(
+        return this.translate.stream('eth.locationHint.' + this.libraryCode, {id: this.id}).pipe(
           switchMap(translation2 => {
             if (translation2 !== 'eth.locationHint.' + this.libraryCode) {
               return of(translation2);

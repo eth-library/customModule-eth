@@ -10,20 +10,20 @@
               <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
             </svg>            
           </a></div>
-        }
+        } 
       }
     }
     @if (links.dnbLinks.length > 0) {
       @for (link of links.dnbLinks; track link.uri) {
         @if (link.uri) {
           <div>
-            <a [href]="link.uri" target="_blank" rel="noopener" class="eth-dnb-toc" [attr.aria-label]="link.label + ' der DNB zu ISBN ' + link.identifier + ('nui.aria.newWindow' | safeTranslate | async)">
-              <span>{{ link.label }}</span>
+            <a [href]="link.uri" target="_blank" rel="noopener" class="eth-dnb-toc" [attr.aria-label]="(link.label$ | async) + link.title + ('nui.aria.newWindow' | safeTranslate | async)">
+              <span>{{ link.label$ | async}}</span>
               @if (link.title) {
-                <span> der DNB zu "{{ link.title }}"</span>
+                <span>"{{ link.title }}"</span>
               }
               @else if (link.identifier) {
-                <span> der DNB zu ISBN "{{ link.identifier }}"</span>
+                <span>"{{ link.identifier }}"</span>
               }
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>

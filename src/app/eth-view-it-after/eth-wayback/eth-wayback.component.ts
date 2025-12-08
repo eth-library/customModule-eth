@@ -1,9 +1,10 @@
-import { Component, Inject, Renderer2 } from '@angular/core';
+import { Component, DestroyRef, inject, Inject, Renderer2 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { catchError, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslateService } from "@ngx-translate/core";
 
 
 @Component({
@@ -18,11 +19,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class EthWaybackComponent {
 
   showHint$!: Observable<boolean>;
-   
+  private destroyRef = inject(DestroyRef);
+     
   constructor(
     private ethStoreService:EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService,
     private renderer: Renderer2,
+    private translate: TranslateService,    
     @Inject(DOCUMENT) private document: Document    
   ){}
 
@@ -36,34 +39,48 @@ export class EthWaybackComponent {
         ) ?? false;
       }),
       filter(hasWaybackUrl => hasWaybackUrl),
-      take(1),
+      // using take(1) laguage switch do not work
+      //take(1),
       tap(() => this.changeDOM()),
       catchError(err => {
         this.ethErrorHandlingService.handleError(err, 'EthWaybackComponent');
         return of(false);
       })      
     )
-    //.pipe(takeUntilDestroyed()) todo
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe();
   }
 
   changeDOM() {
     const observer = new MutationObserver(() => {
       const btnH5 = this.document.querySelector('nde-view-it-card button h5');
-      if (btnH5) {
+      const btn = this.document.querySelector('nde-view-it-card button');
+      if (btnH5 && btn && btn.parentNode && !this.document.getElementById('eth-wayback-hint')) {
         observer.disconnect();
-        this.renderer.setProperty(btnH5, 'textContent', 'Link to the web archive');
-        const btn = this.document.querySelector('nde-view-it-card button');
-        if (btn && btn.parentNode) {
-          const newDiv = this.renderer.createElement('div');
-          this.renderer.setStyle(newDiv, 'padding-left', '6px');
-          this.renderer.setStyle(newDiv, 'font-size', '14px');
-          const text = this.renderer.createText('In the web archive, select a year and a date marked in blue to access the archived website.');
-          this.renderer.appendChild(newDiv, text);
-          this.renderer.insertBefore(btn.parentNode, newDiv, btn.nextSibling);
-        }
+        this.translate.stream([
+          'eth.wayback.text',
+          'eth.wayback.linkText'
+        ]).pipe(
+          tap(translations => {
+            const labelText = translations['eth.wayback.text'];
+            const labelLinkText = translations['eth.wayback.linkText'];
+            this.renderer.setProperty(btnH5, 'textContent', labelLinkText);
+            this.renderer.setAttribute(btnH5, 'aria-label', labelLinkText);
+            const newDiv = this.renderer.createElement('div');
+            this.renderer.setStyle(newDiv, 'padding-left', '6px');
+            this.renderer.setStyle(newDiv, 'font-size', '14px');
+            this.renderer.setAttribute(newDiv, 'id', 'eth-wayback-hint');
+            const text = this.renderer.createText(labelText);
+            this.renderer.appendChild(newDiv, text);
+            this.renderer.insertBefore(btn.parentNode, newDiv, btn.nextSibling);
+          }),
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe();                    
       }
     });
-    observer.observe(this.document.body, { childList: true, subtree: true });
+    const el = this.document.querySelector('nde-full-display-container') as HTMLElement;
+    observer.observe(el, { childList: true, subtree: true });
+    this.destroyRef.onDestroy(() => observer.disconnect());
   }
+
 }

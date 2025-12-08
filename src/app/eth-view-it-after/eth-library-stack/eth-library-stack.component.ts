@@ -1,8 +1,9 @@
-import { Component, Inject, Renderer2 } from '@angular/core';
+import { Component, Inject, Renderer2, DestroyRef, inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { catchError, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
+import { catchError, filter, map, Observable, of, take, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
+import { TranslateService } from "@ngx-translate/core";
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
@@ -18,11 +19,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class EthLibraryStackComponent {
 
   showHint$!: Observable<boolean>;
+  private destroyRef = inject(DestroyRef);
    
   constructor(
     private ethStoreService:EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService,
     private renderer: Renderer2,
+    private translate: TranslateService,
     @Inject(DOCUMENT) private document: Document    
   ){}
 
@@ -38,12 +41,12 @@ export class EthLibraryStackComponent {
       filter(hasLibraryStackUrl => hasLibraryStackUrl),
       take(1),
       tap(() => this.changeDOM()),
+      takeUntilDestroyed(this.destroyRef),  
       catchError(err => {
         this.ethErrorHandlingService.handleError(err, 'EthLibraryStackComponent');
         return of(false);
       })      
     )
-    // .pipe(takeUntilDestroyed()) todo
     .subscribe();
   }
 
@@ -55,37 +58,43 @@ export class EthLibraryStackComponent {
         //this.renderer.setProperty(btnH5, 'textContent', 'Zugriff auf Inhalte in Library Stack');
         const btn = this.document.querySelector('nde-view-it-card button');
         if (btn && btn.parentNode) {
-          const newDiv2 = this.renderer.createElement('div');
-          this.renderer.setStyle(newDiv2, 'padding-left', '6px');
-          this.renderer.setStyle(newDiv2, 'font-size', '14px');
-          const text2 = this.renderer.createText('You need to register with your ETH Zurich e-mail address "Sign In". Access to this source is restricted on the domain ethz.ch because of license restrictions.');
-          this.renderer.appendChild(newDiv2, text2);
-          this.renderer.insertBefore(btn.parentNode, newDiv2, btn.nextSibling);   
+          this.translate.stream([
+            'eth.libraryStack.text1',
+            'eth.libraryStack.text2'
+          ]).pipe(
+            tap(translations => {
+              const text1 = translations['eth.libraryStack.text1'];
+              const text2 = translations['eth.libraryStack.text2'];
 
-          const newDiv = this.renderer.createElement('div');
-          this.renderer.setStyle(newDiv, 'padding-left', '6px');
-          this.renderer.setStyle(newDiv, 'color', 'var(--sys-primary)');
-          this.renderer.setStyle(newDiv, 'font-size', '14px');
-          const text = this.renderer.createText('Password protected access. Restricted to members of ETH Zurich only.');
-          this.renderer.appendChild(newDiv, text);
-          this.renderer.insertBefore(btn.parentNode, newDiv, btn.nextSibling);
+              const btn = this.document.querySelector('nde-view-it-card button');
+              if (btn && btn.parentNode) {
+                const existingDivs = btn.parentNode.querySelectorAll('.eth-libstack-text');
+                existingDivs.forEach(div => div.remove());
+
+                const newDiv2 = this.renderer.createElement('div');
+                this.renderer.addClass(newDiv2, 'eth-libstack-text');
+                this.renderer.setStyle(newDiv2, 'padding-left', '6px');
+                this.renderer.setStyle(newDiv2, 'font-size', '14px');
+                this.renderer.appendChild(newDiv2, this.renderer.createText(text2));
+                this.renderer.insertBefore(btn.parentNode, newDiv2, btn.nextSibling);
+
+                const newDiv1 = this.renderer.createElement('div');
+                this.renderer.addClass(newDiv1, 'eth-libstack-text');
+                this.renderer.setStyle(newDiv1, 'padding-left', '6px');
+                this.renderer.setStyle(newDiv1, 'color', 'var(--sys-primary)');
+                this.renderer.setStyle(newDiv1, 'font-size', '14px');
+                this.renderer.appendChild(newDiv1, this.renderer.createText(text1));
+                this.renderer.insertBefore(btn.parentNode, newDiv1, btn.nextSibling);
+              }
+            }),
+            takeUntilDestroyed(this.destroyRef)
+          ).subscribe();          
         }
       }
     });
-    observer.observe(this.document.body, { childList: true, subtree: true });
+    const el = this.document.querySelector('nde-full-display-container') as HTMLElement;
+    observer.observe(el, { childList: true, subtree: true });
+    this.destroyRef.onDestroy(() => observer.disconnect());
   }
   
 }
-
-/*
-        label: {
-            hint1:{
-                de: 'Password protected access. Restricted to members of ETH Zurich only.',
-                en: 'Password protected access. Restricted to members of ETH Zurich only.'
-            },
-            hint2:{
-                de: 'You need to register with your ETH Zurich e-mail address "Sign In". Access to this source is restricted on the domain ethz.ch because of license restrictions.',
-                en: 'You need to register with your ETH Zurich e-mail address "Sign In". Access to this source is restricted on the domain ethz.ch because of license restrictions.'
-            }
-        }
- */

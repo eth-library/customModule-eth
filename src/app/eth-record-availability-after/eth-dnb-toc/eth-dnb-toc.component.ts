@@ -21,6 +21,7 @@ import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 })
 export class EthDnbTocComponent {
   contentLinks$!: Observable<{ almaLinks: any[]; dnbLinks: any[] }>;
+  
   @Input() hostComponent: any = {};
   
   constructor(
@@ -30,6 +31,9 @@ export class EthDnbTocComponent {
     private ethErrorHandlingService: EthErrorHandlingService
   ){}
 
+
+  // 9783715550527
+  // 990042614440205503 - multiple Links (Sämtliche Werke in zehn Bänden)
   ngOnInit() {
     this.contentLinks$ = this.ethStoreService.isFullview$().pipe(
       filter(Boolean),
@@ -82,6 +86,10 @@ export class EthDnbTocComponent {
     if (!isbns?.length) {
       return of([]);
     }
+
+    const labelToc$ = this.translate.stream('eth.dnbToc.toc');
+    const labelText$ = this.translate.stream('eth.dnbToc.text');
+
     return forkJoin(
       isbns.map(isbn => {
         return this.ethDnbTocService.getTocLink(isbn).pipe(
@@ -94,17 +102,33 @@ export class EthDnbTocComponent {
     ).pipe(
       map(entities => entities ? entities.filter(entity => entity?.links?.length > 0) : []),
       map(entities => {
-        //console.error(entities)
-        return entities
-          .flatMap(entity =>
-            entity.links.map((link: any) => ({
+        return entities.flatMap(entity =>
+          entity.links.map((link: any) => {
+            let label$;
+            if (link.partOfResource === 'Inhaltsverzeichnis') {
+              label$ = labelToc$;
+            } else if (link.partOfResource === 'Inhaltstext') {
+              label$ = labelText$;
+            } else {
+              label$ = of(link.partOfResource);
+            }
+
+            return {
               identifier: entity.identifier,
               uri: link.uri,
               type: 'dnb',
-              label: link.partOfResource,
-              title: link.title.normalize('NFC').trim() === title.normalize('NFC').trim() ? null : link.title.normalize('NFC').replace(//g, '').replace(//g, '').trim()
-            }))
-          )
+              label$: label$,
+              title:
+                link.title.normalize('NFC').trim() === title.normalize('NFC').trim()
+                  ? null
+                  : link.title
+                      .normalize('NFC')
+                      .replace(//g, '')
+                      .replace(//g, '')
+                      .trim()
+            };
+          })
+        );
       }),
       //tap(links => console.error('TOC Links:', links))
     )

@@ -4,10 +4,15 @@ import { of, Observable } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
 import { EthComposeNbService } from './eth-compose-nb.service';
 import { EthStoreService } from '../../services/eth-store.service';
+import { TranslateService } from "@ngx-translate/core";
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
 
-type Link = { label: string; url: string };
+type Link = {
+    label$: Observable<string | null>;
+    label: string; 
+    url: string;
+};
 
 // oai:agora.ch:004261444_08 (oai:agora.ch:000280096) - 99118814985305503  -> multiple online/one print
 // single result: 990044649040205503 --  oai:agora.ch:004464904
@@ -27,6 +32,7 @@ export class EthComposeNbComponent implements AfterViewInit {
   constructor(
     private ethComposeNbService: EthComposeNbService,
     private ethStoreService: EthStoreService,
+    private translate: TranslateService,
     private ethErrorHandlingService: EthErrorHandlingService
   ) {}
 
@@ -49,9 +55,6 @@ export class EthComposeNbComponent implements AfterViewInit {
     const source = record.pnx.display?.source?.[0];
     const links: Link[] = [];
 
-    const labelPrint = 'Print Item in in ETH swisscovery';
-    const labelOnline = 'Online Item in ETH swisscovery';
-
     // online -> search print record
     // oai:agora.ch:004261444_08  - 99118814985305503  -> multiple online/one print
     if (source === 'eth_nachlassbibliothek') {
@@ -67,9 +70,8 @@ export class EthComposeNbComponent implements AfterViewInit {
       return this.ethComposeNbService.getPrintData(nebisId).pipe(
         map(data => {
           const printId = data?.map?.[0]?.almaSearch;
-          //console.error("printId",printId)
           if (printId) {
-            links.push({ label: labelPrint, url: this.makePrimoUrl(printId) });
+            links.push({ label$: this.translate.stream('eth.composeNb.print'),  label: this.translate.instant('eth.composeNb.print'), url: this.makePrimoUrl(printId) });
           }
           return links;
         }),
@@ -93,27 +95,40 @@ export class EthComposeNbComponent implements AfterViewInit {
 
       return this.ethComposeNbService.getOnlineData(oaiId).pipe(
         map(data => {
+
           const docs = data?.docs ?? [];
-          const onlineLinks = docs.map((d: any) => ({
-            label: docs.length > 1
-              ? `${labelOnline} ${d.pnx?.display?.title?.[0] ?? ''}`
-              : labelOnline,
-            url: this.makePrimoUrl(d.pnx?.control?.sourcerecordid?.[0])
-          }));
-          
-          onlineLinks.sort((a: { label: string; url: string }, b: { label: string; url: string }) => {
-            const extractBandNumber = (label: string) => {
-              const match = label.match(/Band\s*(\d+)/i);
-              return match ? parseInt(match[1], 10) : 0;
+          if(docs.length === 0) return of([]);
+
+          const labelOnline = this.translate.instant('eth.composeNb.online'); // synchrone label
+          const labelOnline$ = this.translate.stream('eth.composeNb.online'); // async stream
+
+          const onlineLinks = docs.map((d: any) => {
+            const title = d.pnx?.display?.title?.[0] ?? '';
+            const baseLabel = docs.length > 1 ? `${labelOnline} - ${title}` : labelOnline;
+
+            return {
+              label: baseLabel,
+              label$: docs.length > 1 
+                ? labelOnline$.pipe(map(v => `${v} - ${title}`))
+                : labelOnline$,
+              url: this.makePrimoUrl(d.pnx?.control?.sourcerecordid?.[0])
             };
-            return extractBandNumber(a.label) - extractBandNumber(b.label);
           });
+
+          const extractBandNumber = (label: string) => {
+            const match = label.match(/Band\s*(\d+)/i);
+            return match ? parseInt(match[1], 10) : 0;
+          };
+
+          onlineLinks.sort((a:any, b:any) =>
+            extractBandNumber(a.label) - extractBandNumber(b.label)
+          );
+
           return onlineLinks;
         }),
         catchError(() => of([]))
       );
     }
-
     return of([]);
   }
 
@@ -130,18 +145,3 @@ export class EthComposeNbComponent implements AfterViewInit {
   }    
 
 }
-
-
-/**
- *         label: {
-            print:{
-                de: 'Print-Exemplar in ETH swisscovery',
-                en: 'Print Item in in ETH swisscovery'
-            },
-            online: {
-                de: 'Online-Exemplar in ETH swisscovery',
-                en: 'Online Item in ETH swisscovery'
-            }
-        }
- * 
- */

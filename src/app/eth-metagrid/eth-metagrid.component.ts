@@ -108,7 +108,7 @@ export class EthMetagridComponent implements AfterViewInit {
       en: 'Hide Metagrid links'
     });      
   
-    this.newTabText$ = this.translate.get('nui.aria.newWindow');
+    this.newTabText$ = this.translate.stream('nui.aria.newWindow');
 
     // extract GND from data and request metagrid service
     const gndIds = this.getGndIds(record);
@@ -266,7 +266,7 @@ export class EthMetagridComponent implements AfterViewInit {
 
 
   getI18nText(key: string, fallback: { [lang: string]: string }): Observable<string> {
-    return this.translate.get(key).pipe(
+    return this.translate.stream(key).pipe(
       map(value => {
         if (value === key) {
           const lang = this.translate.currentLang || 'de';

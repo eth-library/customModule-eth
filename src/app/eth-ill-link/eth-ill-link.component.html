@@ -1,12 +1,14 @@
-@if(qs$ | async; as qs){
-<div class="eth-ill-link">
-    <div>Article/chapter is not held in the swisscovery Network or cannot be requested.</div>
-    <div>
-        <span>Please request via </span>
-        <a href="https://library.ethz.ch/en/searching-and-using/borrowing-and-using/order-forms/interlibrary-loans-ordering-copies.html?{{qs}}" target="_blank" rel="noopener">
-            <span>interlibrary loan</span>
-        </a>
-        <span>.</span>
-    </div>
-</div>
+@if(url$ | async; as url){
+    @if(translations$ | async; as t){
+        <div class="eth-ill-link">
+            <div>{{ t.t1 }}</div>
+            <div>
+                <span>{{ t.t2 }} </span>
+                <a [href]="url" target="_blank" rel="noopener" [attr.aria-label]="t.linkText + t.newWindow">
+                    <span>{{ t.linkText }}</span>
+                </a>
+                <span>{{ t.t3 }}</span>
+            </div>
+        </div>
+    }
 }

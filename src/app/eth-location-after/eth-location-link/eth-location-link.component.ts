@@ -45,19 +45,19 @@ export class EthLocationLinkComponent implements OnInit  {
   }
 
   private getLink(): Observable<string> {    
-    return this.translate.get(`eth.locationLink.${this.libraryCode}.${this.subLocationCode}`).pipe(
+    return this.translate.stream(`eth.locationLink.${this.libraryCode}.${this.subLocationCode}`).pipe(
       switchMap(translation1 => {
         if (translation1 !== `eth.locationLink.${this.libraryCode}.${this.subLocationCode}`) {
           return of(translation1); 
         }
   
-        return this.translate.get(`eth.locationLink.${this.libraryCode}`).pipe(
+        return this.translate.stream(`eth.locationLink.${this.libraryCode}`).pipe(
           switchMap(translation2 => {
             if (translation2 !== `eth.locationLink.${this.libraryCode}`) {
               return of(translation2); 
             }
   
-            return this.translate.get('eth.locationLink.default', {
+            return this.translate.stream('eth.locationLink.default', {
               code: this.libraryCode,
               libraryName: this.mainLocation,
             })

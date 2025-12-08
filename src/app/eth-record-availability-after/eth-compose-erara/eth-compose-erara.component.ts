@@ -1,16 +1,15 @@
-import { Component, Input, AfterViewInit, Pipe, PipeTransform, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, of, forkJoin } from 'rxjs';
-import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap } from 'rxjs/operators';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthComposeEraraService } from './eth-compose-erara.service';
 import { TranslateService } from "@ngx-translate/core";
-import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../../injection-tokens";
 
 type Link = { 
-  label: string;
+  label$: Observable<string | null>;
   url: string;
   external: boolean;
 };
@@ -18,7 +17,7 @@ type Link = {
 @Component({
   selector: 'custom-eth-compose-erara',
   standalone: true,
-  imports: [CommonModule, SafeTranslatePipe],
+  imports: [CommonModule],
   templateUrl: './eth-compose-erara.component.html',
   styleUrls: ['./eth-compose-erara.component.scss']
 })
@@ -26,7 +25,13 @@ export class EthComposeEraraComponent {
   @Input() hostComponent: any = {};
   private router = inject(SHELL_ROUTER);   
   
+  labelPrint$!: Observable<string | null>;
+  labelOnline$!: Observable<string | null>;
+  labelEMap$!: Observable<string | null>;
+  labelGeoTIFF$!: Observable<string | null>;
+  labelNewWindow$!: Observable<string | null>;
   links$!: Observable<Link[]>;
+
 
   constructor(
     private ethComposeEraraService: EthComposeEraraService,
@@ -38,6 +43,7 @@ export class EthComposeEraraComponent {
   // Online: 99117338116605503
   // Print: 990042488650205503
   // e-maps: 99117999030205503
+
 
   ngAfterViewInit(): void {
     this.links$ = this.ethStoreService.isFullview$().pipe(
@@ -63,10 +69,12 @@ export class EthComposeEraraComponent {
     const sourceSystem = record.pnx.control.sourcesystem?.[0];
     const links: Link[] = [];
 
-    const labelPrint = 'Print Item in ETH swisscovery';
-    const labelOnline = 'Online Item in ETH swisscovery (from e-rara)';
-    const labelEMap = 'Georeferenced online Item in ETH swisscovery (from e-maps)';
-    const labelGeoTIFF = 'GeoTIFF map via e-maps';
+    this.labelPrint$ = this.translate.stream('eth.composeErara.print');
+    this.labelOnline$ = this.translate.stream('eth.composeErara.online');
+    this.labelEMap$ = this.translate.stream('eth.composeErara.emaps');
+    this.labelGeoTIFF$ = this.translate.stream('eth.composeErara.geoTiff');
+    this.labelNewWindow$ = this.translate.stream('nui.aria.newWindow');
+    
 
     // check if this an emap record
     // if so: is there an erara record?
@@ -77,7 +85,7 @@ export class EthComposeEraraComponent {
           if (!eraraPrintId) return of([]);
 
           links.push({
-            label: labelPrint,
+            label$: this.labelPrint$,
             url: this.makePrimoUrl(eraraPrintId),
             external: false
           });
@@ -89,7 +97,7 @@ export class EthComposeEraraComponent {
               //console.error("emaps record; get online erara:", onlineId)
               if (onlineId) {
                 links.push({
-                  label: labelOnline,
+                  label$: this.labelOnline$,
                   url: this.makePrimoUrl(onlineId),
                   external: false
                 });
@@ -110,11 +118,11 @@ export class EthComposeEraraComponent {
               const out: Link[] = [];
               const url = data?.[0]?._fields?.[1];
               //console.error("erara print; get emaps",url)
-              if (url) out.push({ label: labelGeoTIFF, url, external: true });
+              if (url) out.push({ label$: this.labelGeoTIFF$, url, external: true });
 
               const onlineIdEMaps = data[0]._fields[0];
               //console.error("erara print; get swisscovery emaps",onlineIdEMaps)
-              if (onlineIdEMaps) out.push({ label: labelEMap, url: this.makePrimoUrl(onlineIdEMaps),external: false });
+              if (onlineIdEMaps) out.push({ label$: this.labelEMap$, url: this.makePrimoUrl(onlineIdEMaps),external: false });
               return out;
             }),
             catchError(() => of([]))            
@@ -126,7 +134,7 @@ export class EthComposeEraraComponent {
           const out: Link[] = [];
           const onlineId = data?.docs?.[0]?.pnx?.control?.sourcerecordid?.[0];
           //console.error("erara print; get erara online",onlineId)
-          if (onlineId) out.push({ label: labelOnline, url: this.makePrimoUrl(onlineId), external: false });
+          if (onlineId) out.push({ label$: this.labelOnline$, url: this.makePrimoUrl(onlineId), external: false });
           return out;
         }),
         catchError(() => of([]))        
@@ -146,7 +154,7 @@ export class EthComposeEraraComponent {
 
       if (printIds.length) {
         const printId = printIds[0];
-        const printLink = { label: labelPrint, url: this.makePrimoUrl(printId), external: false  };
+        const printLink = { label$: this.labelPrint$, url: this.makePrimoUrl(printId), external: false  };
         //console.error("erara online; get erara print", printId)
         
         // check GeoTIFF
@@ -157,13 +165,13 @@ export class EthComposeEraraComponent {
 
               const emapsUrl = data?.[0]?._fields?.[1];
               if (emapsUrl) {
-                links.push({ label:labelGeoTIFF, url:emapsUrl, external: true });
+                links.push({ label$:this.labelGeoTIFF$, url:emapsUrl, external: true });
                 //console.error("erara online; get emaps", emapsUrl)
               }
 
               const onlineIdEMaps = data[0]._fields[0];
               //console.error("erara online; get swisscovery emaps",onlineIdEMaps);
-              if (onlineIdEMaps) links.push({ label:labelEMap, url:this.makePrimoUrl(onlineIdEMaps), external: false });
+              if (onlineIdEMaps) links.push({ label$: this.labelEMap$, url:this.makePrimoUrl(onlineIdEMaps), external: false });
 
               // always add print link 
               links.push(printLink);
