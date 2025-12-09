@@ -74,9 +74,7 @@ export class EthOnlineButtonComponent {
           const link = dE.delivery.electronicServices[0];
           links.push({
             url: link.serviceUrl,
-            source: "electronicServices",
-            label: "View Online",
-            ariaLabel: "View Online" + this.translate.instant('nui.aria.newWindow')
+            source: "electronicServices"
           });
         }
 
@@ -88,9 +86,7 @@ export class EthOnlineButtonComponent {
           link = link.substring(0,link.indexOf('$$'));
           links.push({
             url: link,
-            source: "pnx",
-            label: "View Online (PNX Link)",
-            ariaLabel: "View Online" + this.translate.instant('nui.aria.newWindow')
+            source: "pnx"
           });
         }
 
@@ -99,24 +95,18 @@ export class EthOnlineButtonComponent {
         }
 
         // add fulldisplay viewit link
-        let labelViewIt = this.translate.instant('nde.delivery.code.otherOnlineOptions');
-        if (labelViewIt === 'nde.delivery.code.otherOnlineOptions')labelViewIt = "Available Online";
         links.push({
           url: this.makePrimoUrl(this.getDocId(record)),
-          source: "ViewIt",
-          label: labelViewIt,
-          ariaLabel: labelViewIt
+          source: "ViewIt"
         });
 
         return links;
-
       }),
 
       // remove OTB online button
       tap((links)=>{
         if(links?.length > 0){
           const hostElem = this.elementRef.nativeElement;
-          // todo
           this.removeOTBOnlineButton(hostElem);
           //this.checkLibkeyButton(hostElem);
         }

@@ -9,3 +9,10 @@ mat-option[aria-label='Italiano']{
 .eth-quicklink-expand-button.mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
     border-radius: unset;
 }
+/* logo */
+@media (max-width: 600px) {
+    nde-logo img{
+        max-width: 100px;
+        height: auto;
+    }
+}

@@ -4,7 +4,7 @@
     <div class="eth-place-cards" role="region" aria-labelledby="ethGeoRefCards">
       <details open>
         <summary>
-          <h4 id="ethGeoRefCards">Related Places ({{placeLinks.allPlaces.length}})</h4>
+          <h4 id="ethGeoRefCards">{{'eth.geoRef.heading' | safeTranslate | async}} ({{placeLinks.allPlaces.length}})</h4>
           <svg class="marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
             <path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"></path>
           </svg>
@@ -29,7 +29,7 @@
                         <span>Ort in ETHorama</span>
                       </a>
                     </div-->
-                    <div class="eth-entity-type-wrapper"><span class="entity-type">Place</span></div>
+                    <div class="eth-entity-type-wrapper"><span class="entity-type">{{'eth.geoRef.entity' | safeTranslate | async}}</span></div>
                 </div>
               </div>
               @if (!last) {

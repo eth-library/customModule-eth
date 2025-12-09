@@ -9,7 +9,6 @@
         width: clamp(1088px, 85%, 1368px);
     }
 }
-
 .eth-placepage .mat-expansion-panel.eth-expansion-panel {
     background-color: white;
     box-shadow: none!important;
@@ -109,8 +108,13 @@
     object-fit: contain;
 }
 .map{
-    height: 600px;
+    height: 400px;
     margin-top: 2rem;
+}
+@media (min-width: 600px) {
+.map{
+    height: 600px;
+}
 }
 .eth-map-info{
     max-width: 400px;

@@ -11,7 +11,7 @@ import { EthIdpWarningComponent } from '../eth-idp-warning/eth-idp-warning.compo
 import { EthRecordAvailabilityAfterComponent } from '../eth-record-availability-after/eth-record-availability-after.component';
 import { EthPlacePageComponent } from '../eth-place-page/eth-place-page.component';
 import { EthPersonPageComponent } from '../eth-person-page/eth-person-page.component';
-//import { EthOKMComponent } from '../eth-okm/eth-okm.component';
+import { EthOKMComponent } from '../eth-okm/eth-okm.component';
 //import { EthProvenienzEraraLinkComponent } from '../eth-provenienz-erara-link/eth-provenienz-erara-link.component';
 import { EthGetitLocationsfilterComponent } from '../eth-getit-locationsfilter/eth-getit-locationsfilter.component';
 import { EthViewItAfterComponent } from '../eth-view-it-after/eth-view-it-after.component';
@@ -46,7 +46,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-personal-details-view-after', EthChangeAdressComponent],
     ['nde-personal-settings-before', EthIdpWarningComponent],
     ['nde-requests-after', EthIllLinkComponent],
-    //['nde-search-bar-presenter-after', EthOKMComponent],
+    ['nde-search-bar-presenter-after', EthOKMComponent],
     //['nde-full-display-details-bottom', EthMetagridComponent],
 ])
 

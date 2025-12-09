@@ -45,13 +45,12 @@ export class EthPersonCardsComponent {
     ngOnInit(): void {
       this.persons$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
         switchMap(record => this.loadPersons(record)),
-        tap( (persons) => {
-          //console.error(persons)
+        /*tap( (persons) => {
           if(persons.filteredPersons.length > 0 && !this.cardPositioned) {
             this.cardPositioned = true;
             this.mqListener = this.ethUtilsService.positionCard('.eth-person-cards');
           }
-        })
+        })*/
       )
     }
 

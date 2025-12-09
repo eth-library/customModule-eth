@@ -9,8 +9,13 @@
 }
 .eth-all-news{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 2rem;
+}
+@media (min-width: 600px) {
+    .eth-all-news{
+        flex-direction: row;
+    } 
 }
 .eth-news{
     background-color: #FFF;

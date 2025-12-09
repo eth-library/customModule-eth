@@ -4,7 +4,6 @@ import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthPlacePageService } from './eth-place-page.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -56,9 +55,19 @@ export class EthPlacePageComponent {
     this.placeData$ = this.searchValue$.pipe(
       switchMap((searchValue: string) => {
         return this.initPlacePage(searchValue);
-      }),
-      //tap(val => console.error(val))
+      })
     )
+
+    // language change triggers getPlaceData()
+    this.translate.onLangChange.subscribe(() => {
+      this.lang = this.translate.currentLang;
+      this.placeData$ = this.searchValue$.pipe(
+        switchMap((searchValue: string) => {
+          return this.initPlacePage(searchValue);
+        })
+      )
+    });
+
   }  
 
   initPlacePage(searchValue: string): Observable<any | null> {
@@ -72,6 +81,7 @@ export class EthPlacePageComponent {
     if(this.qid === '') {
       return of(null);
     }
+
     // hide search result container
     const observer = new MutationObserver(() => {
       const target = document.querySelector('.search-result-content');
@@ -81,7 +91,10 @@ export class EthPlacePageComponent {
       }
     });
     observer.observe(document.body, { childList: true, subtree: true });        
+    return this.getPlaceData(); 
+  }  
 
+  getPlaceData(): Observable<any | null> {        
     return forkJoin({
       geoTopics: this.ethPlacePageService.getTopicsFromGeoGraph(this.qid, this.lang).pipe(catchError(() => of(null))),
       geoPoi: this.ethPlacePageService.getPoiFromGeoGraph(this.qid, this.lang).pipe(catchError(() => of(null))),
@@ -437,6 +450,7 @@ export class EthPlacePageComponent {
       marker.on('contextmenu', (e: any) => {
         marker.openPopup();
         layer.setStyle({ weight: this.openWeight });
+        e.originalEvent.preventDefault();
       });
       marker.on('mouseout', (e: any) => {
         marker.closePopup();

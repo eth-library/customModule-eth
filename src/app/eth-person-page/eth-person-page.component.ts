@@ -48,13 +48,14 @@ export class EthPersonPageComponent{
     this.tab = this.ethStoreService.getTab();
     this.scope = this.ethStoreService.getScope();
     this.vid = this.ethStoreService.getVid();
-    this.lang = this.translate.currentLang;
-    // todo otb error entity page
-    if(this.lang === 'undefined'){
-      this.lang = 'de';
-    }
-
+    this.lang = this.translate.currentLang || 'de';
+  
     this.person$ = this.loadPerson();
+    // language change triggers loadPerson()
+    this.translate.onLangChange.subscribe(() => {
+      this.lang = this.translate.currentLang;
+      this.person$ = this.loadPerson(); 
+    });
   }
 
   private loadPerson(): Observable<any | null> {

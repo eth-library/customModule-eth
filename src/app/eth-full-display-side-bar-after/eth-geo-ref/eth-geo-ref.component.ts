@@ -10,6 +10,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { EthUtilsService } from '../../services/eth-utils.service';
 import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
+import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 
 type placeLinks = { ethorama: any[]; eraraPlaces: any[]; emapsPlaces: any[]; allPlaces: any[] }
 
@@ -20,7 +21,8 @@ type placeLinks = { ethorama: any[]; eraraPlaces: any[]; emapsPlaces: any[]; all
   standalone: true,   
   imports: [
     CommonModule,
-    MatDividerModule
+    MatDividerModule,
+    SafeTranslatePipe
   ]     
 })
 export class EthGeoRefComponent {
@@ -47,14 +49,14 @@ export class EthGeoRefComponent {
   ngAfterViewInit() {
     this.placeLinks$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
       switchMap(record => this.getPlaceLinks(record)),
-      tap( (placeLinks) => {
+      /*tap( (placeLinks) => {
         if (placeLinks.ethorama.length > 0 && !this.cardPositioned) {
           this.cardPositioned = true;
           this.mqListener = this.ethUtilsService.positionCard(
             '.eth-place-cards'
           );
         }
-      })
+      })*/
     )
   }
 

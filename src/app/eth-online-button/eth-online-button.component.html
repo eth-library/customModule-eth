@@ -3,10 +3,10 @@
   <div class="flex-row flex-layout-center">
     <ng-container>
       <button  mat-button color="primary"
-              [attr.aria-label]="links[0].ariaLabel"
+              [attr.aria-label]=" ( 'eth.onlineButton.linkText' | safeTranslate | async ) + ' ' + ( 'nui.aria.newWindow' | safeTranslate | async )"
               (click)="navigate(links[0].source,links[0].url,$event)"
                class="eth-quicklink-button">
-        <span>{{ links[0].label }}</span>
+        <span>{{ 'eth.onlineButton.linkText' | safeTranslate | async }}</span>
       </button>
       <button class="eth-quicklink-expand-button mat-mdc-icon-button"
               mat-icon-button
@@ -19,7 +19,6 @@
     <mat-menu #menu="matMenu" class="quicklinks-menu">
       <button mat-menu-item 
         class="quicklink-menu-item"
-        [attr.aria-label]="links[1].ariaLabel"
         (click)="navigate(links[1].source,links[1].url,$event)">
         <span class="quicklinks-menu-item-text">{{'nde.delivery.code.otherOnlineOptions' | safeTranslate | async}}</span>
       </button>

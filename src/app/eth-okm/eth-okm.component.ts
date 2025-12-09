@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'custom-eth-okm',
@@ -9,7 +10,8 @@ import { EthStoreService } from 'src/app/services/eth-store.service';
   styleUrls: ['./eth-okm.component.scss'],
   standalone: true,   
   imports: [
-    CommonModule
+    CommonModule,
+    TranslateModule
   ]    
 })
 export class EthOKMComponent implements OnInit {

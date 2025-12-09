@@ -1,15 +1,21 @@
 @if (searchValue$ | async; as searchValue) {
   <div class="eth-okm">
-    <span>Suche nach "{{ searchValue }}" in Open Knowledge Maps:</span>
+    <span>{{ 'eth.okm.label' | translate:{ search: searchValue} }}</span>
     <a [href]="'https://openknowledgemaps.org/search?service=base&type=get&sorting=most-relevant&min_descsize=300&q=' + encode(searchValue)"
-       target="_blank" rel="noopener"
+       target="_blank" rel="noopener" [attr.aria-label]="'BASE' + ('nui.aria.newWindow' | translate)"
        class="advanced-search-button basic-button mdc-button mat-mdc-button mat-unthemed mat-mdc-button-base">
       <span class="mdc-button__label">BASE</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+        <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+      </svg>                 
     </a>
     <a [href]="'https://openknowledgemaps.org/search?service=pubmed&type=get&sorting=most-relevant&min_descsize=300&q=' + encode(searchValue)"
-       target="_blank" rel="noopener"
+       target="_blank" rel="noopener" [attr.aria-label]="'Pubmed' + ('nui.aria.newWindow' | translate)"
        class="advanced-search-button basic-button mdc-button mat-mdc-button mat-unthemed mat-mdc-button-base">
       <span class="mdc-button__label">Pubmed</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+        <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+      </svg>                 
     </a>
   </div>
 }

@@ -4,6 +4,7 @@ import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from 'src/app/services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
 import { SHELL_ROUTER } from "../injection-tokens";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'custom-eth-logo-subline',
@@ -12,6 +13,7 @@ import { SHELL_ROUTER } from "../injection-tokens";
   styleUrls: ['./eth-logo-subline.component.scss'],
   imports: [
     CommonModule,
+    TranslateModule
   ]        
 })
 export class EthLogoSublineComponent {

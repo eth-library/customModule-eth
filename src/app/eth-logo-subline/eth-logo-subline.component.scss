@@ -1,13 +1,14 @@
-div{
-    min-width: 17rem;
-}
 .eth-subline-link{
     color: var(--sys-primary);
-    font-size: var(--mdc-text-button-label-text-size, var(--mat-sys-label-large-size));
     font-size: 1.2rem;
     white-space: nowrap;
     text-decoration: none;
 }
 .eth-subline-link:hover, .eth-connectedpapers-link:focus {
     box-shadow: inset 0 -2px 0 0 var(--sys-primary);
+}
+@media (max-width: 600px) {
+    .eth-subline-link{
+        font-size: 1rem;
+    }
 }

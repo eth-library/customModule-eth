@@ -5,10 +5,10 @@
         <summary>
           <h4 id="ethPersonCards">
             @if(persons.otbPersons.length > 0){
-              More related Persons ({{ persons.filteredPersons.length }})
+              {{'eth.personCard.headingMore' | safeTranslate | async}} ({{ persons.filteredPersons.length }})
             }
             @else {
-              Related Persons ({{ persons.filteredPersons.length }})
+              {{'eth.personCard.heading' | safeTranslate | async}} ({{ persons.filteredPersons.length }})
             }
           </h4>
           <svg class="marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
@@ -24,12 +24,12 @@
                     @if (person.entityfacts?.depiction) {
                       <img class="eth-person-card__image"
                         [src]="person.entityfacts.depiction.thumbnail['@id']"
-                        alt="Photo of {{person.entityfacts.preferredName}}">
+                        alt="{{'eth.personCard.photo' | safeTranslate | async}} {{person.entityfacts.preferredName}}">
                     }
                     @else if (person.wiki?.image_url) {     
                       <img class="eth-person-card__image"
                         [src]="person.wiki.image_url"
-                        alt="Photo of {{person.wiki.label}}">
+                        alt="{{'eth.personCard.photo' | safeTranslate | async}} {{person.wiki.label}}">
                     }
                     <div class="eth-person-copyright" (mouseenter)="open(person.gnd)" (mouseleave)="close()" (focus)="open(person.gnd)" (blur)="close()">
                       <div class="eth-person-copyright-button" tabindex="0">
@@ -37,7 +37,7 @@
                       </div>
                       @if (isOpen(person.gnd)){
                         <div class="eth-person-copyright-hint">
-                          <span>Lizenz für das Bild siehe </span> 
+                          <span>{{'eth.personCard.licence' | safeTranslate | async}} </span> 
                           @if (person.entityfacts?.depiction){
                             <a [href]="person.entityfacts?.depiction?.url" target="_blank" rel="noopener">Wikimedia Commons</a>
                           }
@@ -65,7 +65,7 @@
                       }
                     </div>
                   }
-                  <div class="eth-entity-type-wrapper"><span class="entity-type">Person</span></div>
+                  <div class="eth-entity-type-wrapper"><span class="entity-type">{{'eth.personCard.entity' | safeTranslate | async}}</span></div>
                 </div>
               </div>
               @if (!last) {

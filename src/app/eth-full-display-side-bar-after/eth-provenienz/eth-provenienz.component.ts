@@ -81,14 +81,14 @@ export class EthProvenienzComponent{
                 url: `/search?vid=${this.vid}&tab=${this.tab}&search_scope=${this.scope}&query=${i.eth_doi_link.includes('doi.org/') ? i.eth_doi_link.split('doi.org/')[1] : ''}`
               }))
             ),
-            tap( (items) => {
+            /*tap( (items) => {
               if (items.length > 0 && !this.cardPositioned) {
                 this.cardPositioned = true;
                 this.mqListener = this.ethUtilsService.positionCard(
                   '.eth-provenance-cards'
                 );
               }
-            }),
+            }),*/
             catchError(error => {
               this.ethErrorHandlingService.handleError(error,'EthProvenienzComponent.getDelivery');
                return of([]); 
