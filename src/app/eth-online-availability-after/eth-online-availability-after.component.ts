@@ -17,13 +17,4 @@ import { tap } from 'rxjs';
 })
 export class EthOnlineAvailabilityAfterComponent {
   @Input() hostComponent: any = {};
-
- ngOnInit() {
-   /* this.hostComponent.viewModel$.pipe(
-      tap(model => console.error("viewModel", model)),
-      tap(() => console.error("result", this.hostComponent.searchResult.pnx.display.title)),
-    )
-    .pipe(takeUntilDestroyed())
-    .subscribe()*/
- }
 }

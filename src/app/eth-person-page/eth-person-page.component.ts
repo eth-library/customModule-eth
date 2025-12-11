@@ -1,5 +1,5 @@
 import { Component, inject, ViewEncapsulation } from '@angular/core';
-import { catchError, filter, forkJoin, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
+import { catchError, filter, forkJoin, map, Observable, of, startWith, Subject, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../services/eth-person.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -48,16 +48,18 @@ export class EthPersonPageComponent{
     this.tab = this.ethStoreService.getTab();
     this.scope = this.ethStoreService.getScope();
     this.vid = this.ethStoreService.getVid();
-    this.lang = this.translate.currentLang || 'de';
-  
-    this.person$ = this.loadPerson();
-    // language change triggers loadPerson()
-    this.translate.onLangChange.subscribe(() => {
-      this.lang = this.translate.currentLang;
-      this.person$ = this.loadPerson(); 
-    });
-  }
 
+    this.lang = this.translate.currentLang || 'de';
+
+    this.person$ = this.translate.onLangChange.pipe(
+      startWith({ lang: this.lang }), 
+      switchMap(evt => {
+        this.lang = evt.lang;
+        return this.loadPerson();
+      })
+    );
+  }
+  
   private loadPerson(): Observable<any | null> {
     return this.ethStoreService.linkedDataEntityId$.pipe(
       filter(id => !!id),
@@ -109,10 +111,10 @@ export class EthPersonPageComponent{
 
   getPrecisionRecallLinks(person: any): Observable<any> {
     const queries = [];
-    queries.push(this.getSearchLink(`any,contains,${person.label}`,'Suche nach Namen'));
+    queries.push(this.getSearchLink(`any,contains,${person.label}`));
 
     if (person.gnd) {
-      queries.push(this.getSearchLink(`lds03,contains,${person.gnd}`,'Suche nach GND'));
+      queries.push(this.getSearchLink(`lds03,contains,${person.gnd}`));
     }
 
     let birthyearQuery = person.label;
@@ -123,7 +125,7 @@ export class EthPersonPageComponent{
     } else if (person.gnd) {
       birthyearQuery += ` ${person.gnd}`;
     }
-    queries.push(this.getSearchLink(`any,contains,${birthyearQuery}`,'Suche nach Name und (GND oder Geburtsjahr)'));
+    queries.push(this.getSearchLink(`any,contains,${birthyearQuery}`));
 
     return forkJoin(queries).pipe(
       map(results => {
@@ -133,11 +135,10 @@ export class EthPersonPageComponent{
     );
   }
 
-  getSearchLink(query: string, label: string): Observable<{ url: string; total: number; label: string } | null> {
+  getSearchLink(query: string ): Observable<{ url: string; total: number } | null> {
     return this.ethPersonService.searchPrimoData(query, this.tab, this.scope, this.lang).pipe(
       map((data: any) => {
         const total = data?.info?.totalResultsLocal ?? 0;
-        // TODO
         if(query.indexOf('lds03')===-1){
           query = query.replace('any,contains,','');
         }
@@ -145,7 +146,7 @@ export class EthPersonPageComponent{
         if(query.indexOf('lds03')>-1){
           url += '&mode=advanced';
         }
-        return { url, total, label };
+        return { url, total };
       }),
       catchError((error) => {
         this.ethErrorHandlingService.handleError(error, 'EthPersonPageComponent.getPrecisionRecallLinks.getSearchLink');

@@ -24,6 +24,7 @@ export class EthConnectedpapersService {
       })
     )
   }
+  
   // No proxy and cache
   getPaper(doi: string): Observable<any | null> {
     const baseUrl = 'https://rest.prod.connectedpapers.com';

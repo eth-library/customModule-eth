@@ -5,14 +5,24 @@ mat-option[aria-label='Français']{
 mat-option[aria-label='Italiano']{ 
     display: none; 
 }
+/* language switch mobile */
+button[aria-label='mypref.language.optionfr']{
+    display: none; 
+}
+button[aria-label='mypref.language.optionit']{
+    display: none; 
+}
 /* online quicklink button */
 .eth-quicklink-expand-button.mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
     border-radius: unset;
 }
 /* logo */
-@media (max-width: 600px) {
+nde-logo img{
+    max-width: 100px;
+    height: auto;
+}
+@media (min-width: 600px) {
     nde-logo img{
-        max-width: 100px;
-        height: auto;
+        max-width: 150px;
     }
 }

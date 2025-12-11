@@ -123,10 +123,10 @@ export class EthPersonService {
                         label = "Deutsche Biographie";
                 }
                 else if (url.indexOf("ba.e-pics.ethz.ch")>-1) {
-                        label = "Bilder im E-Pics Bildarchiv";
+                        label = this.getProviderLabel('e-pics');
                 }
                 else if (url.indexOf("archivdatenbank-online.ethz.ch/hsa/")>-1) {
-                    label = "ETH Hochschularchiv";
+                    label = this.getProviderLabel('hsa');
                 }
                 else if (url.indexOf("www.gutenberg.org")>-1) {
                         label = "Projekt Gutenberg";
@@ -138,12 +138,9 @@ export class EthPersonService {
                         label = "LeMO Biographie";
                 }
                 else if (url.indexOf("archinform.net")>-1) {
-                        label = "Architekturdatenbank archINFORM";
+                        label = this.getProviderLabel('archinform');
                 }
                 whitelistedPrometheusLinks.push({'url': url, 'label': label});
-            }
-            if(whitelistedPrometheusLinks.length > 0 && prometheusResult[0].gnd){
-                whitelistedPrometheusLinks.push({'url': 'https://prometheus.lmu.de/gnd/' + prometheusResult[0].gnd , 'label': 'Alle Links von Prometheus'});
             }
             return whitelistedPrometheusLinks;
         }
@@ -227,12 +224,12 @@ export class EthPersonService {
             wiki['links'] = [];
             if(binding.item && binding.item.value)wiki['links'].push({'url': binding.item.value, 'label': 'Wikidata'});
             if(binding.wc && binding.wc.value)wiki['links'].push({'url': 'https://commons.wikimedia.org/wiki/Category:' + binding.wc.value , 'label': 'Wikimedia Commons'});
-            if(binding.hls && binding.hls.value)wiki['links'].push({'url': 'http://www.hls-dhs-dss.ch/textes/d/D' + binding.hls.value + '.php', 'label': 'Historisches Lexikon der Schweiz'});
+            if(binding.hls && binding.hls.value)wiki['links'].push({'url': 'http://www.hls-dhs-dss.ch/textes/d/D' + binding.hls.value + '.php', 'label': this.getProviderLabel('hls-dhs-dss')});
             if(binding.oclc && binding.oclc.value)wiki['links'].push({'url': 'https://entities.oclc.org/worldcat/entity/' + binding.oclc.value, 'label': 'WorldCat'});
             if(binding.ah && binding.ah.value)wiki['links'].push({'url': 'https://katalog.arthistoricum.net/id/' + binding.ah.value, 'label': 'arthistoricum.net'});
-            if(binding.kal && binding.kal.value)wiki['links'].push({'url': 'https://kalliope-verbund.info/gnd/' + binding.kal.value, 'label': 'Kalliope-Verbund'});
-            if(binding.gnd && binding.gnd.value)wiki['links'].push({'url': 'https://d-nb.info/gnd/' + binding.gnd.value, 'label': 'GND (Gemeinsame Normdatei der Deutschen Nationalbibliothek)'});
-            if(binding.sfa && binding.sfa.value)wiki['links'].push({'url': 'https://www.swiss-archives.ch/archivplansuche.aspx?ID=' + binding.sfa.value, 'label': 'Schweizerisches Bundesarchiv'});
+            if(binding.kal && binding.kal.value)wiki['links'].push({'url': 'https://kalliope-verbund.info/gnd/' + binding.kal.value, 'label': 'Kalliope'});
+            if(binding.gnd && binding.gnd.value)wiki['links'].push({'url': 'https://d-nb.info/gnd/' + binding.gnd.value, 'label': this.getProviderLabel('gnd')});
+            if(binding.sfa && binding.sfa.value)wiki['links'].push({'url': 'https://www.swiss-archives.ch/archivplansuche.aspx?ID=' + binding.sfa.value, 'label': this.getProviderLabel('swiss-archives')});
             if(binding.loc && binding.loc.value)wiki['links'].push({'url': 'http://id.loc.gov/authorities/names/' + binding.loc.value + '.html', 'label': 'Library of Congress'});
             wiki['profiles'] = [];
             if(binding.orcid && binding.orcid.value)wiki['profiles'].push({'url': 'https://orcid.org/' + binding.orcid.value, 'label': 'ORCID'});
@@ -247,8 +244,7 @@ export class EthPersonService {
         }
     }
 
-
-    private processWikipediaResponse(wikiResult: any, lang: any){
+    private processWikipediaUrlListResponse(wikiResult: any, lang: any){
         try{
             if(!wikiResult[0] || !wikiResult[0].resp.results.bindings || wikiResult[0].resp.results.bindings.length === 0 || !wikiResult[0].resp.results.bindings[0].wikipediaUrlList){
                 return;
@@ -286,7 +282,7 @@ export class EthPersonService {
             }
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'ethPersonCardsService.processWikipediaResponse');        
+            return this.ethErrorHandlingService.handleSynchronError(error, 'ethPersonCardsService.processWikipediaUrlListResponse');        
         }
     }
 
@@ -442,12 +438,12 @@ export class EthPersonService {
             if(wikiStudentResult.length > 0){
                 person['students'] = this.processRelatedPersonsResponse(wikiStudentResult);
             }
-            // Wikidata teachers TODO comment
-            let wikiWikipediaResult = results.filter((e:any) => {
+            // Wikipedia Urls
+            let wikiWikipediaUrlListResult = results.filter((e:any) => {
                 return e.provider === 'query.wikidata.org' && e.resp.head.vars.indexOf("wikipediaUrlList") > -1;
             });
-            if(wikiWikipediaResult.length > 0){
-                person['wikipediaUrl'] = this.processWikipediaResponse(wikiWikipediaResult, lang);
+            if(wikiWikipediaUrlListResult.length > 0){
+                person['wikipediaUrl'] = this.processWikipediaUrlListResponse(wikiWikipediaUrlListResult, lang);
             }
             // Wikidata bio and Links
             let wikiResult = results.filter((e:any) => {
@@ -510,6 +506,11 @@ export class EthPersonService {
 
   getProviderLabel(slug: string): string {
     const providerLabel: Record<string, [string, string, string, string]> = {
+      "e-pics": ["Bilder im E-Pics Bildarchiv","E-Pics Image Archive","E-Pics Image Archive","E-Pics Image Archive"],
+      "hsa": ["Hochschularchiv der ETH Zürich","ETH Zurich University Archives","ETH Zurich University Archives","ETH Zurich University Archives"],
+      "archinform": ["Architekturdatenbank archINFORM","Architecture Database archINFORM","Architecture Database archINFORM","Architecture Database archINFORM"],
+      "gnd": ["Gemeinsame Normdatei (GND)","Integrated authority file (GND)","Integrated authority file (GND)", "Integrated authority file (GND)"],
+      "swiss-archives": ["Schweizerisches Bundesarchiv","Swiss Federal Archives","Archives fédérales suisses", "Archivio federale svizzero"],
       "sudoc": ["Bibliographic Agency for Higher Education","Bibliographic Agency for Higher Education","Agence Bibliographique de l’Enseignement Supérieur", "Bibliographic Agency for Higher Education"],
       "hallernet": ["Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet"],
       "fotostiftung": ["Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz"],

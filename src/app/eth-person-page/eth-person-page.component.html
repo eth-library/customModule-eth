@@ -1,12 +1,12 @@
 @if (person$ | async; as person) {
-  <div class="eth-personpage-links"> 
+  <div class="eth-personpage-links">  
     @if (person.searchVariants?.length > 0) {
       <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
       <mat-expansion-panel #ethPanel1 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
         <mat-expansion-panel-header class="eth-expansion-panel-header">
           <mat-panel-title>
-            <h2>Suchvarianten zu {{ person.name }} in allen Daten der ETH-Bibliothek</h2>
+            <h2>{{ person.name }}: {{'eth.personPage.searchVariants' | safeTranslate | async}}</h2>
           </mat-panel-title>
           <mat-panel-description class="eth-expansion-panel-description">
             <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel1.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -15,13 +15,21 @@
 
         <section class="eth-expansion-panel-content">
           <ul role="list">
-            @for (variant of person.searchVariants; track variant) {
               <li role="listitem">
-                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + variant.url" (click)="navigate(variant.url,$event)">
-                  <span>{{ variant.label }} ({{ variant.total }} Ergebnisse)</span>
+                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[0].url" (click)="navigate(person.searchVariants[0].url,$event)">
+                  <span>{{'eth.personPage.searchName' | safeTranslate | async}} ({{ person.searchVariants[0].total }} {{'eth.personPage.results' | safeTranslate | async}})</span>
                 </a>
               </li>
-            }
+              <li role="listitem">
+                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[1].url" (click)="navigate(person.searchVariants[1].url,$event)">
+                  <span>{{'eth.personPage.searchGnd' | safeTranslate | async}} ({{ person.searchVariants[1].total }} {{'eth.personPage.results' | safeTranslate | async}})</span>
+                </a>
+              </li>
+              <li role="listitem">
+                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[0].url" (click)="navigate(person.searchVariants[2].url,$event)">
+                  <span>{{'eth.personPage.searchGndBirth' | safeTranslate | async}} ({{ person.searchVariants[2].total }} {{'eth.personPage.results' | safeTranslate | async}})</span>
+                </a>
+              </li>
           </ul>
         </section>
       </mat-expansion-panel>
@@ -32,7 +40,7 @@
     <mat-expansion-panel #ethPanel2 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
       <mat-expansion-panel-header class="eth-expansion-panel-header">
         <mat-panel-title>
-          <h2>Normdaten</h2>
+          <h2>{{'eth.personPage.authorityLinking' | safeTranslate | async}}</h2>
         </mat-panel-title>
         <mat-panel-description class="eth-expansion-panel-description">
           <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel2.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -44,8 +52,8 @@
           @if (person.gnd) {
             <li>
               <a target="_blank"  [href]="'https://d-nb.info/gnd/' + person.gnd" rel="noopener" [attr.aria-label]="'GND' + ('nui.aria.newWindow' | safeTranslate | async)">
-                GND
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                {{ethPersonService.getProviderLabel('gnd')}}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                 </svg>         
               </a>
@@ -55,7 +63,7 @@
             <li>
               <a target="_blank" href="https://id.loc.gov/authorities/names/{{ person.wiki.loc }}.html" [attr.aria-label]="'Library of Congress' + ('nui.aria.newWindow' | safeTranslate | async)">
                 Library of Congress
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                 </svg>         
               </a>
@@ -72,7 +80,7 @@
       <mat-expansion-panel #ethPanel3 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
         <mat-expansion-panel-header class="eth-expansion-panel-header">
           <mat-panel-title>
-            <h2>Forscherprofile</h2>
+            <h2>{{'eth.personPage.researcherProfile' | safeTranslate | async}}</h2>
           </mat-panel-title>
           <mat-panel-description class="eth-expansion-panel-description">
             <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel3.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -85,7 +93,7 @@
               <li>
                 <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>{{ link.label }}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                   </svg>         
                 </a>
@@ -102,7 +110,7 @@
       <mat-expansion-panel #ethPanel4 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
         <mat-expansion-panel-header class="eth-expansion-panel-header">
           <mat-panel-title>
-            <h2>Archive</h2>
+            <h2>{{'eth.personPage.archives' | safeTranslate | async}}</h2>
           </mat-panel-title>
           <mat-panel-description class="eth-expansion-panel-description">
             <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel4.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -121,7 +129,7 @@
                     @if (link.inventoryno) {
                       <span> (Inventarnummer: {{ link.inventoryno }})</span>
                     }
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                       <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                     </svg>         
                   </a>
@@ -144,7 +152,7 @@
       <mat-expansion-panel #ethPanel5 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
         <mat-expansion-panel-header class="eth-expansion-panel-header">
           <mat-panel-title>
-            <h2>Metagrid</h2> 
+            <h2>{{'eth.personPage.metagrid' | safeTranslate | async}}</h2> 
           </mat-panel-title>
           <mat-panel-description class="eth-expansion-panel-description">
             <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel5.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -155,7 +163,7 @@
           <p class="eth-person__links-hint">Links powered by 
             <a href="https://www.metagrid.ch/" target="_blank" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'Metagrid' + ('nui.aria.newWindow' | safeTranslate | async)">
               Metagrid
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
               </svg>         
             </a>
@@ -165,7 +173,7 @@
               <li>
                 <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="ethPersonService.getProviderLabel(link.slug) + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>{{ ethPersonService.getProviderLabel(link.slug) }}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                   </svg>         
                 </a>
@@ -182,7 +190,7 @@
       <mat-expansion-panel #ethPanel6 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
         <mat-expansion-panel-header class="eth-expansion-panel-header">
           <mat-panel-title>
-            <h2>Wikidata</h2>
+            <h2>{{'eth.personPage.wikidata' | safeTranslate | async}}</h2>
           </mat-panel-title>
           <mat-panel-description class="eth-expansion-panel-description">
             <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel6.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -191,11 +199,11 @@
 
         <section class="eth-expansion-panel-content">
           <ul role="list">
-            @if (person.wikipediaUrl) {
+           @if (person.wikipediaUrl) {
               <li>
                 <a class="arrow-link md-primoExplore-theme" [href]="person.wikipediaUrl" target="_blank" rel="noopener" [attr.aria-label]="'Wikipedia' + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>Wikipedia</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                   </svg>         
                 </a>
@@ -205,7 +213,7 @@
               <li>
                 <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>{{ link.label }}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                   </svg>         
                 </a>
@@ -222,7 +230,7 @@
       <mat-expansion-panel #ethPanel7 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
         <mat-expansion-panel-header class="eth-expansion-panel-header">
           <mat-panel-title>
-            <h2>Prometheus</h2>
+            <h2>{{'eth.personPage.prometheus' | safeTranslate | async}}</h2>
           </mat-panel-title>
           <mat-panel-description class="eth-expansion-panel-description">
             <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel7.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -231,17 +239,17 @@
 
         <section class="eth-expansion-panel-content">
           <p class="eth-person__links-hint">
-            Links vom 
+            {{'eth.personPage.prometheusIntro1' | safeTranslate | async}} 
             <a href="https://de.wikipedia.org/wiki/Wikipedia:BEACON" target="_blank" rel="noopener" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'BEACON' + ('nui.aria.newWindow' | safeTranslate | async)">
               BEACON
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
               </svg>         
             </a>
-            Aggregator des
+            {{'eth.personPage.prometheusIntro2' | safeTranslate | async}}
             <a href="https://www.itg.uni-muenchen.de/index.html" target="_blank" rel="noopener" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'LMU Center for Digital Humanities' + ('nui.aria.newWindow' | safeTranslate | async)">
-              LMU Center for Digital Humanities
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+              {{'eth.personPage.prometheusIntro3' | safeTranslate | async}}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
               </svg>         
             </a>
@@ -251,12 +259,20 @@
               <li>
                 <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>{{ link.label }}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                   </svg>         
                 </a>
               </li>
             }
+            <li>
+              <a class="arrow-link md-primoExplore-theme" [href]="'https://prometheus.lmu.de/gnd/' + person.gnd" target="_blank" rel="noopener" [attr.aria-label]="('eth.personPage.prometheusAll' | safeTranslate | async) ?? '' + ('nui.aria.newWindow' | safeTranslate | async)">
+                <span>{{'eth.personPage.prometheusAll' | safeTranslate | async}}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                  <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
+                </svg>         
+              </a>
+            </li>
           </ul>
         </section>
       </mat-expansion-panel>  
@@ -269,7 +285,7 @@
         <mat-expansion-panel #ethPanel8 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
           <mat-expansion-panel-header class="eth-expansion-panel-header">
             <mat-panel-title>
-              <h2>Studenten (Wikidata)</h2>
+              <h2>{{'eth.personPage.students' | safeTranslate | async}}</h2>
             </mat-panel-title>
             <mat-panel-description class="eth-expansion-panel-description">
               <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel8.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -284,7 +300,7 @@
                     <img class="eth-personpage-links-image" [alt]="object.label" [src]="object.image_url + '?width=100px'" />
                   }
                   <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object?.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object?.gnd),$event)">
-                    <span>{{ object.label }} ({{ object.description }}, Geboren: {{ object.birth.split('T')[0] }})</span>
+                    <span>{{ object.label }} ({{ object.description }}, {{'eth.personPage.born' | safeTranslate | async}} {{ object.birth.split('T')[0] }})</span>
                   </a>
                 </li>
               }
@@ -301,7 +317,7 @@
         <mat-expansion-panel #ethPanel9 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
           <mat-expansion-panel-header class="eth-expansion-panel-header">
             <mat-panel-title>
-              <h2>Lehrer (Wikidata)</h2>
+              <h2>{{'eth.personPage.teacher' | safeTranslate | async}}</h2>
             </mat-panel-title>
             <mat-panel-description class="eth-expansion-panel-description">
               <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel9.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -316,7 +332,7 @@
                     <img class="eth-personpage-links-image" [alt]="object.label" [src]="object.image_url + '?width=100px'" />
                   }
                   <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object?.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object?.gnd),$event)">
-                    <span>{{ object.label }} ({{ object.description }}, Geboren: {{ object.birth.split('T')[0] }})</span>
+                    <span>{{ object.label }} ({{ object.description }}, {{'eth.personPage.born' | safeTranslate | async}} {{ object.birth.split('T')[0] }})</span>
                   </a>
                 </li>
               }
@@ -333,7 +349,7 @@
         <mat-expansion-panel #ethPanel10 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
           <mat-expansion-panel-header class="eth-expansion-panel-header">
             <mat-panel-title>
-              <h2>Verbundene Personen nach GND</h2>
+              <h2>{{'eth.personPage.relatedGnd' | safeTranslate | async}}</h2>
             </mat-panel-title>
             <mat-panel-description class="eth-expansion-panel-description">
               <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel10.expanded ? 'remove' : 'add' }}</mat-icon>

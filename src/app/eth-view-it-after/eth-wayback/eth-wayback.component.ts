@@ -67,8 +67,7 @@ export class EthWaybackComponent {
             this.renderer.setProperty(btnH5, 'textContent', labelLinkText);
             this.renderer.setAttribute(btnH5, 'aria-label', labelLinkText);
             const newDiv = this.renderer.createElement('div');
-            this.renderer.setStyle(newDiv, 'padding-left', '6px');
-            this.renderer.setStyle(newDiv, 'font-size', '14px');
+            this.renderer.addClass(newDiv, 'eth-wayback');            
             this.renderer.setAttribute(newDiv, 'id', 'eth-wayback-hint');
             const text = this.renderer.createText(labelText);
             this.renderer.appendChild(newDiv, text);

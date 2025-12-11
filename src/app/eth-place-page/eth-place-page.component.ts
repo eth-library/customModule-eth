@@ -1,5 +1,5 @@
 import { Component, inject, Renderer2, ViewEncapsulation } from '@angular/core';
-import { catchError, forkJoin, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, forkJoin, map, Observable, of, startWith, Subject, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthPlacePageService } from './eth-place-page.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -51,27 +51,20 @@ export class EthPlacePageComponent {
   ){}  
 
   ngOnInit(): void {
-    this.searchValue$ = this.ethStoreService.searchValue$;
-    this.placeData$ = this.searchValue$.pipe(
-      switchMap((searchValue: string) => {
+    this.placeData$ = combineLatest([
+      this.ethStoreService.searchValue$,
+      this.translate.onLangChange.pipe(
+        startWith({ lang: this.translate.currentLang })
+      )
+    ]).pipe(
+      switchMap(([searchValue, langEvent]) => {
+        this.lang = langEvent.lang;
         return this.initPlacePage(searchValue);
       })
-    )
-
-    // language change triggers getPlaceData()
-    this.translate.onLangChange.subscribe(() => {
-      this.lang = this.translate.currentLang;
-      this.placeData$ = this.searchValue$.pipe(
-        switchMap((searchValue: string) => {
-          return this.initPlacePage(searchValue);
-        })
-      )
-    });
-
-  }  
+    );
+  }
 
   initPlacePage(searchValue: string): Observable<any | null> {
-    this.lang = this.translate.currentLang;
     this.vid = this.ethStoreService.getVid();
     this.tab = this.ethStoreService.getTab();
     this.scope = this.ethStoreService.getScope();
@@ -82,7 +75,7 @@ export class EthPlacePageComponent {
       return of(null);
     }
 
-    // hide search result container
+    // hide search result container - todo remove if entity page for place
     const observer = new MutationObserver(() => {
       const target = document.querySelector('.search-result-content');
       if (target) {
@@ -96,9 +89,9 @@ export class EthPlacePageComponent {
 
   getPlaceData(): Observable<any | null> {        
     return forkJoin({
-      geoTopics: this.ethPlacePageService.getTopicsFromGeoGraph(this.qid, this.lang).pipe(catchError(() => of(null))),
-      geoPoi: this.ethPlacePageService.getPoiFromGeoGraph(this.qid, this.lang).pipe(catchError(() => of(null))),
-      ethorama: this.ethPlacePageService.getPlaceFromETHorama(this.qid, this.lang).pipe(catchError(() => of(null))),
+      geoTopics: this.ethPlacePageService.getTopicsFromGeoGraph(this.qid).pipe(catchError(() => of(null))),
+      geoPoi: this.ethPlacePageService.getPoiFromGeoGraph(this.qid).pipe(catchError(() => of(null))),
+      ethorama: this.ethPlacePageService.getPlaceFromETHorama(this.qid).pipe(catchError(() => of(null))),
       wikidata: this.ethPlacePageService.getPlaceFromWikidata(this.qid, this.lang).pipe(catchError(() => of(null))),
     }).pipe(
       map(
@@ -175,7 +168,7 @@ export class EthPlacePageComponent {
     );
   }
     
-  private processAllData(geoTopics: any,geoPoi: any, ethorama: any, wikidata: any): any {
+  private processAllData(geoTopics: any, geoPoi: any, ethorama: any, wikidata: any): any {
     const topics = this.processGeoTopics(geoTopics);
     const poi = this.processGeoPoi(geoPoi);
     const etho = this.processETHorama(ethorama);
@@ -212,7 +205,21 @@ export class EthPlacePageComponent {
       });
       place.contentItems = contentItems;
       place.links = [];
-      place.links.push({'text':response.items[0].name['de'] , 'url': 'https://ethorama.library.ethz.ch/de/orte/' + response.items[0].id});
+      if(this.lang == 'en'){
+          let name = response.items[0].name['en'];
+          if(!name || name === '')name = response.items[0].name['de'];
+          place.links.push({
+              'url': 'https://ethorama.library.ethz.ch/en/locations/' + response.items[0].id,
+              'text': name
+          })
+      }
+      else{
+          place.links.push({
+              'url': 'https://ethorama.library.ethz.ch/de/orte/' + response.items[0].id,
+              'text': response.items[0].name['de']
+          })
+      }
+
       // more than 1 POI -> add contentItems and links from other pois
       if(response.items.length > 1){
           for (var i = 1; i < response.items.length; i++) {
@@ -228,7 +235,21 @@ export class EthPlacePageComponent {
                   }
               });
               // 990043586820205503
-              place.links.push({'text':response.items[i].name['de'], 'url': 'https://ethorama.library.ethz.ch/de/orte/' + response.items[i].id});
+              if(this.lang == 'en'){
+                let name = response.items[i].name['en'];
+                if(!name || name === '')name = response.items[i].name['de'];
+                place.links.push({
+                    'url': 'https://ethorama.library.ethz.ch/en/locations/' + response.items[i].id,
+                    'text': name
+                })
+              }
+              else{
+                  place.links.push({
+                      'url': 'https://ethorama.library.ethz.ch/de/orte/' + response.items[i].id,
+                      'text': response.items[i].name['de']
+                  })
+              }
+
           }
       }
       return place; 
@@ -244,7 +265,7 @@ export class EthPlacePageComponent {
         f.properties.eMaps.forEach((i:any) => {
             eMaps.push({
                 'mmsid': i.mmsid,
-                'url': '/discovery/fulldisplay?vid=' + this.vid + '&docid=alma' + i.mmsid,
+                'url': '/fulldisplay?vid=' + this.vid + '&docid=alma' + i.mmsid,
                 'title': i.title
             });
         });
@@ -252,13 +273,13 @@ export class EthPlacePageComponent {
         f.properties.eRaraItems.forEach((i:any) => {
             eRaraItems.push({
                 'mmsid': i.mmsid,
-                'url': '/nde/fulldisplay?vid=' + this.vid + '&docid=alma' + i.mmsid,
+                'url': '/fulldisplay?vid=' + this.vid + '&docid=alma' + i.mmsid,
                 'title': i.title
             });
         });
         topics.push({ 
             'name': f.properties.name,
-            'url': '/search?mode=advanced&vid=' + this.vid + '&tab=' + this.tab + '&search_scope=' + this.scope + '&query=sub,exact,' + encodeURIComponent(f.properties.name),
+            'url': `/search?query=sub,contains,${encodeURIComponent(f.properties.name)}&tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&mode=advanced`,
             'gnd': f.properties.gnd,
             'eRaraItems': eRaraItems,
             'eMaps': eMaps
@@ -337,26 +358,26 @@ export class EthPlacePageComponent {
       }
       if(place.wikipedia){
         place.links.push({
-          text: 'Wikipedia',
+          text: 'Wikipedia', 
           url: place.wikipedia.value
         });
       }
       if(place.gnd){
         place.gnd = place.gnd.value;
         place.links.push({
-          text: 'GND',
+          text: this.getProviderLabel('gnd'),
           url: 'http://d-nb.info/gnd/' + place.gnd
         });
       }
       if(place.hls){
         place.links.push({
-          text: 'HLS',
+          text: this.getProviderLabel('hls-dhs-dss'),
           url: 'http://www.hls-dhs-dss.ch/textes/d/D' + place.hls.value + '.php'
         });
       }
       if(place.archinform){
         place.links.push({
-          text: 'Archinform',
+          text: this.getProviderLabel('archinform'),
           url: 'https://www.archinform.net/ort/' + place.archinform.value +'.htm'
         });
       }
@@ -468,10 +489,24 @@ export class EthPlacePageComponent {
       polygonAndItsCenter.addTo(this.polygonsWithCenters);
   }
 
-    navigate(url: string, event: Event){
-      event.preventDefault();  
-      this.router.navigateByUrl(url);
-    }      
+  navigate(url: string, event: Event){
+    event.preventDefault();  
+    // todo change if entity page for place
+    location.href = "/nde"+ url
+    //this.router.navigateByUrl(url);
+  }      
+
+  getProviderLabel(slug: string): string {
+    const providerLabel: Record<string, [string, string, string, string]> = {
+      "archinform": ["Architekturdatenbank archINFORM","Architecture Database archINFORM","Architecture Database archINFORM","Architecture Database archINFORM"],
+      "gnd": ["Gemeinsame Normdatei (GND)","Integrated authority file (GND)","Integrated authority file (GND)", "Integrated authority file (GND)"],
+      "hls-dhs-dss": ["Historisches Lexikon der Schweiz","Historical Dictionary of Switzerland","Dictionnaire historique de la Suisse","Dizionario storico della Svizzera"],
+    }
+    const lang = this.translate.currentLang || 'de';
+    const langIndex = { de: 0, en: 1, fr: 2, it: 3 }[lang] ?? 0;
+    return providerLabel[slug]?.[langIndex] ?? slug;  
+   }
+    
 }
 
 

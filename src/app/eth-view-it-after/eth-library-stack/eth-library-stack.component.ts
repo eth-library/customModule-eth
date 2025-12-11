@@ -72,17 +72,12 @@ export class EthLibraryStackComponent {
                 existingDivs.forEach(div => div.remove());
 
                 const newDiv2 = this.renderer.createElement('div');
-                this.renderer.addClass(newDiv2, 'eth-libstack-text');
-                this.renderer.setStyle(newDiv2, 'padding-left', '6px');
-                this.renderer.setStyle(newDiv2, 'font-size', '14px');
+                this.renderer.addClass(newDiv2, 'eth-librarystack-text2');
                 this.renderer.appendChild(newDiv2, this.renderer.createText(text2));
                 this.renderer.insertBefore(btn.parentNode, newDiv2, btn.nextSibling);
 
                 const newDiv1 = this.renderer.createElement('div');
-                this.renderer.addClass(newDiv1, 'eth-libstack-text');
-                this.renderer.setStyle(newDiv1, 'padding-left', '6px');
-                this.renderer.setStyle(newDiv1, 'color', 'var(--sys-primary)');
-                this.renderer.setStyle(newDiv1, 'font-size', '14px');
+                this.renderer.addClass(newDiv1, 'eth-librarystack-text1');
                 this.renderer.appendChild(newDiv1, this.renderer.createText(text1));
                 this.renderer.insertBefore(btn.parentNode, newDiv1, btn.nextSibling);
               }

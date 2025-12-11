@@ -36,10 +36,10 @@
           </mat-expansion-panel-header>
 
           <section class="eth-expansion-panel-content">
-            @for (link of place.topics; track link) {
-                @if (link.url){
-                    <a [href]="'/nde'+link.url" (click)="navigate(link.url,$event)">
-                        <span>{{link.name}}</span>
+            @for (topic of place.topics; track topic.url) {
+                @if (topic.url){
+                    <a [href]="'/nde'+topic.url" (click)="navigate(topic.url,$event)">
+                        <span>{{topic.name}}</span>
                     </a>
                 }
             }
@@ -65,7 +65,7 @@
                 @if (link.url){
                     <div><a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
                         <span>{{link.text}}</span>
-                        <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                        <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                           <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                         </svg>                     
                     </a></div>
@@ -95,7 +95,7 @@
                         <li>
                             <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
                               <span>{{link.text}}</span>
-                              <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                              <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                               </svg>         
                             </a>
@@ -127,7 +127,7 @@
                         <li>
                             <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
                                 <span>{{link.text}}</span>
-                                <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                                <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                                 </svg>       
                             </a>
@@ -159,7 +159,7 @@
                         <li>
                             <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
                                 <span>{{link.text}}</span>
-                                <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                                <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                                 </svg>                     
                             </a>
@@ -208,7 +208,7 @@
                         <li>
                             <a [href]="map.url" target="_blank" rel="noopener" [attr.aria-label]="map.title + ('nui.aria.newWindow' | safeTranslate | async)">
                                 {{map.title}}
-                                <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
+                                <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                                 </svg>                     
                             </a>

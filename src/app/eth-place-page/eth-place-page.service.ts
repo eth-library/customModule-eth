@@ -21,7 +21,7 @@ export class EthPlacePageService {
         private ethErrorHandlingService: EthErrorHandlingService,
     ) {}
 
-    getPlaceFromETHorama(qid: string, lang: string): Observable<any> {
+    getPlaceFromETHorama(qid: string): Observable<any> {
         const url = `${this.baseurlETHorama}?apikey=XKosnD8xM5AuyvuovfebqpHUzkrMi0qqlVKcM5gHYDANCyds&details=true&qId=${qid}`;
         return this.http.get(url).pipe(
             map(response => {
@@ -32,7 +32,7 @@ export class EthPlacePageService {
     }
 
     // https://api.library.ethz.ch/geo/v1/geo-topics/?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&q=Q15283
-    getTopicsFromGeoGraph(qid: string, lang: string): Observable<any> {
+    getTopicsFromGeoGraph(qid: string): Observable<any> {
         const url = `${this.baseurlTopics}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&q=${qid}`;
         return this.http.get(url).pipe(
             map(response => {
@@ -53,7 +53,7 @@ export class EthPlacePageService {
         );
     }
 
-    getPoiFromGeoGraph(qid: string, lang: string): Observable<any> {
+    getPoiFromGeoGraph(qid: string): Observable<any> {
         const url = `${this.baseurlPoi}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&q=${qid}`;
         return this.http.get(url).pipe(
             map(response => {
