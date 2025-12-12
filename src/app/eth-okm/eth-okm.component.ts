@@ -1,3 +1,6 @@
+// Integration OKM
+// https://jira.ethz.ch/browse/SLSP-1989
+
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Observable, of, switchMap } from 'rxjs';

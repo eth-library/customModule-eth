@@ -1,3 +1,6 @@
+// Integration Matomo
+// https://jira.ethz.ch/browse/SLSP-1954
+
 import { DestroyRef, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

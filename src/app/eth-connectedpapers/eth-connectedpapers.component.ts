@@ -1,3 +1,6 @@
+// For articles, a link to Connected Papers is provided via the DOI.
+// https://jira.ethz.ch/browse/SLSP-1981
+
 import { Component, Input, ViewEncapsulation, inject } from '@angular/core';
 import { EthConnectedpapersService } from './eth-connectedpapers.service'
 import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';

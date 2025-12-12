@@ -1,3 +1,6 @@
+// EntityPage Place
+// https://jira.ethz.ch/browse/SLSP-1991
+
 import { Component, inject, Renderer2, ViewEncapsulation } from '@angular/core';
 import { catchError, combineLatest, forkJoin, map, Observable, of, startWith, Subject, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';

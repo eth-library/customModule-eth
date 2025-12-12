@@ -1,8 +1,8 @@
 @if (links$ | async; as links) {
   @if (links.erara) {
     <div class="eth-provenienz-erara">
-      <a [href]="links.erara" target="_blank" rel="noopener" [attr.aria-label]="'Quelle in e-rara' + ('nui.aria.newWindow' | safeTranslate | async)">
-        <span>Quelle in e-rara</span>
+      <a [href]="links.erara" target="_blank" rel="noopener" [attr.aria-label]="('eth.provenienzEraraLink.erara' | safeTranslate | async) ?? ''  + ('nui.aria.newWindow' | safeTranslate | async)">
+        <span>{{'eth.provenienzEraraLink.erara' | safeTranslate | async}}</span>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
           <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
         </svg>
@@ -12,7 +12,7 @@
   @if (links.swisscovery) {
     <div class="eth-provenienz-erara">
       <a [href]="'/nde'+links.swisscovery"  (click)="navigate(links.swisscovery,$event)">
-        <span>Details Provenienzvermerk</span>
+        <span>{{'eth.provenienzEraraLink.swisscovery' | safeTranslate | async}}</span>
       </a>
     </div>
   }

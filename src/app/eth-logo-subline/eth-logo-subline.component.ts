@@ -1,3 +1,6 @@
+// 
+// https://jira.ethz.ch/browse/SLSP-2009
+
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { EthStoreService } from 'src/app/services/eth-store.service';

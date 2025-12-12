@@ -1,3 +1,6 @@
+// A hint in the header is retrieved by Git.
+// https://jira.ethz.ch/browse/SLSP-1958
+
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 import { EthGitHintService } from './eth-git-hint.service'

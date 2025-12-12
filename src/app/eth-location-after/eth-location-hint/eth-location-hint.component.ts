@@ -1,3 +1,6 @@
+// Various libraries have special notes. We read these from the code tables (Bib code would be part of the code table code).
+// https://jira.ethz.ch/browse/SLSP-1969
+
 import { OnInit, Component, Input, ViewEncapsulation, Inject, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, map, Observable, of, switchMap, take, tap } from 'rxjs';

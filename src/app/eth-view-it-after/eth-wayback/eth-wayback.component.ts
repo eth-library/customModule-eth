@@ -1,3 +1,6 @@
+// Link to the HSA web archive
+// https://jira.ethz.ch/browse/SLSP-2014
+
 import { Component, DestroyRef, inject, Inject, Renderer2 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { catchError, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';

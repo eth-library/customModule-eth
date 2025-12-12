@@ -1,3 +1,6 @@
+// For online resources, an email link is generated that can be used to report access problems.
+// https://jira.ethz.ch/browse/SLSP-1997
+
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { catchError, Observable, of, switchMap } from 'rxjs';

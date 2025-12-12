@@ -1,3 +1,6 @@
+// If CDI resources have the status “no_inventory” and nothing is available via Rapido, an ILL link is displayed.
+// https://jira.ethz.ch/browse/SLSP-1986
+
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, Inject, AfterViewInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';

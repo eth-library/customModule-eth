@@ -1,3 +1,6 @@
+// If a resource is assigned to one or more locations/POIs (based on the geodata graph) and the location is assigned to Wikipedia, the corresponding location pages are linked in right sidebar.
+// https://jira.ethz.ch/browse/SLSP-2004
+
 import { Component, inject, Input } from '@angular/core';
 import { EthGeoRefService } from './eth-geo-ref.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';

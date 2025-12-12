@@ -1,3 +1,6 @@
+// Various special locations/libraries have links to their own CMS pages.
+// https://jira.ethz.ch/browse/SLSP-1971
+
 import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { catchError, map, Observable, of, switchMap } from 'rxjs';

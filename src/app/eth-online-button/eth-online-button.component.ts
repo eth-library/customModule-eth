@@ -1,3 +1,6 @@
+// Quick link to online resource, similar to OTB Quicklinks
+// https://jira.ethz.ch/browse/SLSP-2354
+
 import { Component, ElementRef, Inject, inject, Input } from '@angular/core';
 import { Observable, catchError, combineLatest, map, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';

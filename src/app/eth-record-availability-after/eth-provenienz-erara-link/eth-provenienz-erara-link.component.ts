@@ -1,4 +1,16 @@
-import { Component, OnInit, Inject, Optional, Input, inject } from '@angular/core';
+/*
+Links between e-rara prints and E-Pics images in both directions:
+1. Image -> Print: E-Pics also contains images of provenance features of old prints from the ETH Library.
+These images are linked to:
+- Print in e-rara
+- Print and all its provenances in swisscovery
+2. Print -> Image:
+The provenance images are displayed in the detailed view of the respective print.
+*/
+// https://jira.ethz.ch/browse/SLSP-2006
+// \eth-full-display-side-bar-after\eth-provenienz\eth-provenienz.component.ts
+
+import { Component, Input, inject } from '@angular/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthStoreService } from '../../services/eth-store.service';
 import { CommonModule } from '@angular/common';
@@ -79,3 +91,14 @@ export class EthProvenienzEraraLinkComponent {
 }
 
 
+/**
+             eth.provenienzEraraLink.erara:{
+                de: 'Quelle in e-rara',
+                en: 'Source in e-rara'
+            },
+            eth.provenienzEraraLink.swisscovery: {
+                de: 'Details Provenienzvermerk',
+                en: 'Details provenance mark'
+            }
+ 
+ */

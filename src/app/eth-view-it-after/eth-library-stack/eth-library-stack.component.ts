@@ -1,3 +1,6 @@
+// Librarystack: A note is inserted. (Password-protected access. Restricted to members of ETH Zurich only...)
+// https://jira.ethz.ch/browse/SLSP-1999
+
 import { Component, Inject, Renderer2, DestroyRef, inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { catchError, filter, map, Observable, of, take, tap } from 'rxjs';

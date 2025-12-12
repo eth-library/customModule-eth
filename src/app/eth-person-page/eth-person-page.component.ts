@@ -1,3 +1,6 @@
+// EntityPage Person
+// https://jira.ethz.ch/browse/SLSP-1990
+
 import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { catchError, filter, forkJoin, map, Observable, of, startWith, Subject, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../services/eth-person.service';

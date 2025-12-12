@@ -1,3 +1,6 @@
+// In the online section, an off-campus note is displayed next to the online link when appropriate, e.g., not for open access.
+// https://jira.ethz.ch/browse/SLSP-1995
+
 import { CommonModule } from '@angular/common';
 import { Component} from '@angular/core';
 import { catchError, map, Observable, of, switchMap } from 'rxjs';

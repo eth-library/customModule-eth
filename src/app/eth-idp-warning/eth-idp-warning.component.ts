@@ -1,3 +1,6 @@
+// If a user with an ETH email address does not belong to an ETH user group, a message will be displayed stating that the user must link their edu-id account to their ETH account.
+// https://jira.ethz.ch/browse/SLSP-1985
+
 import { Component, OnInit } from '@angular/core';
 import { combineLatest, map, Observable, of, take, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';

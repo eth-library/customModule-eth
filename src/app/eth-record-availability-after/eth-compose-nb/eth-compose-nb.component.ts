@@ -1,3 +1,6 @@
+// The print and online resources of the TMA Nachlassbibliothek are linked.
+// https://jira.ethz.ch/browse/SLSP-2003
+
 import { Component, Input, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { of, Observable } from 'rxjs';

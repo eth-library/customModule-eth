@@ -1,4 +1,7 @@
-import { Component , OnInit, Input } from '@angular/core';
+// A DNB service is used to check whether there is a digitized table of contents and a link to it is displayed (if we do not yet have a TOC).
+// https://jira.ethz.ch/browse/SLSP-1988
+
+import { Component , Input } from '@angular/core';
 import { Observable, catchError, debounceTime, distinctUntilChanged, filter, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { EthDnbTocService } from './eth-dnb-toc.service'
 import { EthStoreService } from 'src/app/services/eth-store.service';
@@ -40,7 +43,7 @@ export class EthDnbTocComponent {
       switchMap(() => this.ethStoreService.getFullDisplayDeliveryEntity$()),
       distinctUntilChanged(),
       map((deliveryEntity: any) => {
-        let aExclude = ['https://vls.hsa.ethz.ch', 'http://hdl.handle.net','http://dx.doi.org/10.7891/e-manuscripta','https://wayback.archive-It.org/','https://vls.mfa.ethz.ch/','https://vls.tma.ethz.ch/','doi.org/10.24448', 'doi.org/10.3931/e-rara-'];
+        let aExclude = ['http://doi.org/10.3932/','https://tma.e-pics.ethz.ch/','https://vls.hsa.ethz.ch', 'http://hdl.handle.net','http://dx.doi.org/10.7891/e-manuscripta','https://wayback.archive-It.org/','https://vls.mfa.ethz.ch/','https://vls.tma.ethz.ch/','doi.org/10.24448', 'doi.org/10.3931/e-rara-'];
         const almaLinks = deliveryEntity?.delivery?.link?.filter( (link: any) => {
           return ['linktorsrc', 'addlink'].includes(link.linkType) && link.displayLabel !== '$$Elinktorsrc' && !aExclude.some(excludeStr => link.linkURL?.includes(excludeStr));
         }) ?? [];

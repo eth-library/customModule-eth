@@ -1,3 +1,6 @@
+// Resources from e-rara are linked reciprocally with their prints and possibly with e-maps.
+// https://jira.ethz.ch/browse/SLSP-2002
+
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, of, forkJoin } from 'rxjs';

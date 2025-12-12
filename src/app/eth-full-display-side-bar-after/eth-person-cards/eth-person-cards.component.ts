@@ -1,3 +1,6 @@
+// Person cards based on GND ID or IdRef in the right sidebar 
+// https://jira.ethz.ch/browse/SLSP-2095
+
 import { Component, inject, Input } from '@angular/core';
 import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../../services/eth-person.service';
