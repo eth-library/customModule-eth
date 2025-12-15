@@ -1,5 +1,6 @@
 @if (news$ | async; as news) {
   <div class="eth-news-container">
+    <h2 class="about-text-title mat-headline-large">{{'eth.bibNews.heading' | safeTranslate | async}}</h2>
     <div class="eth-all-news">
       @for (news of news.entries; track news.link) {
         <div class="eth-news">
@@ -11,7 +12,7 @@
             </a>
           </header>
           <article class="eth-news-content">
-            <a target="_blank" rel="noopener external" [href]="news.link" class="eth-news-image-link">
+            <a target="_blank" rel="noopener external" [href]="news.link" class="eth-news-image-link" aria-hidden="true" tabindex="-1">
               @if (news.image) {
                 <img [src]="news.image" alt="">
               }

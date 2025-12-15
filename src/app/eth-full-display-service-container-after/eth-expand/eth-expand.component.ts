@@ -1,4 +1,5 @@
 // The containers for viewit_other and getit_other should be initially collapsed.
+// They are collapsed by default
 // https://jira.ethz.ch/browse/SLSP-2353
 
 import { CommonModule } from '@angular/common';

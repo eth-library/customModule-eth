@@ -19,7 +19,7 @@ import { EthViewItAfterComponent } from '../eth-view-it-after/eth-view-it-after.
 import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offcampus-warning.component';
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
 import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
-import { EthFullDisplayServiceContainerAfterComponent } from '../eth-full-display-service-container-after/eth-full-display-service-container-after.component';
+//import { EthFullDisplayServiceContainerAfterComponent } from '../eth-full-display-service-container-after/eth-full-display-service-container-after.component';
 
 
 
@@ -31,7 +31,6 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-logo-bottom', EthLogoSublineComponent],
     ['nde-view-it-before', EthOffcampusWarningComponent],
     ['nde-view-it-after', EthViewItAfterComponent],
-    //['nde-full-display-links-top', EthProvenienzEraraLinkComponent],
     ['nde-record-citations-indicators-top',EthConnectedpapersComponent],
     ['nde-record-availability-after', EthRecordAvailabilityAfterComponent],
     ['nde-online-availability-before', EthOnlineButtonComponent],
@@ -39,13 +38,14 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-entity-layout-bottom', EthPersonPageComponent],
     ['nde-get-it-bottom',EthGetitLocationsfilterComponent],
     ['nde-location-bottom', EthLocationAfterComponent],
-    //['nde-login-dialog-after', EthRegistrationLinkComponent],
     ['nde-login-form-content-bottom', EthRegistrationLinkComponent],
     ['nde-full-display-side-bar-bottom', EthFullDisplaySideBarAfterComponent],
-    ['nde-full-display-service-container-after', EthFullDisplayServiceContainerAfterComponent],
     ['nde-personal-details-view-after', EthChangeAdressComponent],
     ['nde-personal-settings-before', EthIdpWarningComponent],
     ['nde-requests-after', EthIllLinkComponent],
+    //['nde-login-dialog-after', EthRegistrationLinkComponent],
+
+    //['nde-full-display-service-container-after', EthFullDisplayServiceContainerAfterComponent],
     //['nde-search-bar-presenter-after', EthOKMComponent],
     //['nde-full-display-details-bottom', EthMetagridComponent],
 ])

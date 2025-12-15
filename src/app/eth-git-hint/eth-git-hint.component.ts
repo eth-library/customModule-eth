@@ -1,4 +1,12 @@
-// A hint in the header is retrieved by Git.
+/**
+A hint in the header is retrieved from Git.
+The hint is inserted as HTML (link as link, not as HTML code).
+https://eth-library.github.io/snippets/primo/banner.json
+Only certain tags are allowed in the hint:
+allowedTags = [‘a’, ‘strong’, ‘em’, ‘p’, ‘br’]
+For security reasons, all other elements are removed.
+Angular's own sanitizer then automatically runs over it again.
+ */
 // https://jira.ethz.ch/browse/SLSP-1958
 
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
@@ -9,6 +17,7 @@ import { CommonModule } from '@angular/common';
 import { SafeHtml } from '@angular/platform-browser';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { EthUtilsService } from '../services/eth-utils.service';
+import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
 
 type Language = 'de' | 'en'; 
 
@@ -21,7 +30,8 @@ type Language = 'de' | 'en';
   standalone: true,   
   encapsulation: ViewEncapsulation.None,
   imports: [
-    CommonModule
+    CommonModule,
+    SafeTranslatePipe
   ]    
 })
 export class EthGitHintComponent implements OnInit {

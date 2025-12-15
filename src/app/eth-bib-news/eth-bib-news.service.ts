@@ -1,6 +1,3 @@
-// News on the home page
-// https://jira.ethz.ch/browse/SLSP-2128
-
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';

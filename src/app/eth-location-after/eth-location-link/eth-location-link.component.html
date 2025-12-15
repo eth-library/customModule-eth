@@ -1,12 +1,12 @@
 @if(link$ | async; as link){
     <div class="eth-location-link">
-        <svg class="eth-location-link-info" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="24px" height="24px" aria-label="Info">
+        <svg class="eth-location-link-info" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" aria-hidden="true" focusable="false">
             <path d="M0 0h24v24H0V0z" fill="none"></path>
             <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path>
         </svg>
         <div [innerHTML]="link">
         </div>
-        <svg class="eth-location-link-external" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" role="img" [attr.aria-label]="'nui.aria.newWindow' | translate">
+        <svg class="eth-location-link-external" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" role="img" [attr.aria-label]="('eth.locationLink.website' | translate) + ('nui.aria.newWindow' | translate)">
             <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
         </svg>                
     </div>

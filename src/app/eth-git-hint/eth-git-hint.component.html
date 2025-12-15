@@ -1,3 +1,6 @@
 @if (hint$ | async; as hint) {
-  <div role="alert" class="eth-git-hint-container" [innerHTML]="hint"></div>
+  <h1 class="eth-visually-hidden" id="git-hint-heading">{{'eth.gitHint.heading' | safeTranslate | async}}</h1>
+  <div role="alert" class="eth-git-hint-container" aria-labelledby="git-hint-heading" [innerHTML]="hint"></div>
 }
+
+

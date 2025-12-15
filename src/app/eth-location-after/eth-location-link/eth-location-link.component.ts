@@ -35,8 +35,8 @@ export class EthLocationLinkComponent implements OnInit  {
     private ethUtilsService: EthUtilsService
   ){} 
 
+  
   ngOnInit(): void {
-    // console.log(this.hostComponent.location)
     // 990010808770205503 
     this.hostComponent.expanded = true;
     this.subLocationCode = this.hostComponent?.location?.subLocationCode ?? '';
@@ -46,6 +46,7 @@ export class EthLocationLinkComponent implements OnInit  {
       map(text => this.ethUtilsService.sanitizeText(text))
     );
   }
+
 
   private getLink(): Observable<string> {    
     return this.translate.stream(`eth.locationLink.${this.libraryCode}.${this.subLocationCode}`).pipe(

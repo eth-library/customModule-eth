@@ -6,7 +6,7 @@
   margin: -.5rem 0 0 0;
   padding: 1rem 0.7rem;    
 }
-.eth-location-link svg.eth-location-link-info {
+svg.eth-location-link-info {
   height: 1.5rem;
   width: 1.5rem;
   flex-shrink: 0; 
@@ -20,14 +20,12 @@
   text-decoration: none;
 }
 .eth-location-link a:focus, .eth-location-link a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
-.eth-location-link svg.eth-location-link-external{  
+svg.eth-location-link-external{  
   height: 1.25rem;
   width: 1.25rem;
-  align-self: flex-end;    
   align-items: center;
-  justify-content: center;    
   flex-shrink: 0;     
   fill: var(--sys-primary);
 }

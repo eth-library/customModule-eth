@@ -1,3 +1,6 @@
+// The location filter should be displayed initially
+// https://jira.ethz.ch/browse/SLSP-2355
+
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
@@ -14,8 +17,7 @@ export class EthGetitLocationsfilterComponent{
 
   @Input() hostComponent: any = {};
 
-  constructor(){
-    //console.error("nde-get-it ", this.hostComponent)
+  ngOnInit(): void {
     this.hostComponent.filtersVisible = true; 
-  }  
+  }
 }

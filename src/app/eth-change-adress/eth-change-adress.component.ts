@@ -1,4 +1,4 @@
-// An option to change the address is added to the account.
+// An option to change the address is added to the account settings page.
 // https://jira.ethz.ch/browse/SLSP-2007
 
 import { CommonModule } from '@angular/common';

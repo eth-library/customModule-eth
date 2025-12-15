@@ -1,4 +1,4 @@
-@if (url$ | async; as paperUrl) {
+@if (paperUrl$ | async; as paperUrl) {
   <a mat-button class="eth-connectedpapers-link" [href]="paperUrl" target="_blank" rel="noopener" [attr.aria-label]="'Connected Papers' + ('nui.aria.newWindow' | safeTranslate | async)">
     Connected Papers
   </a>

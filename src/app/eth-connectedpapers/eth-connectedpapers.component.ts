@@ -1,4 +1,4 @@
-// For articles, a link to Connected Papers is provided via the DOI.
+// For articles and book_chapters, a link to Connected Papers is provided via the DOI.
 // https://jira.ethz.ch/browse/SLSP-1981
 
 import { Component, Input, ViewEncapsulation, inject } from '@angular/core';
@@ -17,6 +17,8 @@ type SearchState = {searchParams: SearchParams, ids: string[], entities: Record<
 const selectSearchState = createFeatureSelector<SearchState>('Search');
 const selectSearchEntities = createSelector(selectSearchState, state => state.entities);
 
+
+// todo change to ethStoreService
 const selectListviewRecord = (recordId: string) =>
   createSelector(
     selectSearchEntities,
@@ -35,7 +37,6 @@ const selectFullDisplayRecord = createSelector(
   templateUrl: './eth-connectedpapers.component.html',
   styleUrl: './eth-connectedpapers.component.scss',
   standalone: true,
-  encapsulation: ViewEncapsulation.None,
   imports: [
     CommonModule,
     SafeTranslatePipe
@@ -46,7 +47,7 @@ export class EthConnectedpapersComponent{
   private store = inject(Store);
   @Input() hostComponent: any = {};
   searchResult: any;
-  url$!: Observable<string | null>;
+  paperUrl$!: Observable<string | null>;
 
   constructor(
     private ethConnectedpapersService: EthConnectedpapersService,
@@ -54,8 +55,7 @@ export class EthConnectedpapersComponent{
 
 
   ngOnInit() {
-    //console.error("hostComponent",this.hostComponent)
-    this.url$ = this.getRecord$(this.hostComponent).pipe(
+    this.paperUrl$ = this.getRecord$(this.hostComponent).pipe(
       switchMap(record => this.getPaper(record))
     )
   }
@@ -72,7 +72,6 @@ export class EthConnectedpapersComponent{
         return of(null);
       }
       return this.ethConnectedpapersService.getPaperViaProxy(doi).pipe(
-        //tap(response => console.error('response', response)),
         filter(response => response !== null),
         map(response => {
             if((response?.citationCount && response?.citationCount > 0) || (response?.referenceCount && response?.referenceCount > 0)){
@@ -112,14 +111,7 @@ export class EthConnectedpapersComponent{
       )
     );
   }
-
-  /*ngAfterViewInit() {
-    effect(() => {
-      const record = this.hostComponent.searchResultSignal(); 
-      console.error("signal record",record)
-    });
-  } */
-     
+    
 }
 
   

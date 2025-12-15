@@ -7,7 +7,7 @@ export function ethHttpInterceptor(req: HttpRequest<any>, next: HttpHandlerFn): 
     map(event => {
       if (event instanceof HttpResponse) {
         try {
-          console.error('Interceptor event.url ',event.url)
+          //console.error('Interceptor event.url ',event.url)
           if (/primaws\/rest\/pub\/translations\/41SLSP_ETH:ETH_CUSTOMIZING/.test(event.url!)) {
             if (event.status === 200) {
               if (event.body && typeof event.body === 'object') {

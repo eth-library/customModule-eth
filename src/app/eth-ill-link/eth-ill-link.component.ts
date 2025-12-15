@@ -1,4 +1,4 @@
-// If CDI resources have the status “no_inventory” and nothing is available via Rapido, an ILL link is displayed.
+// If CDI resources have the status “no_inventory”, there is no nde-get-it-from-other and nothing is available via Rapido, an ILL link is displayed.
 // https://jira.ethz.ch/browse/SLSP-1986
 
 import { CommonModule, DOCUMENT } from '@angular/common';

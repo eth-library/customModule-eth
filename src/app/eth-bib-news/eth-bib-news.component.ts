@@ -1,3 +1,6 @@
+// News feed on the home page
+// https://jira.ethz.ch/browse/SLSP-2128
+
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { EthBibNewsService } from './eth-bib-news.service';
@@ -30,7 +33,7 @@ export class EthBibNewsComponent implements OnInit {
   ngOnInit(): void {
     this.news$ = this.translate.onLangChange.pipe(
       startWith({ lang: this.translate.currentLang }), 
-      switchMap((event:any) => this.ethBibNewsService.getNews(event.lang)),
+      switchMap( (event:any) => this.ethBibNewsService.getNews(event.lang)),
       map(data => {
         if (!data) return null;
         data.entries?.forEach((n:any) => {
