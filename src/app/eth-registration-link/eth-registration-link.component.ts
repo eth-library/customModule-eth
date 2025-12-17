@@ -1,13 +1,12 @@
 // In the login box, there is a link next to the switch option that says “Not registered yet?”
 // https://jira.ethz.ch/browse/SLSP-1984
 
-import { Component, inject, Renderer2, DestroyRef } from '@angular/core';
+import { Component, inject, Renderer2, DestroyRef, Inject } from '@angular/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
-import { catchError, of, tap } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, of, take, tap } from 'rxjs';
 
 @Component({
   selector: 'custom-eth-registration-link',
@@ -22,29 +21,61 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class EthRegistrationLinkComponent {
   
   private destroyRef = inject(DestroyRef);
-
+  
   constructor(
        private renderer: Renderer2,
        private translate: TranslateService,
-       private ethErrorHandlingService: EthErrorHandlingService
+       private ethErrorHandlingService: EthErrorHandlingService,
+       @Inject(DOCUMENT) private document: Document    
     ){}
 
     ngAfterViewInit(): void {
+      const loginFormContent = this.document.querySelector('nde-login-form-content') as HTMLElement;
+
+      // initial
+      this.insertEthRegistrationLink(loginFormContent);
+
+      // observer: after dialog change (clicking  "INSTITUTIONAL ACCOUNTS" and coming back)
+      const observer = new MutationObserver((mutations) => {
+        // guard
+        if (loginFormContent.querySelector('.eth-registration-link')) {
+          return;
+        }
+        // methods dialog?
+        const isMethodsDialog = mutations.some(m =>
+          Array.from(m.addedNodes).some(node =>
+            node instanceof HTMLElement &&
+            node.matches?.('.authentication-method-btn')
+          )
+        );
+        if (isMethodsDialog) {
+          this.insertEthRegistrationLink(loginFormContent);
+        }
+      });
+      observer.observe(loginFormContent, {childList: true, subtree: true});      
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    }
+
+   
+    private insertEthRegistrationLink( loginFormContent: HTMLElement ): void{
       try {
         this.translate
-          .stream(['eth.registrationLink.linkText', 'nui.aria.newWindow'])
+          .get(['eth.registrationLink.linkText', 'nui.aria.newWindow'])
           .pipe(
+            take(1),
             tap(translations => {
               const linktext = translations['eth.registrationLink.linkText'];
               const newWindow = translations['nui.aria.newWindow'];
-
-              // check if alredy exists
-              const existingLink = document.querySelector('nde-login-dialog .eth-registration-link');
+              
+              // guard: check if alredy exists
+              const existingLink = loginFormContent.querySelector('nde-login-dialog .eth-registration-link');
               if (existingLink) {
                 return;
               }
-
-              const container = this.renderer.selectRootElement('nde-login-dialog .mat-mdc-dialog-content',true);
+              const container = loginFormContent.querySelector('nde-login-dialog .mat-mdc-dialog-content');
+              if (!container) {
+                return;
+              }
               const link = this.renderer.createElement('a');
               this.renderer.setAttribute(link,'href','https://library.ethz.ch/recherchieren-und-nutzen/ausleihen-und-nutzen/swisscovery-hilfe-auf-einen-blick.html#r');
               this.renderer.setAttribute(link, 'target', '_blank');
@@ -68,7 +99,6 @@ export class EthRegistrationLinkComponent {
               // insert link
               this.renderer.insertBefore(container.parentNode, link, container.nextSibling);
             }),
-            takeUntilDestroyed(this.destroyRef),
             catchError(err => {
               this.ethErrorHandlingService.handleError(err,'EthRegistrationLinkComponent translateStream');
               return of(null);
@@ -82,6 +112,5 @@ export class EthRegistrationLinkComponent {
         );
       }
     }
-
 
 }

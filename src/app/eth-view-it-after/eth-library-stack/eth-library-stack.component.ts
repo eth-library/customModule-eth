@@ -1,4 +1,8 @@
-// Librarystack: A note is inserted. (Password-protected access. Restricted to members of ETH Zurich only...)
+/* 
+  Librarystack
+  change link text of resource link
+  add hint about usage of library stack (Password-protected access. Restricted to members of ETH Zurich only...)
+*/
 // https://jira.ethz.ch/browse/SLSP-1999
 
 import { Component, Inject, Renderer2, DestroyRef, inject } from '@angular/core';
@@ -32,8 +36,8 @@ export class EthLibraryStackComponent {
     @Inject(DOCUMENT) private document: Document    
   ){}
 
+  // cdi_librarystack_primary_159090
   ngAfterViewInit() {
-    // cdi_librarystack_primary_159090
     this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
       //tap(deliveryEntity => {console.error("deliveryEntity",deliveryEntity)}),
       map(deliveryEntity => {
@@ -42,8 +46,7 @@ export class EthLibraryStackComponent {
         ) ?? false;
       }),
       filter(hasLibraryStackUrl => hasLibraryStackUrl),
-      take(1),
-      tap(() => this.changeDOM()),
+      tap(() => this.initObserver()),
       takeUntilDestroyed(this.destroyRef),  
       catchError(err => {
         this.ethErrorHandlingService.handleError(err, 'EthLibraryStackComponent');
@@ -51,48 +54,57 @@ export class EthLibraryStackComponent {
       })      
     )
     .subscribe();
+
+    // change language -> render again
+    this.translate.onLangChange.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.changeDom());    
+
   }
 
-  changeDOM() {
-    const observer = new MutationObserver(() => {
-      const btnH5 = this.document.querySelector('nde-view-it-card button h5');
-      if (btnH5) {
-        observer.disconnect();
-        //this.renderer.setProperty(btnH5, 'textContent', 'Zugriff auf Inhalte in Library Stack');
-        const btn = this.document.querySelector('nde-view-it-card button');
-        if (btn && btn.parentNode) {
-          this.translate.stream([
-            'eth.libraryStack.text1',
-            'eth.libraryStack.text2'
-          ]).pipe(
-            tap(translations => {
-              const text1 = translations['eth.libraryStack.text1'];
-              const text2 = translations['eth.libraryStack.text2'];
 
-              const btn = this.document.querySelector('nde-view-it-card button');
-              if (btn && btn.parentNode) {
-                const existingDivs = btn.parentNode.querySelectorAll('.eth-libstack-text');
-                existingDivs.forEach(div => div.remove());
+  initObserver() {
+    const fullDisplayContainer = this.document.querySelector('nde-full-display-container');
+    if (!fullDisplayContainer) return;
 
-                const newDiv2 = this.renderer.createElement('div');
-                this.renderer.addClass(newDiv2, 'eth-librarystack-text2');
-                this.renderer.appendChild(newDiv2, this.renderer.createText(text2));
-                this.renderer.insertBefore(btn.parentNode, newDiv2, btn.nextSibling);
+    const observer = new MutationObserver(() => this.changeDom());
 
-                const newDiv1 = this.renderer.createElement('div');
-                this.renderer.addClass(newDiv1, 'eth-librarystack-text1');
-                this.renderer.appendChild(newDiv1, this.renderer.createText(text1));
-                this.renderer.insertBefore(btn.parentNode, newDiv1, btn.nextSibling);
-              }
-            }),
-            takeUntilDestroyed(this.destroyRef)
-          ).subscribe();          
-        }
-      }
+    observer.observe(fullDisplayContainer, { childList: true, subtree: true }); 
+
+    // initial
+    this.changeDom(); 
+
+    this.destroyRef.onDestroy(() => observer.disconnect());    
+  }
+
+
+  private changeDom() {
+    const btn = this.document.querySelector('nde-view-it-card button');
+    if (!btn || !btn.parentNode) return;
+
+    const parent = btn.parentNode as HTMLElement;
+
+    // guard (multiple render + prevent loop dom changes)
+    if (parent.querySelector('.eth-librarystack-text1')) return;
+
+    this.translate.get([
+      'eth.libraryStack.text1',
+      'eth.libraryStack.text2'
+    ])
+    .pipe(
+      take(1)
+    ).subscribe(t => {
+      const div1 = this.renderer.createElement('div');
+      this.renderer.addClass(div1, 'eth-librarystack-text1');
+      this.renderer.appendChild(div1, this.renderer.createText(t['eth.libraryStack.text1']));
+
+      const div2 = this.renderer.createElement('div');
+      this.renderer.addClass(div2, 'eth-librarystack-text2');
+      this.renderer.appendChild(div2, this.renderer.createText(t['eth.libraryStack.text2']));
+
+      this.renderer.appendChild(parent, div1);
+      this.renderer.appendChild(parent, div2);
     });
-    const el = this.document.querySelector('nde-full-display-container') as HTMLElement;
-    observer.observe(el, { childList: true, subtree: true });
-    this.destroyRef.onDestroy(() => observer.disconnect());
   }
   
 }

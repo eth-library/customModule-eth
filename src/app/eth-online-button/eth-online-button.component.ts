@@ -1,4 +1,10 @@
-// Quick link to online resource, similar to OTB Quicklinks
+/* Quicklinks/online buttons to online resources, similar to OTB Quicklinks
+
+  viewModel$.onlineLinks -> ORB Quicklinks are rendered -> do nothing
+  deliveryEntity.delivery.electronicServices or record.pnx.links.linktorsrcadditional exists -> direct link to resource
+  add link to fullview viewit section in dropdown 
+  remove OTB online button
+*/
 // https://jira.ethz.ch/browse/SLSP-2354
 
 import { Component, ElementRef, Inject, inject, Input } from '@angular/core';
@@ -10,7 +16,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu'
 import { MatButtonModule } from '@angular/material/button';
-import { TranslateService } from "@ngx-translate/core";
 import { SHELL_ROUTER } from "../injection-tokens";
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 
@@ -31,12 +36,12 @@ import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 })
 export class EthOnlineButtonComponent {
   links$!: Observable<any>;
-  private router = inject(SHELL_ROUTER);
   @Input() hostComponent: any = {};
+
+  private router = inject(SHELL_ROUTER);
   private observer?: MutationObserver;  
   
   constructor(
-    private translate: TranslateService,
     private ethStoreService:EthStoreService,     
     private ethErrorHandlingService: EthErrorHandlingService,
     private elementRef: ElementRef,
@@ -45,12 +50,9 @@ export class EthOnlineButtonComponent {
     this.elementRef = elementRef;
   }
 
+
   ngAfterViewInit() {
-    this.links$ = combineLatest<{
-        record: any;
-        viewModel: any;
-        deliveryEntity: any;
-      }>({
+    this.links$ = combineLatest({
         record: this.ethStoreService.getRecord$(this.hostComponent),
         viewModel: this.hostComponent.viewModel$,
         deliveryEntity: this.ethStoreService.getDeliveryEntity$(this.hostComponent)

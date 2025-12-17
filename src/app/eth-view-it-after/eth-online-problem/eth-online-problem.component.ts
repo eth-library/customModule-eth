@@ -31,15 +31,6 @@ export class EthOnlineProblemComponent {
   ngOnInit() {
     this.showLink$ = this.ethStoreService.getFullDisplayRecord$().pipe(
       switchMap(record => {
-        //console.error("record",record)
-        /*const isFromHSA = record?.pnx?.control?.originalsourceid?.[0]?.includes('hochschularchiv-der-eth') ?? false;
-        if(isFromHSA){
-          return of(false);
-        }
-        else{
-          this.setMailLink(record);
-          return of(true);
-        }*/
         this.setMailLink(record);
         return of(true);
       }),

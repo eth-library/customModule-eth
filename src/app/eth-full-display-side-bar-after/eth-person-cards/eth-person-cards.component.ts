@@ -125,6 +125,7 @@ export class EthPersonCardsComponent {
               //console.error("persons",persons.map((e:any)=>e.wiki?.loc))
               const filteredPersons = persons.filter((person: any) => {
                 const loc = person.wiki?.loc;
+                //console.error("loc2",person.wiki?.loc)
                 if (!loc) {
                   return true;
                 }

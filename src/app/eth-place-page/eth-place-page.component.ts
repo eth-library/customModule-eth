@@ -1,13 +1,13 @@
 // EntityPage Place
 // https://jira.ethz.ch/browse/SLSP-1991
 
-import { Component, inject, Renderer2, ViewEncapsulation } from '@angular/core';
+import { Component, Inject, inject, Renderer2, ViewEncapsulation } from '@angular/core';
 import { catchError, combineLatest, forkJoin, map, Observable, of, startWith, Subject, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthPlacePageService } from './eth-place-page.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
@@ -50,7 +50,8 @@ export class EthPlacePageComponent {
     private ethStoreService:EthStoreService,
     public ethPlacePageService: EthPlacePageService,
     private renderer: Renderer2,
-    private ethErrorHandlingService: EthErrorHandlingService
+    private ethErrorHandlingService: EthErrorHandlingService,
+    @Inject(DOCUMENT) private document: Document    
   ){}  
 
   ngOnInit(): void {
@@ -79,14 +80,18 @@ export class EthPlacePageComponent {
     }
 
     // hide search result container - todo remove if entity page for place
-    const observer = new MutationObserver(() => {
-      const target = document.querySelector('.search-result-content');
-      if (target) {
-        this.renderer.setStyle(target, 'display', 'none');
-        observer.disconnect();
-      }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });        
+    const searchContent = this.document.querySelector('.search-content');
+    if (searchContent){
+      const observer = new MutationObserver(() => {
+        const target = searchContent.querySelector('.search-result-content');
+        if (target) {
+          this.renderer.setStyle(target, 'display', 'none');
+          observer.disconnect();
+        }
+      });
+      observer.observe(searchContent, { childList: true, subtree: true });        
+    }
+
     return this.getPlaceData(); 
   }  
 
