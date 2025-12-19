@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Doc } from '../models/search.model';
+import { Doc } from '../models/eth.model';
 import { createFeatureSelector, createSelector, select, Store } from '@ngrx/store';
 import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 import { EthErrorHandlingService } from './eth-error-handling.service';
@@ -97,7 +97,9 @@ const selectFullDisplayDeliveryEntities = createSelector(selectFullDisplayRecord
 
 const selectSearchEntities = createSelector(selectSearchState, state => state.entities);
 
-const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId, selectSearchEntities, (recordId, searchEntities) => searchEntities[recordId]);
+const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId, selectSearchEntities, (recordId, searchEntities): Doc | null => searchEntities[recordId] ?? null
+);
+
 
 const selectLinkedDataRecommendations = createSelector(selectFullDisplayState, state => state.linkedDataRecommendations ?? null);
 
@@ -173,7 +175,7 @@ export class EthStoreService {
         this.userName$ = this.store.pipe(
             select(selectUserName)
         );             
-        
+
         this.userGroup$ = this.store.pipe(
             select(selectUserGroup)
         );             
@@ -267,14 +269,15 @@ export class EthStoreService {
         );
     }
 
-    getFullDisplayRecord$() {
-        return this.store.select(selectFullDisplayRecord).pipe(
-            catchError((e) => {
-                this.ethErrorHandlingService.handleError(e, 'EthStoreService.getFullDisplayRecord$');
-                return of(null);
-            })
-        );
-    }    
+    getFullDisplayRecord$(): Observable<Doc | null> {
+    return this.store.select(selectFullDisplayRecord).pipe(
+        catchError((e): Observable<null> => {
+        this.ethErrorHandlingService.handleError(e, 'EthStoreService.getFullDisplayRecord$');
+        return of(null);
+        })
+    );
+    }
+
 
     getRecord$(hostComponent: any) {
         const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0];

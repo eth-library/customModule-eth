@@ -11,10 +11,10 @@
   border: 0;
 }
 /* language switch */
-mat-option[aria-label='Français']{
+.user-area-lang-list mat-option[aria-label='Français']{
     display: none; 
 }
-mat-option[aria-label='Italiano']{ 
+.user-area-lang-list mat-option[aria-label='Italiano']{ 
     display: none; 
 }
 /* language switch mobile */

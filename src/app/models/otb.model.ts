@@ -1,5 +1,3 @@
-//import {LoadingStatus} from "../state/state.const";
-
 export type stringBoolean= "N" | "Y";
 export interface SearchParams {
   searchTerm: string,
@@ -22,7 +20,6 @@ export interface Doc {
   "@id":     string;
   pnx:       Pnx;
   delivery?: DocDelivery;
-  //deliveryStatus: LoadingStatus;
   extras?:   Extras;
   enrichment?: Enrichment;
 }
@@ -46,7 +43,6 @@ export interface DocDelivery {
   physicalItemTextCodes:   string;
   feDisplayOtherLocations: boolean;
   displayedAvailability:   string;
-  // holding:                 any[];
   almaOpenurl:             string;
 }
 
@@ -61,7 +57,7 @@ export interface CitationTrails {
 }
 
 export interface TimesCited {
-  dummy : string
+  dummy : string 
 }
 
 export interface Pnx {

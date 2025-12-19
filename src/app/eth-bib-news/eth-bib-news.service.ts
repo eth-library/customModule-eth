@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { NewsFeed } from '../models/eth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,9 +17,9 @@ export class EthBibNewsService {
     private ethErrorHandlingService: EthErrorHandlingService
   ) {}
 
-  getNews(lang: string = 'de'): Observable<any | null> {
+  getNews(lang: string = 'de'): Observable<NewsFeed | null> {
     const url = `${this.baseUrl}?lang=${lang}`;
-    return this.httpClient.get(url).pipe(
+    return this.httpClient.get<NewsFeed>(url).pipe(
       catchError((error: HttpErrorResponse) => {
         this.ethErrorHandlingService.handleError(error, 'EthBibNewsService')
         return of(null);

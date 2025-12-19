@@ -1,36 +1,15 @@
 // For articles and book_chapters, a link to Connected Papers is provided via the DOI.
 // https://jira.ethz.ch/browse/SLSP-1981
 
-import { Component, Input, ViewEncapsulation, inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { EthConnectedpapersService } from './eth-connectedpapers.service'
 import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
-import { createFeatureSelector, createSelector, Store } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
-
-type FullDisplayState = {selectedRecordId:string};
-const selectFullDisplayState = createFeatureSelector<FullDisplayState>('full-display');
-const selectFullDisplayRecordId = createSelector(selectFullDisplayState, state => state.selectedRecordId ?? null);
-
-type SearchParams = {q:string, tab:string, scope:string}
-type SearchState = {searchParams: SearchParams, ids: string[], entities: Record<string, any>}
-const selectSearchState = createFeatureSelector<SearchState>('Search');
-const selectSearchEntities = createSelector(selectSearchState, state => state.entities);
-
-
-// todo change to ethStoreService
-const selectListviewRecord = (recordId: string) =>
-  createSelector(
-    selectSearchEntities,
-    entities => entities[recordId] ?? null
-  );
-
-const selectFullDisplayRecord = createSelector(
-  selectFullDisplayRecordId,
-  selectSearchEntities,
-  (selectedId, entities) =>
-    selectedId ? entities[selectedId] : null
-);
+import { ConnectedPapersResponse, Doc } from '../models/eth.model';
+import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { EthStoreService } from 'src/app/services/eth-store.service';
+import { HostComponent } from '..//models/eth.model';
 
 @Component({
   selector: 'custom-eth-connectedpapers',
@@ -44,24 +23,24 @@ const selectFullDisplayRecord = createSelector(
 })
 
 export class EthConnectedpapersComponent{
-  private store = inject(Store);
-  @Input() hostComponent: any = {};
-  searchResult: any;
+  @Input() hostComponent: HostComponent = {};
   paperUrl$!: Observable<string | null>;
 
   constructor(
     private ethConnectedpapersService: EthConnectedpapersService,
+    private ethErrorHandlingService: EthErrorHandlingService,
+    private ethStoreService:EthStoreService
   ){}
 
 
   ngOnInit() {
-    this.paperUrl$ = this.getRecord$(this.hostComponent).pipe(
+    if(!this.hostComponent?.searchResult)return;
+    this.paperUrl$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
       switchMap(record => this.getPaper(record))
     )
   }
   
-  
-  private getPaper(record: any): Observable<string | null> {    
+  private getPaper(record: Doc): Observable<string  | null> {    
     try{
       const doi = this.getDoi(record);
       if (!doi) {
@@ -71,8 +50,9 @@ export class EthConnectedpapersComponent{
       if (type !== 'article' && type !== 'articles' && type !== 'book_chapter') {
         return of(null);
       }
-      return this.ethConnectedpapersService.getPaperViaProxy(doi).pipe(
-        filter(response => response !== null),
+
+      return this.ethConnectedpapersService.getPaper(doi).pipe(
+        filter((response): response is ConnectedPapersResponse => response !== null),
         map(response => {
             if((response?.citationCount && response?.citationCount > 0) || (response?.referenceCount && response?.referenceCount > 0)){
                 return `https://www.connectedpapers.com/main/${response.id}/graph?utm_source=primonde`;
@@ -81,37 +61,26 @@ export class EthConnectedpapersComponent{
               return null;
             }
         }),
-        catchError(error => {
-          console.error('error in Connectedpapers addon: map', error);
+        catchError((error) => {
+          this.ethErrorHandlingService.handleError(error, 'EthConnectedpapersComponent ethConnectedpapersService.getPaper()')
           return of(null);
         })
       );
     }
     catch(error: any){
-        console.error('error in Connectedpapers addon: getPaper() ', error);
+        this.ethErrorHandlingService.handleSynchronError(error, 'EthConnectedpapersComponent.getPaper()');  
         return of(null);
     }
   }
 
-  private getType(record: any): string | null {
+  private getType(record: Doc): string | null {
     return record?.pnx?.display?.type?.[0] || null;
   }  
 
-  private getDoi(record: any): string | null {
+  private getDoi(record: Doc): string | null {
     return record?.pnx?.addata?.doi?.[0] || null;
   }  
 
-  getRecord$(hostComponent: any) {
-    const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0];
-    return this.store.select(selectFullDisplayRecord).pipe(
-      switchMap(record =>
-        record
-          ? of(record)
-          : this.store.select(selectListviewRecord(recordId))
-      )
-    );
-  }
-    
 }
 
   

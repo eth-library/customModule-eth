@@ -3,6 +3,7 @@
 
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { HostComponent } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-getit-locationsfilter',
@@ -15,7 +16,7 @@ import { Component, Input } from '@angular/core';
 })
 export class EthGetitLocationsfilterComponent{
 
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
 
   ngOnInit(): void {
     this.hostComponent.filtersVisible = true; 

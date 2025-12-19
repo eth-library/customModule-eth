@@ -7,7 +7,7 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
-import { Doc } from '../../models/search.model';
+import { Doc } from '../../models/eth.model';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { EthUtilsService } from '../../services/eth-utils.service';

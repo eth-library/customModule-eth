@@ -1,14 +1,14 @@
 // Various special locations/libraries have links to their own CMS pages.
 // https://jira.ethz.ch/browse/SLSP-1971
 
-import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthUtilsService } from '../../services/eth-utils.service';
 import { CommonModule } from '@angular/common';
 import { SafeHtml } from '@angular/platform-browser';
-
+import { HostComponent } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-location-link',
@@ -21,13 +21,13 @@ import { SafeHtml } from '@angular/platform-browser';
     TranslateModule
   ]     
 })
-export class EthLocationLinkComponent implements OnInit  {
+export class EthLocationLinkComponent {
 
   link$!: Observable<SafeHtml | null>;
   libraryCode!: string;
   subLocationCode!: string;
   mainLocation!: string;
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
   
   constructor(
     private translate: TranslateService,
@@ -36,12 +36,13 @@ export class EthLocationLinkComponent implements OnInit  {
   ){} 
 
   
-  ngOnInit(): void {
     // 990010808770205503 
+  ngOnInit(): void {
+    if(!this.hostComponent?.location)return;
     this.hostComponent.expanded = true;
-    this.subLocationCode = this.hostComponent?.location?.subLocationCode ?? '';
-    this.libraryCode = this.hostComponent?.location?.libraryCode ?? '';
-    this.mainLocation = this.hostComponent?.location?.mainLocation ?? '';
+    this.subLocationCode = this.hostComponent.location.subLocationCode ?? '';
+    this.libraryCode = this.hostComponent.location.libraryCode ?? '';
+    this.mainLocation = this.hostComponent.location.mainLocation ?? '';
     this.link$ = this.getLink().pipe(
       map(text => this.ethUtilsService.sanitizeText(text))
     );
@@ -68,7 +69,10 @@ export class EthLocationLinkComponent implements OnInit  {
           })
         )
       }),
-      catchError((error) => this.ethErrorHandlingService.handleError(error, 'EthLocationLinkComponent.getLink')) 
+      catchError((error) => {
+        this.ethErrorHandlingService.handleError(error, 'EthLocationLinkComponent.getLink');
+        return of('');
+      }) 
     )
   }
 }

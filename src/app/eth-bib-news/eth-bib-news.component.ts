@@ -8,6 +8,7 @@ import { catchError, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
+import { NewsFeed } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-bib-news',
@@ -22,7 +23,7 @@ import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 
 export class EthBibNewsComponent implements OnInit {
 
-  news$: Observable<{ entries: any[], link: string } | null> = of(null);
+  news$: Observable<NewsFeed | null> = of(null);
 
   constructor(
     private translate: TranslateService,
@@ -32,17 +33,19 @@ export class EthBibNewsComponent implements OnInit {
 
   ngOnInit(): void {
     this.news$ = this.translate.onLangChange.pipe(
-      startWith({ lang: this.translate.currentLang }), 
-      switchMap( (event:any) => this.ethBibNewsService.getNews(event.lang)),
-      map(data => {
-        if (!data) return null;
-        data.entries?.forEach((n:any) => {
-          if (n.appjson?.includes('library.ethz.ch')) {
-            n.image = n.appjson.replace('library.ethz.ch', 'aem-newsimage-redirector.replit.app');
-          }
-        });
-        return data;
-      }),
+      map(event => event.lang),
+      startWith(this.translate.currentLang),
+      switchMap(lang => this.ethBibNewsService.getNews(lang)),
+      map(feed => {
+          if (!feed) return null;
+          return {
+            ...feed,
+            entries: feed.entries.map(entry => ({
+              ...entry,
+              image: entry.appjson?.includes('library.ethz.ch') ? entry.appjson.replace('library.ethz.ch','aem-newsimage-redirector.replit.app') : undefined
+            }))
+          };
+        }),      
       catchError((error) => {
         this.ethErrorHandlingService.handleError(error, 'EthBibNewsService')
         return of(null);

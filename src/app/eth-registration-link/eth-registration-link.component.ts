@@ -1,4 +1,4 @@
-// In the login box, there is a link next to the switch option that says “Not registered yet?”
+// In the login box, there is a link that says “Not registered yet?”
 // https://jira.ethz.ch/browse/SLSP-1984
 
 import { Component, inject, Renderer2, DestroyRef, Inject } from '@angular/core';

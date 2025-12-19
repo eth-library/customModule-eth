@@ -2,7 +2,7 @@ import { Component, Inject, Input, Renderer2 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { catchError, of, tap, Subscription, map } from 'rxjs';
-
+import { HostComponent } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-change-filters',
@@ -15,7 +15,7 @@ import { catchError, of, tap, Subscription, map } from 'rxjs';
 })
 export class EthChangeFiltersComponent {
     private subscription!: Subscription;
-    @Input() hostComponent: any = {};
+    @Input() hostComponent: HostComponent = {};
  
     constructor(
       private renderer: Renderer2,
@@ -25,6 +25,7 @@ export class EthChangeFiltersComponent {
 
     ngAfterViewInit (): void {
       try{
+        if(!this.hostComponent?.filterGroup)return;
         // if there is no oa facet, hide the tlevel group, otherwise hide other tlevel values 
         if(this.hostComponent.filterGroup.id === 'tlevel'){
           this.changeTLevelElements();

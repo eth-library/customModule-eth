@@ -43,7 +43,8 @@ export class EthDnbTocComponent {
       switchMap(() => this.ethStoreService.getFullDisplayDeliveryEntity$()),
       distinctUntilChanged(),
       map((deliveryEntity: any) => {
-        let aExclude = ['http://doi.org/10.3932/','https://tma.e-pics.ethz.ch/','https://vls.hsa.ethz.ch', 'http://hdl.handle.net','http://dx.doi.org/10.7891/e-manuscripta','https://wayback.archive-It.org/','https://vls.mfa.ethz.ch/','https://vls.tma.ethz.ch/','doi.org/10.24448', 'doi.org/10.3931/e-rara-'];
+        let aExclude = ['http://doi.org/10.3932/','https://tma.e-pics.ethz.ch/','https://vls.hsa.ethz.ch', 'http://hdl.handle.net','http://dx.doi.org/10.7891/e-manuscripta','https://wayback.archive-It.org/','https://vls.mfa.ethz.ch/','https://vls.tma.ethz.ch/','doi.org/10.24448', 'doi.org/10.3931/e-rara-','doi.org/10.5169/seals-'];
+        //console.error(deliveryEntity?.delivery?.link)
         const almaLinks = deliveryEntity?.delivery?.link?.filter( (link: any) => {
           return ['linktorsrc', 'addlink'].includes(link.linkType) && link.displayLabel !== '$$Elinktorsrc' && !aExclude.some(excludeStr => link.linkURL?.includes(excludeStr));
         }) ?? [];

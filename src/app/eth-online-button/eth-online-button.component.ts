@@ -8,7 +8,7 @@
 // https://jira.ethz.ch/browse/SLSP-2354
 
 import { Component, ElementRef, Inject, inject, Input } from '@angular/core';
-import { Observable, catchError, combineLatest, map, tap } from 'rxjs';
+import { Observable, catchError, combineLatest, map, of, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
@@ -18,7 +18,7 @@ import { MatMenuModule } from '@angular/material/menu'
 import { MatButtonModule } from '@angular/material/button';
 import { SHELL_ROUTER } from "../injection-tokens";
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
-
+import { Doc, DeliveryEntity, ViewModel } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-online-button',
@@ -39,8 +39,7 @@ export class EthOnlineButtonComponent {
   @Input() hostComponent: any = {};
 
   private router = inject(SHELL_ROUTER);
-  private observer?: MutationObserver;  
-  
+    
   constructor(
     private ethStoreService:EthStoreService,     
     private ethErrorHandlingService: EthErrorHandlingService,
@@ -52,76 +51,62 @@ export class EthOnlineButtonComponent {
 
 
   ngAfterViewInit() {
-    this.links$ = combineLatest({
-        record: this.ethStoreService.getRecord$(this.hostComponent),
-        viewModel: this.hostComponent.viewModel$,
-        deliveryEntity: this.ethStoreService.getDeliveryEntity$(this.hostComponent)
-    }).pipe(
-      map(({ record, viewModel, deliveryEntity}) => {
-        const vM = viewModel as any;
-        const dE = deliveryEntity as any;
-        const rec = record as any;
-        const links: any[] = [];
+    const source$ = combineLatest({
+      record: this.ethStoreService.getRecord$(this.hostComponent),
+      viewModel: this.hostComponent.viewModel$,
+      deliveryEntity: this.ethStoreService.getDeliveryEntity$(this.hostComponent)
+    }) as Observable<{
+      record: Doc;
+      viewModel: ViewModel;
+      deliveryEntity: DeliveryEntity;
+    }>;
 
-        // electronic services from delivery; only one
-        /*console.error(rec?.pnx?.display?.title)
-        console.error("linktorsrcadditional",rec?.pnx?.links?.linktorsrcadditional)
-        console.error("delivery",dE.delivery)
-        console.error("vM",vM.onlineLinks)*/
-
-        // only do something, if there are no onlineLinks in viewModel$? Otherwise OTB Quicklinks button is rendered
-        if (vM?.onlineLinks?.length > 0 ) {
-          return [];
-        }
+    this.links$ = source$.pipe(
+      map(({ record, viewModel, deliveryEntity }) => {
+        const links: { url: string; source: string }[] = [];
         
-        // check electronicServices
-        if (dE?.delivery?.electronicServices?.length) {
-          const link = dE.delivery.electronicServices[0];
-          links.push({
-            url: link.serviceUrl,
-            source: "electronicServices"
-          });
-        }
-
-        // ['$$Uhttps://doaj.org/article/4193cf0310734b77be8ab752a0dbc0ba$$EView_record_in_Directory_of_Open_Access_Journals$$FView_record_in_$$GDirectory_of_Open_Access_Journals$$Hfree_for_read']
-        // check linktorsrcadditional
-        else if (rec?.pnx?.links?.linktorsrcadditional?.length) {
-          let link = rec?.pnx?.links?.linktorsrcadditional[0];
-          link = link.replace('$$U','');
-          link = link.substring(0,link.indexOf('$$'));
-          links.push({
-            url: link,
-            source: "pnx"
-          });
-        }
-
-        else{
+        // only do something, if there are no onlineLinks in viewModel$? Otherwise OTB Quicklinks button is rendered
+        if (viewModel.onlineLinks?.length) {
           return [];
         }
-
+        // check electronicServices
+        const es = deliveryEntity?.delivery?.electronicServices?.[0];
+        if (es) {
+          links.push({
+            url: es.serviceUrl,
+            source: 'electronicServices'
+          });
+        } 
+        // check linktorsrcadditional
+        else if(record?.pnx?.links?.linktorsrcadditional?.[0]) {
+          const raw = record?.pnx?.links?.linktorsrcadditional?.[0];
+          links.push({
+            url: raw.replace('$$U', '').split('$$')[0],
+            source: 'pnx'
+          });
+        }
         // add fulldisplay viewit link
         links.push({
           url: this.makePrimoUrl(this.getDocId(record)),
-          source: "ViewIt"
+          source: 'ViewIt'
         });
 
         return links;
       }),
-
-      // remove OTB online button
-      tap((links)=>{
-        if(links?.length > 0){
-          const hostElem = this.elementRef.nativeElement;
-          this.removeOTBOnlineButton(hostElem);
-          //this.checkLibkeyButton(hostElem);
+      tap(links => {
+        // remove OTB online button
+        if (links.length) {
+          this.removeOTBOnlineButton(this.elementRef.nativeElement);
         }
       }),
-      catchError(error => {
-        this.ethErrorHandlingService.handleSynchronError(error, 'EthOnlineButtonComponent.ngAfterViewInit');
-        return [];
+      catchError(err => {
+        this.ethErrorHandlingService.handleSynchronError(
+          err,
+          'EthOnlineButtonComponent.ngAfterViewInit'
+        );
+        return of([]);
       })
     );
-
   }    
 
   private getDocId(record: any): string {

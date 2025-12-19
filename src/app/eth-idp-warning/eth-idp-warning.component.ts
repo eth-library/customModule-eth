@@ -2,12 +2,11 @@
 // https://jira.ethz.ch/browse/SLSP-1985
 
 import { Component, OnInit } from '@angular/core';
-import { combineLatest, map, Observable, of, take, tap } from 'rxjs';
+import { catchError, combineLatest, map, Observable, of, take, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
-import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
-import {TranslateModule} from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 
 
 @Component({
@@ -25,7 +24,6 @@ export class EthIdpWarningComponent implements OnInit {
   showWarning$!: Observable<boolean>;
 
   constructor(
-    private translate: TranslateService,
     private ethStoreService:EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService
   ){}
@@ -38,24 +36,28 @@ export class EthIdpWarningComponent implements OnInit {
     ])
     .pipe(
       map(([group, email, profile]) =>
-        this.showWarning(group ?? '', email ?? '', profile ?? '')
-      )
+        this.showWarning(group, email, profile)
+      ),
+      catchError(error => {
+        this.ethErrorHandlingService.handleError(error, 'EthIdpWarningComponent');
+        return of(false);
+      })
     )
   }
 
-  private showWarning(group: string, email: string, profile: string): boolean {
+  private showWarning(group: string | null, email: string | null, profile: string | null): boolean {
     if (profile === 'AlmaTEMP') return false;
+    if (!email) return false;
+    
     const ethMemberGroups = [
       'ETH_Member',
       'ETH_E06_GESS-Member',
       'ETH_E64_MATH-Member',
       'ETH_Student'
     ];
-    const isETHMember = ethMemberGroups.includes(group);
-    if (!isETHMember && email?.includes('ethz.ch') && !email.includes('retired.ethz.ch')) {
-      return true;
-    }
-    return false;
-  }    
+    
+    const isETHMember = group ? ethMemberGroups.includes(group) : false;
+    return !isETHMember && email?.includes('ethz.ch') && !email?.includes('retired.ethz.ch');
+  }
 
 }

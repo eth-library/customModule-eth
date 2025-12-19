@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthUtilsService } from '../../services/eth-utils.service';
-import { Doc } from '../../models/search.model';
+import { Doc } from '../../models/eth.model';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';

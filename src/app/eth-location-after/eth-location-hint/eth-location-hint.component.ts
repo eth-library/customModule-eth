@@ -1,13 +1,14 @@
 // Various libraries have special notes. We read these from the code tables (Bib code would be part of the code table code).
 // https://jira.ethz.ch/browse/SLSP-1969
 
-import { OnInit, Component, Input, ViewEncapsulation, Inject, Renderer2, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, ViewEncapsulation, Inject, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthUtilsService } from '../../services/eth-utils.service';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { SafeHtml } from '@angular/platform-browser';
+import { HostComponent } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-location-hint',
@@ -26,7 +27,7 @@ export class EthLocationHintComponent {
   subLocationCode!: string;
   id!: string;
 
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};  
   @ViewChild('locationHint', { static: false }) locationHint!: ElementRef<HTMLDivElement>;
   
   constructor(
@@ -34,14 +35,14 @@ export class EthLocationHintComponent {
     private ethErrorHandlingService: EthErrorHandlingService,
     private ethUtilsService: EthUtilsService,
     private renderer: Renderer2,
-    @Inject(DOCUMENT) private document: Document        
   ){} 
 
   ngAfterViewInit(): void {
     // 990010808770205503 
-    this.libraryCode = this.hostComponent.location.libraryCode
-    this.subLocationCode = this.hostComponent.location.subLocationCode
-    this.id = this.hostComponent.location.ilsApiId;
+    if(!this.hostComponent?.location)return;
+    this.libraryCode = this.hostComponent.location.libraryCode || '';
+    this.subLocationCode = this.hostComponent.location.subLocationCode || '';
+    this.id = this.hostComponent.location.ilsApiId  || '';
 
     if(this.libraryCode.substring(0,1) === 'E'){
       this.hint$ = this.getLocationHint().pipe(
