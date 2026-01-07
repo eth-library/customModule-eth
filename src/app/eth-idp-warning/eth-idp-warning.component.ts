@@ -44,7 +44,7 @@ export class EthIdpWarningComponent implements OnInit {
       })
     )
   }
-
+  // todo remove TEMP
   private showWarning(group: string | null, email: string | null, profile: string | null): boolean {
     if (profile === 'AlmaTEMP') return false;
     if (!email) return false;

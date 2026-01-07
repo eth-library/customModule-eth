@@ -1,8 +1,7 @@
 // EntityPage Place
 // https://jira.ethz.ch/browse/SLSP-1991
-
 import { Component, Inject, inject, Renderer2, ViewEncapsulation } from '@angular/core';
-import { catchError, combineLatest, forkJoin, map, Observable, of, startWith, Subject, switchMap, tap } from 'rxjs';
+import { combineLatest, forkJoin, map, Observable, of, startWith, switchMap, catchError } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthPlacePageService } from './eth-place-page.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,53 +12,42 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import * as L from 'leaflet';
-import { SHELL_ROUTER } from "../injection-tokens";
-
+import { PlacePageViewModel, PlacePageRawData, PlacePageContext} from '../models/eth.model';
+import { mapETHorama, mapGeoTopics, mapGeoPoi, mapWikidata, mapMaps } from './eth-place-page.mapper';
 
 @Component({
   selector: 'custom-eth-place-page',
   templateUrl: './eth-place-page.component.html',
-  styleUrls: ['./eth-place-page.component.scss',
-    '../../../node_modules/leaflet/dist/leaflet.css'],
-  standalone: true,   
+  styleUrls: ['./eth-place-page.component.scss', '../../../node_modules/leaflet/dist/leaflet.css'],
+  standalone: true,
   encapsulation: ViewEncapsulation.None,
-  imports: [
-    CommonModule,
-    MatDividerModule,
-    MatExpansionModule,
-    MatIconModule,
-    SafeTranslatePipe    
-  ]    
+  imports: [CommonModule, MatDividerModule, MatExpansionModule, MatIconModule, SafeTranslatePipe]
 })
 export class EthPlacePageComponent {
-  private router = inject(SHELL_ROUTER);   
 
-  placeData$!: Observable<any>;
+  placePageData$!: Observable<PlacePageViewModel | null>;
   qid: string = '';
-  vid!: string|null;
-  tab!: string|null;
-  scope!: string|null;
-  lang!: string
-  searchValue$!: Observable<string>;
+  vid!: string | null;
+  tab!: string | null;
+  scope!: string | null;
+  lang!: string;
   map!: any;
   polygonsWithCenters!: any;
   openWeight!: number;
 
   constructor(
     private translate: TranslateService,
-    private ethStoreService:EthStoreService,
+    private ethStoreService: EthStoreService,
     public ethPlacePageService: EthPlacePageService,
     private renderer: Renderer2,
     private ethErrorHandlingService: EthErrorHandlingService,
-    @Inject(DOCUMENT) private document: Document    
-  ){}  
+    @Inject(DOCUMENT) private document: Document
+  ) {}
 
   ngOnInit(): void {
-    this.placeData$ = combineLatest([
+    this.placePageData$ = combineLatest([
       this.ethStoreService.searchValue$,
-      this.translate.onLangChange.pipe(
-        startWith({ lang: this.translate.currentLang })
-      )
+      this.translate.onLangChange.pipe(startWith({ lang: this.translate.currentLang }))
     ]).pipe(
       switchMap(([searchValue, langEvent]) => {
         this.lang = langEvent.lang;
@@ -68,20 +56,14 @@ export class EthPlacePageComponent {
     );
   }
 
-  initPlacePage(searchValue: string): Observable<any | null> {
-    this.vid = this.ethStoreService.getVid();
-    this.tab = this.ethStoreService.getTab();
-    this.scope = this.ethStoreService.getScope();
-    if(searchValue && searchValue.includes('[wd/place]')){
-      this.qid = searchValue.substring(searchValue.indexOf(']') + 1);
-    }
-    if(this.qid === '') {
-      return of(null);
-    }
+  private initPlacePage(searchValue: string): Observable<PlacePageViewModel | null> {
+    if (!searchValue || !searchValue.includes('[wd/place]')) return of(null);
+    this.qid = searchValue.split(']')[1] || '';
+    if (!this.qid) return of(null);
 
-    // hide search result container - todo remove if entity page for place
+    // Hide search results container (optional)
     const searchContent = this.document.querySelector('.search-content');
-    if (searchContent){
+    if (searchContent) {
       const observer = new MutationObserver(() => {
         const target = searchContent.querySelector('.search-result-content');
         if (target) {
@@ -89,414 +71,135 @@ export class EthPlacePageComponent {
           observer.disconnect();
         }
       });
-      observer.observe(searchContent, { childList: true, subtree: true });        
+      observer.observe(searchContent, { childList: true, subtree: true });
     }
+    // Get place data
+    return this.getPlaceData();
+  }
 
-    return this.getPlaceData(); 
-  }  
+  private getPlaceData(): Observable<PlacePageViewModel> {
 
-  getPlaceData(): Observable<any | null> {        
+    // Context
+    const ctx: PlacePageContext = {
+      qid: this.qid,
+      lang: this.lang,
+      vid: this.ethStoreService.getVid(),
+      tab: this.ethStoreService.getTab(),
+      scope: this.ethStoreService.getScope()
+    };
+
     return forkJoin({
-      geoTopics: this.ethPlacePageService.getTopicsFromGeoGraph(this.qid).pipe(catchError(() => of(null))),
-      geoPoi: this.ethPlacePageService.getPoiFromGeoGraph(this.qid).pipe(catchError(() => of(null))),
-      ethorama: this.ethPlacePageService.getPlaceFromETHorama(this.qid).pipe(catchError(() => of(null))),
-      wikidata: this.ethPlacePageService.getPlaceFromWikidata(this.qid, this.lang).pipe(catchError(() => of(null))),
+      topics: this.ethPlacePageService.getTopicsFromGeoGraph(this.qid).pipe(catchError(() => of({ features: [] }))),
+      poi: this.ethPlacePageService.getPoiFromGeoGraph(this.qid).pipe(catchError(() => of({ features: [] }))),
+      ethorama: this.ethPlacePageService.getPlaceFromETHorama(this.qid).pipe(catchError(() => of({ items: [] }))),
+      wikidata: this.ethPlacePageService.getPlaceFromWikidata(this.qid, this.lang).pipe(catchError(() => of({ results: { bindings: [] } })))
     }).pipe(
-      map(
-        ({ geoTopics, geoPoi, ethorama, wikidata }) => {
-          return this.processAllData(geoTopics, geoPoi, ethorama, wikidata);
-        }
-      ),
-      switchMap( (data:any) => {
-        let point = data.wikidata.coordinate_location?.value || null;
-        let lng = point?.substring(6,point.indexOf(' '))  || null;
-        let lat = point?.substring(point.indexOf(' ') + 1, point.length-1)  || null;        
-        if (lat && lng) {
-          return this.ethPlacePageService.getMapsFromGeoGraph(lat, lng).pipe(
-            catchError((e) => {
-              return of(null)
-            }),
-            map(mapsData => {
-              if (!mapsData) {
-                return { ...data, maps: null };
-              }
-              let filteredFeatures = mapsData.features?.filter((f:any) => {
-                const scale = f.properties?.scale;
-                return scale && parseInt(scale, 10) <= 50000;
-              }) || [];
-              //console.error(filteredFeatures)
-              try {
-                filteredFeatures = filteredFeatures.sort((a:any, b:any) =>
-                  a.properties.title.localeCompare(b.properties.title, 'de', { ignorePunctuation: true })
-                );
-              } catch (e) {
-                filteredFeatures = filteredFeatures.sort((a:any, b:any) =>
-                  a.properties.title.localeCompare(b.properties.title)
-                );
-              }
-              
-              setTimeout(() => this.initMap(filteredFeatures, lat, lng))
+      map((rawData: PlacePageRawData) => {
+        const viewModelData: PlacePageViewModel = {
+          topics: mapGeoTopics(rawData.topics, ctx),
+          poi: mapGeoPoi(rawData.poi, ctx),
+          ethorama: mapETHorama(rawData.ethorama, ctx),
+          wikidata: mapWikidata(rawData.wikidata),
+          maps: []
+        };
+        return viewModelData;
+      }),
+      switchMap((vm: PlacePageViewModel) => {
+        const coord = vm.wikidata?.coordinates;
+        if (!coord) return of(vm);
 
-              const maps = filteredFeatures.map( (f:any) => {
-                let title = f.properties.title;
-                if (f.properties.attribution){
-                  title += ' ,' + f.properties.attribution;                  
-                }
-                if (f.properties?.source === 'e-maps'){
-                    title += ' ' +  '(e-maps, georeferenced)';
-                }
-                else if(f.properties?.source === 'e-rara'){
-                    title += ' ' +  '(e-rara)';
-                }
-                let url = null;
-                if(f.properties.url){
-                  url = f.properties.url;
-                  url = url.replace('http://', '');
-                  if(url.indexOf('https://') === -1){
-                      url = 'https://' + url;
-                  }
-                }
-                return {
-                  'url': url,
-                  'title': title,
-                  'description':f.properties.description                  
-                }
-              })              
+        const lng = coord.substring(6, coord.indexOf(' '));
+        const lat = coord.substring(coord.indexOf(' ') + 1, coord.length - 1);
+
+        return this.ethPlacePageService.getMapsFromGeoGraph(lat, lng).pipe(
+          catchError(() => of({ features: [] })),
+          map((mapsData) => {
+            if (!mapsData) {
               return {
-                ...data,
-                maps: maps
+                ...vm, maps: [] 
               };
-            })
-          )
-        }
-        else {
-          return of({ ...data, maps: null });          
-        }        
+            }
+            let filteredFeatures = (mapsData.features ?? []).filter(f => {
+              const scale = f.properties?.scale;
+              return scale && parseInt(scale, 10) <= 50000;
+            });
+            //console.error("filteredFeatures",filteredFeatures)
+            try {
+              filteredFeatures = filteredFeatures.sort((a:any, b:any) =>
+                a.properties.title.localeCompare(b.properties.title, 'de', { ignorePunctuation: true })
+              );
+            } catch (e) {
+              filteredFeatures = filteredFeatures.sort((a:any, b:any) =>
+                a.properties.title.localeCompare(b.properties.title)
+              );
+            }
+            setTimeout(() => this.initMap(filteredFeatures, lat, lng));                        
+            return { 
+              ...vm, maps: mapMaps({features: filteredFeatures})
+            };            
+          })
+        );
       })
     );
   }
-    
-  private processAllData(geoTopics: any, geoPoi: any, ethorama: any, wikidata: any): any {
-    const topics = this.processGeoTopics(geoTopics);
-    const poi = this.processGeoPoi(geoPoi);
-    const etho = this.processETHorama(ethorama);
-    const wiki = this.processWikidata(wikidata);
-    //console.error('all', {topics: topics,poi: poi,ethorama: etho,wikidata: wiki});
-    return {
-      topics: topics,
-      poi: poi,
-      ethorama: etho,
-      wikidata: wiki
-    };
-  }
 
-  processETHorama(response: any){
-      let place: any = {};
-      if(response && response.items && response.items.length > 0){
-          place = response.items[0];
-      }
-      else{
-          return null;
-      }
-      place.qid = this.qid;
-      const contentItems: any[] = []
-      place.contentItems.forEach((item1:any) => {
-          let dupl = false;
-          contentItems.forEach(item2 => {
-              if(item2.docId === item1.docId){
-                  dupl = true;
-              }
-          })
-          if(!dupl){
-              contentItems.push(item1);
-          }
-      });
-      place.contentItems = contentItems;
-      place.links = [];
-      if(this.lang == 'en'){
-          let name = response.items[0].name['en'];
-          if(!name || name === '')name = response.items[0].name['de'];
-          place.links.push({
-              'url': 'https://ethorama.library.ethz.ch/en/locations/' + response.items[0].id,
-              'text': name
-          })
-      }
-      else{
-          place.links.push({
-              'url': 'https://ethorama.library.ethz.ch/de/orte/' + response.items[0].id,
-              'text': response.items[0].name['de']
-          })
-      }
+  private initMap(features: any[], lat: string, lng: string) {
+    let opacity = features.length > 10 ? 0 : 0.03;
+    this.openWeight = features.length > 10 ? 6 : 4;
 
-      // more than 1 POI -> add contentItems and links from other pois
-      if(response.items.length > 1){
-          for (var i = 1; i < response.items.length; i++) {
-              response.items[i].contentItems.forEach((item1:any) => {
-                  let dupl = false;
-                  place.contentItems.forEach((item2:any) => {
-                      if(item2.docId === item1.docId){
-                          dupl = true;
-                      }
-                  })
-                  if(!dupl){
-                      place.contentItems.push(item1);
-                  }
-              });
-              // 990043586820205503
-              if(this.lang == 'en'){
-                let name = response.items[i].name['en'];
-                if(!name || name === '')name = response.items[i].name['de'];
-                place.links.push({
-                    'url': 'https://ethorama.library.ethz.ch/en/locations/' + response.items[i].id,
-                    'text': name
-                })
-              }
-              else{
-                  place.links.push({
-                      'url': 'https://ethorama.library.ethz.ch/de/orte/' + response.items[i].id,
-                      'text': response.items[i].name['de']
-                  })
-              }
+    if (this.map) this.map.remove();
+    if (!document.getElementById('mapid')) return;
 
-          }
-      }
-      return place; 
-  }
+    const latNum = Number(lat);
+    const lngNum = Number(lng);    
 
-  processGeoTopics(response: any){
-    if(!response || !response.features || response.features.length === 0){
-        return null;
-    }
-    let topics: any[] = [];
-    response.features.forEach( (f:any) => {
-        let eMaps:any = [];
-        f.properties.eMaps.forEach((i:any) => {
-            eMaps.push({
-                'mmsid': i.mmsid,
-                'url': '/fulldisplay?vid=' + this.vid + '&docid=alma' + i.mmsid,
-                'title': i.title
-            });
-        });
-        let eRaraItems:any = [];
-        f.properties.eRaraItems.forEach((i:any) => {
-            eRaraItems.push({
-                'mmsid': i.mmsid,
-                'url': '/fulldisplay?vid=' + this.vid + '&docid=alma' + i.mmsid,
-                'title': i.title
-            });
-        });
-        topics.push({ 
-            'name': f.properties.name,
-            'url': `/search?query=sub,contains,${encodeURIComponent(f.properties.name)}&tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&mode=advanced`,
-            'gnd': f.properties.gnd,
-            'eRaraItems': eRaraItems,
-            'eMaps': eMaps
-        });
-    })
-    return topics; 
-  }
+    this.map = L.map('mapid', { center: L.latLng(latNum, lngNum), zoom: 10 });
 
-  processGeoPoi(response: any){
-    if(!response || !response.features || response.features.length === 0){
-        return null;
-    }
-    let poi: any = {};
-    poi.dossiers = [];
-    poi.routes = [];
-    // todo deduplicate routes, Dossiers
-    response.features.forEach( (j:any) => {
-      j.properties.dossiers.forEach( (i:any) => {
-          if(this.lang == 'en'){
-              let text = i.title_en;
-              if(!text || text === '')text = i.title_de;
-              poi.dossiers.push({
-                  'url': 'https://ethorama.library.ethz.ch/en/topics/' + i.id,
-                  'text': text
-              })
-          }
-          else{
-              poi.dossiers.push({
-                  'url': 'https://ethorama.library.ethz.ch/de/themen/' + i.id,
-                  'text': i.title_de
-              })
-          }
-      })
-      j.properties.routes.forEach( (i:any) => {
-          if(this.lang == 'en'){
-              let text = i.title_en;
-              if(!text || text === '')text = i.title_de;
-              poi.routes.push({
-                  'url': 'https://ethorama.library.ethz.ch/en/routes/' + i.id,
-                  'text': text
-              })
-          }
-          else{
-              poi.routes.push({
-                  'url': 'https://ethorama.library.ethz.ch/de/reisen/' + i.id,
-                  'text': i.title_de
-              })
-          }
-      })
-    })      
-    return poi; 
-  }
-
-  processWikidata(response: any){
-      if (!response?.results?.bindings?.length) {
-        return null;
-      }
-      let place = response.results.bindings[0];
-      place.name = response.results.bindings[0].itemLabel.value;
-      place.description = response.results.bindings[0].itemDescription.value;
-      place.image = response.results.bindings[0].image?.value || null;
-
-      place.links = [];
-
-      if(place.item && place.item.value){
-        place.links.push({
-          text: 'Wikidata',
-          url: place.item.value
-        });
-      }
-      if(place.geonames){
-        place.links.push({
-          text: 'Geonames',
-          url: 'https://www.geonames.org/' + place.geonames.value
-        });
-      }
-      if(place.wikipedia){
-        place.links.push({
-          text: 'Wikipedia', 
-          url: place.wikipedia.value
-        });
-      }
-      if(place.gnd){
-        place.gnd = place.gnd.value;
-        place.links.push({
-          text: this.getProviderLabel('gnd'),
-          url: 'http://d-nb.info/gnd/' + place.gnd
-        });
-      }
-      if(place.hls){
-        place.links.push({
-          text: this.getProviderLabel('hls-dhs-dss'),
-          url: 'http://www.hls-dhs-dss.ch/textes/d/D' + place.hls.value + '.php'
-        });
-      }
-      if(place.archinform){
-        place.links.push({
-          text: this.getProviderLabel('archinform'),
-          url: 'https://www.archinform.net/ort/' + place.archinform.value +'.htm'
-        });
-      }
-      return place; 
-  }
-
-  initMap(filteredFeatures:any, lat: any, lng: any): void {
-    let opacity = 0.03;
-    this.openWeight = 4;
-    if(filteredFeatures.length > 10){
-        opacity = 0;
-        this.openWeight = 6;
-    }
-    // initialize Map
-    if (this.map) {
-      this.map.remove(); 
-    }
-    if(!document.getElementById('mapid')){
-      return;
-    }
-    this.map = L.map('mapid', {
-      center: L.latLng(lat,lng),
-      zoom: 10
-    });
-    
-    // basic layer
-    var openStreetLayer = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/map-feedback/">Mapbox</a>',
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:
+        'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
       tileSize: 512,
       maxZoom: 18,
-      zoomOffset: -1,
-    });
-    openStreetLayer.addTo(this.map);    
+      zoomOffset: -1
+    }).addTo(this.map);
 
-    // marker for place
-    var placeIcon = L.icon({
-      iconUrl: "custom/" + this.vid?.replace(':','-') + "/assets/images/marker.png",
-      iconSize: [25, 41],
-    });
-    L.marker([lat, lng],{alt:'Place', icon: placeIcon}).addTo(this.map);    
+    L.marker([latNum, lngNum], {
+      icon: L.icon({
+        iconUrl: `custom/${this.vid?.replace(':', '-')}/assets/images/marker.png`,
+        iconSize: [25, 41]
+      }),
+      alt: 'Place'
+    }).addTo(this.map);
 
-    // prepare layer group for polygons
     this.polygonsWithCenters = L.layerGroup();
-    
-    // add geoJson features
-    const geoJsonLayer = L.geoJSON(filteredFeatures, {
+
+    const geoJsonLayer = L.geoJSON(features, {
       onEachFeature: (feature, layer) => this.onEachFeature(feature, layer),
-      style: {
-        color: "#356947",
-        weight: 1,
-        fillOpacity: opacity
-      }
+      style: { color: '#356947', weight: 1, fillOpacity: opacity }
     });
 
     this.polygonsWithCenters.addLayer(geoJsonLayer);
     this.polygonsWithCenters.addTo(this.map);
   }
 
-  onEachFeature(feature:any, layer:any){
-      // marker
-      let center = layer.getBounds().getCenter();
-      //iconUrl: "custom/MOCKINST-MOCKVID/assets/images/map.png", 
-      //iconUrl: "custom/41SLSP_ETH-ETH_CUSTOMIZING/assets/images/map.png",
-      let mapIcon = L.icon({
-        iconUrl: "custom/" + this.vid?.replace(':','-') + "/assets/images/map.png",   
-        iconSize: [25, 25],
-      });
-      
-      let markerOptions = {
-          clickable: true,
-          color: "#356947",
-          alt: 'Marker ' + feature.properties.title,
-          icon: mapIcon
-      }
-      let marker = L.marker(center, markerOptions);
-      // popup content
-      let popupContent = '<div class="eth-map-info">';
-      popupContent += '<div class="eth-map-info-title">' + feature.properties.title + '</div>';
-      if(feature.properties.attribution){
-          popupContent += '<div class="eth-map-info-text">' + feature.properties.attribution + '</div>';
-      }
-      popupContent += '<div class="eth-map-info-hint">Please click on the marker to see details of this map.</div>';
-      popupContent += '</div>';
-      marker.bindPopup(popupContent);
-      // marker events
-      marker.on('mouseover', (e: any) => {
-        marker.openPopup();
-        layer.setStyle({ weight: this.openWeight });
-      });
-      // touch: long press (1sec)
-      marker.on('contextmenu', (e: any) => {
-        marker.openPopup();
-        layer.setStyle({ weight: this.openWeight });
-        e.originalEvent.preventDefault();
-      });
-      marker.on('mouseout', (e: any) => {
-        marker.closePopup();
-        layer.setStyle({ weight: 1});
-      });
-      marker.on('click', (e: any) => {
-        let url = feature.properties.url;
-        if(url.indexOf('10.3931/e-rara') > -1 && url.indexOf('dx.doi.org') === -1){
-            url = 'https://dx.doi.org/' + url;
-        }
-        window.open(url, "_blank");
-      });
-      // add marker to layerGroup
-      let polygonAndItsCenter = L.layerGroup([layer, marker]);
-      polygonAndItsCenter.addTo(this.polygonsWithCenters);
+
+  private onEachFeature(feature: any, layer: any) {
+    const center = layer.getBounds().getCenter();
+    const icon = L.icon({
+      iconUrl: `custom/${this.vid?.replace(':', '-')}/assets/images/map.png`,
+      iconSize: [25, 25]
+    });
+    const marker = L.marker(center, { icon, alt: feature.properties.title });
+    marker.bindPopup(`<div>${feature.properties.title}</div>`);
+
+    marker.on('mouseover', () => { marker.openPopup(); layer.setStyle({ weight: this.openWeight }); });
+    marker.on('mouseout', () => { marker.closePopup(); layer.setStyle({ weight: 1 }); });
+    marker.on('click', () => window.open(feature.properties.url, '_blank'));
+
+    L.layerGroup([layer, marker]).addTo(this.polygonsWithCenters);
   }
 
+  
   navigate(url: string, event: Event){
     event.preventDefault();  
     // todo change if entity page for place
@@ -504,19 +207,5 @@ export class EthPlacePageComponent {
     //this.router.navigateByUrl(url);
   }      
 
-  getProviderLabel(slug: string): string {
-    const providerLabel: Record<string, [string, string, string, string]> = {
-      "archinform": ["Architekturdatenbank archINFORM","Architecture Database archINFORM","Architecture Database archINFORM","Architecture Database archINFORM"],
-      "gnd": ["Gemeinsame Normdatei (GND)","Integrated authority file (GND)","Integrated authority file (GND)", "Integrated authority file (GND)"],
-      "hls-dhs-dss": ["Historisches Lexikon der Schweiz","Historical Dictionary of Switzerland","Dictionnaire historique de la Suisse","Dizionario storico della Svizzera"],
-    }
-    const lang = this.translate.currentLang || 'de';
-    const langIndex = { de: 0, en: 1, fr: 2, it: 3 }[lang] ?? 0;
-    return providerLabel[slug]?.[langIndex] ?? slug;  
-   }
-    
 }
-
-
-
 

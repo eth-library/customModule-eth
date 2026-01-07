@@ -21,6 +21,7 @@ export class EthConnectedpapersService {
     const url = "https://daas.library.ethz.ch/rib/v3/enrichments/connectedpapers?doi=" + doi;
     return this.httpClient.get<ConnectedPapersResponse>(url).pipe(
         catchError((error) => {
+          if (error.status === 404) return of(null);
           this.ethErrorHandlingService.handleError(error, 'EthConnectedpapersService.getPaper()')
           return of(null);
         })

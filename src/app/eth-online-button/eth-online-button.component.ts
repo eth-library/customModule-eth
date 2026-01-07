@@ -65,7 +65,7 @@ export class EthOnlineButtonComponent {
       map(({ record, viewModel, deliveryEntity }) => {
         const links: { url: string; source: string }[] = [];
         
-        // only do something, if there are no onlineLinks in viewModel$? Otherwise OTB Quicklinks button is rendered
+        // only do something, if there are no onlineLinks in viewModel$. Otherwise OTB Quicklinks button is rendered.
         if (viewModel.onlineLinks?.length) {
           return [];
         }

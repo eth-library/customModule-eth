@@ -7,15 +7,13 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
-import { Doc } from '../../models/eth.model';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { EthUtilsService } from '../../services/eth-utils.service';
 import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
-
-type placeLinks = { ethorama: any[]; eraraPlaces: any[]; emapsPlaces: any[]; allPlaces: any[] }
+import { Doc, PlacesGeoRefVM, PlaceGeoRefVM, GraphRelatedPlacesResponse, EthoramaResponse, EnrichedSinglePoiResponseGraph } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-geo-ref',
@@ -31,7 +29,7 @@ type placeLinks = { ethorama: any[]; eraraPlaces: any[]; emapsPlaces: any[]; all
 export class EthGeoRefComponent {
   private router = inject(SHELL_ROUTER);
   @Input() hostComponent: any = {};
-  placeLinks$!: Observable<placeLinks>;
+  places$!: Observable<PlacesGeoRefVM>;
   private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
   private cardPositioned = false;
 
@@ -45,15 +43,15 @@ export class EthGeoRefComponent {
     private ethGeoRefService: EthGeoRefService,
     private ethStoreService:EthStoreService,     
     private translate: TranslateService,
-    private ethUtilsService: EthUtilsService,
+    //private ethUtilsService: EthUtilsService,
     private matomoService: EthMatomoService    
   ) {}
 
-  ngAfterViewInit() {
-    this.placeLinks$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
-      switchMap(record => this.getPlaceLinks(record)),
-      /*tap( (placeLinks) => {
-        if (placeLinks.ethorama.length > 0 && !this.cardPositioned) {
+  ngOnInit() {
+    this.places$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
+      switchMap(record => this.getPlaces(record)),
+      /*tap( (places) => {
+        if (places.ethorama.length > 0 && !this.cardPositioned) {
           this.cardPositioned = true;
           this.mqListener = this.ethUtilsService.positionCard(
             '.eth-place-cards'
@@ -71,7 +69,7 @@ export class EthGeoRefComponent {
   }
 
 
-  getPlaceLinks(record: any): Observable<placeLinks> { 
+  getPlaces(record: Doc): Observable<PlacesGeoRefVM> { 
     try {
       this.lang = this.translate.currentLang;
       this.vid = this.ethStoreService.getVid();
@@ -82,26 +80,7 @@ export class EthGeoRefComponent {
 
       const emapsPlaces$ = this.isEmaps(record) && docId
         ? this.ethGeoRefService.getEmapsRelatedPlacesFromGraph(docId).pipe(
-              map((data: any) => {
-                const places = data?.features?.[0]?.properties?.places;
-                const uniquePlaces = new Map();
-                if(places){
-                  places.forEach((p:any) => {
-                    if (p.qid && !uniquePlaces.has(p.qid)) {
-                      uniquePlaces.set(p.qid, {
-                        id: p.gnd,
-                        qid: p.qid,
-                        thumbnail: p.image,
-                        label: p.name,
-                        description: p.description,
-                        url: `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
-                      });
-                    }
-                  });
-                }
-                return Array.from(uniquePlaces.values()).sort((a,b) => a.label.localeCompare(b.label));
-              }
-            ),
+            map(data => this.mapGraphPlacesToLinks(data)),
             catchError((error) => {
               this.ethErrorHandlingService.handleError(error, 'EthGeoRefComponent.getEmapsRelatedPlacesFromGraph()')
               return of([]);
@@ -112,26 +91,7 @@ export class EthGeoRefComponent {
         //const eraraPlaces$ = this.getSourceSystem(record) === 'ILS' && docId && docId.endsWith('5503')
         const eraraPlaces$ = docId && docId.endsWith('5503')
         ? this.ethGeoRefService.getEraraRelatedPlacesFromGraph(docId).pipe(
-              map((data: any) => {
-                const places = data?.features?.[0]?.properties?.places;
-                const uniquePlaces = new Map();
-                if(places){
-                  places.forEach((p:any) => {
-                    if (p.qid && !uniquePlaces.has(p.qid)) {
-                      uniquePlaces.set(p.qid, {
-                        id: p.gnd,
-                        qid: p.qid,
-                        thumbnail: p.image,
-                        label: p.name,
-                        description: p.description,
-                        url: `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
-                      });
-                    }
-                  });
-                }
-                return Array.from(uniquePlaces.values()).sort((a,b) => a.label.localeCompare(b.label));
-              }
-            ),
+            map(data => this.mapGraphPlacesToLinks(data)),
             catchError((error) => {
               this.ethErrorHandlingService.handleError(error, 'EthGeoRefComponent.getEraraRelatedPlacesFromGraph()')
               return of([]);
@@ -142,8 +102,10 @@ export class EthGeoRefComponent {
 
       const ethorama$ = docId 
         ? this.ethGeoRefService.getPlacesFromETHorama(docId).pipe(
-            switchMap(data => data?.items?.length ? this.ethGeoRefService.enrichPOIs(data.items) : of([])),
-            map(enrichedPois => {
+            switchMap((data: EthoramaResponse) => {
+              return data?.items?.length ? this.ethGeoRefService.enrichPOIs(data.items) : of<EnrichedSinglePoiResponseGraph[]>([])
+            }),
+            map((enrichedPois: EnrichedSinglePoiResponseGraph[]) => {
               const uniquePois = new Map();
               enrichedPois.forEach(p => {
                 if (p.qid && !uniquePois.has(p.qid)) {
@@ -177,9 +139,35 @@ export class EthGeoRefComponent {
         );
     }
     catch (error) {
-      this.ethErrorHandlingService.handleSynchronError(error, 'EthGeoRefComponent.getPlaceLinks');
+      this.ethErrorHandlingService.handleSynchronError(error, 'EthGeoRefComponent.getPlaces');
       return of({ ethorama: [],eraraPlaces: [], emapsPlaces: [], allPlaces: []});      
     }
+  }
+
+  private mapGraphPlacesToLinks( data: GraphRelatedPlacesResponse ): PlaceGeoRefVM[] {
+    const places = data.features?.[0]?.properties?.places ?? [];
+    const map = new Map<string, PlaceGeoRefVM>();
+
+    for (const p of places) {
+      if (!p.qid || map.has(p.qid)) continue;
+
+      map.set(p.qid, {
+        id: p.gnd,
+        qid: p.qid,
+        thumbnail: p.image,
+        label: p.name ?? '',
+        description: p.description,
+        url: this.buildSearchUrl(p.qid)
+      });
+    }
+
+    return [...map.values()].sort((a, b) =>
+      a.label.localeCompare(b.label)
+    );
+  }
+
+  private buildSearchUrl(qid: string): string {
+    return `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${qid}`;
   }
 
   private getSourceRecordId(record: Doc): string | null{
@@ -207,51 +195,3 @@ export class EthGeoRefComponent {
     this.router.navigateByUrl(url);
   }
 }
-
-// /discovery/search?tab=discovery_network&search_scope=DN_and_CI&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=de&query=any,contains,[wd/place]Q911159
-//http://localhost:4201/nde/search?vid=41SLSP_ETH:ETH_CUSTOMIZING&tab=discovery_network&search_scope=DN_and_CI&lang=de&query=%5Bwd%2Fplace%5DQ3985163
-      /*
-      type placeLinks = { ethorama: any[]; topics: any[]; hasPlace: boolean; counter: number }
-
-      const topics$ = lds03?.length
-        ? this.ethGeoRefService.getPlacesFromTopics(lds03).pipe(
-            map((data: any) =>
-              data?.results?.length ? data.results
-                .filter((p: any) => p.qid)
-                .map((p: any) => ({
-                  ...p,
-                  url: `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=[wd/place]${p.qid}`
-                }))
-                : []
-            ),
-            //tap(r=>console.error(r)),
-            catchError((error) => {
-              this.ethErrorHandlingService.handleError(error, 'EthGeoRefComponent.getPlacesFromTopics()')
-              return of([]);
-            })      
-        )
-        : of([]);
-
-        return forkJoin([ethorama$, topics$]).pipe(
-          map(([ethorama, topics]) => ({
-            ethorama,
-            topics,
-            hasPlace: (ethorama?.length ?? 0) > 0 || (topics?.length ?? 0) > 0,
-            counter: (ethorama?.length ?? 0) + (topics?.length ?? 0)
-          }))
-      );*/
-
-      /*
-              return ethorama$.pipe(
-          map(ethorama => {
-            const counter = ethorama?.length ?? 0;
-            const hasPlace = counter > 0;
-            return {
-              ethorama,
-              hasPlace,
-              counter
-            };
-          })
-        );
-
-      */

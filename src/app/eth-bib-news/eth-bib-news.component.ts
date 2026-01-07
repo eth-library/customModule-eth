@@ -8,7 +8,7 @@ import { catchError, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
-import { NewsFeed } from '../models/eth.model';
+import { NewsFeedResponse } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-bib-news',
@@ -23,7 +23,7 @@ import { NewsFeed } from '../models/eth.model';
 
 export class EthBibNewsComponent implements OnInit {
 
-  news$: Observable<NewsFeed | null> = of(null);
+  news$: Observable<NewsFeedResponse | null> = of(null);
 
   constructor(
     private translate: TranslateService,

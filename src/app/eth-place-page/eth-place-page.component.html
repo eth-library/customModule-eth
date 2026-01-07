@@ -1,4 +1,4 @@
-@if (placeData$ | async; as place) {
+@if (placePageData$ | async; as place) {
   <div class="eth-placepage">
     @if (place?.wikidata) { 
         <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
@@ -6,7 +6,7 @@
         <mat-expansion-panel #panel1 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
           <mat-expansion-panel-header class="eth-expansion-panel-header">
             <mat-panel-title>
-              <h2>{{ place.wikidata.name }}</h2>
+              <h2>{{ place.wikidata?.name }}</h2>
             </mat-panel-title>
             <mat-panel-description class="eth-expansion-panel-description">
               <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ panel1.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -15,8 +15,8 @@
 
           <section class="eth-expansion-panel-content">
             <div class="eth-place-image-container">
-                @if (place.wikidata.image){<img *ngIf="place.wikidata.image" [src]="place.wikidata.image" alt="Bild:{{ place.wikidata.name }}" class="eth-place-image"/>} 
-                <div *ngIf="place.wikidata.description">{{place.wikidata.description}}</div>
+                @if (place.wikidata?.image){<img *ngIf="place.wikidata?.image" [src]="place.wikidata?.image" alt="Bild:{{ place.wikidata?.name }}" class="eth-place-image"/>} 
+                <div *ngIf="place.wikidata?.description">{{place.wikidata?.description}}</div>
             </div>
           </section>
         </mat-expansion-panel>  
@@ -61,7 +61,7 @@
           </mat-expansion-panel-header>
 
           <section class="eth-expansion-panel-content">
-            @for (link of place.ethorama.links; track link) {
+            @for (link of place.ethorama?.links; track link) {
                 @if (link.url){
                     <div><a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
                         <span>{{link.text}}</span>
@@ -90,7 +90,7 @@
 
           <section class="eth-expansion-panel-content">
             <ul>
-                @for (link of place.poi.dossiers; track link) {
+                @for (link of place.poi?.dossiers; track link) {
                     @if (link.url){
                         <li>
                             <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
@@ -122,7 +122,7 @@
 
           <section class="eth-expansion-panel-content">
             <ul>
-                @for (link of place.poi.routes; track link) {
+                @for (link of place.poi?.routes; track link) {
                     @if (link.url){
                         <li>
                             <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
@@ -154,7 +154,7 @@
 
           <section class="eth-expansion-panel-content">
             <ul>
-                @for (link of place.wikidata.links; track link) {
+                @for (link of place.wikidata?.links; track link) {
                     @if (link.url){
                         <li>
                             <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">

@@ -1,4 +1,4 @@
-// In the online section, an off-campus note is displayed next to the online link when appropriate, e.g., not for open access.
+// In the online section, an offcampus note is displayed next to the online link when appropriate, e.g., not for open access.
 // https://jira.ethz.ch/browse/SLSP-1995
 
 import { CommonModule } from '@angular/common';

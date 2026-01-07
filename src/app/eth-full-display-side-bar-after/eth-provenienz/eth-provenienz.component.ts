@@ -18,21 +18,9 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { EthUtilsService } from '../../services/eth-utils.service';
-import { TranslateService } from "@ngx-translate/core";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../../injection-tokens";
-
-interface EthProvenienzItem {
-  id: string;
-  eth_doi_link: string;
-  eth_license: string;
-  eth_link_to_the_digital_version_in_e_rara: string;
-  eth_copyright_notice: string;
-  eth_dating: string;
-  description: string;
-  url: string;
-  title: string;
-}
+import { EthProvenienzItem } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-provenienz',
@@ -53,14 +41,13 @@ export class EthProvenienzComponent{
     items$!: Observable<EthProvenienzItem[]>;
     @Input() hostComponent: any = {};
     private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
-    private cardPositioned = false;
+    //private cardPositioned = false;
 
     constructor(
       private ethProvenienzService: EthProvenienzService,
       private ethStoreService:EthStoreService,     
       private ethErrorHandlingService: EthErrorHandlingService,
-      private ethUtilsService: EthUtilsService,
-      private translate: TranslateService          
+      //private ethUtilsService: EthUtilsService
     ){}
    
     ngOnInit() {
