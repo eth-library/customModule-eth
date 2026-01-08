@@ -1,20 +1,51 @@
 import { Geometry } from 'geojson';
+import { Observable } from 'rxjs';
 
-/* Primo delivery */
-export interface DeliveryEntity {
+/* Primo delivery from store*/
+export interface StoreDeliveryEntity {
   delivery?: {
-    electronicServices?: ElectronicService[];
+    electronicServices?: StoreElectronicService[];
     availability?: string[];
   };
 }
-export interface ElectronicService {
+export interface StoreElectronicService {
   serviceUrl: string;
 }
-export interface ViewModel {
+
+
+/* Primo HostComponent */
+export interface HostComponent {
+  location?: HostComponentLocation;
+  searchResult?: Doc;
+  expanded?: boolean;
+  isOpen?: boolean;
+  filtersVisible?: boolean;
+  filterGroup?: HostComponentFilterGroup;
+  filterList$?: any; 
+  _service?: HostComponentService;
+  viewModel$?: Observable<HostComponentViewModel>;
+}
+export interface HostComponentService {
+  type?: string;
+}
+export interface HostComponentViewModel {
   onlineLinks?: unknown[];
 }
- 
+export interface HostComponentLocation {
+  libraryCode?: string;
+  subLocationCode?: string;
+  mainLocation?: string;
+  ilsApiId?: string;
+}
+export interface HostComponentFilterGroup {
+  id?: string;
+}
+
+
 /* Primo pnx */
+export interface PrimoApiResponse  {
+  docs?: Doc[];
+}
 export interface Doc  {
   pnx?: {
     display?: {
@@ -24,10 +55,14 @@ export interface Doc  {
       ispartof?: string[];
       creationdate?: string[];
       publisher?: string[];
+      lds02?: string[];      
       lds03?: string[];
+      lds09?: string[];
+      source?: string[];
       lds50?: string[];
       lds90?: string[];
       type?: string[];
+      mms?: string[];
     };
     addata?: {
       doi?: string[];
@@ -67,7 +102,6 @@ export interface Doc  {
     };    
   }
 }
-
 export enum Sourceformat {
   Marc21 = "MARC21",
   XML = "XML",
@@ -78,39 +112,9 @@ export enum Sourcesystem {
   Other = "Other",
 }
 
-/* Primo Location */
-export interface Location {
-  libraryCode?: string;
-  subLocationCode?: string;
-  mainLocation?: string;
-  ilsApiId?: string;
-}
 
-/* Primo FilterGroup */
-export interface FilterGroup {
-  id?: string;
-}
-
-/* Primo HostComponentService */
-export interface HostComponentService {
-  type?: string;
-}
-
-/* Primo HostComponent */
-export interface HostComponent {
-  location?: Location;
-  searchResult?: Doc;
-  expanded?: boolean;
-  isOpen?: boolean;
-  filtersVisible?: boolean;
-  filterGroup?: FilterGroup;
-  filterList$?: any; 
-  _service?: HostComponentService;
-  viewModel$?: ViewModel;
-}
-
-/* AEM library news API */
-export interface NewsFeedResponse {
+/* eth-bib-news: AEM news API */
+export interface NewsFeedAPIResponse {
   id: string;
   updated: string;
   title: string;
@@ -131,25 +135,37 @@ export interface NewsEntry {
   published: string;
   commentCount: number;
 }
+export interface NewsFeedVM {
+  id: string;
+  updated: string;
+  title: string;
+  link: string;
+  appjson: string;
+  entries: NewsEntry[];
+}
 
-/* Connected Papers API */
-export interface ConnectedPapersResponse {
+
+/* eth-connected-papers: Connected Papers API */
+export interface ConnectedPapersAPIResponse {
   id: string;
   citationCount?: number;
   referenceCount?: number;
 }
 
-/* Hint from Git repository API */
-export interface GitHintResponse {
+
+/* eth-git-hint: Hint from Git repository API */
+export interface GitHintAPIResponse {
   de: string; 
   en: string;
 };
+export type GitHintVM = string;
 
-/* Provenances from E-Pics API */
-export interface EthProvenienzResponse {
-  items: EthProvenienzItem[];
+
+/* eth-provenienz-erara-link: Provenances from E-Pics API */
+export interface EthProvenienzAPIResponse {
+  items: EthProvenienzAPIItem[];
 }
-export interface EthProvenienzItem {
+export interface EthProvenienzAPIItem {
   id: string;
   eth_doi_link: string;
   eth_license: string;
@@ -160,6 +176,14 @@ export interface EthProvenienzItem {
   url: string;
   title: string;
 }
+
+
+/* online button: links */
+export interface OnlineButtonLinkVM {
+  url: string;
+  source: string;
+}
+
 
 /* GeoJSON - Geodata Graph API */
 /* generic type */
@@ -346,4 +370,69 @@ export interface PlacePageContext {
   vid: string | null;
   tab: string | null;
   scope: string | null;
+}
+
+
+/* eth-provenienz-erara-link: provenance - e-rara */
+export interface ProvenanceEraraLinksVM {
+   erara: string | null;
+   swisscovery: string | null
+};
+
+
+/* eth-dnb-toc: dnb toc links */
+export interface DnbTocApiResponse {
+  identifier: string;
+  links: DnbTocApiItem[]; 
+}
+export interface DnbTocApiItem {
+  format?: string;
+  title?: string;
+  partOfResource?: string;
+  uri?: string 
+}
+export interface DnbTocLinksVM {
+  almaLinks: DnbTocAlmaLinkVM[];
+  dnbLinks: DnbTocDnbLinkVM[];
+};
+export interface DnbTocAlmaLinkVM {
+  identifier?: string | null;
+  uri: string;
+  type?: string | null;
+  label: string;    
+}
+export interface DnbTocDnbLinkVM {
+  uri: string;
+  label: string;    
+  identifier?: string | null;  
+  type?: string | null;
+  title?: string | null;
+}
+
+
+/* eth-compose-nb: compose TMA Nachlassbibliothek */
+export interface NbPrintApiResponse {
+  map?: {
+    almaSearch?: string;
+  }[];
+}
+export interface ComposeNbLinkVM {
+  url: string;
+  sortKey: string;
+  label$: Observable<string>;
+}
+
+
+/* eth-compose-erara: compose e-rara and e-maps links */
+export type EraraEMapsMapAPIResponse = EraraEMapsMapAPIItem[];
+export interface EraraEMapsMapAPIItem {
+  keys: string[];
+  length: number;
+  _fields: string[];
+  _fieldLookup: Record<string, number>;
+}
+export interface ComposeEraraLinkVM {
+  url: string;
+  label$: Observable<string>;
+  external: boolean;
 }

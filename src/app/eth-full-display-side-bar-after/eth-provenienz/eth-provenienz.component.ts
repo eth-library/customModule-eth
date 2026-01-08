@@ -20,7 +20,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { EthUtilsService } from '../../services/eth-utils.service';
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../../injection-tokens";
-import { EthProvenienzItem } from '../../models/eth.model';
+import { EthProvenienzAPIItem } from '../../models/eth.model';
+import { HostComponent } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-provenienz',
@@ -38,8 +39,8 @@ export class EthProvenienzComponent{
     vid!: string | null;
     tab!: string | null;
     scope!: string | null;
-    items$!: Observable<EthProvenienzItem[]>;
-    @Input() hostComponent: any = {};
+    items$!: Observable<EthProvenienzAPIItem[]>;
+    @Input() hostComponent: HostComponent = {};
     private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
     //private cardPositioned = false;
 

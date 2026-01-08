@@ -13,7 +13,7 @@ import { EthUtilsService } from '../../services/eth-utils.service';
 import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
-import { Doc, PlacesGeoRefVM, PlaceGeoRefVM, GraphRelatedPlacesResponse, EthoramaResponse, EnrichedSinglePoiResponseGraph } from '../../models/eth.model';
+import { HostComponent, Doc, PlacesGeoRefVM, PlaceGeoRefVM, GraphRelatedPlacesResponse, EthoramaResponse, EnrichedSinglePoiResponseGraph } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-geo-ref',
@@ -28,7 +28,7 @@ import { Doc, PlacesGeoRefVM, PlaceGeoRefVM, GraphRelatedPlacesResponse, Ethoram
 })
 export class EthGeoRefComponent {
   private router = inject(SHELL_ROUTER);
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
   places$!: Observable<PlacesGeoRefVM>;
   private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
   private cardPositioned = false;

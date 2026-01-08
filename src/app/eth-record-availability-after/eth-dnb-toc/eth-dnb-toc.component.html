@@ -15,10 +15,10 @@
     }
     @if (links.dnbLinks.length > 0) {
       @for (link of links.dnbLinks; track link.uri) {
-        @if (link.uri) {
+        @if (link && link.uri) {
           <div>
-            <a [href]="link.uri" target="_blank" rel="noopener" class="eth-dnb-toc" [attr.aria-label]="(link.label$ | async) + link.title + ('nui.aria.newWindow' | safeTranslate | async)">
-              <span>{{ link.label$ | async}}</span>
+            <a [href]="link.uri" target="_blank" rel="noopener" class="eth-dnb-toc" [attr.aria-label]="link.label + ' ' + (link.title || link.identifier || '') + ('nui.aria.newWindow' | safeTranslate | async)">
+              <span>{{ link.label }}</span>
               @if (link.title) {
                 <span>"{{ link.title }}"</span>
               }

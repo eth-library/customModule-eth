@@ -6,7 +6,7 @@ import { EthConnectedpapersService } from './eth-connectedpapers.service'
 import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
-import { ConnectedPapersResponse, Doc } from '../models/eth.model';
+import { ConnectedPapersAPIResponse, Doc } from '../models/eth.model';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { HostComponent } from '..//models/eth.model';
@@ -52,7 +52,7 @@ export class EthConnectedpapersComponent{
       }
 
       return this.ethConnectedpapersService.getPaper(doi).pipe(
-        filter((response): response is ConnectedPapersResponse => response !== null),
+        filter((response): response is ConnectedPapersAPIResponse => response !== null),
         map(response => {
             if((response?.citationCount && response?.citationCount > 0) || (response?.referenceCount && response?.referenceCount > 0)){
                 return `https://www.connectedpapers.com/main/${response.id}/graph?utm_source=primonde`;

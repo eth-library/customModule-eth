@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { EthChangeFiltersComponent } from './eth-change-filters/eth-change-filters.component';
+import { HostComponent } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-filters-group',
@@ -11,5 +12,5 @@ import { EthChangeFiltersComponent } from './eth-change-filters/eth-change-filte
   ]   
 })
 export class EthFiltersGroupComponent {
-    @Input() hostComponent: any = {};
+    @Input() hostComponent: HostComponent = {};
 }

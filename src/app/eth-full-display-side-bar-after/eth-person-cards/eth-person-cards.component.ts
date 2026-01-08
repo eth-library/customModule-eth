@@ -14,7 +14,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
-
+import { HostComponent } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-person-cards',
@@ -32,7 +32,7 @@ export class EthPersonCardsComponent {
     private router = inject(SHELL_ROUTER);  
     openGnd: string | null = null;
     persons$!: Observable<any | null>; 
-    @Input() hostComponent: any = {};
+    @Input() hostComponent: HostComponent = {};
     private mqListener: ((e: MediaQueryListEvent) => void) | null = null;    
     private cardPositioned = false;
     

@@ -18,7 +18,7 @@ import { MatMenuModule } from '@angular/material/menu'
 import { MatButtonModule } from '@angular/material/button';
 import { SHELL_ROUTER } from "../injection-tokens";
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
-import { Doc, DeliveryEntity, ViewModel } from '../models/eth.model';
+import { Doc, StoreDeliveryEntity, HostComponentViewModel, HostComponent, OnlineButtonLinkVM } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-online-button',
@@ -35,8 +35,8 @@ import { Doc, DeliveryEntity, ViewModel } from '../models/eth.model';
   styleUrls: ['./eth-online-button.component.scss']
 })
 export class EthOnlineButtonComponent {
-  links$!: Observable<any>;
-  @Input() hostComponent: any = {};
+  links$!: Observable<OnlineButtonLinkVM[]>;
+  @Input() hostComponent: HostComponent = {};
 
   private router = inject(SHELL_ROUTER);
     
@@ -53,12 +53,12 @@ export class EthOnlineButtonComponent {
   ngAfterViewInit() {
     const source$ = combineLatest({
       record: this.ethStoreService.getRecord$(this.hostComponent),
-      viewModel: this.hostComponent.viewModel$,
+      viewModel: this.hostComponent.viewModel$ ?? of(null),
       deliveryEntity: this.ethStoreService.getDeliveryEntity$(this.hostComponent)
     }) as Observable<{
       record: Doc;
-      viewModel: ViewModel;
-      deliveryEntity: DeliveryEntity;
+      viewModel: HostComponentViewModel;
+      deliveryEntity: StoreDeliveryEntity;
     }>;
 
     this.links$ = source$.pipe(
@@ -109,7 +109,7 @@ export class EthOnlineButtonComponent {
     );
   }    
 
-  private getDocId(record: any): string {
+  private getDocId(record: Doc): string {
     return record?.pnx?.control?.recordid?.[0] || '';
   }  
 

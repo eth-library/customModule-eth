@@ -6,7 +6,7 @@ import { Component} from '@angular/core';
 import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import {TranslateModule} from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
 
 @Component({
   selector: 'custom-eth-offcampus-warning',

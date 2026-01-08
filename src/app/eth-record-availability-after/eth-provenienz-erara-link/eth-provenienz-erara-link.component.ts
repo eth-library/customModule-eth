@@ -18,9 +18,7 @@ import { catchError, Observable, of, switchMap, tap } from 'rxjs';
 import { TranslateService } from "@ngx-translate/core";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../../injection-tokens";
-
-type Links = { erara: string | null; swisscovery: string | null};
-
+import { HostComponent, Doc, ProvenanceEraraLinksVM } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-provenienz-erara-link',
@@ -33,10 +31,10 @@ type Links = { erara: string | null; swisscovery: string | null};
   ]   
 })
 export class EthProvenienzEraraLinkComponent {
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
   private router = inject(SHELL_ROUTER);   
     
-  links$!: Observable<Links>;
+  links$!: Observable<ProvenanceEraraLinksVM>;
 
   constructor(
     private ethErrorHandlingService: EthErrorHandlingService,
@@ -57,14 +55,14 @@ export class EthProvenienzEraraLinkComponent {
   }
 
 
-  private getLinks(record: any): Observable<Links> {
+  private getLinks(record: Doc | null): Observable<ProvenanceEraraLinksVM> {
     try {
       const display = record?.pnx?.display;
-      if (!display?.source?.[0] || display.source[0] !== 'eth_epics_provenienz') return of({erara:null, swisscovery:null});
+      if (!display?.source?.[0] || display?.source[0] !== 'eth_epics_provenienz') return of({erara:null, swisscovery:null});
 
       const lds09 = display.lds09;
       if (!Array.isArray(lds09) || lds09.length === 0) return of({erara:null, swisscovery:null});
-      const eraraLink = lds09.find((l: string) => l.includes('dx.doi.org/10.3931/e-rara-'));
+      let eraraLink = lds09.find((l: string) => l.includes('dx.doi.org/10.3931/e-rara-'));
       let swisscoveryUrl = null;
       if (eraraLink) {
         const swisscoveryQuery = eraraLink.split('dx.doi.org/')[1] ?? null;
@@ -74,7 +72,7 @@ export class EthProvenienzEraraLinkComponent {
         swisscoveryUrl = `/search?query=${swisscoveryQuery}&vid=${vid}&tab=${tab}&search_scope=${scope}`;
       }
       return of({
-        erara: eraraLink,
+        erara: eraraLink ?? null,
         swisscovery: swisscoveryUrl
       })
     } catch(error: any){

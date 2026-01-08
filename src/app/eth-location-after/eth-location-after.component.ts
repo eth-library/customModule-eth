@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { EthLocationHintComponent } from './eth-location-hint/eth-location-hint.component';
 import { EthLocationLinkComponent } from './eth-location-link/eth-location-link.component';
-
+import { HostComponent } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-location-after',
@@ -14,5 +14,5 @@ import { EthLocationLinkComponent } from './eth-location-link/eth-location-link.
   ]      
 })
 export class EthLocationAfterComponent {
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
 }

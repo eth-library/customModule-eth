@@ -10,12 +10,7 @@ import { EthStoreService } from '../../services/eth-store.service';
 import { TranslateService } from "@ngx-translate/core";
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
-
-type Link = {
-    label$: Observable<string | null>;
-    label: string; 
-    url: string;
-};
+import { HostComponent, ComposeNbLinkVM, Doc } from '../../models/eth.model';
 
 // oai:agora.ch:004261444_08 (oai:agora.ch:000280096) - 99118814985305503  -> multiple online/one print
 // single result: 990044649040205503 --  oai:agora.ch:004464904
@@ -27,10 +22,10 @@ type Link = {
   styleUrls: ['./eth-compose-nb.component.scss']
 })
 export class EthComposeNbComponent implements AfterViewInit {
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
   private router = inject(SHELL_ROUTER);   
   
-  links$!: Observable<Link[]>;
+  links$!: Observable<ComposeNbLinkVM[]>;
 
   constructor(
     private ethComposeNbService: EthComposeNbService,
@@ -52,88 +47,92 @@ export class EthComposeNbComponent implements AfterViewInit {
     );
   }
 
-  private getLinks(record: any): Observable<Link[]> {
+  private getLinks(record: Doc | null): Observable<ComposeNbLinkVM[]> {
     if (!record?.pnx) return of([]);
-
     const source = record.pnx.display?.source?.[0];
-    const links: Link[] = [];
 
-    // online -> search print record
-    // oai:agora.ch:004261444_08  - 99118814985305503  -> multiple online/one print
+    // ONLINE → PRINT
     if (source === 'eth_nachlassbibliothek') {
       const originalSourceId = record.pnx.control?.originalsourceid?.[0];
       if (!originalSourceId) return of([]);
 
-      const baseId = originalSourceId.includes('_')
-        ? originalSourceId.substring(0, originalSourceId.indexOf('_'))
-        : originalSourceId;
-
+      const baseId = originalSourceId.split('_')[0];
       const nebisId = 'ebi01_prod' + baseId.substring(baseId.lastIndexOf(':') + 1);
-      
+
       return this.ethComposeNbService.getPrintData(nebisId).pipe(
         map(data => {
           const printId = data?.map?.[0]?.almaSearch;
-          if (printId) {
-            links.push({ label$: this.translate.stream('eth.composeNb.print'),  label: this.translate.instant('eth.composeNb.print'), url: this.makePrimoUrl(printId) });
-          }
-          return links;
-        }),
-        catchError(() => of([]))
+          if (!printId) return [];
+
+          return [{
+            url: this.makePrimoUrl(printId),
+            sortKey: 'Print',
+            label$: this.translate.stream('eth.composeNb.print')
+          }];
+        })
       );
     }
 
-    // print -> search online record 
-    // multiple result 'Sämtliche Romane und Novellen Dostoevskij'
-    // oai:agora.ch:004261444
-    // single result: 990044649040205503
+    // PRINT → ONLINE
     if (source === 'Alma') {
-      const lds02 = record.pnx?.display?.lds02 ?? [];
-      // (NEBIS)004464904EBI01 -> oai:agora.ch:004464904
-      const oaiIds = lds02
-        .filter((i: string) => i.includes('(NEBIS)'))
-        .map((i: string) => 'oai:agora.ch:' + i.substring(7, i.length - 5));
+      const lds02 = record.pnx.display?.lds02 ?? [];
 
-      if (!oaiIds.length) return of([]);
-      let oaiId = oaiIds[0]; 
+      const oaiId = lds02
+        .find((i: string) => i.includes('(NEBIS)'))
+        ?.replace('(NEBIS)', 'oai:agora.ch:')
+        ?.replace(/EBI01$/, '');
 
-      return this.ethComposeNbService.getOnlineData(oaiId).pipe(
-        map(data => {
+      if (!oaiId) return of([]);
 
-          const docs = data?.docs ?? [];
-          if(docs.length === 0) return of([]);
+      return of(oaiId).pipe(
+        distinctUntilChanged(),
 
-          const labelOnline = this.translate.instant('eth.composeNb.online'); // synchrone label
-          const labelOnline$ = this.translate.stream('eth.composeNb.online'); // async stream
+        switchMap(oaiId =>
+          this.ethComposeNbService.getOnlineData(oaiId).pipe(
+            map(data => {
+              const docs = data?.docs ?? [];
+              if (docs.length === 0) return [];
 
-          const onlineLinks = docs.map((d: any) => {
-            const title = d.pnx?.display?.title?.[0] ?? '';
-            const baseLabel = docs.length > 1 ? `${labelOnline} - ${title}` : labelOnline;
+              const label$ = this.translate.stream('eth.composeNb.online');
 
-            return {
-              label: baseLabel,
-              label$: docs.length > 1 
-                ? labelOnline$.pipe(map(v => `${v} - ${title}`))
-                : labelOnline$,
-              url: this.makePrimoUrl(d.pnx?.control?.sourcerecordid?.[0])
-            };
-          });
+              const onlineLinks: ComposeNbLinkVM[] = docs
+                .map(d => {
+                  const mmsId = d.pnx?.control?.sourcerecordid?.[0];
+                  if (!mmsId) return null;
 
-          const extractBandNumber = (label: string) => {
-            const match = label.match(/Band\s*(\d+)/i);
-            return match ? parseInt(match[1], 10) : 0;
-          };
+                  const title = d.pnx?.display?.title?.[0] ?? '';
 
-          onlineLinks.sort((a:any, b:any) =>
-            extractBandNumber(a.label) - extractBandNumber(b.label)
-          );
+                  return {
+                    url: this.makePrimoUrl(mmsId),
+                    sortKey: title,
+                    label$: docs.length > 1
+                      ? label$.pipe(map(v => `${v} - ${title}`))
+                      : label$
+                  };
+                })
+                .filter((l): l is ComposeNbLinkVM => !!l);
 
-          return onlineLinks;
-        }),
-        catchError(() => of([]))
+              const extractBandNumber = (text: string): number => {
+                const match = text.match(/Band\s*(\d+)/i);
+                return match ? Number(match[1]) : 0;
+              };
+
+              onlineLinks.sort(
+                (a, b) =>
+                  extractBandNumber(a.sortKey) - extractBandNumber(b.sortKey)
+              );
+
+              return onlineLinks;
+            })
+          )
+        )
       );
     }
+
+
     return of([]);
   }
+
 
   private makePrimoUrl(mmsid: string): string {
     const vid = this.ethStoreService.getVid();

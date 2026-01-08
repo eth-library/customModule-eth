@@ -8,7 +8,7 @@ import { Observable, of, combineLatest } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { Doc, DeliveryEntity } from '../models/eth.model';
+import { Doc, StoreDeliveryEntity } from '../models/eth.model';
 
 interface TranslationBundle {
   t1: string;
@@ -95,7 +95,7 @@ export class EthIllLinkComponent implements AfterViewInit {
   }
 
   // do we need an ILL link?
-  private getQs(record: Doc | null, deliveryEntity: DeliveryEntity  | null): Observable<string | null> {
+  private getQs(record: Doc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
 
     if ((deliveryEntity?.delivery?.availability?.[0] ?? '') !== 'no_inventory') {
       return of(null);

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, of } from 'rxjs';
-import { ConnectedPapersResponse } from '../models/eth.model';
+import { ConnectedPapersAPIResponse } from '../models/eth.model';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 
 @Injectable({
@@ -14,12 +14,12 @@ export class EthConnectedpapersService {
     private ethErrorHandlingService: EthErrorHandlingService
   ){}
 
-  getPaper(doi: string): Observable<ConnectedPapersResponse | null> {
+  getPaper(doi: string): Observable<ConnectedPapersAPIResponse | null> {
     if (!doi) {
       return of(null);
     }
     const url = "https://daas.library.ethz.ch/rib/v3/enrichments/connectedpapers?doi=" + doi;
-    return this.httpClient.get<ConnectedPapersResponse>(url).pipe(
+    return this.httpClient.get<ConnectedPapersAPIResponse>(url).pipe(
         catchError((error) => {
           if (error.status === 404) return of(null);
           this.ethErrorHandlingService.handleError(error, 'EthConnectedpapersService.getPaper()')

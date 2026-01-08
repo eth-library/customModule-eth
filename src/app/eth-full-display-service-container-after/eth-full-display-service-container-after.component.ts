@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { EthExpandComponent } from './eth-expand/eth-expand.component'
+import { HostComponent } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-full-display-service-container-after',
@@ -11,5 +12,5 @@ import { EthExpandComponent } from './eth-expand/eth-expand.component'
   ]   
 })
 export class EthFullDisplayServiceContainerAfterComponent {
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
 }

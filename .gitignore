@@ -21,7 +21,6 @@ package-lock.json
 postbuild.js
 prebuild.js
 tsconfig*
-webpack* 
 
 # System files
 .DS_Store

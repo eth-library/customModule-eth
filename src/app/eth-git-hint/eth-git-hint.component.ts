@@ -18,6 +18,7 @@ import { SafeHtml } from '@angular/platform-browser';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { EthUtilsService } from '../services/eth-utils.service';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
+import { GitHintVM } from '../models/eth.model';
 
 type Language = 'de' | 'en'; 
 
@@ -47,9 +48,9 @@ export class EthGitHintComponent implements OnInit {
 
   ngOnInit() {
     let currentLang: Language = (this.translate.currentLang as Language) ?? 'de';
-    this.hint$ = this.ethGitHintService.getHint(currentLang).pipe(
-      // sanitize hint
-      map(hint => this.ethUtilsService.sanitizeText(hint)),
+    const rawHint$: Observable<GitHintVM> = this.ethGitHintService.getHint(currentLang);
+    this.hint$ = rawHint$.pipe(
+      map((hint: GitHintVM) => this.ethUtilsService.sanitizeText(hint)),
       catchError(error => {
         this.ethErrorHandlingService.handleError(error, 'EthGitHintComponent');
         return of(null);

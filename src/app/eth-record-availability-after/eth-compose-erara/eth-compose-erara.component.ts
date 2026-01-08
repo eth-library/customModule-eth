@@ -10,12 +10,7 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { EthComposeEraraService } from './eth-compose-erara.service';
 import { TranslateService } from "@ngx-translate/core";
 import { SHELL_ROUTER } from "../../injection-tokens";
-
-type Link = { 
-  label$: Observable<string | null>;
-  url: string;
-  external: boolean;
-};
+import { HostComponent, ComposeEraraLinkVM, Doc } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-compose-erara',
@@ -25,7 +20,7 @@ type Link = {
   styleUrls: ['./eth-compose-erara.component.scss']
 })
 export class EthComposeEraraComponent {
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
   private router = inject(SHELL_ROUTER);   
   
   labelPrint$!: Observable<string | null>;
@@ -33,7 +28,7 @@ export class EthComposeEraraComponent {
   labelEMap$!: Observable<string | null>;
   labelGeoTIFF$!: Observable<string | null>;
   labelNewWindow$!: Observable<string | null>;
-  links$!: Observable<Link[]>;
+  links$!: Observable<ComposeEraraLinkVM[]>;
 
 
   constructor(
@@ -61,7 +56,7 @@ export class EthComposeEraraComponent {
   }
 
 
-  private getLinks(record: any): Observable<Link[]> {
+  private getLinks(record: Doc | null): Observable<ComposeEraraLinkVM[]> {
     
     if (!record?.pnx?.display?.mms?.[0]) {
       return of([]);
@@ -69,14 +64,14 @@ export class EthComposeEraraComponent {
 
     const mmsid = record.pnx.display.mms[0];
     const type = record.pnx.display.type?.[0];
-    const sourceSystem = record.pnx.control.sourcesystem?.[0];
-    const links: Link[] = [];
+    const sourceSystem = record.pnx?.control?.sourcesystem?.[0];
+    const links: ComposeEraraLinkVM[] = [];
 
-    this.labelPrint$ = this.translate.stream('eth.composeErara.print');
-    this.labelOnline$ = this.translate.stream('eth.composeErara.online');
-    this.labelEMap$ = this.translate.stream('eth.composeErara.emaps');
-    this.labelGeoTIFF$ = this.translate.stream('eth.composeErara.geoTiff');
-    this.labelNewWindow$ = this.translate.stream('nui.aria.newWindow');
+    this.labelPrint$ = this.translate.stream('eth.composeErara.print')  as Observable<string>;
+    this.labelOnline$ = this.translate.stream('eth.composeErara.online') as Observable<string>;
+    this.labelEMap$ = this.translate.stream('eth.composeErara.emaps') as Observable<string>;
+    this.labelGeoTIFF$ = this.translate.stream('eth.composeErara.geoTiff') as Observable<string>;
+    this.labelNewWindow$ = this.translate.stream('nui.aria.newWindow') as Observable<string>;
     
 
     // check if this an emap record
@@ -88,7 +83,7 @@ export class EthComposeEraraComponent {
           if (!eraraPrintId) return of([]);
 
           links.push({
-            label$: this.labelPrint$,
+            label$: this.labelPrint$ as Observable<string>,
             url: this.makePrimoUrl(eraraPrintId),
             external: false
           });
@@ -100,7 +95,7 @@ export class EthComposeEraraComponent {
               //console.error("emaps record; get online erara:", onlineId)
               if (onlineId) {
                 links.push({
-                  label$: this.labelOnline$,
+                  label$: this.labelOnline$ as Observable<string>,
                   url: this.makePrimoUrl(onlineId),
                   external: false
                 });
@@ -118,14 +113,14 @@ export class EthComposeEraraComponent {
       const emaps$ = type === 'map'
         ? this.ethComposeEraraService.getEMapsRecord(mmsid).pipe(
             map(data => {
-              const out: Link[] = [];
+              const out: ComposeEraraLinkVM[] = [];
               const url = data?.[0]?._fields?.[1];
               //console.error("erara print; get emaps",url)
-              if (url) out.push({ label$: this.labelGeoTIFF$, url, external: true });
+              if (url) out.push({ label$: this.labelGeoTIFF$ as Observable<string>, url, external: true });
 
-              const onlineIdEMaps = data[0]._fields[0];
+              const onlineIdEMaps = data?.[0]._fields[0];
               //console.error("erara print; get swisscovery emaps",onlineIdEMaps)
-              if (onlineIdEMaps) out.push({ label$: this.labelEMap$, url: this.makePrimoUrl(onlineIdEMaps),external: false });
+              if (onlineIdEMaps) out.push({ label$: this.labelEMap$ as Observable<string>, url: this.makePrimoUrl(onlineIdEMaps),external: false });
               return out;
             }),
             catchError(() => of([]))            
@@ -134,10 +129,10 @@ export class EthComposeEraraComponent {
 
       const onlineErara$ = this.ethComposeEraraService.getOnlineEraraRecord(mmsid).pipe(
         map(data => {
-          const out: Link[] = [];
+          const out: ComposeEraraLinkVM[] = [];
           const onlineId = data?.docs?.[0]?.pnx?.control?.sourcerecordid?.[0];
           //console.error("erara print; get erara online",onlineId)
-          if (onlineId) out.push({ label$: this.labelOnline$, url: this.makePrimoUrl(onlineId), external: false });
+          if (onlineId) out.push({ label$: this.labelOnline$ as Observable<string>, url: this.makePrimoUrl(onlineId), external: false });
           return out;
         }),
         catchError(() => of([]))        
@@ -157,28 +152,27 @@ export class EthComposeEraraComponent {
 
       if (printIds.length) {
         const printId = printIds[0];
-        const printLink = { label$: this.labelPrint$, url: this.makePrimoUrl(printId), external: false  };
+        const printLink = { label$: this.labelPrint$ as Observable<string>, url: this.makePrimoUrl(printId), external: false  };
         //console.error("erara online; get erara print", printId)
         
         // check GeoTIFF
         if (type === 'map') {
           return this.ethComposeEraraService.getEMapsRecord(printId).pipe(
             map(data => {
-              const links: Link[] = [];
-
+              const out: ComposeEraraLinkVM[] = [];
               const emapsUrl = data?.[0]?._fields?.[1];
               if (emapsUrl) {
-                links.push({ label$:this.labelGeoTIFF$, url:emapsUrl, external: true });
+                out.push({ label$: this.labelGeoTIFF$ as Observable<string>, url:emapsUrl, external: true });
                 //console.error("erara online; get emaps", emapsUrl)
               }
 
-              const onlineIdEMaps = data[0]._fields[0];
+              const onlineIdEMaps = data?.[0]._fields[0];
               //console.error("erara online; get swisscovery emaps",onlineIdEMaps);
-              if (onlineIdEMaps) links.push({ label$: this.labelEMap$, url:this.makePrimoUrl(onlineIdEMaps), external: false });
+              if (onlineIdEMaps) out.push({ label$: this.labelEMap$ as Observable<string>, url:this.makePrimoUrl(onlineIdEMaps), external: false });
 
               // always add print link 
-              links.push(printLink);
-              return links;
+              out.push(printLink);
+              return out;
             }),
             catchError(error => {
               return of([printLink]);

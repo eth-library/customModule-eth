@@ -2,14 +2,14 @@
 // https://jira.ethz.ch/browse/SLSP-1988
 
 import { Component , Input } from '@angular/core';
-import { Observable, catchError, debounceTime, distinctUntilChanged, filter, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
+import { Observable, catchError, combineLatest, debounceTime, distinctUntilChanged, filter, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { EthDnbTocService } from './eth-dnb-toc.service'
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from "@ngx-translate/core";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
-
+import { HostComponent, Doc, DnbTocApiResponse, DnbTocLinksVM, DnbTocDnbLinkVM } from '../../models/eth.model';
 
 // 991029346049705501
 @Component({
@@ -23,9 +23,9 @@ import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
   ]     
 })
 export class EthDnbTocComponent {
-  contentLinks$!: Observable<{ almaLinks: any[]; dnbLinks: any[] }>;
+  contentLinks$!: Observable<DnbTocLinksVM>;
   
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
   
   constructor(
     private ethDnbTocService: EthDnbTocService,
@@ -61,11 +61,8 @@ export class EthDnbTocComponent {
           ? of({ almaLinks, dnbLinks: [] })
           : this.ethStoreService.getFullDisplayRecord$().pipe(
               distinctUntilChanged(),
-              switchMap((record: any) => this.getDnbLinks(record)),
-              map((dnbLinks: any[] | null) => {
-                if (!Array.isArray(dnbLinks)) {
-                  return [];
-                }
+              switchMap((record: Doc | null) => this.getDnbLinks(record)),
+              map((dnbLinks: DnbTocDnbLinkVM[]) => {
                 const seen = new Set<string>();
                 return dnbLinks.filter(link => {
                   if (!link?.uri) return false;
@@ -83,7 +80,11 @@ export class EthDnbTocComponent {
     );
   }
 
-  private getDnbLinks(record: any): Observable<any[] | null> {    
+  private getDnbLinks(record: Doc | null): Observable<DnbTocDnbLinkVM[]> {    
+    if (!record) {
+      return of([]);
+    }
+    
     const isbns = this.getIsbns(record);
     const title = this.getTitle(record);
 
@@ -94,56 +95,78 @@ export class EthDnbTocComponent {
     const labelToc$ = this.translate.stream('eth.dnbToc.toc');
     const labelText$ = this.translate.stream('eth.dnbToc.text');
 
-    return forkJoin(
-      isbns.map(isbn => {
-        return this.ethDnbTocService.getTocLink(isbn).pipe(
+    const entities$ = forkJoin(
+      isbns.map(isbn =>
+        this.ethDnbTocService.getTocLink(isbn).pipe(
           catchError(error => {
-            this.ethErrorHandlingService.handleError(error, 'EthDnbTocComponent');
-            return of(null);
+            this.ethErrorHandlingService.handleError(
+              error,
+              'EthDnbTocComponent forkJoin'
+            );
+            return of<DnbTocApiResponse | null>(null);
           })
-        )}
+        )
       )
     ).pipe(
-      map(entities => entities ? entities.filter(entity => entity?.links?.length > 0) : []),
-      map(entities => {
-        return entities.flatMap(entity =>
-          entity.links.map((link: any) => {
-            let label$;
-            if (link.partOfResource === 'Inhaltsverzeichnis') {
-              label$ = labelToc$;
-            } else if (link.partOfResource === 'Inhaltstext') {
-              label$ = labelText$;
-            } else {
-              label$ = of(link.partOfResource);
-            }
+      map(entities =>
+        entities.filter(
+          (e): e is DnbTocApiResponse =>
+            !!e && Array.isArray(e.links) && e.links.length > 0
+        )
+      )
+    );
 
-            return {
-              identifier: entity.identifier,
-              uri: link.uri,
-              type: 'dnb',
-              label$: label$,
-              title:
-                link.title.normalize('NFC').trim() === title.normalize('NFC').trim()
-                  ? null
-                  : link.title
-                      .normalize('NFC')
-                      .replace(//g, '')
-                      .replace(//g, '')
-                      .trim()
-            };
-          })
-        );
-      }),
-      //tap(links => console.error('TOC Links:', links))
-    )
+    return combineLatest({
+      entities: entities$,
+      labelToc: labelToc$,
+      labelText: labelText$
+    }).pipe(
+      map(({ entities, labelToc, labelText }) =>
+        entities.flatMap(entity =>
+          entity.links
+            .filter(link => !!link?.uri)
+            .map(link => {
+              const part = link.partOfResource ?? '';
+
+              const label =
+                part === 'Inhaltsverzeichnis'
+                  ? labelToc
+                  : part === 'Inhaltstext'
+                    ? labelText
+                    : part;
+
+              const normalizedTitle = link.title
+                ? link.title
+                    .normalize('NFC')
+                    .replace(//g, '')
+                    .replace(//g, '')
+                    .trim()
+                : null;
+
+              return {
+                identifier: entity.identifier,
+                uri: link.uri!,
+                type: 'dnb',
+                label,
+                title:
+                  normalizedTitle &&
+                  normalizedTitle === title.normalize('NFC').trim()
+                    ? null
+                    : normalizedTitle
+              };
+            })
+        )
+      )
+    );
+
   }
 
-  private getIsbns(record: any): string[] | null {
+  private getIsbns(record: Doc): string[] | null {
     return record?.pnx?.addata?.isbn ?? [];
   }  
 
-  private getTitle(record: any): string {
-    return record?.pnx?.display?.title?.[0];
+  private getTitle(record: Doc): string {
+    return record?.pnx?.display?.title?.[0] ?? '';
   }
 
 }

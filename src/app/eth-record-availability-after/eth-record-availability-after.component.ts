@@ -3,6 +3,7 @@ import { EthDnbTocComponent } from './eth-dnb-toc/eth-dnb-toc.component';
 import { EthComposeEraraComponent } from './eth-compose-erara/eth-compose-erara.component';
 import { EthComposeNbComponent } from './eth-compose-nb/eth-compose-nb.component'
 import { EthProvenienzEraraLinkComponent } from './eth-provenienz-erara-link/eth-provenienz-erara-link.component';
+import { HostComponent } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-record-availability-after',
@@ -17,5 +18,5 @@ import { EthProvenienzEraraLinkComponent } from './eth-provenienz-erara-link/eth
   ]
 })
 export class EthRecordAvailabilityAfterComponent {
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
 }
