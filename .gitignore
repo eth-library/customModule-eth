@@ -17,7 +17,6 @@ yarn-error.log
 .sass-cache/
 /readme-files
 .editorconfig
-package.json
 package-lock.json
 postbuild.js
 prebuild.js
