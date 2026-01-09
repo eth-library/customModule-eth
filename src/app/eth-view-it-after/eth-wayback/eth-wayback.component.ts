@@ -42,14 +42,14 @@ export class EthWaybackComponent {
     this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
       map(deliveryEntity =>
         deliveryEntity?.delivery?.link?.some(
-          (e: any) => e.linkURL?.includes('https://wayback.archive-It.org')
+          (e) => e.linkURL?.includes('https://wayback.archive-It.org')
         ) ?? false
       ),
       filter(hasWaybackUrl => hasWaybackUrl),
       tap(() => this.initObserver()),
       takeUntilDestroyed(this.destroyRef),
       catchError(err => {
-        this.ethErrorHandlingService.handleError(err, 'EthWaybackComponent');
+        this.ethErrorHandlingService.logError(err, 'EthWaybackComponent.ngAfterViewInit');
         return of(false);
       })
     ).subscribe();

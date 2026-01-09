@@ -77,7 +77,7 @@ export class EthMatomoComponent {
         }),
         distinctUntilChanged(),
         catchError(error => {
-          this.ethErrorHandlingService.handleError(error,'EthMatomoComponent.initializeTracking');
+          this.ethErrorHandlingService.logError(error,'EthMatomoComponent.initializeTracking');
           return EMPTY;
         })
       )
@@ -100,7 +100,7 @@ export class EthMatomoComponent {
           distinctUntilChanged(),
           takeUntilDestroyed(this.destroyRef),  
           catchError(error => {
-            this.ethErrorHandlingService.handleError(error,'EthMatomoComponent.initializeTracking');
+            this.ethErrorHandlingService.logError(error,'EthMatomoComponent.initializeTracking');
             return EMPTY;
           })
         )

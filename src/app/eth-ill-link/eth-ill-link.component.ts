@@ -2,13 +2,13 @@
 // https://jira.ethz.ch/browse/SLSP-1986
 
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { AfterViewInit, Component, Inject } from '@angular/core';
+import { OnInit, Component, Inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, of, combineLatest } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { Doc, StoreDeliveryEntity } from '../models/eth.model';
+import { PnxDoc, StoreDeliveryEntity } from '../models/eth.model';
 
 interface TranslationBundle {
   t1: string;
@@ -25,7 +25,7 @@ interface TranslationBundle {
   templateUrl: './eth-ill-link.component.html',
   styleUrls: ['./eth-ill-link.component.scss']
 })
-export class EthIllLinkComponent implements AfterViewInit {
+export class EthIllLinkComponent implements OnInit {
 
   qs$!: Observable<string | null>;
   url$!: Observable<string | null>;
@@ -38,7 +38,7 @@ export class EthIllLinkComponent implements AfterViewInit {
     @Inject(DOCUMENT) private document: Document
   ) {}
 
-  ngAfterViewInit(): void {
+  ngOnInit(): void {
     // do we need an ILL link? In this case: create the querystring of the ILL link. 
     this.qs$ = combineLatest([
       this.ethStoreService.getFullDisplayRecord$(),
@@ -48,7 +48,7 @@ export class EthIllLinkComponent implements AfterViewInit {
         this.getQs(record, deliveryEntity)
       ),
       catchError(err => {
-        this.ethErrorHandlingService.handleError(err, 'EthIllLinkComponent.ngAfterViewInit()');
+        this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.ngOnInit()');
         return of(null);
       }),
       shareReplay({
@@ -95,7 +95,7 @@ export class EthIllLinkComponent implements AfterViewInit {
   }
 
   // do we need an ILL link?
-  private getQs(record: Doc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
+  private getQs(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
 
     if ((deliveryEntity?.delivery?.availability?.[0] ?? '') !== 'no_inventory') {
       return of(null);
@@ -131,7 +131,7 @@ export class EthIllLinkComponent implements AfterViewInit {
   }
 
   // build ILL link
-  private buildQs(record: Doc | null): string {
+  private buildQs(record: PnxDoc | null): string {
     if (!record?.pnx) return '';
 
     const display = record.pnx.display;

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { EthErrorHandlingService } from './eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -22,7 +22,11 @@ export class EthPersonService {
 
     getPersons(gnds:string, lang:string): Observable<any> {
         return this.http.get('https://daas.library.ethz.ch/rib/v3/persons/person-gnd?gnd=' + gnds + '&lang=' + lang).pipe(
-            catchError((error) => this.ethErrorHandlingService.handleError(error, 'EthPersonService.getPersons'))
+            catchError(e => {
+                this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersons');
+                return throwError(() => e);
+            })      
+
         )
     }
         
@@ -41,14 +45,22 @@ export class EthPersonService {
     private getPersonByQid(qid: string, lang: string): Observable<any> {
         const url = `${this.baseurlRIB}/persons/person-qid?qid=${qid}&lang=${lang}`;
         return this.http.get(url).pipe(
-            catchError((error) => this.ethErrorHandlingService.handleError(error, 'EthPersonService.getPersonByQid'))     
+            catchError(e => {
+                this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersonByQid');
+                return throwError(() => e);
+            })      
+
         );
     }
 
     private getPersonByGnd(gnd: string, lang: string): Observable<any> {
         const url = `${this.baseurlRIB}/persons/person-gnd?gnd=${gnd}&lang=${lang}`;
         return this.http.get(url).pipe(
-            catchError((error) => this.ethErrorHandlingService.handleError(error, 'EthPersonService.getPersonByGnd'))    
+            catchError(e => {
+                this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersonByGnd');
+                return throwError(() => e);
+            })      
+
         );
     }
 
@@ -56,7 +68,11 @@ export class EthPersonService {
     private getPersonByLccn(lccn: string, lang: string): Observable<any> {
         const url = `${this.baseurlRIB}/persons/person-lccn?lccn=${lccn}&lang=${lang}`;
         return this.http.get(url).pipe(
-            catchError((error) => this.ethErrorHandlingService.handleError(error, 'EthPersonService.getPersonByGnd'))    
+            catchError(e => {
+                this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersonByLccn');
+                return throwError(() => e);
+            })      
+  
         );
     }
 
@@ -82,7 +98,7 @@ export class EthPersonService {
         const url = `${this.baseurlRIB}/search?lang=${lang}&limit=1&skipDelivery=true&disableSplitFacets=false&q=${encodeURIComponent(q)}`;
         return this.http.get(url).pipe(
             catchError((error) => {
-                this.ethErrorHandlingService.handleError(error, 'EthPersonService.searchPrimoData');
+                this.ethErrorHandlingService.logError(error, 'EthPersonService.searchPrimoData');
                 return of(null);
             })
     
@@ -145,7 +161,7 @@ export class EthPersonService {
             return whitelistedPrometheusLinks;
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'ethPersonCardsService.processPrometheusResponse');
+            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processPrometheusResponse');
         }
     }
 
@@ -196,7 +212,7 @@ export class EthPersonService {
             return entityfacts;
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'ethPersonCardsService.processEntityfactsResponse');        
+            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processEntityfactsResponse');        
         }
     }
 
@@ -240,7 +256,7 @@ export class EthPersonService {
             return wiki;
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'ethPersonCardsService.processWikiResponse');        
+            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processWikiResponse');        
         }
     }
 
@@ -282,7 +298,7 @@ export class EthPersonService {
             }
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'ethPersonCardsService.processWikipediaUrlListResponse');        
+            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processWikipediaUrlListResponse');        
         }
     }
 
@@ -328,7 +344,7 @@ export class EthPersonService {
             return persons;
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'ethPersonCardsService.processRelatedPersonsResponse');
+            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processRelatedPersonsResponse');
         }
     }
 
@@ -345,7 +361,7 @@ export class EthPersonService {
             return wikiArchivesAtLinks;
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'ethPersonCardsService.processwikiArchivesAtResponse');        
+            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processwikiArchivesAtResponse');        
         }
     }
 
@@ -387,7 +403,7 @@ export class EthPersonService {
             return whitelistedMetagridLinksSorted;
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'ethPersonCardsService.processMetagridResponse');        
+            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processMetagridResponse');        
         }
     }
 
@@ -478,7 +494,7 @@ export class EthPersonService {
             return person;
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'ethPersonCardsService.processPersonsResponse');        
+            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processPersonsResponse');        
         }
     }
 
@@ -489,7 +505,7 @@ export class EthPersonService {
             return url;
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'EthPersonService.getPersonPageUrl');
+            return this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.getPersonPageUrl');
         }
     }
 
@@ -500,7 +516,7 @@ export class EthPersonService {
             return url;
         }
         catch(error: any){
-            return this.ethErrorHandlingService.handleSynchronError(error, 'EthPersonService.getPlacePageLink');
+            return this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.getPlacePageLink');
         }
     }
 

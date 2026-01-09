@@ -68,7 +68,10 @@ export class EthLocationHintComponent {
           })
         )
       }),
-      catchError((error) => this.ethErrorHandlingService.handleError(error, 'EthLocationHintComponent.getLocationHint'))
+      catchError(err => {
+        this.ethErrorHandlingService.logError(err, 'EthLocationHintComponent.getLocationHint');
+        return of(null);
+      })      
     )
   }
 

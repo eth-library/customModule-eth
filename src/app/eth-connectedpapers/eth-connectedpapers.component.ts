@@ -6,7 +6,7 @@ import { EthConnectedpapersService } from './eth-connectedpapers.service'
 import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
-import { ConnectedPapersAPIResponse, Doc } from '../models/eth.model';
+import { ConnectedPapersAPIResponse, PnxDoc } from '../models/eth.model';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { HostComponent } from '..//models/eth.model';
@@ -36,11 +36,15 @@ export class EthConnectedpapersComponent{
   ngOnInit() {
     if(!this.hostComponent?.searchResult)return;
     this.paperUrl$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
-      switchMap(record => this.getPaper(record))
+      switchMap(record => this.getPaper(record)),
+      catchError(err => {
+        this.ethErrorHandlingService.logSyncError( err, 'EthConnectedpapersComponent.ngOnInit');
+        return of(null);
+      })
     )
   }
   
-  private getPaper(record: Doc): Observable<string  | null> {    
+  private getPaper(record: PnxDoc): Observable<string  | null> {    
     try{
       const doi = this.getDoi(record);
       if (!doi) {
@@ -52,7 +56,7 @@ export class EthConnectedpapersComponent{
       }
 
       return this.ethConnectedpapersService.getPaper(doi).pipe(
-        filter((response): response is ConnectedPapersAPIResponse => response !== null),
+        filter((response): response is ConnectedPapersAPIResponse => response !== null), 
         map(response => {
             if((response?.citationCount && response?.citationCount > 0) || (response?.referenceCount && response?.referenceCount > 0)){
                 return `https://www.connectedpapers.com/main/${response.id}/graph?utm_source=primonde`;
@@ -62,22 +66,22 @@ export class EthConnectedpapersComponent{
             }
         }),
         catchError((error) => {
-          this.ethErrorHandlingService.handleError(error, 'EthConnectedpapersComponent ethConnectedpapersService.getPaper()')
+          this.ethErrorHandlingService.logError(error, 'EthConnectedpapersComponent ethConnectedpapersService.getPaper()')
           return of(null);
         })
       );
     }
     catch(error: any){
-        this.ethErrorHandlingService.handleSynchronError(error, 'EthConnectedpapersComponent.getPaper()');  
+        this.ethErrorHandlingService.logSyncError(error, 'EthConnectedpapersComponent.getPaper()');  
         return of(null);
     }
   }
 
-  private getType(record: Doc): string | null {
+  private getType(record: PnxDoc): string | null {
     return record?.pnx?.display?.type?.[0] || null;
   }  
 
-  private getDoi(record: Doc): string | null {
+  private getDoi(record: PnxDoc): string | null {
     return record?.pnx?.addata?.doi?.[0] || null;
   }  
 

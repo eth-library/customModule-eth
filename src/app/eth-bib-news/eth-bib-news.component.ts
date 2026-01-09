@@ -47,7 +47,7 @@ export class EthBibNewsComponent implements OnInit {
           };
         }),      
       catchError((error) => {
-        this.ethErrorHandlingService.handleError(error, 'EthBibNewsService')
+        this.ethErrorHandlingService.logError(error, 'EthBibNewsComponent.ngOnInit()')
         return of(null);
       })
     );

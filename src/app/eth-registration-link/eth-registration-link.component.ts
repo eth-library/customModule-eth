@@ -100,13 +100,13 @@ export class EthRegistrationLinkComponent {
               this.renderer.insertBefore(container.parentNode, link, container.nextSibling);
             }),
             catchError(err => {
-              this.ethErrorHandlingService.handleError(err,'EthRegistrationLinkComponent translateStream');
+              this.ethErrorHandlingService.logError(err,'EthRegistrationLinkComponent translateStream');
               return of(null);
             })
           )
           .subscribe();
       } catch (error) {
-        return this.ethErrorHandlingService.handleSynchronError(
+        return this.ethErrorHandlingService.logSyncError(
           error,
           'EthRegistrationLinkComponent.ngAfterViewInit()'
         );

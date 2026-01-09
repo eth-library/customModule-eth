@@ -3,9 +3,10 @@
 
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Observable, of, switchMap } from 'rxjs';
+import { catchError, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslateModule} from '@ngx-translate/core';
+import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 
 @Component({
   selector: 'custom-eth-okm',
@@ -20,18 +21,23 @@ import {TranslateModule} from "@ngx-translate/core";
 export class EthOKMComponent implements OnInit {
   searchValue$!: Observable<string | null>;
 
-  constructor(private ethStoreService: EthStoreService) {}
+  constructor(
+    private ethStoreService: EthStoreService,
+    private ethErrorHandlingService: EthErrorHandlingService
+  ) {}
 
   ngOnInit(): void {
-
     this.searchValue$ = this.ethStoreService.isFullview$().pipe(
       switchMap(isFullview => 
         !isFullview 
           ? this.ethStoreService.searchValue$
           : of(null)
-      )
+      ),
+      catchError(error => {
+        this.ethErrorHandlingService.logError(error, 'EthOKMComponent.ngOnInit');
+        return of(null);
+      })
     )
-
   }
 
   encode(value: string | null): string {

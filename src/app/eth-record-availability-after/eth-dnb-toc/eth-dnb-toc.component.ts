@@ -9,7 +9,7 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { CommonModule } from '@angular/common';
 import { TranslateService } from "@ngx-translate/core";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
-import { HostComponent, Doc, DnbTocApiResponse, DnbTocLinksVM, DnbTocDnbLinkVM } from '../../models/eth.model';
+import { HostComponent, PnxDoc, DnbTocApiResponse, DnbTocLinksVM, DnbTocDnbLinkVM } from '../../models/eth.model';
 
 // 991029346049705501
 @Component({
@@ -23,7 +23,7 @@ import { HostComponent, Doc, DnbTocApiResponse, DnbTocLinksVM, DnbTocDnbLinkVM }
   ]     
 })
 export class EthDnbTocComponent {
-  contentLinks$!: Observable<DnbTocLinksVM>;
+  contentLinks$!: Observable<DnbTocLinksVM | null>;
   
   @Input() hostComponent: HostComponent = {};
   
@@ -61,7 +61,7 @@ export class EthDnbTocComponent {
           ? of({ almaLinks, dnbLinks: [] })
           : this.ethStoreService.getFullDisplayRecord$().pipe(
               distinctUntilChanged(),
-              switchMap((record: Doc | null) => this.getDnbLinks(record)),
+              switchMap((record: PnxDoc | null) => this.getDnbLinks(record)),
               map((dnbLinks: DnbTocDnbLinkVM[]) => {
                 const seen = new Set<string>();
                 return dnbLinks.filter(link => {
@@ -76,11 +76,16 @@ export class EthDnbTocComponent {
                 }
               )
             )
-      )
+      ),
+      catchError(err => {
+        this.ethErrorHandlingService.logError(err, 'EthDnbTocComponent.ngOnInit()');
+        return of(null);
+      }),
+
     );
   }
 
-  private getDnbLinks(record: Doc | null): Observable<DnbTocDnbLinkVM[]> {    
+  private getDnbLinks(record: PnxDoc | null): Observable<DnbTocDnbLinkVM[]> {    
     if (!record) {
       return of([]);
     }
@@ -99,10 +104,7 @@ export class EthDnbTocComponent {
       isbns.map(isbn =>
         this.ethDnbTocService.getTocLink(isbn).pipe(
           catchError(error => {
-            this.ethErrorHandlingService.handleError(
-              error,
-              'EthDnbTocComponent forkJoin'
-            );
+            this.ethErrorHandlingService.logError(error, 'EthDnbTocComponent. getDnbLinks()');
             return of<DnbTocApiResponse | null>(null);
           })
         )
@@ -161,11 +163,11 @@ export class EthDnbTocComponent {
 
   }
 
-  private getIsbns(record: Doc): string[] | null {
+  private getIsbns(record: PnxDoc): string[] | null {
     return record?.pnx?.addata?.isbn ?? [];
   }  
 
-  private getTitle(record: Doc): string {
+  private getTitle(record: PnxDoc): string {
     return record?.pnx?.display?.title?.[0] ?? '';
   }
 

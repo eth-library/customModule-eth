@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthUtilsService } from '../../services/eth-utils.service';
-import { Doc } from '../../models/eth.model';
+import { PnxDoc } from '../../models/eth.model';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
@@ -54,6 +54,11 @@ export class EthPersonCardsComponent {
             this.mqListener = this.ethUtilsService.positionCard('.eth-person-cards');
           }
         })*/
+        catchError(err => {
+          this.ethErrorHandlingService.logSyncError( err, 'EthPersonCardsComponent.ngOnInit');
+          return of({});      
+        })
+
       )
     }
 
@@ -64,7 +69,7 @@ export class EthPersonCardsComponent {
       }
     }
 
-    private loadPersons(record: Doc): Observable<any | null> {
+    private loadPersons(record: PnxDoc): Observable<any | null> {
       const lang = this.translate.currentLang;
       const gndList = this.getGndIds(record);     
       const idRefList = this.getIdRefs(record);   
@@ -140,13 +145,13 @@ export class EthPersonCardsComponent {
           )
         ),
         catchError(error => {
-          this.ethErrorHandlingService.handleError(error, 'EthPersonCardsComponent.loadPersons');
+          this.ethErrorHandlingService.logError(error, 'EthPersonCardsComponent.loadPersons');
           return of(null);
         })
       )
     }
         
-    private getGndIds(record: Doc): string[] {
+    private getGndIds(record: PnxDoc): string[] {
       const lds03 = record?.pnx?.display?.['lds03'] ?? [];
       return lds03.map(l => {
         l = l.replace('(DE-588)', '');
@@ -159,7 +164,7 @@ export class EthPersonCardsComponent {
       }).filter((id): id is string => Boolean(id));
     }
 
-    private getIdRefs(record: Doc): string[] {
+    private getIdRefs(record: PnxDoc): string[] {
       const lds90 = record?.pnx?.display?.['lds90'] ?? [];
       return Array.from(
         new Set(

@@ -3,10 +3,11 @@
 
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { catchError, Observable, of, switchMap } from 'rxjs';
+import { catchError, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from 'src/app/services/eth-error-handling.service';
 import {TranslateModule} from "@ngx-translate/core";
+import { PnxDoc } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-online-problem',
@@ -30,18 +31,17 @@ export class EthOnlineProblemComponent {
 
   ngOnInit() {
     this.showLink$ = this.ethStoreService.getFullDisplayRecord$().pipe(
-      switchMap(record => {
-        this.setMailLink(record);
-        return of(true);
-      }),
+      filter((record): record is PnxDoc => record !== null),
+      tap(record => this.setMailLink(record)),
+      map(() => true),
       catchError(err => {
-        this.ethErrorHandlingService.handleError(err, 'EthOnlineProblemComponent');
-        return of(true);
-      })      
+        this.ethErrorHandlingService.logError(err, 'EthOnlineProblemComponent');
+        return of(false);
+      })
     );
   }
   
-  setMailLink(record:any){
+  setMailLink(record:PnxDoc){
     let mmsId = record?.pnx?.control?.recordid[0];
     let title = record?.pnx?.display?.title?.[0] || '';
     let creationdate = record?.pnx?.display?.creationdate?.[0] || '';

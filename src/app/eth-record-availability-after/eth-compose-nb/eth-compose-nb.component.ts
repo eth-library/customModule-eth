@@ -10,7 +10,7 @@ import { EthStoreService } from '../../services/eth-store.service';
 import { TranslateService } from "@ngx-translate/core";
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
-import { HostComponent, ComposeNbLinkVM, Doc } from '../../models/eth.model';
+import { HostComponent, ComposeNbLinkVM, PnxDoc } from '../../models/eth.model';
 
 // oai:agora.ch:004261444_08 (oai:agora.ch:000280096) - 99118814985305503  -> multiple online/one print
 // single result: 990044649040205503 --  oai:agora.ch:004464904
@@ -41,13 +41,13 @@ export class EthComposeNbComponent implements AfterViewInit {
       distinctUntilChanged(),
       switchMap(record => this.getLinks(record)),
       catchError(error => {
-        this.ethErrorHandlingService.handleError(error, 'EthComposeNbComponent.ngAfterViewInit');
+        this.ethErrorHandlingService.logError(error, 'EthComposeNbComponent.ngAfterViewInit');
         return of([]);
       })
     );
   }
 
-  private getLinks(record: Doc | null): Observable<ComposeNbLinkVM[]> {
+  private getLinks(record: PnxDoc | null): Observable<ComposeNbLinkVM[]> {
     if (!record?.pnx) return of([]);
     const source = record.pnx.display?.source?.[0];
 
@@ -135,9 +135,9 @@ export class EthComposeNbComponent implements AfterViewInit {
 
 
   private makePrimoUrl(mmsid: string): string {
-    const vid = this.ethStoreService.getVid();
-    const tab = this.ethStoreService.getTab();
-    const scope = this.ethStoreService.getScope();
+    const vid = this.ethStoreService.getVid() || '';
+    const tab = this.ethStoreService.getTab() || '';
+    const scope = this.ethStoreService.getScope() || '';
     return `/fulldisplay?vid=${vid}&docid=alma${mmsid}&tab=${tab}&search_scope=${scope}`;
   }
 

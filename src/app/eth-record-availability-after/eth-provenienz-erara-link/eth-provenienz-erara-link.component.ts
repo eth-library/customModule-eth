@@ -18,7 +18,7 @@ import { catchError, Observable, of, switchMap, tap } from 'rxjs';
 import { TranslateService } from "@ngx-translate/core";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../../injection-tokens";
-import { HostComponent, Doc, ProvenanceEraraLinksVM } from '../../models/eth.model';
+import { HostComponent, PnxDoc, ProvenanceEraraLinksVM } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-provenienz-erara-link',
@@ -48,14 +48,14 @@ export class EthProvenienzEraraLinkComponent {
     this.links$ = this.ethStoreService.getFullDisplayRecord$().pipe(
       switchMap(record => this.getLinks(record)),
       catchError(error => {
-        this.ethErrorHandlingService.handleError(error, 'EthProvenienzEraraLinkComponent.ngAfterViewInit');
+        this.ethErrorHandlingService.logError(error, 'EthProvenienzEraraLinkComponent.ngAfterViewInit');
         return of({erara:null, swisscovery:null});
       })  
     );
   }
 
 
-  private getLinks(record: Doc | null): Observable<ProvenanceEraraLinksVM> {
+  private getLinks(record: PnxDoc | null): Observable<ProvenanceEraraLinksVM> {
     try {
       const display = record?.pnx?.display;
       if (!display?.source?.[0] || display?.source[0] !== 'eth_epics_provenienz') return of({erara:null, swisscovery:null});
@@ -66,9 +66,9 @@ export class EthProvenienzEraraLinkComponent {
       let swisscoveryUrl = null;
       if (eraraLink) {
         const swisscoveryQuery = eraraLink.split('dx.doi.org/')[1] ?? null;
-        const tab = this.ethStoreService.getTab();
-        const scope = this.ethStoreService.getScope();
-        const vid = this.ethStoreService.getVid();
+        const tab = this.ethStoreService.getTab() || '';
+        const scope = this.ethStoreService.getScope() || '';
+        const vid = this.ethStoreService.getVid() || '';
         swisscoveryUrl = `/search?query=${swisscoveryQuery}&vid=${vid}&tab=${tab}&search_scope=${scope}`;
       }
       return of({
@@ -76,7 +76,7 @@ export class EthProvenienzEraraLinkComponent {
         swisscovery: swisscoveryUrl
       })
     } catch(error: any){
-        this.ethErrorHandlingService.handleSynchronError(error, 'EthProvenienzEraraLinkComponent.getLinks');  
+        this.ethErrorHandlingService.logSyncError(error, 'EthProvenienzEraraLinkComponent.getLinks');  
         return of({erara:null, swisscovery:null});
     }
   }

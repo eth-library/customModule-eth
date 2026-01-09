@@ -39,7 +39,7 @@ export class EthIdpWarningComponent implements OnInit {
         this.showWarning(group, email, profile)
       ),
       catchError(error => {
-        this.ethErrorHandlingService.handleError(error, 'EthIdpWarningComponent');
+        this.ethErrorHandlingService.logError(error, 'EthIdpWarningComponent');
         return of(false);
       })
     )

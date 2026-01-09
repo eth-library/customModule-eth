@@ -3,20 +3,32 @@ import { Observable } from 'rxjs';
 
 /* Primo delivery from store*/
 export interface StoreDeliveryEntity {
+
+  recordId?: string;
   delivery?: {
+    recordOwner?: string;
+    availabilityLinksUrl?: string[];
     electronicServices?: StoreElectronicService[];
     availability?: string[];
+    link?: DeliveryLink[];
+    deliveryCategory?: string[];    
   };
 }
 export interface StoreElectronicService {
   serviceUrl: string;
+  ilsApiId: string;
+}
+interface DeliveryLink {
+  linkURL?: string;
+  displayLabel?: string;
+  linkType?: string;
 }
 
 
 /* Primo HostComponent */
 export interface HostComponent {
   location?: HostComponentLocation;
-  searchResult?: Doc;
+  searchResult?: PnxDoc;
   expanded?: boolean;
   isOpen?: boolean;
   filtersVisible?: boolean;
@@ -44,9 +56,9 @@ export interface HostComponentFilterGroup {
 
 /* Primo pnx */
 export interface PrimoApiResponse  {
-  docs?: Doc[];
+  docs?: PnxDoc[];
 }
-export interface Doc  {
+export interface PnxDoc  {
   pnx?: {
     display?: {
       identifier?: string[];
@@ -88,8 +100,8 @@ export interface Doc  {
       sourceid:         string[] | string;
       originalsourceid: string[];
       sourcesystem:     Sourcesystem[];
-      sourceformat:     Sourceformat[];
-      score:            Array<number | string>;
+      sourceformat?:     Sourceformat[];
+      score?:            Array<number | string>;
       isDedup?:         boolean;
       save_score?:      number[];
       recordtype?:      string[];
@@ -186,22 +198,25 @@ export interface OnlineButtonLinkVM {
 
 
 /* GeoJSON - Geodata Graph API */
-/* generic type */
-export interface GeoFeatureCollection<TProps = unknown> {
+/* generic types */
+export interface GeoJSONFeatureCollection<TProps = unknown> {
   type?: 'FeatureCollection';
-  features?: GeoFeature<TProps>[];
+  features?: GeoJSONFeature<TProps>[];
 }
 
-export interface GeoFeature<TProps = unknown> {
+export interface GeoJSONFeature<TProps = unknown> {
   type?: 'Feature';
   geometry?: Geometry;
   properties?: TProps;
 }
 /* Geodata Graph API response for mmsid (georef/place card) */
-export type GraphRelatedPlacesResponse = GeoFeatureCollection<GraphRelatedPlaces>;
+export type GraphRelatedPlacesResponse = GeoJSONFeatureCollection<GraphRelatedPlaces>;
 
 /* Geodata Graph API response (place page) */
-export type GraphGeoInfoResponse = GeoFeatureCollection<GraphGeoInfo>;
+export type GraphGeoInfoAPIResponse = GeoJSONFeatureCollection<GraphGeoInfo>;
+
+/* ETHorama single poi from Graph API */
+export type GraphSinglePoiAPIResponse = GeoJSONFeatureCollection<GraphPoiProperties>;
 
 /* places from Graph API for mmsid (georef/place card)*/
 export interface GraphRelatedPlaces {
@@ -234,16 +249,15 @@ export interface GraphPlaceEthoramaRef {
   title_en?: string;
 }
 
-/* ETHorama single poi from Graph API */
-export type GraphSinglePoiResponse = GeoFeatureCollection<GraphPoiProperties>;
-
 export interface GraphPoiProperties {
   qid?: string;
   descriptionWikidata?: string;
   name_de?: string;
 }
 
-export interface EnrichedSinglePoiResponseGraph {
+/* enriched POI */
+export interface EnrichedPoiAPIResponse
+{
   id: string;
   thumbnail?: string;
   qid?: string;
@@ -252,7 +266,7 @@ export interface EnrichedSinglePoiResponseGraph {
 }
 
 /* Pois from ETHorama API */
-export interface EthoramaResponse {
+export interface EthoramaAPIResponse {
   items?: EthoramaPoi[];
 }
 export interface EthoramaPoi {
@@ -275,8 +289,9 @@ export interface EthoramaContentItem {
   [key: string]: any;
 }
 
+
 /* Places from wikidata API for place page */
-export interface WikidataPlaceResponse {
+export interface WikidataPlaceAPIResponse {
   results?: {
     bindings?: WikidataBinding[];
   };
@@ -298,6 +313,7 @@ export interface WikidataValue {
   type?: string;
 }
 
+
 /* Places VM for georeference / place cards */
 export interface PlacesGeoRefVM {
   ethorama: PlaceGeoRefVM[];
@@ -316,13 +332,13 @@ export interface PlaceGeoRefVM {
 
 /* PlacePage raw data from APIs */
 export interface PlacePageRawData {
-  topics: GraphGeoInfoResponse;
-  poi: GraphGeoInfoResponse;
-  ethorama: EthoramaResponse;
-  wikidata: WikidataPlaceResponse;
+  topics: GraphGeoInfoAPIResponse;
+  poi: GraphGeoInfoAPIResponse;
+  ethorama: EthoramaAPIResponse;
+  wikidata: WikidataPlaceAPIResponse;
 }
 
-/* PlacePage ViewModel */
+/* eth-place-page:  PlacePage ViewModel */
 export interface WikidataPlaceVM {
   name: string;
   description?: string;

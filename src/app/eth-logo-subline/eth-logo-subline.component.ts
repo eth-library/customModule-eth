@@ -35,7 +35,7 @@ export class EthLogoSublineComponent {
       let lang = this.translate.currentLang;
       this.url = `/home?lang=${lang}&vid=${vid}`;
     } catch (error) {
-      this.ethErrorHandlingService.handleSynchronError(error, 'EthLogoSublineComponent.ngOnInit()');
+      this.ethErrorHandlingService.logSyncError(error, 'EthLogoSublineComponent.ngOnInit()');
     }
   }
 

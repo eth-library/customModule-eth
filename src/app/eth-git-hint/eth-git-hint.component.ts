@@ -52,7 +52,7 @@ export class EthGitHintComponent implements OnInit {
     this.hint$ = rawHint$.pipe(
       map((hint: GitHintVM) => this.ethUtilsService.sanitizeText(hint)),
       catchError(error => {
-        this.ethErrorHandlingService.handleError(error, 'EthGitHintComponent');
+        this.ethErrorHandlingService.logError(error, 'EthGitHintComponent');
         return of(null);
       })
     );

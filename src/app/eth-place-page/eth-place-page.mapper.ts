@@ -1,8 +1,8 @@
-import { PlacePageContext, EthoramaResponse, GraphGeoInfoResponse, WikidataPlaceResponse, EthoramaPlaceVM,  GeoTopicVM, GeoPoiVM, WikidataPlaceVM, MapVM } from '../models/eth.model';
+import { PlacePageContext, EthoramaAPIResponse, GraphGeoInfoAPIResponse, WikidataPlaceAPIResponse, EthoramaPlaceVM,  GeoTopicVM, GeoPoiVM, WikidataPlaceVM, MapVM } from '../models/eth.model';
 
 
 // ETHorama
-export function mapETHorama( response: EthoramaResponse, ctx: PlacePageContext ): EthoramaPlaceVM | null {
+export function mapETHorama( response: EthoramaAPIResponse, ctx: PlacePageContext ): EthoramaPlaceVM | null {
   if (!response?.items?.length) {
     return null;
   }
@@ -43,7 +43,7 @@ export function mapETHorama( response: EthoramaResponse, ctx: PlacePageContext )
 }
 
 // Geodata Graph Topics
-export function mapGeoTopics( response: GraphGeoInfoResponse, ctx: PlacePageContext): GeoTopicVM[] | null {
+export function mapGeoTopics( response: GraphGeoInfoAPIResponse, ctx: PlacePageContext): GeoTopicVM[] | null {
   if (!response?.features?.length) {
     return null;
   }
@@ -71,7 +71,7 @@ export function mapGeoTopics( response: GraphGeoInfoResponse, ctx: PlacePageCont
 
 
 // Geodata Graph POI
-export function mapGeoPoi( response: GraphGeoInfoResponse, ctx: PlacePageContext): GeoPoiVM | null {
+export function mapGeoPoi( response: GraphGeoInfoAPIResponse, ctx: PlacePageContext): GeoPoiVM | null {
   if (!response?.features?.length) {
     return null;
   }
@@ -118,7 +118,7 @@ export function mapGeoPoi( response: GraphGeoInfoResponse, ctx: PlacePageContext
 
 
 // Wikidata
-export function mapWikidata( response: WikidataPlaceResponse): WikidataPlaceVM | null {
+export function mapWikidata( response: WikidataPlaceAPIResponse): WikidataPlaceVM | null {
   const binding = response?.results?.bindings?.[0];
   if (!binding) {
     return null;
@@ -155,7 +155,7 @@ export function mapWikidata( response: WikidataPlaceResponse): WikidataPlaceVM |
 }
 
 // Maps
-export function mapMaps( filteredData: GraphGeoInfoResponse): MapVM[] | null {
+export function mapMaps( filteredData: GraphGeoInfoAPIResponse): MapVM[] | null {
   if(!filteredData.features)return null;
   const maps = filteredData?.features.map( (f:any) => {
     let title = f.properties.title;

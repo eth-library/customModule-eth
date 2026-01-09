@@ -13,7 +13,7 @@ import { EthUtilsService } from '../../services/eth-utils.service';
 import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
-import { HostComponent, Doc, PlacesGeoRefVM, PlaceGeoRefVM, GraphRelatedPlacesResponse, EthoramaResponse, EnrichedSinglePoiResponseGraph } from '../../models/eth.model';
+import { HostComponent, PnxDoc, PlacesGeoRefVM, PlaceGeoRefVM, GraphRelatedPlacesResponse, EthoramaAPIResponse, EnrichedPoiAPIResponse } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-geo-ref',
@@ -57,7 +57,11 @@ export class EthGeoRefComponent {
             '.eth-place-cards'
           );
         }
-      })*/
+      }),*/
+      catchError(err => {
+        this.ethErrorHandlingService.logSyncError( err, 'EthGeoRefComponent.ngOnInit');
+        return of({ ethorama: [],eraraPlaces: [], emapsPlaces: [], allPlaces: []});      
+      })
     )
   }
 
@@ -69,12 +73,12 @@ export class EthGeoRefComponent {
   }
 
 
-  getPlaces(record: Doc): Observable<PlacesGeoRefVM> { 
+  getPlaces(record: PnxDoc): Observable<PlacesGeoRefVM> { 
     try {
       this.lang = this.translate.currentLang;
-      this.vid = this.ethStoreService.getVid();
-      this.tab = this.ethStoreService.getTab();
-      this.scope = this.ethStoreService.getScope();
+      this.vid = this.ethStoreService.getVid() || '';
+      this.tab = this.ethStoreService.getTab() || '';
+      this.scope = this.ethStoreService.getScope() || '';
 
       const docId = this.getSourceRecordId(record);
 
@@ -82,7 +86,7 @@ export class EthGeoRefComponent {
         ? this.ethGeoRefService.getEmapsRelatedPlacesFromGraph(docId).pipe(
             map(data => this.mapGraphPlacesToLinks(data)),
             catchError((error) => {
-              this.ethErrorHandlingService.handleError(error, 'EthGeoRefComponent.getEmapsRelatedPlacesFromGraph()')
+              this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getEmapsRelatedPlacesFromGraph()')
               return of([]);
             })      
         )
@@ -93,7 +97,7 @@ export class EthGeoRefComponent {
         ? this.ethGeoRefService.getEraraRelatedPlacesFromGraph(docId).pipe(
             map(data => this.mapGraphPlacesToLinks(data)),
             catchError((error) => {
-              this.ethErrorHandlingService.handleError(error, 'EthGeoRefComponent.getEraraRelatedPlacesFromGraph()')
+              this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getEraraRelatedPlacesFromGraph()')
               return of([]);
             })      
         )
@@ -102,10 +106,10 @@ export class EthGeoRefComponent {
 
       const ethorama$ = docId 
         ? this.ethGeoRefService.getPlacesFromETHorama(docId).pipe(
-            switchMap((data: EthoramaResponse) => {
-              return data?.items?.length ? this.ethGeoRefService.enrichPOIs(data.items) : of<EnrichedSinglePoiResponseGraph[]>([])
+            switchMap((data: EthoramaAPIResponse) => {
+              return data?.items?.length ? this.ethGeoRefService.enrichPOIs(data.items) : of<EnrichedPoiAPIResponse[]>([])
             }),
-            map((enrichedPois: EnrichedSinglePoiResponseGraph[]) => {
+            map((enrichedPois: EnrichedPoiAPIResponse[]) => {
               const uniquePois = new Map();
               enrichedPois.forEach(p => {
                 if (p.qid && !uniquePois.has(p.qid)) {
@@ -122,7 +126,7 @@ export class EthGeoRefComponent {
               return Array.from(uniquePois.values()).sort((a,b) => a.label.localeCompare(b.label));
             }),
             catchError(error => {
-              this.ethErrorHandlingService.handleError(error, 'getETHoramaPlaces()');
+              this.ethErrorHandlingService.logError(error, 'getETHoramaPlaces()');
               return of([]);
             })
           )
@@ -139,7 +143,7 @@ export class EthGeoRefComponent {
         );
     }
     catch (error) {
-      this.ethErrorHandlingService.handleSynchronError(error, 'EthGeoRefComponent.getPlaces');
+      this.ethErrorHandlingService.logSyncError(error, 'EthGeoRefComponent.getPlaces');
       return of({ ethorama: [],eraraPlaces: [], emapsPlaces: [], allPlaces: []});      
     }
   }
@@ -170,23 +174,23 @@ export class EthGeoRefComponent {
     return `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${qid}`;
   }
 
-  private getSourceRecordId(record: Doc): string | null{
+  private getSourceRecordId(record: PnxDoc): string | null{
     return record?.pnx?.control?.['sourcerecordid']?.[0] || null;
   }
 
-  private getType(record: Doc): string {
+  private getType(record: PnxDoc): string {
     return record?.pnx?.display?.['type']?.[0] || '';
   }
   
-  private getLds50(record: Doc): string[] {
+  private getLds50(record: PnxDoc): string[] {
     return record?.pnx?.display?.['lds50'] || [];
   }
 
-  private isEmaps(record: Doc): boolean {
+  private isEmaps(record: PnxDoc): boolean {
     return this.getType(record) === 'map' && this.getLds50(record)?.some((i: string) => i.includes('E01emaps')) 
   }
 
-  private getSourceSystem(record: Doc): string {
+  private getSourceSystem(record: PnxDoc): string {
     return record?.pnx?.control?.['sourcesystem']?.[0] || '';
   }  
 

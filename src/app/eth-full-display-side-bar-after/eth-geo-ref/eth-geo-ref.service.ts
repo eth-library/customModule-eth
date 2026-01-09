@@ -2,14 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable, catchError, of, forkJoin } from 'rxjs';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
-import { GraphRelatedPlacesResponse, EthoramaResponse, EthoramaPoi, EnrichedSinglePoiResponseGraph, GraphSinglePoiResponse } from '../../models/eth.model';
+import { GraphRelatedPlacesResponse, EthoramaAPIResponse, EthoramaPoi, EnrichedPoiAPIResponse, GraphSinglePoiAPIResponse } from '../../models/eth.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EthGeoRefService {
 
-  private readonly graphUrlPlaces = 'https://daas.library.ethz.ch/rib/v3/graph/places-by-gnd-list';
   private readonly graphUrlPois = 'https://daas.library.ethz.ch/rib/v3/graph/pois';
   private readonly graphUrlEmaps = 'https://daas.library.ethz.ch/rib/v3/graph/e-maps';
   private readonly graphUrlErara = 'https://daas.library.ethz.ch/rib/v3/graph/e-rara-items';
@@ -23,11 +22,11 @@ export class EthGeoRefService {
 
 
   // https://api.library.ethz.ch/ethorama/v1/pois?apikey=BKFefOQWF3VGq2sreNcyLqK7Gob61xO9jnLQAd0wy82ktIYn&pageSize=100&details=false&docId=xxx
-  getPlacesFromETHorama(docId: string): Observable<EthoramaResponse> {
-    return this.httpClient.get<EthoramaResponse>(`${this.ethoramaUrl}&docId=${docId}`).pipe(
+  getPlacesFromETHorama(docId: string): Observable<EthoramaAPIResponse> {
+    return this.httpClient.get<EthoramaAPIResponse>(`${this.ethoramaUrl}&docId=${docId}`).pipe(
       catchError((error) => {
         // if not found: HTTP 500
-        //this.ethErrorHandlingService.handleError(error, 'EthGeoRefService.getPlacesFromETHorama');
+        //this.ethErrorHandlingService.logError(error, 'EthGeoRefService.getPlacesFromETHorama');
         return of({ items: [] });
       })      
     );
@@ -38,7 +37,7 @@ export class EthGeoRefService {
     const url = `${this.graphUrlErara}/${docId}?edges=true`;
     return this.httpClient.get<GraphRelatedPlacesResponse>(url).pipe(
       catchError((error) => {
-        this.ethErrorHandlingService.handleError(error, 'EthGeoRefService.getEraraRelatedPlacesFromGraph')
+        this.ethErrorHandlingService.logError(error, 'EthGeoRefService.getEraraRelatedPlacesFromGraph')
         return of({features: []});
       })      
     );
@@ -49,23 +48,23 @@ export class EthGeoRefService {
     const url = `${this.graphUrlEmaps}/${docId}?edges=true`;
     return this.httpClient.get<GraphRelatedPlacesResponse>(url).pipe(
       catchError((error) => {
-        this.ethErrorHandlingService.handleError(error, 'EthGeoRefService.getEmapsRelatedPlacesFromGraph')
+        this.ethErrorHandlingService.logError(error, 'EthGeoRefService.getEmapsRelatedPlacesFromGraph')
         return of({features: []});
       })      
     );
   }  
 
   // enrich ETHorama Poi by Wikidata
-  enrichPOIs(pois: EthoramaPoi[]): Observable<EnrichedSinglePoiResponseGraph[]> {
+  enrichPOIs(pois: EthoramaPoi[]): Observable<EnrichedPoiAPIResponse[]> {
     if (!pois || pois.length === 0) {
       return of([]);
     }    
     
     const enrichedPois$ = pois.map(poi =>
-      this.httpClient.get<GraphSinglePoiResponse>(`${this.graphUrlPois}/${poi.id}`).pipe(
+      this.httpClient.get<GraphSinglePoiAPIResponse>(`${this.graphUrlPois}/${poi.id}`).pipe(
         map(response => {
           const feature = response?.features?.[0]?.properties;
-          const enriched: EnrichedSinglePoiResponseGraph = {
+          const enriched: EnrichedPoiAPIResponse = {
             id: poi.id,
             thumbnail: poi.thumbnail,
             qid: feature?.qid ?? '',
@@ -75,8 +74,8 @@ export class EthGeoRefService {
           return enriched;
         }),
         catchError(error => {
-          this.ethErrorHandlingService.handleError(error, 'EthGeoRefService.enrichPOIs');
-          const fallback: EnrichedSinglePoiResponseGraph = {
+          this.ethErrorHandlingService.logError(error, 'EthGeoRefService.enrichPOIs');
+          const fallback: EnrichedPoiAPIResponse = {
             id: poi.id,
             thumbnail: poi.thumbnail,
             qid: '',

@@ -10,7 +10,7 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { EthComposeEraraService } from './eth-compose-erara.service';
 import { TranslateService } from "@ngx-translate/core";
 import { SHELL_ROUTER } from "../../injection-tokens";
-import { HostComponent, ComposeEraraLinkVM, Doc } from '../../models/eth.model';
+import { HostComponent, ComposeEraraLinkVM, PnxDoc } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-compose-erara',
@@ -49,14 +49,14 @@ export class EthComposeEraraComponent {
       switchMap(() => this.ethStoreService.getFullDisplayRecord$()),
       switchMap(record => this.getLinks(record)),
       catchError(error => {
-        this.ethErrorHandlingService.handleError(error, 'EthComposeEraraComponent.ngAfterViewInit');
+        this.ethErrorHandlingService.logError(error, 'EthComposeEraraComponent.ngAfterViewInit');
         return of([]);
       })
     );
   }
 
 
-  private getLinks(record: Doc | null): Observable<ComposeEraraLinkVM[]> {
+  private getLinks(record: PnxDoc | null): Observable<ComposeEraraLinkVM[]> {
     
     if (!record?.pnx?.display?.mms?.[0]) {
       return of([]);
@@ -90,7 +90,6 @@ export class EthComposeEraraComponent {
 
           return this.ethComposeEraraService.getOnlineEraraRecord(eraraPrintId).pipe(
             map(record => {
-              //console.error("record",record)
               const onlineId = record?.docs?.[0]?.pnx?.control?.sourcerecordid?.[0];
               //console.error("emaps record; get online erara:", onlineId)
               if (onlineId) {
@@ -103,7 +102,8 @@ export class EthComposeEraraComponent {
               return links;
             })
           );
-        })
+        }),
+        catchError(() => of([]))              
       );
     }
 
@@ -188,9 +188,9 @@ export class EthComposeEraraComponent {
   }
 
   private makePrimoUrl(mmsid: string): string {
-    const vid = this.ethStoreService.getVid();
-    const tab = this.ethStoreService.getTab();
-    const scope = this.ethStoreService.getScope();
+    const vid = this.ethStoreService.getVid() || '';
+    const tab = this.ethStoreService.getTab() || '';
+    const scope = this.ethStoreService.getScope() || '';
     return `/fulldisplay?vid=${vid}&docid=alma${mmsid}&tab=${tab}&search_scope=${scope}`;
   }
 

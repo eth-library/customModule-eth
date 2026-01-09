@@ -19,7 +19,7 @@ export class EthComposeNbService {
     return this.http.get<NbPrintApiResponse>(url).pipe(
       catchError(error => {
         if (error.status !== 404) {
-          this.ethErrorHandlingService.handleError(error, 'EthComposeNbService.getPrintData');
+          this.ethErrorHandlingService.logError(error, 'EthComposeNbService.getPrintData');
         }
         return of(null);
       })
@@ -32,7 +32,7 @@ export class EthComposeNbService {
     return this.http.get<PrimoApiResponse>(url).pipe(
       catchError(error => {
         if (error.status !== 404) {
-          this.ethErrorHandlingService.handleError(error, 'EthComposeNbService.getOnlineData');
+          this.ethErrorHandlingService.logError(error, 'EthComposeNbService.getOnlineData');
         }
         return of(null);
       })

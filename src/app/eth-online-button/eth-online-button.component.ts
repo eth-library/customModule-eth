@@ -18,7 +18,7 @@ import { MatMenuModule } from '@angular/material/menu'
 import { MatButtonModule } from '@angular/material/button';
 import { SHELL_ROUTER } from "../injection-tokens";
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
-import { Doc, StoreDeliveryEntity, HostComponentViewModel, HostComponent, OnlineButtonLinkVM } from '../models/eth.model';
+import { PnxDoc, StoreDeliveryEntity, HostComponentViewModel, HostComponent, OnlineButtonLinkVM } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-online-button',
@@ -56,7 +56,7 @@ export class EthOnlineButtonComponent {
       viewModel: this.hostComponent.viewModel$ ?? of(null),
       deliveryEntity: this.ethStoreService.getDeliveryEntity$(this.hostComponent)
     }) as Observable<{
-      record: Doc;
+      record: PnxDoc;
       viewModel: HostComponentViewModel;
       deliveryEntity: StoreDeliveryEntity;
     }>;
@@ -100,16 +100,13 @@ export class EthOnlineButtonComponent {
         }
       }),
       catchError(err => {
-        this.ethErrorHandlingService.handleSynchronError(
-          err,
-          'EthOnlineButtonComponent.ngAfterViewInit'
-        );
+        this.ethErrorHandlingService.logSyncError( err, 'EthOnlineButtonComponent.ngAfterViewInit');
         return of([]);
       })
     );
   }    
 
-  private getDocId(record: Doc): string {
+  private getDocId(record: PnxDoc): string {
     return record?.pnx?.control?.recordid?.[0] || '';
   }  
 

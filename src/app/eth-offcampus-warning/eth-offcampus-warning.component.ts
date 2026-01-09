@@ -57,7 +57,7 @@ export class EthOffcampusWarningComponent {
                 let hasPublicNote = deliveryEntity?.delivery?.electronicServices?.some((e:any) => {return e.publicNote === "Onlinezugriff via World Wide Web"});
                 if(hasPublicNote)return false;
                 // library stack
-                if (deliveryEntity?.recordId.indexOf('cdi_librarystack')>-1){
+                if (deliveryEntity?.recordId && deliveryEntity?.recordId?.indexOf('cdi_librarystack') > -1){
                   return false;
                 }
                 return category.indexOf('Alma-E') > -1 || category.indexOf('Remote Search Resource') > -1;
@@ -67,7 +67,7 @@ export class EthOffcampusWarningComponent {
         );
       }),
       catchError(err => {
-        this.ethErrorHandlingService.handleError(err, 'EthOffcampusWarningComponent');
+        this.ethErrorHandlingService.logError(err, 'EthOffcampusWarningComponent');
         return of(false);
       })      
     );

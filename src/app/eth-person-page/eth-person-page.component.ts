@@ -31,9 +31,6 @@ import { SHELL_ROUTER } from "../injection-tokens";
 
 export class EthPersonPageComponent{
   private router = inject(SHELL_ROUTER); 
-  private tab!: string;
-  private scope!: string;
-  private vid!: string;  
   private lang!: string;  
   
   person$!: Observable<any | null>;
@@ -48,10 +45,6 @@ export class EthPersonPageComponent{
 
 
   ngOnInit(): void {
-    this.tab = this.ethStoreService.getTab();
-    this.scope = this.ethStoreService.getScope();
-    this.vid = this.ethStoreService.getVid();
-
     this.lang = this.translate.currentLang || 'de';
 
     this.person$ = this.translate.onLangChange.pipe(
@@ -84,7 +77,7 @@ export class EthPersonPageComponent{
         );
       }),
       catchError(error => {
-        this.ethErrorHandlingService.handleSynchronError(error, 'EthPersonPageComponent.ngAfterViewInit');
+        this.ethErrorHandlingService.logSyncError(error, 'EthPersonPageComponent.ngAfterViewInit');
         return of(null);
       })
     );    
@@ -139,20 +132,23 @@ export class EthPersonPageComponent{
   }
 
   getSearchLink(query: string ): Observable<{ url: string; total: number } | null> {
-    return this.ethPersonService.searchPrimoData(query, this.tab, this.scope, this.lang).pipe(
+    const tab = this.ethStoreService.getTab() || '';
+    const scope = this.ethStoreService.getScope() || '';
+    const vid = this.ethStoreService.getVid() || '';
+    return this.ethPersonService.searchPrimoData(query, tab, scope, this.lang).pipe(
       map((data: any) => {
         const total = data?.info?.totalResultsLocal ?? 0;
         if(query.indexOf('lds03')===-1){
           query = query.replace('any,contains,','');
         }
-        let url = `/search?query=${query}&tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}`;
+        let url = `/search?query=${query}&tab=${tab}&search_scope=${scope}&vid=${vid}&lang=${this.lang}`;
         if(query.indexOf('lds03')>-1){
           url += '&mode=advanced';
         }
         return { url, total };
       }),
       catchError((error) => {
-        this.ethErrorHandlingService.handleError(error, 'EthPersonPageComponent.getPrecisionRecallLinks.getSearchLink');
+        this.ethErrorHandlingService.logError(error, 'EthPersonPageComponent.getPrecisionRecallLinks.getSearchLink');
         return of(null);
       })
     );

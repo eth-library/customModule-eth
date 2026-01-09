@@ -41,15 +41,14 @@ export class EthLibraryStackComponent {
     this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
       //tap(deliveryEntity => {console.error("deliveryEntity",deliveryEntity)}),
       map(deliveryEntity => {
-        return deliveryEntity?.delivery?.link?.some(
-          (e:any) => {return e.linkURL?.includes('www.librarystack.org')}
+        return deliveryEntity.delivery?.link?.some( (e) => {return e.linkURL?.includes('www.librarystack.org')}
         ) ?? false;
       }),
       filter(hasLibraryStackUrl => hasLibraryStackUrl),
       tap(() => this.initObserver()),
       takeUntilDestroyed(this.destroyRef),  
       catchError(err => {
-        this.ethErrorHandlingService.handleError(err, 'EthLibraryStackComponent');
+        this.ethErrorHandlingService.logError(err, 'EthLibraryStackComponent.ngAfterViewInit');
         return of(false);
       })      
     )
@@ -68,7 +67,6 @@ export class EthLibraryStackComponent {
     if (!fullDisplayContainer) return;
 
     const observer = new MutationObserver(() => this.changeDom());
-
     observer.observe(fullDisplayContainer, { childList: true, subtree: true }); 
 
     // initial

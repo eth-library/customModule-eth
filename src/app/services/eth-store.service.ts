@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Doc } from '../models/eth.model';
+import { PnxDoc } from '../models/eth.model';
 import { createFeatureSelector, createSelector, select, Store } from '@ngrx/store';
-import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, EMPTY, filter, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { EthErrorHandlingService } from './eth-error-handling.service';
 import type { Params, Data } from '@angular/router';
+import { StoreDeliveryEntity, HostComponent } from '../models/eth.model';
 
 type SearchParams = {q:string, tab:string, scope:string}
-type SearchState = {searchParams: SearchParams, ids: string[], entities: Record<string, Doc>}
+type SearchState = {searchParams: SearchParams, ids: string[], entities: Record<string, PnxDoc>}
 
 export interface RouterState {
   state: RouterRootState;
@@ -97,7 +98,7 @@ const selectFullDisplayDeliveryEntities = createSelector(selectFullDisplayRecord
 
 const selectSearchEntities = createSelector(selectSearchState, state => state.entities);
 
-const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId, selectSearchEntities, (recordId, searchEntities): Doc | null => searchEntities[recordId] ?? null
+const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId, selectSearchEntities, (recordId, searchEntities): PnxDoc | null => searchEntities[recordId] ?? null
 );
 
 
@@ -202,54 +203,56 @@ export class EthStoreService {
 
     }
 
-    getVid(): any | null {
+    getVid(): string | null {
         try{
             let vc =  this.store.selectSignal(selectConfig)();
             return vc.vid;
         }
         catch(e){
-            this.ethErrorHandlingService.handleSynchronError(e, 'EthStoreService.getVid');
+            this.ethErrorHandlingService.logSyncError(e, 'EthStoreService.getVid');
             return null;
         }
     }
 
-    getScope(): any | null {
+    getScope(): string | null {
         try{
-            let router =  this.store.selectSignal(selectRouter)();
-            let scope = router?.root?.queryParams?.['search_scope'];
-            if(!scope){
-                let vc =  this.store.selectSignal(selectConfig)();
-                scope = vc['primo-view']?.scopes[0]?.['scope-id']
+            const router =  this.store.selectSignal(selectRouter)();
+            const scopeFromUrl = router?.root?.queryParams?.['search_scope'];
+            if(scopeFromUrl){
+                return scopeFromUrl;
             }
+
+            let vc =  this.store.selectSignal(selectConfig)();
+            const scope = vc['primo-view']?.scopes[0]?.['scope-id']
             return scope;
         }
         catch(e){
-            this.ethErrorHandlingService.handleSynchronError(e, 'EthStoreService.getScope');
+            this.ethErrorHandlingService.logSyncError(e, 'EthStoreService.getScope');
             return null;
         }
     }
 
-    getTab(): any | null {
-        try{
-            let router =  this.store.selectSignal(selectRouter)();
-            let tab = router?.root?.queryParams?.['tab'];
-            if(!tab){
-                let vc =  this.store.selectSignal(selectConfig)();
-                tab = vc['primo-view']?.scopes[0]?.tab;
+    getTab(): string | null {
+        try {
+            const router = this.store.selectSignal(selectRouter)();
+            const tabFromUrl = router?.root?.queryParams?.['tab'];
+            if (tabFromUrl) {
+                return tabFromUrl;
             }
-            return tab;            
-        }
-        catch(e){
-            this.ethErrorHandlingService.handleSynchronError(e, 'EthStoreService.getTab');
+
+            const vc = this.store.selectSignal(selectConfig)();
+            return vc['primo-view']?.scopes[0]?.tab ?? null;
+        } catch (e) {
+            this.ethErrorHandlingService.logSyncError(e, 'EthStoreService.getTab');
             return null;
         }
     }
 
-    getRouter$(): Observable<RouterRootState | null> {
+    getRouter$(): Observable<RouterRootState> {
         return this.store.select(selectRouter).pipe(
             catchError((e) => {
-                this.ethErrorHandlingService.handleError(e, 'EthStoreService.getRouter$');
-                return of(null);
+                this.ethErrorHandlingService.logError(e, 'EthStoreService.getRouter$');
+                return throwError(() => e); 
             })
         );
     }
@@ -262,63 +265,62 @@ export class EthStoreService {
                 }
                 return state.url.includes('/fulldisplay');
             }),
-            catchError(error => {
-                this.ethErrorHandlingService.handleError(error, 'EthStoreService.isFullview$');
-                return of(false); 
+            catchError(e => {
+                this.ethErrorHandlingService.logError(e, 'EthStoreService.isFullview$');
+                return throwError(() => e); 
             })
         );
     }
 
-    getFullDisplayRecord$(): Observable<Doc | null> {
-    return this.store.select(selectFullDisplayRecord).pipe(
-        catchError((e): Observable<null> => {
-        this.ethErrorHandlingService.handleError(e, 'EthStoreService.getFullDisplayRecord$');
-        return of(null);
-        })
-    );
+    getFullDisplayRecord$(): Observable<PnxDoc> {
+        return this.store.select(selectFullDisplayRecord).pipe(
+            filter((doc): doc is PnxDoc => doc !== null),
+            catchError((e) => {
+                this.ethErrorHandlingService.logError(e, 'EthStoreService.getFullDisplayRecord$');
+                return throwError(() => e);
+            })
+        );
     }
 
 
-    getRecord$(hostComponent: any) {
-        const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0];
+    getRecord$(hostComponent: HostComponent): Observable<PnxDoc> {
+        const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0] ?? '';
         return this.store.select(selectFullDisplayRecord).pipe(
             switchMap(record =>
                 record
                 ? of(record)
                 : this.store.select(selectListviewRecord(recordId))
-            )
-        );
-    }
-
-    getLocation$(hostComponent: any) {
-        const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0];
-        return this.store.select(selectFullDisplayRecord).pipe(
-            switchMap(record =>
-                record
-                ? of(record)
-                : this.store.select(selectListviewRecord(recordId))
-            )
+            ),
+            catchError((e) => {
+                this.ethErrorHandlingService.logError(e, 'EthStoreService.getRecord$');
+                return throwError(() => e);
+            })
         );
     }
 
 
-    getFullDisplayDeliveryEntity$(): Observable<any | null> {
+    getFullDisplayDeliveryEntity$(): Observable<StoreDeliveryEntity> {
         return this.store.select(selectFullDisplayDeliveryEntities).pipe(
             catchError((e) => {
-                this.ethErrorHandlingService.handleError(e, 'EthStoreService.getFullDisplayDeliveryEntity$');
-                return of(null);
+                this.ethErrorHandlingService.logError(e, 'EthStoreService.getFullDisplayDeliveryEntity$');
+                return throwError(() => e);
             })
         );
     }
 
-    getDeliveryEntity$(hostComponent: any) {
-        const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0];
+
+    getDeliveryEntity$(hostComponent: HostComponent): Observable<StoreDeliveryEntity> {
+        const recordId = hostComponent?.searchResult?.pnx?.control?.recordid[0] ?? '';
         return this.store.select(selectFullDisplayDeliveryEntities).pipe(
             switchMap(record =>
                 record
                 ? of(record)
                 : this.store.select(selectListviewDeliveryEntity(recordId))
-            )
+            ),
+            catchError((e) => {
+                this.ethErrorHandlingService.logError(e, 'EthStoreService.getDeliveryEntity$');
+                return throwError(() => e);
+            })
         );
     }
 

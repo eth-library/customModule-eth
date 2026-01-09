@@ -36,7 +36,7 @@ export class EthChangeFiltersComponent {
         }
       }
       catch(error: any){
-          return this.ethErrorHandlingService.handleSynchronError(error, 'EthChangeFiltersComponent.ngAfterViewInit');        
+          return this.ethErrorHandlingService.logSyncError(error, 'EthChangeFiltersComponent.ngAfterViewInit');        
       }
     }
 
@@ -65,7 +65,7 @@ export class EthChangeFiltersComponent {
             }
           }),
           catchError((error) => {
-            this.ethErrorHandlingService.handleError(error, 'EthChangeFiltersComponent.changeTLevelElements');
+            this.ethErrorHandlingService.logError(error, 'EthChangeFiltersComponent.changeTLevelElements');
             return of(null);
           })
         ).subscribe();      

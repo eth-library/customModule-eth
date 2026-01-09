@@ -52,9 +52,9 @@ export class EthProvenienzComponent{
     ){}
    
     ngOnInit() {
-      this.vid = this.ethStoreService.getVid();
-      this.tab = this.ethStoreService.getTab();
-      this.scope = this.ethStoreService.getScope();
+      this.vid = this.ethStoreService.getVid() || '';
+      this.tab = this.ethStoreService.getTab() || '';
+      this.scope = this.ethStoreService.getScope() || '';
 
       this.items$ = this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
         map(deliveryEntity => {
@@ -80,7 +80,7 @@ export class EthProvenienzComponent{
                 ...i,
                 url: `/search?vid=${this.vid}&tab=${this.tab}&search_scope=${this.scope}&query=${i.eth_doi_link.includes('doi.org/') ? i.eth_doi_link.split('doi.org/')[1] : ''}`
               }))
-            ),
+            )
             /*tap( (items) => {
               if (items.length > 0 && !this.cardPositioned) {
                 this.cardPositioned = true;
@@ -89,22 +89,24 @@ export class EthProvenienzComponent{
                 );
               }
             }),*/
-            catchError(error => {
-              this.ethErrorHandlingService.handleError(error,'EthProvenienzComponent.getDelivery');
-               return of([]); 
-            })
           )
         ),
-        startWith([])
+        startWith([]),
+        catchError(error => {
+          this.ethErrorHandlingService.logError(error,'EthProvenienzComponent.ngOnInit');
+          return of([]); 
+        })
       );
     }
 
+    /*
     ngOnDestroy() {
       if (this.mqListener) {
         const mq = window.matchMedia('(max-width: 599px)');
         mq.removeEventListener('change', this.mqListener);
       }
     }
+    */
 
     navigate(url: string, event: Event){
       event.preventDefault();  

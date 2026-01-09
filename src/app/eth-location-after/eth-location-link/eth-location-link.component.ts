@@ -70,7 +70,7 @@ export class EthLocationLinkComponent {
         )
       }),
       catchError((error) => {
-        this.ethErrorHandlingService.handleError(error, 'EthLocationLinkComponent.getLink');
+        this.ethErrorHandlingService.logError(error, 'EthLocationLinkComponent.getLink');
         return of('');
       }) 
     )
