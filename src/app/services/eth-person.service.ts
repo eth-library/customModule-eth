@@ -4,6 +4,7 @@ import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { EthErrorHandlingService } from './eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
+import { PersonApiResponse, GndByIdRefApiResponse, WikiRelatedPersonApiResponse, PrometheusApiResponse, WikiApiResponse, MetagridApiResponse, MetagridResource, WikiArchivesAtLinksVM, MetagridLinksVM, EntityfactsApiResponse, EntityfactsRelatedPersonApiResponse, WikiArchivesAtApiResponse, PrimoApiResponse, WikiRelatedPersonVM, EntityfactsRelatedPersonVM, PersonVM, EntityfactsVM, ExternalLinkVM, WikiVM, WikiRelatedPersonBinding, WikiUrlListApiResponse } from '../models/eth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,17 +21,18 @@ export class EthPersonService {
         private translate: TranslateService,
     ) {}
 
-    getPersons(gnds:string, lang:string): Observable<any> {
-        return this.http.get('https://daas.library.ethz.ch/rib/v3/persons/person-gnd?gnd=' + gnds + '&lang=' + lang).pipe(
+   
+    getPersons(gnds: string, lang: string): Observable<PersonApiResponse> {
+        const url = `${this.baseurlRIB}/persons/person-gnd?gnd=${gnds}&lang=${lang}`;
+        return this.http.get<PersonApiResponse>(url).pipe(
             catchError(e => {
                 this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersons');
                 return throwError(() => e);
-            })      
-
-        )
-    }
+            })
+        );
+    }    
         
-    getPerson(id: string, lang: string): Observable<any> {
+    getPerson(id: string, lang: string): Observable<PersonApiResponse> {
         if(id.startsWith('Q')){
             return this.getPersonByQid(id, lang)
         }
@@ -42,9 +44,9 @@ export class EthPersonService {
         }
     }
 
-    private getPersonByQid(qid: string, lang: string): Observable<any> {
+    private getPersonByQid(qid: string, lang: string): Observable<PersonApiResponse> {
         const url = `${this.baseurlRIB}/persons/person-qid?qid=${qid}&lang=${lang}`;
-        return this.http.get(url).pipe(
+        return this.http.get<PersonApiResponse>(url).pipe(
             catchError(e => {
                 this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersonByQid');
                 return throwError(() => e);
@@ -53,9 +55,9 @@ export class EthPersonService {
         );
     }
 
-    private getPersonByGnd(gnd: string, lang: string): Observable<any> {
+    private getPersonByGnd(gnd: string, lang: string): Observable<PersonApiResponse> {
         const url = `${this.baseurlRIB}/persons/person-gnd?gnd=${gnd}&lang=${lang}`;
-        return this.http.get(url).pipe(
+        return this.http.get<PersonApiResponse>(url).pipe(
             catchError(e => {
                 this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersonByGnd');
                 return throwError(() => e);
@@ -65,9 +67,9 @@ export class EthPersonService {
     }
 
     // https://daas.library.ethz.ch/rib/v3/persons/person-lccn?lccn=nr92018830&lang=en
-    private getPersonByLccn(lccn: string, lang: string): Observable<any> {
+    private getPersonByLccn(lccn: string, lang: string): Observable<PersonApiResponse> {
         const url = `${this.baseurlRIB}/persons/person-lccn?lccn=${lccn}&lang=${lang}`;
-        return this.http.get(url).pipe(
+        return this.http.get<PersonApiResponse>(url).pipe(
             catchError(e => {
                 this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersonByLccn');
                 return throwError(() => e);
@@ -76,425 +78,350 @@ export class EthPersonService {
         );
     }
 
-    getGndByIdRef(idref: string) {
+    getGndByIdRef(idref: string): Observable<string | null>  {
         const url = `https://daas.library.ethz.ch/rib/v3/persons/gnd/sudoc/${idref}`;
-        
-        return this.http.get<{ gnd?: string; errorMessage?: string }>(url).pipe(
-          map(response => response?.gnd ?? null),
-          catchError(httpError => {
-            if (httpError.status === 404) return of(null);
-            
-            let error = `***ETH*** An error occurred: EthPersonCardService.getGndByIdRef: ${httpError.status}`;
-            if (httpError.error?.errorMessage) {
-              error += ` - ${httpError.error.errorMessage}`;
-            }
-            console.error(error);
-            return of(null);
-          })
+        return this.http.get<GndByIdRefApiResponse>(url).pipe(
+            map(response => response?.gnd ?? null),
+            catchError(e => {
+                if (e.status === 404) return of(null);
+                return throwError(() => e);           
+            })
         );
     }
  
-    searchPrimoData(q: string, tab: string, scope: string, lang: string = 'de'): Observable<any> {
+    searchPrimoData(q: string, tab: string, scope: string, lang: string = 'de'): Observable<PrimoApiResponse> {
         const url = `${this.baseurlRIB}/search?lang=${lang}&limit=1&skipDelivery=true&disableSplitFacets=false&q=${encodeURIComponent(q)}`;
-        return this.http.get(url).pipe(
-            catchError((error) => {
-                this.ethErrorHandlingService.logError(error, 'EthPersonService.searchPrimoData');
-                return of(null);
+        return this.http.get<PrimoApiResponse>(url).pipe(
+            catchError((e) => {
+                this.ethErrorHandlingService.logError(e, 'EthPersonService.searchPrimoData');
+                return throwError(() => e);           
             })
-    
         );
     }
 
-    private processPrometheusResponse(prometheusResult: any): any{
-        try{
-            let sourcesWhitelist = ["ba.e-pics.ethz.ch","performing-arts.eu",
-                                    "/www.historische-kommission-muenchen-editionen.de/beacond/filmportal.php",
-                                    "deutsche-biographie.de", "deutsche-digitale-bibliothek.de",
-                                    "www.hdg.de/lemo/html/biografien/", "www.perlentaucher.de/autor/","archinform.net/gnd/",
-                                    "www.gutenberg.org/ebooks/author/","archivdatenbank-online.ethz.ch/hsa/","geschichtsquellen.de"
-                                    ];
-            let whitelistedPrometheusLinks = [];
-            let isDB = false;
-            for(var j = 0; j < prometheusResult[0].resp[1].length; j++){
-                let isWhitelisted = false;
-                let url = prometheusResult[0].resp[3][j];
-                // Für NDB und ADB nur einen Link
-                if (url.indexOf("http://www.deutsche-biographie.de")>-1){
-                    if(!isDB){
-                        isDB = true;
-                    }
-                    else{
-                        continue;
-                    }
+    private processPrometheusResponse(resp: PrometheusApiResponse): ExternalLinkVM[] {
+        try {
+            const sourcesWhitelist = [
+            "ba.e-pics.ethz.ch","performing-arts.eu","deutsche-biographie.de","www.perlentaucher.de","archinform.net/gnd","www.gutenberg.org","archivdatenbank-online.ethz.ch/hsa/"];
+            const links: ExternalLinkVM[] = [];
+            let dbUsed = false;
+
+            resp[3].forEach((url: string, idx: number) => {
+                if (!sourcesWhitelist.some(s => url.includes(s))) return;
+
+                if (url.includes("deutsche-biographie.de")) {
+                    if (dbUsed) return;
+                    dbUsed = true;
                 }
 
-                for(var k=0;k<sourcesWhitelist.length;k++){
-                    if(url.indexOf(sourcesWhitelist[k])>-1)
-                        isWhitelisted = true;
-                }
-                if (!isWhitelisted)
-                        continue;
-                let label = prometheusResult[0].resp[1][j];
-                if (url.indexOf("deutsche-biographie.de")>-1) {
-                        label = "Deutsche Biographie";
-                }
-                else if (url.indexOf("ba.e-pics.ethz.ch")>-1) {
-                        label = this.getProviderLabel('e-pics');
-                }
-                else if (url.indexOf("archivdatenbank-online.ethz.ch/hsa/")>-1) {
-                    label = this.getProviderLabel('hsa');
-                }
-                else if (url.indexOf("www.gutenberg.org")>-1) {
-                        label = "Projekt Gutenberg";
-                }
-                else if (url.indexOf("www.perlentaucher.de")>-1) {
-                        label = "perlentaucher.de";
-                }
-                else if (url.indexOf("www.hdg.de")>-1) {
-                        label = "LeMO Biographie";
-                }
-                else if (url.indexOf("archinform.net")>-1) {
-                        label = this.getProviderLabel('archinform');
-                }
-                whitelistedPrometheusLinks.push({'url': url, 'label': label});
-            }
-            return whitelistedPrometheusLinks;
-        }
-        catch(error: any){
-            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processPrometheusResponse');
+                let label = resp[1][idx];
+                if (url.includes("deutsche-biographie.de")) label = "Deutsche Biographie";
+                else if (url.includes("ba.e-pics.ethz.ch")) label = this.getProviderLabel('e-pics');
+                else if (url.includes("archivdatenbank-online.ethz.ch/hsa/")) label = this.getProviderLabel('hsa');
+                else if (url.includes("www.gutenberg.org")) label = "Projekt Gutenberg";
+                else if (url.includes("www.perlentaucher.de")) label = "perlentaucher.de";
+                else if (url.includes("archinform.net")) label = this.getProviderLabel('archinform');
+
+                links.push({ url, label });
+            });
+            return links;
+        } catch (error) {
+            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processPrometheusResponse');
+            return [];
         }
     }
 
-    private processEntityfactsResponse(entityfactsResult: any){
-        try{
-            let entityfacts: Record<string, any> = {};
-            entityfacts['relatedPersons'] = [];
-            if (entityfactsResult[0].resp['@type'] !== 'person')return null;
-            if(entityfactsResult[0].resp.preferredName)entityfacts['preferredName'] = entityfactsResult[0].resp.preferredName;
-            if(entityfactsResult[0].resp.biographicalOrHistoricalInformation)entityfacts['biographicalOrHistoricalInformation'] = entityfactsResult[0].resp.biographicalOrHistoricalInformation;
-            if(entityfactsResult[0].resp.professionOrOccupation)entityfacts['professionOrOccupation'] = entityfactsResult[0].resp.professionOrOccupation[0].preferredName;
-            if(entityfactsResult[0].resp.dateOfBirth)entityfacts['dateOfBirth'] = entityfactsResult[0].resp.dateOfBirth;
-            if(entityfactsResult[0].resp.dateOfDeath)entityfacts['dateOfDeath'] = entityfactsResult[0].resp.dateOfDeath;
-            if(entityfactsResult[0].resp.depiction)entityfacts['depiction'] = entityfactsResult[0].resp.depiction;
-            if(entityfactsResult[0].resp.familialRelationship)entityfacts['relatedPersons'] = entityfacts['relatedPersons'].concat(entityfactsResult[0].resp.familialRelationship);
-            if(entityfactsResult[0].resp.relatedPerson)entityfacts['relatedPersons'] = entityfacts['relatedPersons'].concat(entityfactsResult[0].resp.relatedPerson);
-            entityfacts['relatedPersons'] = entityfacts['relatedPersons'].map((p:any) => {
-                if(p['@id'])
-                    p.gnd = p['@id'].substring(p['@id'].lastIndexOf('/')+1);
-                else
-                    p.gnd = null;
-                return p;
-            })
-            entityfacts['relatedPersons'] = entityfacts['relatedPersons'].filter((p:any) => {
-                if(p.preferredName.indexOf('Familie')>-1)return false;
-                return p.gnd;
-            })
+
+    private processEntityfactsResponse(resp: EntityfactsApiResponse): EntityfactsVM | undefined {
+        try {
+            if (!resp || resp['@type'] !== 'person') return undefined;
+
+            const ef: PersonVM['entityfacts'] = {
+                relatedPersons: []
+            };
+
+            ef.preferredName = resp.preferredName;
+            ef.biography = resp.biographicalOrHistoricalInformation;
+            ef.profession = resp.professionOrOccupation?.[0]?.preferredName;
+            ef.birthDate = resp.dateOfBirth;
+            ef.deathDate = resp.dateOfDeath;
+            ef.image = resp.depiction;
+
+            if (resp.familialRelationship) ef.relatedPersons.push(...this.mapEntityfactsRelatedPersons(resp.familialRelationship));
+            if (resp.relatedPerson) ef.relatedPersons.push(...this.mapEntityfactsRelatedPersons(resp.relatedPerson));
+            if (resp.placeOfActivity) {
+                ef.placesOfActivity = resp.placeOfActivity
+                    .filter((p: any) => p['@id'])
+                    .map((p: any) => ({
+                        gnd: p['@id']?.split('/').pop(),
+                        name: p.preferredName || ''
+                    }));
+            }
+            if (resp.placeOfBirth) {
+                ef.placesOfBirth = resp.placeOfBirth
+                    .filter((p: any) => p['@id'])
+                    .map((p: any) => ({
+                        gnd: p['@id']?.split('/').pop(),
+                        name: p.preferredName || ''
+                    }));
+            }
+            return ef;
+        } catch (error: unknown) {
+            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processEntityfactsResponse');
+            return {relatedPersons:[]};
+        }
+    }
+
+    private mapEntityfactsRelatedPersons(persons: EntityfactsRelatedPersonApiResponse[]): EntityfactsRelatedPersonVM[] {
+        return persons.map(p => ({
+            gnd: p['@id'].split('/').pop() || '',
+            name: p.preferredName || '',
+            relationship: p.relationship || ''
+        }));
+    }
+
+
+    private processWikiResponse(resp: WikiApiResponse): WikiVM | undefined {
+        try {
+            const binding = resp.results.bindings?.[0];
+            if (!binding) return undefined;
+
+            const wiki: WikiVM = {
+                qid: binding.item?.value?.split('/').pop(),
+                loc: binding.loc?.value,
+                label: binding.itemLabel?.value,
+                description: binding.itemDescription?.value,
+                image_url: binding.image?.value,
+                birth: binding.birth?.value,
+                death: binding.death?.value,
+                birthplace: binding.birthplaceLabel?.value,
+                deathplace: binding.deathplaceLabel?.value,
+                aVariants: binding.aliasList?.value?.split('|') ?? [],
+                links: [],
+                profiles: []
+            };
+
+            if (wiki.aVariants && wiki.label && !wiki.aVariants.includes(wiki.label)) {
+                wiki.aVariants.unshift(wiki.label);
+            }
+
+            if (binding.item) wiki.links?.push({ url: binding.item.value, label: 'Wikidata' });
+            if (binding.wc) wiki.links?.push({ url: 'https://commons.wikimedia.org/wiki/Category:' + binding.wc.value, label: 'Wikimedia Commons' });
+            if (binding.hls) wiki.links?.push({ url: 'http://www.hls-dhs-dss.ch/textes/d/D' + binding.hls.value + '.php', label: this.getProviderLabel('hls-dhs-dss') });
             
-            if(entityfactsResult[0].resp.placeOfBirth){
-                entityfacts['placeOfBirth'] = entityfactsResult[0].resp.placeOfBirth[0];
-                if(entityfactsResult[0].resp.placeOfBirth[0]['@id'])
-                    entityfacts['placeOfBirth'].gnd = entityfactsResult[0].resp.placeOfBirth[0]['@id'].substring(entityfactsResult[0].resp.placeOfBirth[0]['@id'].lastIndexOf('/')+1);
-            }
-            if(entityfactsResult[0].resp.placeOfDeath){
-                entityfacts['placeOfDeath'] = entityfactsResult[0].resp.placeOfDeath[0];
-                if(entityfactsResult[0].resp.placeOfDeath[0]['@id'])
-                    entityfacts['placeOfDeath'].gnd = entityfactsResult[0].resp.placeOfDeath[0]['@id'].substring(entityfactsResult[0].resp.placeOfDeath[0]['@id'].lastIndexOf('/')+1);
-            }
-            if(entityfactsResult[0].resp.placeOfActivity){
-                entityfacts['placeOfActivity'] = [];
-                entityfactsResult[0].resp.placeOfActivity.forEach( (p:any) => {
-                    if(p['@id']){
-                        p.gnd = p['@id'].substring(p['@id'].lastIndexOf('/')+1);
-                        entityfacts['placeOfActivity'].push(p)
-                    }
-                });
-            }
-            return entityfacts;
-        }
-        catch(error: any){
-            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processEntityfactsResponse');        
-        }
-    }
+            ['orcid','scholar','scopus','researchgate','dimension'].forEach(key => {
+            if (binding[key]) wiki.profiles?.push({ url: this.mapProfileUrl(key, binding[key].value), label: this.capitalize(key) });
+            });
 
-    private processWikiResponse(wikiResult: any, lang: any){
-        try{
-            if(!wikiResult[0] || !wikiResult[0].resp.results.bindings || wikiResult[0].resp.results.bindings.length === 0){
-                return;
-            }
-            let wiki: Record<string, any> = {};
-            let binding = wikiResult[0].resp.results.bindings[0];
-            wiki['qid'] = binding.item ? binding.item.value.substring(binding.item.value.lastIndexOf('/')+1) : null;
-            wiki['loc'] = binding.loc ? binding.loc.value : null;
-            wiki['label'] = binding.itemLabel ? binding.itemLabel.value : null;
-            wiki['image_url'] = binding.image ? binding.image.value : null;
-            wiki['description'] = binding.itemDescription ? binding.itemDescription.value : null;
-            wiki['gnd'] = binding.gnd ? binding.gnd.value : null;
-            wiki['birth'] = binding.birth ? binding.birth.value : null;
-            wiki['death'] = binding.death ? binding.death.value : null;
-            wiki['birthplace'] = binding.birthplaceLabel ? binding.birthplaceLabel.value : null;
-            wiki['deathplace'] = binding.deathplaceLabel ? binding.deathplaceLabel.value : null;
-            wiki['aVariants'] = binding.aliasList ? binding.aliasList.value.split('|') : null;
-            if(wiki['aVariants'] && wiki['aVariants'].indexOf(wiki['label']) === -1){
-                wiki['aVariants'].unshift(wiki['label']);
-            }
-            wiki['links'] = [];
-            if(binding.item && binding.item.value)wiki['links'].push({'url': binding.item.value, 'label': 'Wikidata'});
-            if(binding.wc && binding.wc.value)wiki['links'].push({'url': 'https://commons.wikimedia.org/wiki/Category:' + binding.wc.value , 'label': 'Wikimedia Commons'});
-            if(binding.hls && binding.hls.value)wiki['links'].push({'url': 'http://www.hls-dhs-dss.ch/textes/d/D' + binding.hls.value + '.php', 'label': this.getProviderLabel('hls-dhs-dss')});
-            if(binding.oclc && binding.oclc.value)wiki['links'].push({'url': 'https://entities.oclc.org/worldcat/entity/' + binding.oclc.value, 'label': 'WorldCat'});
-            if(binding.ah && binding.ah.value)wiki['links'].push({'url': 'https://katalog.arthistoricum.net/id/' + binding.ah.value, 'label': 'arthistoricum.net'});
-            if(binding.kal && binding.kal.value)wiki['links'].push({'url': 'https://kalliope-verbund.info/gnd/' + binding.kal.value, 'label': 'Kalliope'});
-            if(binding.gnd && binding.gnd.value)wiki['links'].push({'url': 'https://d-nb.info/gnd/' + binding.gnd.value, 'label': this.getProviderLabel('gnd')});
-            if(binding.sfa && binding.sfa.value)wiki['links'].push({'url': 'https://www.swiss-archives.ch/archivplansuche.aspx?ID=' + binding.sfa.value, 'label': this.getProviderLabel('swiss-archives')});
-            if(binding.loc && binding.loc.value)wiki['links'].push({'url': 'http://id.loc.gov/authorities/names/' + binding.loc.value + '.html', 'label': 'Library of Congress'});
-            wiki['profiles'] = [];
-            if(binding.orcid && binding.orcid.value)wiki['profiles'].push({'url': 'https://orcid.org/' + binding.orcid.value, 'label': 'ORCID'});
-            if(binding.scholar && binding.scholar.value)wiki['profiles'].push({'url': 'https://scholar.google.com/citations?user=' + binding.scholar.value, 'label': 'Scholar'});
-            if(binding.scopus && binding.scopus.value)wiki['profiles'].push({'url': 'https://www.scopus.com/authid/detail.uri?authorId=' + binding.scopus.value, 'label': 'Scopus'});
-            if(binding.researchgate && binding.researchgate.value)wiki['profiles'].push({'url': 'https://www.researchgate.net/profile/' + binding.researchgate.value, 'label': 'Researchgate'});
-            if(binding.dimension && binding.dimension.value)wiki['profiles'].push({'url': 'https://app.dimensions.ai/discover/publication?and_facet_researcher=ur.' + binding.dimension.value, 'label': 'Dimension'});
             return wiki;
-        }
-        catch(error: any){
-            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processWikiResponse');        
+        } catch (error: unknown) {
+            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processWikiResponse');
+            return undefined;
         }
     }
 
-    private processWikipediaUrlListResponse(wikiResult: any, lang: any){
-        try{
-            if(!wikiResult[0] || !wikiResult[0].resp.results.bindings || wikiResult[0].resp.results.bindings.length === 0 || !wikiResult[0].resp.results.bindings[0].wikipediaUrlList){
-                return;
+    private mapProfileUrl(key: string, value: string): string {
+        switch(key){
+            case 'orcid': return `https://orcid.org/${value}`;
+            case 'scholar': return `https://scholar.google.com/citations?user=${value}`;
+            case 'scopus': return `https://www.scopus.com/authid/detail.uri?authorId=${value}`;
+            case 'researchgate': return `https://www.researchgate.net/profile/${value}`;
+            case 'dimension': return `https://app.dimensions.ai/discover/publication?and_facet_researcher=ur.${value}`;
+            default: return '';
+        }
+    }
+    
+    private capitalize(str: string): string {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+
+    private processWikipediaUrlListResponse( resp: WikiUrlListApiResponse, lang: string): string | undefined {
+        try {
+            const urlsStr = resp.results.bindings?.[0]?.wikipediaUrlList?.value;
+            if (!urlsStr) return undefined;
+            const urls: string[] = urlsStr.split(';');
+
+            const searchLangs = [lang + '.wikipedia.org', 'en.wikipedia.org', '.wikipedia.org'];
+            for (const s of searchLangs) {
+                const found = urls.find(u => u.includes(s));
+                if (found) return found;
             }
-            let strWikipediaUrls = wikiResult[0].resp.results.bindings[0].wikipediaUrlList.value;
-            if(!strWikipediaUrls || strWikipediaUrls === '')return;
-            let wikipediaUrls = strWikipediaUrls.split(';');
-            let search = lang + '.wikipedia.org';
-            let displayUrl = wikipediaUrls.filter((u:any) => {
-                return u.indexOf(search) > -1;
-            })
-            if(displayUrl.length > 0){
-                return displayUrl[0];
-            }
-            else{
-                search = 'en.wikipedia.org';
-                displayUrl = wikipediaUrls.filter((u:any) => {
-                    return u.indexOf(search) > -1;
+            return undefined;
+        } catch (error: unknown) {
+            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processWikipediaUrlListResponse');
+            return undefined;
+        }
+    }
+
+
+    private processRelatedPersonsResponse( resp: WikiRelatedPersonApiResponse ): WikiRelatedPersonVM[] {
+        try {
+            const bindings: WikiRelatedPersonBinding[] = resp.results?.bindings ?? [];
+            let lastItem = '';
+            return bindings
+                .filter((b) => {
+                    const itemValue = b.item?.value;
+                    const labelValue = b.itemLabel?.value ?? '';
+
+                    if (!itemValue) return false;
+
+                    return itemValue !== lastItem && !itemValue.includes(labelValue);
                 })
-                if(displayUrl.length > 0){
-                    return displayUrl[0];
-                }
-                else{
-                    search = '.wikipedia.org';
-                    displayUrl = wikipediaUrls.filter((u:any) => {
-                        return u.indexOf(search) > -1;
-                    })
-                    if(displayUrl.length > 0){
-                        return displayUrl[0];
-                    }
-                    else{
-                        return null;
-                    }
-                }            
-            }
-        }
-        catch(error: any){
-            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processWikipediaUrlListResponse');        
-        }
-    }
-
-    private processRelatedPersonsResponse(wikiResult: any){
-        try{
-            if(!wikiResult[0] || !wikiResult[0].resp.results.bindings || wikiResult[0].resp.results.bindings.length === 0){
-                return;
-            }
-            let persons = [];
-            let lastItemValue = '';
-            for(let i = 0; i < wikiResult[0].resp.results.bindings.length; i++){
-                let binding = wikiResult[0].resp.results.bindings[i];
-                if(binding.item.value != lastItemValue && binding.item.value.indexOf(binding.itemLabel.value) === -1){
-                    let person:Record<string, any> = {};
-                    lastItemValue = binding.item.value;
-                    person['item'] = binding.item ? binding.item.value : null;
-                    person['qid'] = binding.item ? binding.item.value.substring(binding.item.value.lastIndexOf('/')+1) : null;
-                    person['label'] = binding.itemLabel ? binding.itemLabel.value : null;
-                    person['gnd'] = binding.gndId ? binding.gndId.value : null;
-                    person['image_url'] = binding.image ? binding.image.value : null;
-                    person['description'] = binding.itemDescription ? binding.itemDescription.value : null;
-                    if(binding.teacherBirths){
-                        person['birth'] = binding.teacherBirths.value;
-                    }
-                    else if(binding.studentBirths){
-                        person['birth'] = binding.studentBirths.value;
-                    }
-                    else{
-                        person['birth'] = null;
-                    }
-                    if(binding.teacherDeaths){
-                        person['death'] = binding.teacherDeaths.value;
-                    }
-                    else if(binding.studentDeaths){
-                        person['death'] = binding.studentDeaths.value;
-                    }
-                    else{
-                        person['death'] = null;
-                    }
-                    persons.push(person);
-                }
-            }
-            return persons;
-        }
-        catch(error: any){
-            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processRelatedPersonsResponse');
-        }
-    }
-
-    private processwikiArchivesAtResponse(wikiResult:any){
-        try{
-            let wikiArchivesAtLinks = [];
-            let bindings = wikiResult[0].resp.results.bindings;
-            for(let i = 0; i < bindings.length; i++){
-                let url = bindings[i].ref ? bindings[i].ref.value: null;
-                let label =  bindings[i].archivedLabel ? bindings[i].archivedLabel.value : null;
-                let inventoryno =  bindings[i].inventoryno ? bindings[i].inventoryno.value : null;
-                wikiArchivesAtLinks.push({'url': url, 'label': label, 'inventoryno': inventoryno});
-            }
-            return wikiArchivesAtLinks;
-        }
-        catch(error: any){
-            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processwikiArchivesAtResponse');        
-        }
-    }
-
-    processMetagridResponse(metagridResult:any){
-        try{
-            let sourcesWhitelist = ["sudoc","hallernet", "fotostiftung", "sikart","elites-suisses-au-xxe-siecle","bsg", "dodis", "helveticat", "hls-dhs-dss", "histoirerurale","lonsea","ssrq","alfred-escher","geschichtedersozialensicherheit"];
-            let resources = metagridResult[0].resp.concordances[0].resources;
-            let whitelistedMetagridLinks: any[] = [];
-            let whitelistedMetagridLinksSorted: string[] = [];
-
-            if (!!resources[0] && resources.length > 0) {
-                let name = resources[0].last_name + ', ' + resources[0].first_name;
-
-                for(var j = 0; j < resources.length; j++){
-                    let resource = resources[j];
-                    // https://api.metagrid.ch/providers.json
-                    let slug = resource.provider.slug;
-                    let url = resource.link.uri;
-                    // check whitelist for Metagrid links
-                    if (sourcesWhitelist.indexOf(slug) === -1) {
-                        continue;
-                    }
-                    whitelistedMetagridLinks.push({'slug': slug,'url': url, 'label': this.getProviderLabel(slug)});
-                }
-                // Dodis and HLS first
-                let dodis = whitelistedMetagridLinks.filter(e => {
-                    return e.slug === 'dodis';
+                .map((b) => {
+                    const itemValue = b.item!.value; 
+                    lastItem = itemValue;
+                    return {
+                        qid: itemValue.split('/').pop(),
+                        name: b.itemLabel?.value ?? '',
+                        gnd: b.gndId?.value ?? '',
+                        image_url: b.image?.value,
+                        description: b.itemDescription?.value,
+                        birth: b.teacherBirths?.value ?? b.studentBirths?.value,
+                    };
                 });
-                whitelistedMetagridLinksSorted = whitelistedMetagridLinksSorted.concat(dodis);
-                let hls = whitelistedMetagridLinks.filter(e => {
-                    return e.slug === 'hls-dhs-dss';
-                });
-                whitelistedMetagridLinksSorted = whitelistedMetagridLinksSorted.concat(hls);
-                let rest = whitelistedMetagridLinks.filter(e => {
-                    return e.slug !== 'hls-dhs-dss' && e.slug !== 'dodis';
-                });
-                whitelistedMetagridLinksSorted = whitelistedMetagridLinksSorted.concat(rest);
-            }
-            return whitelistedMetagridLinksSorted;
-        }
-        catch(error: any){
-            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processMetagridResponse');        
+        } catch (error: unknown) {
+            this.ethErrorHandlingService.logSyncError(error,'EthPersonService.processRelatedPersonsResponse');
+            return [];
         }
     }
 
-    processPersonsResponse(results:any, lang:any){
-        try{
-            if(!lang)lang = 'de';
-            let person: Record<string, any> = {};
-            person['gnd'] = "";
-            let resultWithGnd = results.filter( (e:any) =>{
-                return e.gnd && e.gnd != "";
-            })
-            if(resultWithGnd.length > 0){
-                person['gnd'] = resultWithGnd[0].gnd;
-            }
-            // DNB Entityfacts
-            let entityfactsResult = results.filter((e:any) => {
-                return e.provider === 'hub.culturegraph.org';
+
+    private processWikiArchivesAtResponse( resp: WikiArchivesAtApiResponse): WikiArchivesAtLinksVM[] {
+        try {
+            return resp.results.bindings
+                .filter(b => !!b.ref?.value) 
+                .map(b => ({
+                    url: b.ref!.value,                         
+                    label: b.archivedLabel?.value ?? 'Archives',
+                    inventoryno: b.inventoryno?.value
+                }));
+        } catch (error: unknown) {
+            this.ethErrorHandlingService.logSyncError(error,'EthPersonService.processWikiArchivesAtResponse');
+            return [];
+        }
+    }
+
+
+
+    private processMetagridResponse(resp: MetagridApiResponse): MetagridLinksVM[] {
+        try {
+            const whitelist = ["dodis","hls-dhs-dss","sudoc","hallernet","fotostiftung","sikart"];
+            const resources = resp.concordances?.[0]?.resources ?? [];
+            const links: MetagridLinksVM[] = [];
+            resources.forEach((r: MetagridResource) => {
+                if (!whitelist.includes(r.provider.slug)) return;
+                links.push({ url: r.link.uri, label: this.getProviderLabel(r.provider.slug), slug: r.provider.slug });
             });
-            if(entityfactsResult.length > 0){
-                person['entityfacts'] = this.processEntityfactsResponse(entityfactsResult);
+
+            // Dodis + HLS first
+            const sorted = [
+            ...links.filter(l => l.slug === 'dodis'),
+            ...links.filter(l => l.slug === 'hls-dhs-dss'),
+            ...links.filter(l => !['dodis','hls-dhs-dss'].includes(l.slug!))
+            ];
+            return sorted;
+        } catch (error: unknown) {
+            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processMetagridResponse');
+            return [];
+        }
+    }
+
+
+    processPersonsResponse(resp: PersonApiResponse, lang: string): PersonVM  {
+        try {
+            if (!lang) lang = 'de';
+            const results = resp.results;
+            const person: PersonVM = {
+                gnd: '',
+                name: '',
+                url: '',
+                entityfacts: undefined,
+                metagridLinks: [],
+                prometheusLinks: [],
+                teachers: [],
+                students: [],
+                wikipediaUrl: undefined,
+                wiki: undefined,
+                wikiArchivesAtLinks: []
+            };
+
+            // GND
+            const resultWithGnd = results.filter(r => r.gnd && r.gnd !== '');
+            if (resultWithGnd.length > 0) {
+                person.gnd = resultWithGnd[0].gnd!;
             }
+
+            // Entityfacts
+            const entityfactsResult = results.filter(r => r.provider === 'hub.culturegraph.org');
+            if (entityfactsResult.length > 0) {
+                person.entityfacts = this.processEntityfactsResponse(entityfactsResult[0].resp);
+            }
+
             // Metagrid
-            let metagridResult = results.filter( (e:any) => {
-                return e.provider === 'api.metagrid.ch';
-            });
-            if(metagridResult.length > 0 && metagridResult[0].resp.concordances && metagridResult[0].resp.concordances.length > 0){
-                person['metagridLinks'] = this.processMetagridResponse(metagridResult);
+            const metagridResult = results.filter(r => r.provider === 'api.metagrid.ch');
+            if (metagridResult.length > 0 && metagridResult[0].resp.concordances?.length > 0) {
+                person.metagridLinks = this.processMetagridResponse(metagridResult[0].resp);
             }
 
-            // prometheus.lmu
-            let prometheusResult = results.filter((e:any) => {
-                return e.provider === 'prometheus.lmu.de';
-            });
-            if(prometheusResult.length > 0 && prometheusResult[0].resp && prometheusResult[0].resp[1]){
-                person['prometheusLinks'] = this.processPrometheusResponse(prometheusResult);
+            // Prometheus
+            const prometheusResult = results.filter(r => r.provider === 'prometheus.lmu.de');
+            if (prometheusResult.length > 0) {
+                person.prometheusLinks = this.processPrometheusResponse(prometheusResult[0].resp);
             }
-            // Wikidata teachers
-            let wikiTeacherResult = results.filter((e:any) => {
-                return e.provider === 'query.wikidata.org' && e.resp.head.vars.indexOf("teacherBirths") > -1;
-            });
-            if(wikiTeacherResult.length > 0){
-                person['teachers'] = this.processRelatedPersonsResponse(wikiTeacherResult);
+
+            // Related persons (teachers)
+            const wikiTeacherResult = results.filter(
+                r => r.provider === 'query.wikidata.org' && r.resp.head.vars.includes('teacherBirths')
+            );
+            if (wikiTeacherResult.length > 0) {
+                person.teachers = this.processRelatedPersonsResponse(wikiTeacherResult[0].resp);
             }
-            // Wikidata students
-            let wikiStudentResult = results.filter((e:any) => {
-                return e.provider === 'query.wikidata.org' && e.resp.head.vars.indexOf("studentBirths") > -1;
-            });
-            if(wikiStudentResult.length > 0){
-                person['students'] = this.processRelatedPersonsResponse(wikiStudentResult);
+
+            // Related persons (students)
+            const wikiStudentResult = results.filter(
+                r => r.provider === 'query.wikidata.org' && r.resp.head.vars.includes('studentBirths')
+            );
+            if (wikiStudentResult.length > 0) {
+                person.students = this.processRelatedPersonsResponse(wikiStudentResult[0].resp);
             }
-            // Wikipedia Urls
-            let wikiWikipediaUrlListResult = results.filter((e:any) => {
-                return e.provider === 'query.wikidata.org' && e.resp.head.vars.indexOf("wikipediaUrlList") > -1;
-            });
-            if(wikiWikipediaUrlListResult.length > 0){
-                person['wikipediaUrl'] = this.processWikipediaUrlListResponse(wikiWikipediaUrlListResult, lang);
+
+            // Wikipedia URL
+            const wikiWikipediaUrlListResult = results.filter(
+                r => r.provider === 'query.wikidata.org' && r.resp.head.vars.includes('wikipediaUrlList')
+            );
+            if (wikiWikipediaUrlListResult.length > 0) {
+                person.wikipediaUrl = this.processWikipediaUrlListResponse(wikiWikipediaUrlListResult[0].resp, lang);
             }
-            // Wikidata bio and Links
-            let wikiResult = results.filter((e:any) => {
-                return e.provider === 'query.wikidata.org' && e.resp.head.vars.indexOf("birth") > -1;
-            });
-            if(wikiResult.length > 0){
-                person['wiki'] = this.processWikiResponse(wikiResult, lang);
+
+            // Wikidata bio + links
+            const wikiResult = results.filter(
+            r => r.provider === 'query.wikidata.org' && r.resp.head.vars.includes('birth')
+            );
+            if (wikiResult.length > 0) {
+                person.wiki = this.processWikiResponse(wikiResult[0].resp);
             }
 
             // Wikidata archives at
-            let wikiArchivesAtResult = results.filter((e:any) => {
-                return e.provider === 'query.wikidata.org' && e.resp.head.vars.indexOf("refnode") > -1;
-            });
+            const wikiArchivesAtResult = results.filter(
+                r => r.provider === 'query.wikidata.org' && r.resp.head.vars.includes('refnode')
+            );
+            if (wikiArchivesAtResult.length > 0) {
+                person.wikiArchivesAtLinks = this.processWikiArchivesAtResponse(wikiArchivesAtResult[0].resp);
+            }
 
-            if(wikiArchivesAtResult.length > 0){
-                person['wikiArchivesAtLinks'] = this.processwikiArchivesAtResponse(wikiArchivesAtResult);
+            // URL der Entity
+            if (person.wiki?.loc) {
+                person.url = `/entity/person?entityId=${person.wiki.loc}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
+            } else if (person.gnd) {
+                person.url = `/entity/person?entityId=${person.gnd}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
             }
-            //personId=n80002513&inst=41SLSP_ETH&vid=41SLSP_ETH:ETH&lang=de&docid=alma990016261860205503&context=L&adaptor=Local%20Search%20Engine
-            if(person['wiki'] && person['wiki'].loc && person['wiki'].loc != ''){
-                person['url'] = `/entity/person?entityId=${person['wiki'].loc}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
-            }
-            else if(person['gnd']) {
-                person['url'] = `/entity/person?entityId=${person['gnd']}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;            
-            }
-            // name
-            if(person['entityfacts']?.preferredName){
-                person['name'] = person['entityfacts']?.preferredName;
-            }
-            else if(person['wiki']?.label){
-                person['name'] = person['wiki']?.label;
-            }
+
+            // Name
+            person.name = person.entityfacts?.preferredName ?? person.wiki?.label ?? '';
             return person;
-        }
-        catch(error: any){
-            return this.ethErrorHandlingService.logSyncError(error, 'ethPersonCardsService.processPersonsResponse');        
+        } catch (error: unknown) {
+            return this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processPersonsResponse');
         }
     }
 
@@ -520,32 +447,32 @@ export class EthPersonService {
         }
     }
 
-  getProviderLabel(slug: string): string {
-    const providerLabel: Record<string, [string, string, string, string]> = {
-      "e-pics": ["Bilder im E-Pics Bildarchiv","E-Pics Image Archive","E-Pics Image Archive","E-Pics Image Archive"],
-      "hsa": ["Hochschularchiv der ETH Zürich","ETH Zurich University Archives","ETH Zurich University Archives","ETH Zurich University Archives"],
-      "archinform": ["Architekturdatenbank archINFORM","Architecture Database archINFORM","Architecture Database archINFORM","Architecture Database archINFORM"],
-      "gnd": ["Gemeinsame Normdatei (GND)","Integrated authority file (GND)","Integrated authority file (GND)", "Integrated authority file (GND)"],
-      "swiss-archives": ["Schweizerisches Bundesarchiv","Swiss Federal Archives","Archives fédérales suisses", "Archivio federale svizzero"],
-      "sudoc": ["Bibliographic Agency for Higher Education","Bibliographic Agency for Higher Education","Agence Bibliographique de l’Enseignement Supérieur", "Bibliographic Agency for Higher Education"],
-      "hallernet": ["Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet"],
-      "fotostiftung": ["Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz"],
-      "sikart": ["SIKART","SIKART","SIKART","SIKART"],
-      "elites-suisses-au-xxe-siecle": ["Schweizerische Eliten im 20. Jahrhundert",  "Swiss elites database","Elites suisses au XXe siècle","Elites suisses au XXe siècle"],
-      "bsg": ["Bibliographie der Schweizergeschichte","Bibliography on Swiss History","Bibliographie de l'histoire suisse","Bibliografia della storia svizzera"],
-      "dodis": ["Diplomatische Dokumente der Schweiz","Diplomatic Documents of Switzerland","Documents diplomatiques suisses","Documenti diplomatici svizzeri"],
-      "helveticat": ["Helveticat","Helveticat","Helveticat","Helveticat"],
-      "hls-dhs-dss": ["Historisches Lexikon der Schweiz","Historical Dictionary of Switzerland","Dictionnaire historique de la Suisse","Dizionario storico della Svizzera"],
-      "histoirerurale": ["Archiv für Agrargeschichte","Archives of rural history","Archives de l'histoire rurale","Archivio della storia rurale"],
-      "lonsea": ["Lonsea","Lonsea","Lonsea","Lonsea"],
-      "ssrq": ["Sammlung Schweizerischer Rechtsquellen","Collection of Swiss Law Sources","Collection des sources du droit suisse","Collana Fonti del diritto svizzero"],
-      "alfred-escher": ["Alfred Escher-Briefedition","Alfred Escher letters edition","Edition des lettres Alfred Escher","Edizione lettere Alfred Escher"],
-      "geschichtedersozialensicherheit": ["Geschichte der sozialen Sicherheit","Geschichte der sozialen Sicherheit","Histoire de la sécurité sociale","Storia della sicurezza sociale svizzera"]
+    getProviderLabel(slug: string): string {
+        const providerLabel: Record<string, [string, string, string, string]> = {
+        "e-pics": ["Bilder im E-Pics Bildarchiv","E-Pics Image Archive","E-Pics Image Archive","E-Pics Image Archive"],
+        "hsa": ["Hochschularchiv der ETH Zürich","ETH Zurich University Archives","ETH Zurich University Archives","ETH Zurich University Archives"],
+        "archinform": ["Architekturdatenbank archINFORM","Architecture Database archINFORM","Architecture Database archINFORM","Architecture Database archINFORM"],
+        "gnd": ["Gemeinsame Normdatei (GND)","Integrated authority file (GND)","Integrated authority file (GND)", "Integrated authority file (GND)"],
+        "swiss-archives": ["Schweizerisches Bundesarchiv","Swiss Federal Archives","Archives fédérales suisses", "Archivio federale svizzero"],
+        "sudoc": ["Bibliographic Agency for Higher Education","Bibliographic Agency for Higher Education","Agence Bibliographique de l’Enseignement Supérieur", "Bibliographic Agency for Higher Education"],
+        "hallernet": ["Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet"],
+        "fotostiftung": ["Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz"],
+        "sikart": ["SIKART","SIKART","SIKART","SIKART"],
+        "elites-suisses-au-xxe-siecle": ["Schweizerische Eliten im 20. Jahrhundert",  "Swiss elites database","Elites suisses au XXe siècle","Elites suisses au XXe siècle"],
+        "bsg": ["Bibliographie der Schweizergeschichte","Bibliography on Swiss History","Bibliographie de l'histoire suisse","Bibliografia della storia svizzera"],
+        "dodis": ["Diplomatische Dokumente der Schweiz","Diplomatic Documents of Switzerland","Documents diplomatiques suisses","Documenti diplomatici svizzeri"],
+        "helveticat": ["Helveticat","Helveticat","Helveticat","Helveticat"],
+        "hls-dhs-dss": ["Historisches Lexikon der Schweiz","Historical Dictionary of Switzerland","Dictionnaire historique de la Suisse","Dizionario storico della Svizzera"],
+        "histoirerurale": ["Archiv für Agrargeschichte","Archives of rural history","Archives de l'histoire rurale","Archivio della storia rurale"],
+        "lonsea": ["Lonsea","Lonsea","Lonsea","Lonsea"],
+        "ssrq": ["Sammlung Schweizerischer Rechtsquellen","Collection of Swiss Law Sources","Collection des sources du droit suisse","Collana Fonti del diritto svizzero"],
+        "alfred-escher": ["Alfred Escher-Briefedition","Alfred Escher letters edition","Edition des lettres Alfred Escher","Edizione lettere Alfred Escher"],
+        "geschichtedersozialensicherheit": ["Geschichte der sozialen Sicherheit","Geschichte der sozialen Sicherheit","Histoire de la sécurité sociale","Storia della sicurezza sociale svizzera"]
+        }
+        const lang = this.translate.currentLang || 'de';
+        const langIndex = { de: 0, en: 1, fr: 2, it: 3 }[lang] ?? 0;
+        return providerLabel[slug]?.[langIndex] ?? slug;  
     }
-    const lang = this.translate.currentLang || 'de';
-    const langIndex = { de: 0, en: 1, fr: 2, it: 3 }[lang] ?? 0;
-    return providerLabel[slug]?.[langIndex] ?? slug;  
-   }
 }
 
 

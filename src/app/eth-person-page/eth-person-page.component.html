@@ -1,12 +1,12 @@
 @if (person$ | async; as person) {
   <div class="eth-personpage-links">  
-    @if (person.searchVariants?.length > 0) {
+    @if (person.searchVariants && person.searchVariants.length > 0) {
       <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
       <mat-expansion-panel #ethPanel1 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
         <mat-expansion-panel-header class="eth-expansion-panel-header">
           <mat-panel-title>
-            <h2>{{ person.name }}: {{'eth.personPage.searchVariants' | safeTranslate | async}}</h2>
+            <h2>{{ person?.name }}: {{'eth.personPage.searchVariants' | safeTranslate | async}}</h2>
           </mat-panel-title>
           <mat-panel-description class="eth-expansion-panel-description">
             <mat-icon class="nde-mat-icon-size-default primary-stroke" color="primary">{{ ethPanel1.expanded ? 'remove' : 'add' }}</mat-icon>
@@ -26,7 +26,7 @@
                 </a>
               </li>
               <li role="listitem">
-                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[0].url" (click)="navigate(person.searchVariants[2].url,$event)">
+                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[2].url" (click)="navigate(person.searchVariants[2].url,$event)">
                   <span>{{'eth.personPage.searchGndBirth' | safeTranslate | async}} ({{ person.searchVariants[2].total }} {{'eth.personPage.results' | safeTranslate | async}})</span>
                 </a>
               </li>
@@ -74,7 +74,7 @@
     </mat-expansion-panel>      
 
 
-    @if (person.wiki?.profiles?.length > 0) {
+    @if (person.wiki && person.wiki.profiles && person.wiki.profiles.length > 0) {
       <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
       <mat-expansion-panel #ethPanel3 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
@@ -104,7 +104,7 @@
       </mat-expansion-panel>   
     }
 
-    @if (person.wikiArchivesAtLinks?.length > 0) {
+    @if (person.wikiArchivesAtLinks && person.wikiArchivesAtLinks.length > 0) {
       <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
       <mat-expansion-panel #ethPanel4 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
@@ -119,7 +119,7 @@
 
         <section class="eth-expansion-panel-content">
           <ul role="list">
-            @for (link of person.wikiArchivesAtLinks; track link) {
+            @for (link of person?.wikiArchivesAtLinks; track link) {
               <li>
                 @if (link.url) {
                   <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.label  + ('nui.aria.newWindow' | safeTranslate | async)">
@@ -146,7 +146,7 @@
       </mat-expansion-panel>   
     }
 
-    @if (person.metagridLinks?.length > 0) {
+    @if (person.metagridLinks && person.metagridLinks.length > 0) {
       <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
       <mat-expansion-panel #ethPanel5 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
@@ -169,7 +169,7 @@
             </a>
           </p>
           <ul role="list">
-            @for (link of person.metagridLinks; track link) {
+            @for (link of person?.metagridLinks; track link) {
               <li>
                 <a class="arrow-link md-primoExplore-theme" [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="ethPersonService.getProviderLabel(link.slug) + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>{{ ethPersonService.getProviderLabel(link.slug) }}</span>
@@ -184,7 +184,7 @@
       </mat-expansion-panel>  
     }
 
-    @if (person.wiki?.links?.length > 0) {
+    @if (person.wiki && person.wiki.links && person.wiki.links.length > 0) {
       <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
       <mat-expansion-panel #ethPanel6 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
@@ -199,9 +199,9 @@
 
         <section class="eth-expansion-panel-content">
           <ul role="list">
-           @if (person.wikipediaUrl) {
+           @if (person?.wikipediaUrl) {
               <li>
-                <a class="arrow-link md-primoExplore-theme" [href]="person.wikipediaUrl" target="_blank" rel="noopener" [attr.aria-label]="'Wikipedia' + ('nui.aria.newWindow' | safeTranslate | async)">
+                <a class="arrow-link md-primoExplore-theme" [href]="person?.wikipediaUrl" target="_blank" rel="noopener" [attr.aria-label]="'Wikipedia' + ('nui.aria.newWindow' | safeTranslate | async)">
                   <span>Wikipedia</span>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                     <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -224,7 +224,7 @@
       </mat-expansion-panel>  
     }
 
-    @if (person.prometheusLinks?.length > 0) {
+    @if (person.prometheusLinks && person.prometheusLinks.length > 0) {
       <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
       <mat-expansion-panel #ethPanel7 [expanded]="true" hideToggle="true" class="eth-expansion-panel">
@@ -266,7 +266,7 @@
               </li>
             }
             <li>
-              <a class="arrow-link md-primoExplore-theme" [href]="'https://prometheus.lmu.de/gnd/' + person.gnd" target="_blank" rel="noopener" [attr.aria-label]="('eth.personPage.prometheusAll' | safeTranslate | async) ?? '' + ('nui.aria.newWindow' | safeTranslate | async)">
+              <a class="arrow-link md-primoExplore-theme" [href]="'https://prometheus.lmu.de/gnd/' + person?.gnd" target="_blank" rel="noopener" [attr.aria-label]="('eth.personPage.prometheusAll' | safeTranslate | async) ?? '' + ('nui.aria.newWindow' | safeTranslate | async)">
                 <span>{{'eth.personPage.prometheusAll' | safeTranslate | async}}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -278,7 +278,7 @@
       </mat-expansion-panel>  
     }
 
-    @if (person.students?.length > 0) {
+    @if (person.students && person.students.length > 0) {
       <div class="clearfix">
         <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
@@ -294,13 +294,16 @@
 
           <section class="eth-expansion-panel-content">
             <ul role="list">
-              @for (object of person.students; track object.gnd) {
+              @for (object of person?.students; track object.gnd) {
                 <li class="clearfix">
                   @if (object.image_url) {
-                    <img class="eth-personpage-links-image" [alt]="object.label" [src]="object.image_url + '?width=100px'" />
+                    <img class="eth-personpage-links-image" [alt]="object.name" [src]="object.image_url + '?width=100px'" />
                   }
-                  <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object?.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object?.gnd),$event)">
-                    <span>{{ object.label }} ({{ object.description }}, {{'eth.personPage.born' | safeTranslate | async}} {{ object.birth.split('T')[0] }})</span>
+                  <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object.gnd),$event)">
+                    <span>{{ object.name }} ({{ object.description }}</span>
+                    @if (object.birth) {
+                      <span>, {{'eth.personPage.born' | safeTranslate | async}} {{ object.birth.split('T')[0] }})</span>
+                    }
                   </a>
                 </li>
               }
@@ -310,7 +313,7 @@
       </div>
     }
 
-    @if (person.teachers?.length > 0) {
+    @if (person.teachers && person.teachers.length > 0) {
       <div class="clearfix">
         <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
@@ -326,13 +329,16 @@
 
           <section class="eth-expansion-panel-content">
             <ul role="list">
-              @for (object of person.teachers; track object.gnd) {
+              @for (object of person?.teachers; track object.gnd) {
                 <li class="clearfix">
                   @if (object.image_url) {
-                    <img class="eth-personpage-links-image" [alt]="object.label" [src]="object.image_url + '?width=100px'" />
+                    <img class="eth-personpage-links-image" [alt]="object.name" [src]="object.image_url + '?width=100px'" />
                   }
-                  <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object?.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object?.gnd),$event)">
-                    <span>{{ object.label }} ({{ object.description }}, {{'eth.personPage.born' | safeTranslate | async}} {{ object.birth.split('T')[0] }})</span>
+                  <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object.gnd),$event)">
+                    <span>{{ object.name }} ({{ object.description }}</span>
+                    @if (object.birth) {
+                      <span>, {{'eth.personPage.born' | safeTranslate | async}} {{ object.birth.split('T')[0] }})</span>
+                    }
                   </a>
                 </li>
               }
@@ -342,7 +348,7 @@
       </div>
     }
 
-    @if (person.entityfacts?.relatedPersons?.length > 0) {
+    @if (person.entityfacts && person.entityfacts.relatedPersons && person.entityfacts.relatedPersons.length > 0) {
       <div class="clearfix">
         <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
@@ -360,8 +366,8 @@
             <ul role="list">
               @for (object of person.entityfacts.relatedPersons; track object.gnd) {
                 <li>
-                  <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object?.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object?.gnd),$event)">
-                      {{ object.preferredName }}
+                  <a [href]="'/nde' + ethPersonService.getPersonPageUrl(object.gnd)" (click)="navigate(ethPersonService.getPersonPageUrl(object.gnd),$event)">
+                      {{ object.name }}
                       @if (object.relationship) {
                         <span> ({{ object.relationship }})</span>
                       }

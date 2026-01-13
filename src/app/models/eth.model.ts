@@ -1,9 +1,15 @@
 import { Geometry } from 'geojson';
 import { Observable } from 'rxjs';
 
+/* common */
+export interface WikidataValue {
+  value: string;
+  type?: string;
+}
+
+
 /* Primo delivery from store*/
 export interface StoreDeliveryEntity {
-
   recordId?: string;
   delivery?: {
     recordOwner?: string;
@@ -56,7 +62,11 @@ export interface HostComponentFilterGroup {
 
 /* Primo pnx */
 export interface PrimoApiResponse  {
+  info?: {
+    totalResultsLocal?: number;
+  };
   docs?: PnxDoc[];
+  records?: any[]; // todo
 }
 export interface PnxDoc  {
   pnx?: {
@@ -308,11 +318,6 @@ export interface WikidataBinding {
   archinform?: WikidataValue;
   coordinate_location?: WikidataValue;
 }
-export interface WikidataValue {
-  value: string;
-  type?: string;
-}
-
 
 /* Places VM for georeference / place cards */
 export interface PlacesGeoRefVM {
@@ -451,4 +456,255 @@ export interface ComposeEraraLinkVM {
   url: string;
   label$: Observable<string>;
   external: boolean;
+}
+
+/* eth-person-card: otb linked data recommendations */
+export interface LinkedDataRecommendation {
+    id: string;
+    entityType: 'person' | string;
+    details: Record<string, LinkedDataDetails>; // details per lang
+    thumbnail?: LinkedDataThumbnail;
+}
+export interface LinkedDataDetails {
+    name: string;
+    pageTitle: string;
+    description?: string;
+    wikiUrl?: string;
+    properties: LinkedDataProperty[];
+}
+export interface LinkedDataThumbnail {
+    imageArtist?: string;
+    imageName?: string;
+    imagePageLink?: string;
+    imageUrl?: string;
+    licenseCode?: string;
+    licenseText?: string;
+    licenseUrl?: string;
+}
+export interface LinkedDataProperty {
+    label: string;
+    value: string;
+}
+
+/* person data */
+export interface PersonApiResponse {
+  gnd?: string[];
+  results: PersonResult[];
+  qid?: string[];
+}
+export interface PersonResult {
+  provider: string;
+  resp: any;  // provider specific
+  gnd?: string;
+}
+export interface GndByIdRefApiResponse {
+  gnd?: string;
+  errorMessage?: string;
+}
+
+export interface WikiRelatedPersonApiResponse {
+  results: {
+    bindings: WikiRelatedPersonBinding[];
+  } 
+}
+export interface WikiRelatedPersonBinding {
+  item?: { value: string };
+  itemLabel?: { value: string };
+  gndId?: { value: string };
+  image?: { value: string };
+  itemDescription?: { value: string };
+  teacherBirths?: { value: string };
+  teacherDeaths?: { value: string };
+  studentBirths?: { value: string };
+  studentDeaths?: { value: string };
+}
+export interface WikiApiResponse {
+  results: {
+    bindings: WikiSparqlBinding[];
+  };
+}
+interface WikiSparqlBinding {
+  item?: WikidataValue;
+  loc?: WikidataValue;
+  itemLabel?: WikidataValue;
+  itemDescription?: WikidataValue;
+  image?: WikidataValue;
+  birth?: WikidataValue;
+  death?: WikidataValue;
+  birthplaceLabel?: WikidataValue;
+  deathplaceLabel?: WikidataValue;
+  aliasList?: WikidataValue;
+  wc?: WikidataValue;
+  hls?: WikidataValue;
+  orcid?: WikidataValue;
+  scholar?: WikidataValue;
+  scopus?: WikidataValue;
+  researchgate?: WikidataValue;
+  dimension?: WikidataValue;
+  [key: string]: WikidataValue | undefined;
+}
+
+
+export interface WikiArchivesAtApiResponse {
+  results: {
+    bindings: {
+      ref?: { value: string };
+      archivedLabel?: WikidataValue;
+      inventoryno?: WikidataValue;
+    }[];
+  };
+}
+export interface WikiUrlListApiResponse {
+  results: {
+     bindings: { wikipediaUrlList?: { value: string }}[] 
+  } 
+}
+export type PrometheusApiResponse = [
+  string,     // index 0 → GND-URI
+  string[],   // index 1 → sources
+  number[],   // index 2 → result count
+  string[]    // index 3 → links  
+];
+export interface MetagridApiResponse {
+  meta: MetagridMeta;
+  concordances: MetagridConcordance[];
+}
+export interface MetagridMeta {
+  limit: number;
+  start: number;
+  total: number;
+  uri: string;
+}
+export interface MetagridConcordance {
+  id: string;
+  legacy_id: number;
+  name: string;
+  uri: string;
+  resources: MetagridResource[];
+}
+export interface MetagridResource {
+  _type: 'person' | string;
+  identifier: string;
+  provider: MetagridProvider;
+  link: MetagridLink;
+  concordance: MetagridResourceConcordance;
+  [key: string]: unknown;
+}
+export interface MetagridProvider {
+  uri: string;
+  slug: string;
+ [key: string]: unknown;
+}
+export interface MetagridLink {
+  uri: string;
+  label?: string;
+  [key: string]: unknown;
+}
+export interface MetagridResourceConcordance {
+  id: string;
+  uri: string;
+  [key: string]: unknown;
+}
+
+export interface EntityfactsApiResponse {
+  '@type': string;
+  preferredName?: string;
+  biographicalOrHistoricalInformation?: string;
+  professionOrOccupation?: {'@id': string, preferredName: string}[];
+  dateOfBirth?: string;
+  dateOfDeath?: string;
+  depiction?: {'@id': string, thumbnail?:{'@id': string}; url: string; creator?: string; creditText?: string};
+  familialRelationship: EntityfactsRelatedPersonApiResponse[];
+  relatedPerson: EntityfactsRelatedPersonApiResponse[];
+  placeOfActivity?: {'@id': string; preferredName?: string}[];
+  placeOfBirth?: {'@id': string; preferredName?: string}[];
+}
+export interface EntityfactsRelatedPersonApiResponse{
+  '@id': string;
+  relationship?: string;
+  preferredName?: string;
+}
+export interface PersonVM {
+  gnd: string;
+  qid?: string;
+  label?: string;                 
+  name?: string;                 
+  yearOfBirth?: string;
+  birth?: string;                
+  death?: string;                
+  entityfacts?: EntityfactsVM;
+  wiki?: WikiVM;
+  prometheusLinks?: ExternalLinkVM[];
+  metagridLinks?: MetagridLinksVM[];
+  wikipediaUrl?: string;
+  wikiArchivesAtLinks?: WikiArchivesAtLinksVM[];
+  url: string;                  
+  searchVariants?: SearchVariantVM[];
+  teachers?: WikiRelatedPersonVM[];
+  students?: WikiRelatedPersonVM[];
+}
+export interface EntityfactsVM {
+  preferredName?: string;
+  biography?: string;
+  profession?: string;
+  birthDate?: string;
+  deathDate?: string;
+  image?: {thumbnail?:{'@id': string}; url: string};
+  relatedPersons: EntityfactsRelatedPersonVM[];
+  placesOfActivity?: EntityfactsPlaceVM[];
+  placesOfBirth?: EntityfactsPlaceVM[];
+}
+export interface WikiRelatedPersonVM {
+  gnd: string;
+  qid?: string;  
+  name: string;
+  birth?: string;
+  image_url?: string;
+  description?: string;
+}
+export interface EntityfactsRelatedPersonVM {
+  gnd: string;
+  name: string;
+  relationship?:string;
+}
+export interface ExternalLinkVM {
+  url: string;
+  label: string;
+}
+export interface WikiArchivesAtLinksVM {
+  url: string;
+  label: string;
+  inventoryno?: string;          
+}
+export interface MetagridLinksVM {
+  url: string;
+  label: string;
+  slug: string;                 
+}
+export interface SearchVariantVM {
+  url: string;
+  total: number;
+}
+
+export interface WikiVM {
+  qid?: string;
+  loc?: string;                   
+  label?: string;                 
+  description?: string;           
+  image_url?: string;             
+  birth?: string;                 
+  death?: string;                 
+  birthplace?: string;
+  deathplace?: string;
+  aVariants?: string[];           
+  links?: ExternalLinkVM[];       
+  profiles?: ExternalLinkVM[];    
+}
+export interface EntityfactsPlaceVM {
+  gnd?: string;
+  name: string;
+}
+export interface PersonCardVM {
+  otbPersons: LinkedDataRecommendation[],
+  filteredPersons: PersonVM[];  
 }

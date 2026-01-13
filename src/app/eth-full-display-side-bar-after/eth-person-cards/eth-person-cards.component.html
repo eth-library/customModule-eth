@@ -19,17 +19,17 @@
           @for (person of persons.filteredPersons; track person; let last = $last) {
             <li role="listitem">
               <div class="eth-person-card">
-                @if (person.entityfacts?.depiction || person.wiki?.image_url) {
+                @if (person.entityfacts?.image || person.wiki?.image_url) {
                   <div class="eth-person-card__image-container">
-                    @if (person.entityfacts?.depiction) {
+                    @if (person.entityfacts?.image) {
                       <img class="eth-person-card__image"
-                        [src]="person.entityfacts.depiction.thumbnail['@id']"
-                        alt="{{'eth.personCard.photo' | safeTranslate | async}} {{person.entityfacts.preferredName}}">
+                        [src]="person.entityfacts?.image?.thumbnail?.['@id']"
+                        alt="{{'eth.personCard.photo' | safeTranslate | async}} {{person.entityfacts?.preferredName}}">
                     }
                     @else if (person.wiki?.image_url) {     
                       <img class="eth-person-card__image"
-                        [src]="person.wiki.image_url"
-                        alt="{{'eth.personCard.photo' | safeTranslate | async}} {{person.wiki.label}}">
+                        [src]="person.wiki?.image_url"
+                        alt="{{'eth.personCard.photo' | safeTranslate | async}} {{person.wiki?.label}}">
                     }
                     <div class="eth-person-copyright" (mouseenter)="open(person.gnd)" (mouseleave)="close()" (focus)="open(person.gnd)" (blur)="close()">
                       <div class="eth-person-copyright-button" tabindex="0">
@@ -38,8 +38,8 @@
                       @if (isOpen(person.gnd)){
                         <div class="eth-person-copyright-hint">
                           <span>{{'eth.personCard.licence' | safeTranslate | async}} </span> 
-                          @if (person.entityfacts?.depiction){
-                            <a [href]="person.entityfacts?.depiction?.url" target="_blank" rel="noopener">Wikimedia Commons</a>
+                          @if (person.entityfacts?.image){
+                            <a [href]="person.entityfacts?.image?.url" target="_blank" rel="noopener">Wikimedia Commons</a>
                           }
                           @else {
                             <a [href]="person.wiki?.image_url" target="_blank" rel="noopener">Wikimedia Commons</a>
@@ -51,17 +51,17 @@
                 }
                 <div class="eth-person-card__text">
                   <h5><a [href]="'/nde'+person.url" (click)="navigate(person.url,$event)">{{ person.name }}</a></h5>
-                  @if (person.entityfacts?.professionOrOccupation) {
-                    <div>{{ person.entityfacts.professionOrOccupation }} (GND)</div>
+                  @if (person.entityfacts?.profession) {
+                    <div>{{ person.entityfacts?.profession }} (GND)</div>
                   }
                   @if (person.wiki?.description) {
-                    <div>{{ person.wiki.description }} (Wikidata)</div>
+                    <div>{{ person.wiki?.description }} (Wikidata)</div>
                   }
-                  @if (person.entityfacts?.dateOfBirth) {
+                  @if (person.entityfacts?.birthDate) {
                     <div>
-                      {{ person.entityfacts.dateOfBirth }}
-                      @if (person.entityfacts?.dateOfDeath) {
-                        <span> - {{ person.entityfacts.dateOfDeath }} (GND)</span>
+                      {{ person.entityfacts?.birthDate }}
+                      @if (person.entityfacts?.deathDate) {
+                        <span> - {{ person.entityfacts?.deathDate }} (GND)</span>
                       }
                     </div>
                   }

@@ -7,6 +7,7 @@ import { SafeHtml } from '@angular/platform-browser';
 })
 export class EthUtilsService {
 
+  // sanitize text. Only a few html tags are valid.
   sanitizeText(text: string | null): SafeHtml | null {
     if (!text) return null;
     const allowedTags = ['a', 'strong', 'em', 'p', 'br'];

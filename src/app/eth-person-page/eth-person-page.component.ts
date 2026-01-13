@@ -13,6 +13,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../injection-tokens";
+import { PersonVM, SearchVariantVM, PrimoApiResponse } from '../models/eth.model';
 
 @Component({ 
   selector: 'custom-eth-person-page',
@@ -33,7 +34,7 @@ export class EthPersonPageComponent{
   private router = inject(SHELL_ROUTER); 
   private lang!: string;  
   
-  person$!: Observable<any | null>;
+  person$!: Observable<PersonVM | null>;
   linkedDataEntityId$!: Observable<string>;
   
   constructor(
@@ -56,19 +57,19 @@ export class EthPersonPageComponent{
     );
   }
   
-  private loadPerson(): Observable<any | null> {
+  private loadPerson(): Observable<PersonVM | null> {
     return this.ethStoreService.linkedDataEntityId$.pipe(
       filter(id => !!id),
       switchMap(id => {
         return this.ethPersonService.getPerson(id, this.lang).pipe(
           filter(data => !!data),
           map(data => {
-            let person = this.ethPersonService.processPersonsResponse(data.results, this.lang);
-            person['qid'] = data.qid?.[0] || null;
+            let person = this.ethPersonService.processPersonsResponse(data, this.lang);
+            person['qid'] = data.qid?.[0];
             person['label'] = person['entityfacts']?.preferredName || person['wiki']?.label || '';
             person['gnd'] = data.gnd?.find((g: string) => g !== '') || '';
             person['yearOfBirth'] = person['wiki']?.birth?.split('-')[0] 
-                                || person['entityfacts']?.dateOfBirth?.split(' ').pop() 
+                                || person['entityfacts']?.birthDate?.split(' ').pop() 
                                 || '';
             return person;
           }),
@@ -105,7 +106,7 @@ export class EthPersonPageComponent{
     });
   } 
 
-  getPrecisionRecallLinks(person: any): Observable<any> {
+  getPrecisionRecallLinks(person: PersonVM): Observable<PersonVM> {
     const queries = [];
     queries.push(this.getSearchLink(`any,contains,${person.label}`));
 
@@ -125,18 +126,20 @@ export class EthPersonPageComponent{
 
     return forkJoin(queries).pipe(
       map(results => {
-        person.searchVariants = results;
+        person.searchVariants = results.filter(
+          (r): r is SearchVariantVM => r !== null
+        );
         return person;
       })
     );
   }
 
-  getSearchLink(query: string ): Observable<{ url: string; total: number } | null> {
+  getSearchLink(query: string ): Observable<SearchVariantVM | null> {
     const tab = this.ethStoreService.getTab() || '';
     const scope = this.ethStoreService.getScope() || '';
     const vid = this.ethStoreService.getVid() || '';
     return this.ethPersonService.searchPrimoData(query, tab, scope, this.lang).pipe(
-      map((data: any) => {
+      map((data: PrimoApiResponse) => {
         const total = data?.info?.totalResultsLocal ?? 0;
         if(query.indexOf('lds03')===-1){
           query = query.replace('any,contains,','');
@@ -148,7 +151,7 @@ export class EthPersonPageComponent{
         return { url, total };
       }),
       catchError((error) => {
-        this.ethErrorHandlingService.logError(error, 'EthPersonPageComponent.getPrecisionRecallLinks.getSearchLink');
+        this.ethErrorHandlingService.logError(error, 'EthPersonPageComponent.getSearchLink');
         return of(null);
       })
     );

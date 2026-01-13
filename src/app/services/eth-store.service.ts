@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { PnxDoc } from '../models/eth.model';
 import { createFeatureSelector, createSelector, select, Store } from '@ngrx/store';
-import { catchError, EMPTY, filter, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
-import { EthErrorHandlingService } from './eth-error-handling.service';
+import { filter, map, Observable, of, switchMap } from 'rxjs';
 import type { Params, Data } from '@angular/router';
-import { StoreDeliveryEntity, HostComponent } from '../models/eth.model';
+import { StoreDeliveryEntity, HostComponent, PnxDoc, LinkedDataRecommendation } from '../models/eth.model';
 
 type SearchParams = {q:string, tab:string, scope:string}
 type SearchState = {searchParams: SearchParams, ids: string[], entities: Record<string, PnxDoc>}
@@ -35,7 +33,7 @@ export interface RouterNode {
 type DeliveryEntity = Record<string, any>;
 type DeliveryObject = Record<string, DeliveryEntity>;
 type DeliveryEntities = {entities: DeliveryObject}
-type FullDisplayState = {selectedRecordId:string, linkedDataRecommendations: any};
+type FullDisplayState = {selectedRecordId:string, linkedDataRecommendations: LinkedDataRecommendation[]};
 
 type EncodedJwt = string;
 type UserState = {
@@ -84,50 +82,50 @@ const selectLDEntityState = createFeatureSelector<any>('linked-data-entity');
 
 const selectDeliveryEntities = createSelector(selectDeliveryState, state => state.entities);
 
-const selectSearchParams = createSelector(selectSearchState,(state: SearchState) => state.searchParams);
-
 const selectConfig = createSelector(selectViewConfigState,(state: any) => state.config);
 
 const selectRouter = createSelector(selectRouterState,state => state.state);
 
 const selectQuery = createSelector(selectRouterState,state => state.state.root.queryParams['query']);
 
-const selectFullDisplayRecordId = createSelector(selectFullDisplayState, state => state.selectedRecordId ?? null);
+const selectFullDisplayRecordId = createSelector(selectFullDisplayState, state => state.selectedRecordId);
 
 const selectFullDisplayDeliveryEntities = createSelector(selectFullDisplayRecordId, selectDeliveryEntities, (recordId, deliveryEntities) => deliveryEntities[recordId]);
 
 const selectSearchEntities = createSelector(selectSearchState, state => state.entities);
 
-const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId, selectSearchEntities, (recordId, searchEntities): PnxDoc | null => searchEntities[recordId] ?? null
+const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId, selectSearchEntities, (recordId, searchEntities): PnxDoc => searchEntities[recordId]
 );
 
 
-const selectLinkedDataRecommendations = createSelector(selectFullDisplayState, state => state.linkedDataRecommendations ?? null);
+const selectLinkedDataRecommendations = createSelector(selectFullDisplayState, state => state.linkedDataRecommendations);
 
-const selectLDEntityId = createSelector(selectLDEntityState, state => state.entityId ?? null);
+const selectLDEntityId = createSelector(selectLDEntityState, state => state.entityId);
 
-const selectEMail = createSelector(selectAccount, state => state?.personalDetails?.email?.value ?? null);
-const selectPatronStatusCode = createSelector(selectAccount, state => state?.personalDetails?.patronstatus[0]?.registration[0]?.institution[0]?.patronstatuscode ?? null);
-const selectPatronStatusName = createSelector(selectAccount, state => state?.personalDetails?.patronstatus[0]?.registration[0]?.institution[0]?.patronstatusname ?? null);
+const selectEMail = createSelector(selectAccount, state => state?.personalDetails?.email?.value);
+const selectPatronStatusCode = createSelector(selectAccount, state => state?.personalDetails?.patronstatus[0]?.registration[0]?.institution[0]?.patronstatuscode);
+const selectPatronStatusName = createSelector(selectAccount, state => state?.personalDetails?.patronstatus[0]?.registration[0]?.institution[0]?.patronstatusname);
 
-const selectLoggedIn = createSelector(selectUserState, state => state?.isLoggedIn ?? true);
-const selectOnCampus = createSelector(selectUserState, state => state?.decodedJwt?.onCampus ?? 'false');
-const selectUserName = createSelector(selectUserState, state => state?.decodedJwt?.userName ?? null);
-const selectUserGroup = createSelector(selectUserState, state => state?.decodedJwt?.userGroup ?? null);
-const selectAuthenticationProfile = createSelector(selectUserState, state => state?.decodedJwt?.authenticationProfile ?? null);
+const selectLoggedIn = createSelector(selectUserState, state => state?.isLoggedIn);
+const selectOnCampus = createSelector(selectUserState, state => state?.decodedJwt?.onCampus);
+const selectUserName = createSelector(selectUserState, state => state?.decodedJwt?.userName);
+const selectUserGroup = createSelector(selectUserState, state => state?.decodedJwt?.userGroup);
+const selectAuthenticationProfile = createSelector(selectUserState, state => state?.decodedJwt?.authenticationProfile);
 
 
 const selectListviewRecord = (recordId: string) =>
   createSelector(
     selectSearchEntities,
-    entities => entities[recordId] ?? null
+    entities => entities[recordId]
   );
 
 const selectListviewDeliveryEntity = (recordId: string) =>
   createSelector(
     selectDeliveryEntities,
-    entities => entities[recordId] ?? null
+    entities => entities[recordId]
   );
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -143,12 +141,10 @@ export class EthStoreService {
     readonly userGroup$: Observable<string>;
     readonly email$: Observable<string>;
     readonly authenticationProfile$: Observable<string>;
-    readonly linkedDataRecommendations$: Observable<any>;
-    readonly linkedDataEntityId$: Observable<any>;
-    readonly record$: Observable<any>;
+    readonly linkedDataRecommendations$: Observable<LinkedDataRecommendation[]>;
+    readonly linkedDataEntityId$: Observable<string>;
     
     constructor(
-        private ethErrorHandlingService: EthErrorHandlingService,
         private store: Store
     ){
         this.searchValue$ = this.store.pipe(
@@ -196,65 +192,34 @@ export class EthStoreService {
         this.linkedDataEntityId$ = this.store.pipe(
             select(selectLDEntityId)
         );        
-        
-        this.record$ = this.store.pipe(
-            select(selectFullDisplayRecord)
-        );        
-
     }
 
-    getVid(): string | null {
-        try{
-            let vc =  this.store.selectSignal(selectConfig)();
-            return vc.vid;
+    getVid(): string {
+        return this.store.selectSignal(selectConfig)()?.vid;
+    }    
+
+    getScope(): string{
+        const router =  this.store.selectSignal(selectRouter)();
+        const scopeFromUrl = router?.root?.queryParams?.['search_scope'];
+        if(scopeFromUrl){
+            return scopeFromUrl;
         }
-        catch(e){
-            this.ethErrorHandlingService.logSyncError(e, 'EthStoreService.getVid');
-            return null;
-        }
+        let vc =  this.store.selectSignal(selectConfig)();
+        return vc['primo-view']?.scopes[0]?.['scope-id'];
     }
 
-    getScope(): string | null {
-        try{
-            const router =  this.store.selectSignal(selectRouter)();
-            const scopeFromUrl = router?.root?.queryParams?.['search_scope'];
-            if(scopeFromUrl){
-                return scopeFromUrl;
-            }
-
-            let vc =  this.store.selectSignal(selectConfig)();
-            const scope = vc['primo-view']?.scopes[0]?.['scope-id']
-            return scope;
+    getTab(): string {
+        const router = this.store.selectSignal(selectRouter)();
+        const tabFromUrl = router?.root?.queryParams?.['tab'];
+        if (tabFromUrl) {
+            return tabFromUrl;
         }
-        catch(e){
-            this.ethErrorHandlingService.logSyncError(e, 'EthStoreService.getScope');
-            return null;
-        }
-    }
-
-    getTab(): string | null {
-        try {
-            const router = this.store.selectSignal(selectRouter)();
-            const tabFromUrl = router?.root?.queryParams?.['tab'];
-            if (tabFromUrl) {
-                return tabFromUrl;
-            }
-
-            const vc = this.store.selectSignal(selectConfig)();
-            return vc['primo-view']?.scopes[0]?.tab ?? null;
-        } catch (e) {
-            this.ethErrorHandlingService.logSyncError(e, 'EthStoreService.getTab');
-            return null;
-        }
+        const vc = this.store.selectSignal(selectConfig)();
+        return vc['primo-view']?.scopes[0]?.tab;
     }
 
     getRouter$(): Observable<RouterRootState> {
-        return this.store.select(selectRouter).pipe(
-            catchError((e) => {
-                this.ethErrorHandlingService.logError(e, 'EthStoreService.getRouter$');
-                return throwError(() => e); 
-            })
-        );
+        return this.store.select(selectRouter);
     }
 
     isFullview$(): Observable<boolean> {
@@ -264,21 +229,13 @@ export class EthStoreService {
                     return false;
                 }
                 return state.url.includes('/fulldisplay');
-            }),
-            catchError(e => {
-                this.ethErrorHandlingService.logError(e, 'EthStoreService.isFullview$');
-                return throwError(() => e); 
             })
         );
     }
 
     getFullDisplayRecord$(): Observable<PnxDoc> {
         return this.store.select(selectFullDisplayRecord).pipe(
-            filter((doc): doc is PnxDoc => doc !== null),
-            catchError((e) => {
-                this.ethErrorHandlingService.logError(e, 'EthStoreService.getFullDisplayRecord$');
-                return throwError(() => e);
-            })
+            filter((doc): doc is PnxDoc => doc !== null)
         );
     }
 
@@ -290,22 +247,13 @@ export class EthStoreService {
                 record
                 ? of(record)
                 : this.store.select(selectListviewRecord(recordId))
-            ),
-            catchError((e) => {
-                this.ethErrorHandlingService.logError(e, 'EthStoreService.getRecord$');
-                return throwError(() => e);
-            })
+            )
         );
     }
 
 
     getFullDisplayDeliveryEntity$(): Observable<StoreDeliveryEntity> {
-        return this.store.select(selectFullDisplayDeliveryEntities).pipe(
-            catchError((e) => {
-                this.ethErrorHandlingService.logError(e, 'EthStoreService.getFullDisplayDeliveryEntity$');
-                return throwError(() => e);
-            })
-        );
+        return this.store.select(selectFullDisplayDeliveryEntities);
     }
 
 
@@ -316,11 +264,7 @@ export class EthStoreService {
                 record
                 ? of(record)
                 : this.store.select(selectListviewDeliveryEntity(recordId))
-            ),
-            catchError((e) => {
-                this.ethErrorHandlingService.logError(e, 'EthStoreService.getDeliveryEntity$');
-                return throwError(() => e);
-            })
+            )
         );
     }
 

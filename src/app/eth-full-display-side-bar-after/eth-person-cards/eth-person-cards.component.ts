@@ -2,7 +2,7 @@
 // https://jira.ethz.ch/browse/SLSP-2095
 
 import { Component, inject, Input } from '@angular/core';
-import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { EthPersonService } from '../../services/eth-person.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
@@ -14,7 +14,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
-import { HostComponent } from '../../models/eth.model';
+import { HostComponent, PersonCardVM, PersonVM, PersonApiResponse, PersonResult } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-person-cards',
@@ -31,7 +31,7 @@ import { HostComponent } from '../../models/eth.model';
 export class EthPersonCardsComponent {
     private router = inject(SHELL_ROUTER);  
     openGnd: string | null = null;
-    persons$!: Observable<any | null>; 
+    persons$!: Observable<PersonCardVM | null>; 
     @Input() hostComponent: HostComponent = {};
     private mqListener: ((e: MediaQueryListEvent) => void) | null = null;    
     private cardPositioned = false;
@@ -56,7 +56,7 @@ export class EthPersonCardsComponent {
         })*/
         catchError(err => {
           this.ethErrorHandlingService.logSyncError( err, 'EthPersonCardsComponent.ngOnInit');
-          return of({});      
+          return of({'otbPersons': [],'filteredPersons': []});      
         })
 
       )
@@ -69,7 +69,7 @@ export class EthPersonCardsComponent {
       }
     }
 
-    private loadPersons(record: PnxDoc): Observable<any | null> {
+    private loadPersons(record: PnxDoc): Observable<PersonCardVM | null> {
       const lang = this.translate.currentLang;
       const gndList = this.getGndIds(record);     
       const idRefList = this.getIdRefs(record);   
@@ -91,36 +91,35 @@ export class EthPersonCardsComponent {
         // get person data from personService
         switchMap((allGnds: string | null) => {
           if (!allGnds) {
-            return of([]);
+            return of({results: []});
           }
           return this.ethPersonService.getPersons(allGnds, lang);
         }),
 
         // normalize response
-        map((response: any) => {
+        map((response: PersonApiResponse) => {
           if (!response?.gnd?.length) return [];
     
-          const groupedResults = response.results.reduce((acc: Record<string, any[]>, person: any) => {
+          const groupedResults = response.results.reduce((acc: Record<string, any[]>, person: PersonResult) => {
             if (person.gnd) {
               (acc[person.gnd] ||= []).push(person);
             }
             return acc;
           }, {});
-    
           return response.gnd
-            .map((gnd: string) => groupedResults[gnd]
-              ? this.ethPersonService.processPersonsResponse(groupedResults[gnd], lang)
-              : null
+            .map((gnd: string) => {
+                return groupedResults[gnd] ? this.ethPersonService.processPersonsResponse({gnd: [gnd], results: groupedResults[gnd]}, lang) : {gnd: '', url: ''}
+              }
             )
             .filter(Boolean)
-            .filter((person: any) => person.entityfacts?.preferredName || person.wiki?.label);             
+            .filter((person: PersonVM) => person.entityfacts?.preferredName || person.wiki?.label);             
         }),
 
         // filter for persons not rendered otb
-        switchMap((persons) =>
+        switchMap((persons: PersonVM[]) =>
           this.ethStoreService.linkedDataRecommendations$.pipe(
             map((entities) => {
-              //console.error("entities",entities)
+              //console.error("entities",entities) 
               const entityIds = new Set(
                 (entities ?? [])
                   .map((e: any) => e.id)
@@ -136,7 +135,6 @@ export class EthPersonCardsComponent {
                 }
                 return !entityIds.has(loc);
               });
-              //console.error("filteredPersons",filteredPersons)
               return {
                 otbPersons: entities,
                 filteredPersons: filteredPersons
@@ -182,7 +180,7 @@ export class EthPersonCardsComponent {
     close() {
       this.openGnd = null;
     }
-    isOpen(gnd: string) {
+    isOpen(gnd: string): boolean {
       return this.openGnd === gnd;
     }        
 
