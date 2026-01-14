@@ -38,7 +38,7 @@ export class EthConnectedpapersComponent{
     this.paperUrl$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
       switchMap(record => this.getPaper(record)),
       catchError(err => {
-        this.ethErrorHandlingService.logSyncError( err, 'EthConnectedpapersComponent.ngOnInit');
+        this.ethErrorHandlingService.logError( err, 'EthConnectedpapersComponent.ngOnInit');
         return of(null);
       })
     )
@@ -51,7 +51,7 @@ export class EthConnectedpapersComponent{
         return of(null);
       }
       const type = this.getType(record);
-      if (type !== 'article' && type !== 'articles' && type !== 'book_chapter') {
+      if (!type || (type !== 'article' && type !== 'articles' && type !== 'book_chapter')) {
         return of(null);
       }
 
@@ -71,7 +71,7 @@ export class EthConnectedpapersComponent{
         })
       );
     }
-    catch(error: any){
+    catch(error: unknown){
         this.ethErrorHandlingService.logSyncError(error, 'EthConnectedpapersComponent.getPaper()');  
         return of(null);
     }

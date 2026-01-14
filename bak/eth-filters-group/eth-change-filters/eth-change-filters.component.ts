@@ -35,7 +35,7 @@ export class EthChangeFiltersComponent {
           this.changeLibraryGroup();
         }
       }
-      catch(error: any){
+      catch(error: unknown){
           return this.ethErrorHandlingService.logSyncError(error, 'EthChangeFiltersComponent.ngAfterViewInit');        
       }
     }

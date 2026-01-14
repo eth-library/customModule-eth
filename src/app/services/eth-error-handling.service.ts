@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { throwError } from 'rxjs';
 
 
 @Injectable({
@@ -25,7 +24,7 @@ export class EthErrorHandlingService {
   }
 
   // catch block
-  logSyncError(error: unknown, context: string = 'Unknown Context'): any{
+  logSyncError(error: unknown, context: string = 'Unknown Context'): void{
     let errorMessage = `Error in ${context}: An unknown error occurred`;
     if (error instanceof TypeError) {
       errorMessage = `Type Error in ${context}: ${error.message}`;
@@ -35,6 +34,7 @@ export class EthErrorHandlingService {
       errorMessage = `String Error in ${context}: ${error}`;
     }
     console.error('**ETH** ', errorMessage);
+    console.error(error);
   }
 
   private getHttpErrorMessage(error: HttpErrorResponse, context: string): string {

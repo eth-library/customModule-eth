@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { GraphGeoInfoAPIResponse, EthoramaAPIResponse, WikidataPlaceAPIResponse } from '../models/eth.model';
@@ -25,10 +25,10 @@ export class EthPlacePageService {
     getPlaceFromETHorama(qid: string): Observable<EthoramaAPIResponse> {
       const url = `${this.baseurlETHorama}?apikey=XKosnD8xM5AuyvuovfebqpHUzkrMi0qqlVKcM5gHYDANCyds&details=true&qId=${qid}`;
       return this.http.get<EthoramaAPIResponse>(url).pipe(
-        catchError((error) => {
+        catchError((e) => {
           // if not found: HTTP 500
-          this.ethErrorHandlingService.logError(error, 'EthPlacePageService.getPlacesFromETHorama');
-          return of({ items: [] });
+          this.ethErrorHandlingService.logError(e, 'EthPlacePageService.getPlacesFromETHorama');
+          return throwError(() => e);
         })            
       );
     }
@@ -37,9 +37,9 @@ export class EthPlacePageService {
     getTopicsFromGeoGraph(qid: string): Observable<GraphGeoInfoAPIResponse> {
       const url = `${this.baseurlTopics}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&q=${qid}`;
       return this.http.get<GraphGeoInfoAPIResponse>(url).pipe(
-        catchError((error) => {
-          this.ethErrorHandlingService.logError(error, 'EthPlacePageService.getTopicsFromGeoGraph');
-          return of({ features: [] });
+        catchError((e) => {
+          this.ethErrorHandlingService.logError(e, 'EthPlacePageService.getTopicsFromGeoGraph');
+          return throwError(() => e);
         })            
       );
     }
@@ -48,9 +48,9 @@ export class EthPlacePageService {
     getMapsFromGeoGraph(lat: string, lng: string): Observable<GraphGeoInfoAPIResponse> {
       const url = `${this.baseurlMaps}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&lat=${lat}&lon=${lng}`;
       return this.http.get<GraphGeoInfoAPIResponse>(url).pipe(
-        catchError((error) => {
-          this.ethErrorHandlingService.logError(error, 'EthPlacePageService.getMapsFromGeoGraph');
-          return of({ features: [] });
+        catchError((e) => {
+          this.ethErrorHandlingService.logError(e, 'EthPlacePageService.getMapsFromGeoGraph');
+          return throwError(() => e);
         })            
       );
     }
@@ -59,9 +59,9 @@ export class EthPlacePageService {
     getPoiFromGeoGraph(qid: string): Observable<GraphGeoInfoAPIResponse> {
       const url = `${this.baseurlPoi}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&q=${qid}`;
       return this.http.get<GraphGeoInfoAPIResponse>(url).pipe(
-        catchError((error) => {
-          this.ethErrorHandlingService.logError(error, 'EthPlacePageService.getPoiFromGeoGraph');
-          return of({ features: [] });
+        catchError((e) => {
+          this.ethErrorHandlingService.logError(e, 'EthPlacePageService.getPoiFromGeoGraph');
+          return throwError(() => e);
         })            
       );
     }
@@ -73,11 +73,12 @@ export class EthPlacePageService {
           map(response => {
             return response;
           }),          
-          catchError((error) => {
-            this.ethErrorHandlingService.logError(error, 'EthPlacePageService.getPlaceFromWikidata');
-            return of({});
+          catchError((e) => {
+            this.ethErrorHandlingService.logError(e, 'EthPlacePageService.getPlaceFromWikidata');
+            return throwError(() => e);
           })            
       );
     }
 
+    // https://daas.library.ethz.ch/rib/v3/places/lccn-identifier/n79007751    
 }

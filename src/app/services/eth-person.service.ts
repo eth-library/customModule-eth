@@ -421,30 +421,20 @@ export class EthPersonService {
             person.name = person.entityfacts?.preferredName ?? person.wiki?.label ?? '';
             return person;
         } catch (error: unknown) {
-            return this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processPersonsResponse');
+            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processPersonsResponse');
+            return {gnd: '', url: ''}
         }
     }
 
     getPersonPageUrl(identifier:string): string{
-        try{
-           
-            let url = `/entity/person?entityId=${identifier}&vid=41SLSP_ETH:ETH_CUSTOMIZING`;
-            return url;
-        }
-        catch(error: any){
-            return this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.getPersonPageUrl');
-        }
+        let url = `/entity/person?entityId=${identifier}&vid=41SLSP_ETH:ETH_CUSTOMIZING`;
+        return url;
     }
 
     getPlacePageLink(identifier:string): string{
-        try{
-            let query = '[wd/place]' + identifier;
-            let url = `/nde/search?query=${query}&tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}`;
-            return url;
-        }
-        catch(error: any){
-            return this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.getPlacePageLink');
-        }
+        let query = '[wd/place]' + identifier;
+        let url = `/nde/search?query=${query}&tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}`;
+        return url;
     }
 
     getProviderLabel(slug: string): string {

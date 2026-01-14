@@ -75,7 +75,7 @@ export class EthProvenienzEraraLinkComponent {
         erara: eraraLink ?? null,
         swisscovery: swisscoveryUrl
       })
-    } catch(error: any){
+    } catch(error: unknown){
         this.ethErrorHandlingService.logSyncError(error, 'EthProvenienzEraraLinkComponent.getLinks');  
         return of({erara:null, swisscovery:null});
     }

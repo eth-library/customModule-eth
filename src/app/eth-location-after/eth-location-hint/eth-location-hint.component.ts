@@ -3,7 +3,7 @@
 
 import { Component, Input, ViewEncapsulation, Inject, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { catchError, map, Observable, of, switchMap, take, tap } from 'rxjs';
+import { catchError, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthUtilsService } from '../../services/eth-utils.service';
 import { CommonModule } from '@angular/common';
@@ -47,8 +47,13 @@ export class EthLocationHintComponent {
     if(this.libraryCode.substring(0,1) === 'E'){
       this.hint$ = this.getLocationHint().pipe(
         map(hint => this.ethUtilsService.sanitizeText(hint)),
+        filter((hint): hint is string => !!hint),
         take(1),
-        tap(() => {this.moveHint()})
+        tap(() => {this.moveHint()}),
+        catchError(error => {
+          this.ethErrorHandlingService.logError(error, 'EthLocationHintComponent.ngAfterViewInit()');
+          return of(null);
+        })
       );
     }
   }  
@@ -69,7 +74,7 @@ export class EthLocationHintComponent {
         )
       }),
       catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthLocationHintComponent.getLocationHint');
+        this.ethErrorHandlingService.logError(err, 'EthLocationHintComponent.getLocationHint()');
         return of(null);
       })      
     )

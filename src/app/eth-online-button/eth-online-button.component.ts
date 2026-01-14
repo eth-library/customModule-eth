@@ -100,7 +100,7 @@ export class EthOnlineButtonComponent {
         }
       }),
       catchError(err => {
-        this.ethErrorHandlingService.logSyncError( err, 'EthOnlineButtonComponent.ngAfterViewInit');
+        this.ethErrorHandlingService.logSyncError( err, 'EthOnlineButtonComponent.ngAfterViewInit()');
         return of([]);
       })
     );

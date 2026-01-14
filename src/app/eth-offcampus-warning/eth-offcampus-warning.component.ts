@@ -67,7 +67,7 @@ export class EthOffcampusWarningComponent {
         );
       }),
       catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthOffcampusWarningComponent');
+        this.ethErrorHandlingService.logError(err, 'EthOffcampusWarningComponent.ngOnInit()');
         return of(false);
       })      
     );

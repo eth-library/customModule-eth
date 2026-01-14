@@ -48,7 +48,7 @@ export class EthIllLinkComponent implements OnInit {
         this.getQs(record, deliveryEntity)
       ),
       catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.ngOnInit()');
+        this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.ngOnInit() get qs');
         return of(null);
       }),
       shareReplay({
@@ -57,9 +57,7 @@ export class EthIllLinkComponent implements OnInit {
       })
     );
 
-    /**
-     * get translations, if needed
-     */
+    // get translations, if needed
     this.translations$ = this.qs$.pipe(
       switchMap(qs =>
         qs
@@ -79,7 +77,11 @@ export class EthIllLinkComponent implements OnInit {
               }))
             )
           : of(null)
-      )
+      ),
+      catchError(err => {
+        this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.ngOnInit() get translations');
+        return of(null);
+      })      
     );
 
     // build URL
@@ -90,94 +92,107 @@ export class EthIllLinkComponent implements OnInit {
               map(baseUrl => `${baseUrl}?${qs}`)
             )
           : of(null)
-      )
+      ),
+      catchError(err => {
+        this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.ngOnInit() build url');
+        return of(null);
+      })      
     );
   }
 
-  // do we need an ILL link?
+  // do we need an ILL link? If so, build querystring
   private getQs(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
+    try {
+      if ((deliveryEntity?.delivery?.availability?.[0] ?? '') !== 'no_inventory') {
+        return of(null);
+      }
 
-    if ((deliveryEntity?.delivery?.availability?.[0] ?? '') !== 'no_inventory') {
-      return of(null);
-    }
+      // GetIt from Other exists → no ILL
+      if (this.document.querySelector('nde-get-it-from-other')) {
+        return of(null);
+      }
 
-    // GetIt from Other exists → no ILL
-    if (this.document.querySelector('nde-get-it-from-other')) {
-      return of(null);
-    }
+      // Rapido already has "no offer"
+      if (this.document.querySelector('[data-qa="rapido.tiles.noOfferTileLine1"]')) {
+        return of(this.buildQs(record));
+      }
 
-    // Rapido already has "no offer"
-    if (this.document.querySelector('[data-qa="rapido.tiles.noOfferTileLine1"]')) {
-      return of(this.buildQs(record));
-    }
+      // wait for rapido
+      return new Observable<string>(observer => {
+        const mo = new MutationObserver(() => {
+          const rapidoNoOffer = this.document.querySelector(
+            '[data-qa="rapido.tiles.noOfferTileLine1"]'
+          );
+          if (rapidoNoOffer) {
+            mo.disconnect();
+            observer.next(this.buildQs(record));
+            observer.complete();
+          }
+        });
 
-    // wait for rapido
-    return new Observable<string>(observer => {
-      const mo = new MutationObserver(() => {
-        const rapidoNoOffer = this.document.querySelector(
-          '[data-qa="rapido.tiles.noOfferTileLine1"]'
-        );
-        if (rapidoNoOffer) {
-          mo.disconnect();
-          observer.next(this.buildQs(record));
-          observer.complete();
-        }
+        mo.observe(this.document.body, { childList: true, subtree: true });
+
+        return () => mo.disconnect();
       });
+    } catch (error) {
+        this.ethErrorHandlingService.logSyncError(error, 'EthIllLinkComponent.getQs()');
+        return of(null);
+    }
 
-      mo.observe(this.document.body, { childList: true, subtree: true });
-
-      return () => mo.disconnect();
-    });
   }
 
   // build ILL link
   private buildQs(record: PnxDoc | null): string {
-    if (!record?.pnx) return '';
+    try {    
+      if (!record?.pnx) return '';
 
-    const display = record.pnx.display;
-    const addata = record.pnx.addata;
+      const display = record.pnx.display;
+      const addata = record.pnx.addata;
 
-    const type = display?.type?.[0];
+      const type = display?.type?.[0];
 
-    const qsParts: string[] = [];
+      const qsParts: string[] = [];
 
-    const process = (field: string, value?: string | string[]) => {
-      if (!value) return;
-      const val = Array.isArray(value) ? value.join(', ') : value;
-      qsParts.push(`${field}=${encodeURIComponent(val)}`);
-    };
+      const process = (field: string, value?: string | string[]) => {
+        if (!value) return;
+        const val = Array.isArray(value) ? value.join(', ') : value;
+        qsParts.push(`${field}=${encodeURIComponent(val)}`);
+      };
 
-    if (type && ['article', 'magazinearticle', 'articles'].includes(type)) {
-      process('atitle', addata?.atitle?.[0]);
-      process('jtitle', addata?.jtitle?.[0]);
-      process('au', addata?.au?.length ? addata.au : addata?.addau);
-      process('volume', addata?.volume?.[0] || display?.ispartof?.[0]?.split('$$Q')?.[0]);
-      process('pages', addata?.pages?.[0]);
-      process('issn', addata?.issn);
-      process('date', addata?.date?.[0]);
-    } else if (type === 'book_chapter') {
-      process('atitle', addata?.atitle?.[0]);
-      process('jtitle', addata?.btitle?.[0]);
-      process('au', addata?.au?.length ? addata.au : addata?.addau);
-      process('volume', addata?.volume?.[0] || '-');
-      process('pages', addata?.pages?.[0]);
-      process('issn', addata?.isbn || addata?.eisbn);
-      process('date', addata?.date?.[0]);
-    } else {
-      process('jtitle', display?.title?.[0]);
-      process('au', display?.creator?.[0]);
-      process('date', display?.creationdate?.[0]);
-      process('publisher', display?.publisher?.[0]);
+      if (type && ['article', 'magazinearticle', 'articles'].includes(type)) {
+        process('atitle', addata?.atitle?.[0]);
+        process('jtitle', addata?.jtitle?.[0]);
+        process('au', addata?.au?.length ? addata.au : addata?.addau);
+        process('volume', addata?.volume?.[0] || display?.ispartof?.[0]?.split('$$Q')?.[0]);
+        process('pages', addata?.pages?.[0]);
+        process('issn', addata?.issn);
+        process('date', addata?.date?.[0]);
+      } else if (type === 'book_chapter') {
+        process('atitle', addata?.atitle?.[0]);
+        process('jtitle', addata?.btitle?.[0]);
+        process('au', addata?.au?.length ? addata.au : addata?.addau);
+        process('volume', addata?.volume?.[0] || '-');
+        process('pages', addata?.pages?.[0]);
+        process('issn', addata?.isbn || addata?.eisbn);
+        process('date', addata?.date?.[0]);
+      } else {
+        process('jtitle', display?.title?.[0]);
+        process('au', display?.creator?.[0]);
+        process('date', display?.creationdate?.[0]);
+        process('publisher', display?.publisher?.[0]);
 
-      const identifiers = display?.identifier?.filter(
-        i => i.includes('ISSN') || i.includes('ISBN')
-      );
-      if (identifiers?.length) {
-        process('issn', identifiers[0].substring(identifiers[0].indexOf(':') + 2));
+        const identifiers = display?.identifier?.filter(
+          i => i.includes('ISSN') || i.includes('ISBN')
+        );
+        if (identifiers?.length) {
+          process('issn', identifiers[0].substring(identifiers[0].indexOf(':') + 2));
+        }
       }
+      return qsParts.join('&');
+    } catch (error) {
+        this.ethErrorHandlingService.logSyncError(error, 'EthIllLinkComponent.buildQs()');
+        return '';
     }
-
-    return qsParts.join('&');
   }
 
 }

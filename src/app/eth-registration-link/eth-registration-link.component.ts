@@ -105,11 +105,9 @@ export class EthRegistrationLinkComponent {
             })
           )
           .subscribe();
-      } catch (error) {
-        return this.ethErrorHandlingService.logSyncError(
-          error,
-          'EthRegistrationLinkComponent.ngAfterViewInit()'
-        );
+      } 
+      catch (error) {
+        this.ethErrorHandlingService.logSyncError(error,'EthRegistrationLinkComponent.ngAfterViewInit()');
       }
     }
 

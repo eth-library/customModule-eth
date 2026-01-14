@@ -5,7 +5,7 @@ import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { catchError, filter, forkJoin, map, Observable, of, startWith, Subject, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../services/eth-person.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
-import { TranslateService } from '@ngx-translate/core';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
@@ -46,10 +46,13 @@ export class EthPersonPageComponent{
 
 
   ngOnInit(): void {
-    this.lang = this.translate.currentLang || 'de';
+    if (!this.router.url.includes('/entity/person')) {
+      return;
+    }
 
+    this.lang = this.translate.currentLang || 'de';
     this.person$ = this.translate.onLangChange.pipe(
-      startWith({ lang: this.lang }), 
+      startWith({ lang: this.lang } as LangChangeEvent), 
       switchMap(evt => {
         this.lang = evt.lang;
         return this.loadPerson();

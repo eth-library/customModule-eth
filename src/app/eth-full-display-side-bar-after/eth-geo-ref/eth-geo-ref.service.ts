@@ -23,35 +23,19 @@ export class EthGeoRefService {
 
   // https://api.library.ethz.ch/ethorama/v1/pois?apikey=BKFefOQWF3VGq2sreNcyLqK7Gob61xO9jnLQAd0wy82ktIYn&pageSize=100&details=false&docId=xxx
   getPlacesFromETHorama(docId: string): Observable<EthoramaAPIResponse> {
-    return this.httpClient.get<EthoramaAPIResponse>(`${this.ethoramaUrl}&docId=${docId}`).pipe(
-      catchError((error) => {
-        // if not found: HTTP 500
-        //this.ethErrorHandlingService.logError(error, 'EthGeoRefService.getPlacesFromETHorama');
-        return of({ items: [] });
-      })      
-    );
+    return this.httpClient.get<EthoramaAPIResponse>(`${this.ethoramaUrl}&docId=${docId}`);
   }
   
   // https://daas.library.ethz.ch/rib/v3/graph/e-rara-items/990038990900205503?edges=true
   getEraraRelatedPlacesFromGraph(docId: string): Observable<GraphRelatedPlacesResponse> {
     const url = `${this.graphUrlErara}/${docId}?edges=true`;
-    return this.httpClient.get<GraphRelatedPlacesResponse>(url).pipe(
-      catchError((error) => {
-        this.ethErrorHandlingService.logError(error, 'EthGeoRefService.getEraraRelatedPlacesFromGraph')
-        return of({features: []});
-      })      
-    );
+    return this.httpClient.get<GraphRelatedPlacesResponse>(url);
   }  
   
   // https://daas.library.ethz.ch/rib/v3/graph/e-maps/99117998955005503?edges=true
   getEmapsRelatedPlacesFromGraph(docId: string): Observable<GraphRelatedPlacesResponse> {
     const url = `${this.graphUrlEmaps}/${docId}?edges=true`;
-    return this.httpClient.get<GraphRelatedPlacesResponse>(url).pipe(
-      catchError((error) => {
-        this.ethErrorHandlingService.logError(error, 'EthGeoRefService.getEmapsRelatedPlacesFromGraph')
-        return of({features: []});
-      })      
-    );
+    return this.httpClient.get<GraphRelatedPlacesResponse>(url);
   }  
 
   // enrich ETHorama Poi by Wikidata
@@ -74,7 +58,7 @@ export class EthGeoRefService {
           return enriched;
         }),
         catchError(error => {
-          this.ethErrorHandlingService.logError(error, 'EthGeoRefService.enrichPOIs');
+          this.ethErrorHandlingService.logError(error, 'EthGeoRefService.enrichPOIs()');
           const fallback: EnrichedPoiAPIResponse = {
             id: poi.id,
             thumbnail: poi.thumbnail,

@@ -33,6 +33,7 @@ export class EthMatomoComponent {
   ) {}
 
   ngOnInit() {
+    try{
       if ((document.querySelector('script[src="' + this.trackerUrl + 'matomo.js"]'))) {
         console.log("Matomo script already loaded.");
         return;
@@ -43,9 +44,6 @@ export class EthMatomoComponent {
       // configure matomo
       (window as any)._paq.push(['setTrackerUrl', `${this.trackerUrl}matomo.php`]);
       (window as any)._paq.push(['setSiteId', this.siteId]);
-
-      // initialize automatic page tracking 
-      this.initializeTracking();
 
       // load script
       const matomoScript = document.createElement('script');
@@ -61,8 +59,16 @@ export class EthMatomoComponent {
       matomoScript.onerror = () => {
         console.error('Failed to load Matomo script');
       };
+
+      // initialize automatic page tracking 
+      this.initializeTracking();
+
       console.log("MatomoService instantiated", this)
-    
+    }
+    catch (error) {
+      this.ethErrorHandlingService.logSyncError(error, 'EthMatomoComponent.onInit()');
+    }
+
   }
 
   private initializeTracking(): void {
@@ -88,7 +94,7 @@ export class EthMatomoComponent {
       });
   }
 
-
+  /*
   private initializeTrackingOld(): void {
     (window as any)._paq.push(['trackPageView']);
     (window as any)._paq.push(['enableLinkTracking']);
@@ -109,6 +115,8 @@ export class EthMatomoComponent {
           (window as any)._paq.push(['trackPageView']);
           console.log('Matomo:', url);
         });
-      }
-  }
+  }*/
+
+}
+  
 

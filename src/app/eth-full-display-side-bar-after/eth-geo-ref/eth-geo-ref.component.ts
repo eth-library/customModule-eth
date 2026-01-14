@@ -9,7 +9,6 @@ import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs'
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
-import { EthUtilsService } from '../../services/eth-utils.service';
 import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
@@ -29,10 +28,9 @@ import { HostComponent, PnxDoc, PlacesGeoRefVM, PlaceGeoRefVM, GraphRelatedPlace
 export class EthGeoRefComponent {
   private router = inject(SHELL_ROUTER);
   @Input() hostComponent: HostComponent = {};
-  places$!: Observable<PlacesGeoRefVM>;
+  places$!: Observable<PlacesGeoRefVM | null>;
   private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
-  private cardPositioned = false;
-
+  
   lang!: string | null;
   tab!:  string | null;
   scope!:  string | null;
@@ -43,7 +41,6 @@ export class EthGeoRefComponent {
     private ethGeoRefService: EthGeoRefService,
     private ethStoreService:EthStoreService,     
     private translate: TranslateService,
-    //private ethUtilsService: EthUtilsService,
     private matomoService: EthMatomoService    
   ) {}
 
@@ -59,19 +56,11 @@ export class EthGeoRefComponent {
         }
       }),*/
       catchError(err => {
-        this.ethErrorHandlingService.logSyncError( err, 'EthGeoRefComponent.ngOnInit');
-        return of({ ethorama: [],eraraPlaces: [], emapsPlaces: [], allPlaces: []});      
+        this.ethErrorHandlingService.logError( err, 'EthGeoRefComponent.ngOnInit');
+        return of(null);      
       })
     )
   }
-
-  ngOnDestroy() {
-    if (this.mqListener) {
-      const mq = window.matchMedia('(max-width: 599px)');
-      mq.removeEventListener('change', this.mqListener);
-    }
-  }
-
 
   getPlaces(record: PnxDoc): Observable<PlacesGeoRefVM> { 
     try {
@@ -84,7 +73,7 @@ export class EthGeoRefComponent {
 
       const emapsPlaces$ = this.isEmaps(record) && docId
         ? this.ethGeoRefService.getEmapsRelatedPlacesFromGraph(docId).pipe(
-            map(data => this.mapGraphPlacesToLinks(data)),
+            map(data => this.mapGraphPlacesToVm(data)),
             catchError((error) => {
               this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getEmapsRelatedPlacesFromGraph()')
               return of([]);
@@ -92,10 +81,11 @@ export class EthGeoRefComponent {
         )
         : of([]);
 
+
         //const eraraPlaces$ = this.getSourceSystem(record) === 'ILS' && docId && docId.endsWith('5503')
         const eraraPlaces$ = docId && docId.endsWith('5503')
         ? this.ethGeoRefService.getEraraRelatedPlacesFromGraph(docId).pipe(
-            map(data => this.mapGraphPlacesToLinks(data)),
+            map(data => this.mapGraphPlacesToVm(data)),
             catchError((error) => {
               this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getEraraRelatedPlacesFromGraph()')
               return of([]);
@@ -126,8 +116,9 @@ export class EthGeoRefComponent {
               return Array.from(uniquePois.values()).sort((a,b) => a.label.localeCompare(b.label));
             }),
             catchError(error => {
-              this.ethErrorHandlingService.logError(error, 'getETHoramaPlaces()');
-              return of([]);
+              // no item found -> http 500
+              //this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getETHoramaPlaces()');
+              return of([]); 
             })
           )
         : of([]);
@@ -148,7 +139,7 @@ export class EthGeoRefComponent {
     }
   }
 
-  private mapGraphPlacesToLinks( data: GraphRelatedPlacesResponse ): PlaceGeoRefVM[] {
+  private mapGraphPlacesToVm( data: GraphRelatedPlacesResponse ): PlaceGeoRefVM[] {
     const places = data.features?.[0]?.properties?.places ?? [];
     const map = new Map<string, PlaceGeoRefVM>();
 
@@ -199,3 +190,11 @@ export class EthGeoRefComponent {
     this.router.navigateByUrl(url);
   }
 }
+
+  /*
+  ngOnDestroy() {
+    if (this.mqListener) {
+      const mq = window.matchMedia('(max-width: 599px)');
+      mq.removeEventListener('change', this.mqListener);
+    }
+  }*/

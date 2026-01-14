@@ -102,10 +102,14 @@ export class EthDnbTocComponent {
 
     const entities$ = forkJoin(
       isbns.map(isbn =>
-        this.ethDnbTocService.getTocLink(isbn).pipe(
+        this.ethDnbTocService.getTocLink(isbn).pipe( 
+          map(response => ({
+            identifier: response.identifier,
+            links: (response.links ?? []).filter(link => !!link?.uri)
+          })),
           catchError(error => {
-            this.ethErrorHandlingService.logError(error, 'EthDnbTocComponent. getDnbLinks()');
-            return of<DnbTocApiResponse | null>(null);
+            this.ethErrorHandlingService.logError(error, 'EthDnbTocComponent. getTocLink()');
+            return of(null);
           })
         )
       )

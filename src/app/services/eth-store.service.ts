@@ -82,7 +82,7 @@ const selectLDEntityState = createFeatureSelector<any>('linked-data-entity');
 
 const selectDeliveryEntities = createSelector(selectDeliveryState, state => state.entities);
 
-const selectConfig = createSelector(selectViewConfigState,(state: any) => state.config);
+const selectConfig = createSelector(selectViewConfigState,(state) => state.config);
 
 const selectRouter = createSelector(selectRouterState,state => state.state);
 

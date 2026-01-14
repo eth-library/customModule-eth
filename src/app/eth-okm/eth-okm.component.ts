@@ -34,7 +34,7 @@ export class EthOKMComponent implements OnInit {
           : of(null)
       ),
       catchError(error => {
-        this.ethErrorHandlingService.logError(error, 'EthOKMComponent.ngOnInit');
+        this.ethErrorHandlingService.logError(error, 'EthOKMComponent.ngOnInit()');
         return of(null);
       })
     )

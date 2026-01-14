@@ -79,6 +79,7 @@ export class EthComposeEraraComponent {
     if (type === 'map' && record.pnx.display.lds50?.some((i: string) => i.includes('E01emaps'))) {
       return this.ethComposeEraraService.getEraraRecordForEMap(mmsid).pipe(
         switchMap(eraraData => {
+          // 404 -> null
           const eraraPrintId = eraraData?.[0]?._fields?.[1];
           if (!eraraPrintId) return of([]);
 
@@ -90,6 +91,7 @@ export class EthComposeEraraComponent {
 
           return this.ethComposeEraraService.getOnlineEraraRecord(eraraPrintId).pipe(
             map(record => {
+              // 404 -> null
               const onlineId = record?.docs?.[0]?.pnx?.control?.sourcerecordid?.[0];
               //console.error("emaps record; get online erara:", onlineId)
               if (onlineId) {
@@ -103,7 +105,7 @@ export class EthComposeEraraComponent {
             })
           );
         }),
-        catchError(() => of([]))              
+        catchError(() => of([]))                
       );
     }
 
@@ -113,6 +115,8 @@ export class EthComposeEraraComponent {
       const emaps$ = type === 'map'
         ? this.ethComposeEraraService.getEMapsRecord(mmsid).pipe(
             map(data => {
+              // 404 -> null
+              if(!data) return [];
               const out: ComposeEraraLinkVM[] = [];
               const url = data?.[0]?._fields?.[1];
               //console.error("erara print; get emaps",url)
@@ -129,6 +133,8 @@ export class EthComposeEraraComponent {
 
       const onlineErara$ = this.ethComposeEraraService.getOnlineEraraRecord(mmsid).pipe(
         map(data => {
+          // 404 -> null
+          if(!data) return [];
           const out: ComposeEraraLinkVM[] = [];
           const onlineId = data?.docs?.[0]?.pnx?.control?.sourcerecordid?.[0];
           //console.error("erara print; get erara online",onlineId)
@@ -159,6 +165,8 @@ export class EthComposeEraraComponent {
         if (type === 'map') {
           return this.ethComposeEraraService.getEMapsRecord(printId).pipe(
             map(data => {
+              // 404 -> null
+              if(!data)return [];
               const out: ComposeEraraLinkVM[] = [];
               const emapsUrl = data?.[0]?._fields?.[1];
               if (emapsUrl) {
