@@ -5,7 +5,7 @@
     border: 1px solid var(--sys-primary);
     padding-left: 1rem;
     padding-right: 1rem;
-    margin-top: .25rem;
+    margin-top: .5rem;
     white-space: nowrap;
 }
 .eth-quicklink-button.mat-mdc-button:not(:last-of-type) {
@@ -17,7 +17,7 @@
 }
 .eth-quicklink-expand-button.mat-mdc-icon-button.mdc-icon-button{
     padding: 0;
-    margin-top: 4px;
+    margin-top: .5rem;
     height: 32px;
     border-color: var(--sys-primary);
     border-start-end-radius: .3125rem;

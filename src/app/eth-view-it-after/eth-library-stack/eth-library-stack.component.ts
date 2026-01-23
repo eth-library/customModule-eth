@@ -41,7 +41,7 @@ export class EthLibraryStackComponent {
     this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
       //tap(deliveryEntity => {console.error("deliveryEntity",deliveryEntity)}),
       map(deliveryEntity => {
-        return deliveryEntity.delivery?.link?.some( (e) => {return e.linkURL?.includes('www.librarystack.org')}
+        return deliveryEntity?.delivery?.link?.some( (e) => {return e.linkURL?.includes('www.librarystack.org')}
         ) ?? false;
       }),
       filter(hasLibraryStackUrl => hasLibraryStackUrl),

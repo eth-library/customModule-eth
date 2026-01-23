@@ -1,0 +1,129 @@
+@import "~leaflet/dist/leaflet.css";
+.eth-placepage{
+    width: 100%;
+    margin: 0 auto;
+    margin-block: 1rem;
+}
+@media (min-width: 1280px) {
+    .eth-placepage{
+        width: clamp(1088px, 85%, 1368px);
+    }
+}
+.eth-placepage .mat-expansion-panel.eth-expansion-panel {
+    background-color: white;
+    box-shadow: none!important;
+}
+.eth-placepage .eth-expansion-panel-header{
+    padding-block: .3rem!important;
+    padding-inline: 1rem!important;
+}
+.eth-placepage .eth-expansion-panel-header span{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;    
+  margin-right: 0;
+}
+.eth-placepage .eth-expansion-panel-header mat-panel-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.eth-placepage .eth-expansion-panel-header h2 {
+  font: var(--sys-title-medium); 
+  margin: 0;
+}
+.eth-placepage .mat-expansion-panel-header-description.eth-expansion-panel-description {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 0;
+  margin-left: 1rem;  
+}
+
+.eth-placepage .eth-expansion-panel-description mat-icon.mat-icon{
+    width: 24px;
+    height: 24px;    
+    color: var(--sys-primary);
+    background-repeat: no-repeat;
+    display: inline-block;
+    fill: currentColor;
+    overflow: hidden;    
+}
+/*
+::ng-deep .mat-expansion-panel-content {
+}
+*/
+.eth-placepage .eth-expansion-panel > .mat-expansion-panel-content{
+    height: 0;
+    margin-bottom: 0;
+}
+.eth-placepage .eth-expansion-panel.mat-expanded > .mat-expansion-panel-content {
+    visibility: visible;
+    height: auto;
+    margin-bottom: 1rem;    
+}
+.eth-placepage a{
+    color: var(--sys-primary);
+    font: var(--sys-body-medium);
+}
+.eth-placepage .eth-person__links-hint{
+    color: var(--sys-on-background);
+    font: var(--sys-body-medium);
+}
+.eth-placepage .mat-divider {
+    display: block;
+    margin: 0;
+    border-top-style: solid;
+    border-top-color: var(--mat-divider-color, var(--mat-sys-outline));
+    border-top-width: var(--mat-divider-width, 1px);
+}
+.eth-placepage a{
+    color: var(--sys-primary);
+    font: var(--sys-body-medium);
+    text-decoration: none;
+}
+.eth-placepage a:hover, .eth-placepage a:focus {
+    box-shadow: inset 0 -2px 0 0 var(--sys-primary);
+    text-decoration: none;
+}
+.eth-placepage a svg.eth-open-in-new{
+    height: 1rem;
+    width: 1rem;
+    margin-inline-start: .1rem;
+    fill: var(--sys-primary);
+    vertical-align: -0.2rem; 
+}
+.eth-placepage .eth-place-image-container{
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.eth-placepage .eth-place-image {
+    max-width: 300px;
+    height: auto;
+    object-fit: contain;
+}
+.eth-placepage .map{
+    height: 400px;
+    margin-top: 2rem;
+}
+@media (min-width: 600px) {
+    .eth-placepage .map{
+        height: 600px;
+    }
+}
+.eth-placepage .eth-map-info{
+    max-width: 400px;
+}
+.eth-placepage .eth-map-info .eth-map-info-title{
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.eth-placepage .eth-map-info .eth-map-info-hint{
+    margin-top: 3em;
+    font-weight:400;
+}
+.eth-placepage .map a{
+    display: inline;
+}

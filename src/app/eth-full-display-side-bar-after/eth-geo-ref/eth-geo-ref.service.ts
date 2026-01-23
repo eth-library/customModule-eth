@@ -21,7 +21,7 @@ export class EthGeoRefService {
   ){}
 
 
-  // https://api.library.ethz.ch/ethorama/v1/pois?apikey=BKFefOQWF3VGq2sreNcyLqK7Gob61xO9jnLQAd0wy82ktIYn&pageSize=100&details=false&docId=xxx
+  // https://api.library.ethz.ch/ethorama/v1/pois?apikey=BKFefOQWF3VGq2sreNcyLqK7Gob61xO9jnLQAd0wy82ktIYn&pageSize=100&details=false&docId=990038990900205503
   getPlacesFromETHorama(docId: string): Observable<EthoramaAPIResponse> {
     return this.httpClient.get<EthoramaAPIResponse>(`${this.ethoramaUrl}&docId=${docId}`);
   }
@@ -38,12 +38,13 @@ export class EthGeoRefService {
     return this.httpClient.get<GraphRelatedPlacesResponse>(url);
   }  
 
-  // enrich ETHorama Poi by Wikidata
+  // enrich ETHorama Poi by Geo Graph
+  // https://daas.library.ethz.ch/rib/v3/graph/pois/2awJViV5HONdrpBWHFHX
   enrichPOIs(pois: EthoramaPoi[]): Observable<EnrichedPoiAPIResponse[]> {
     if (!pois || pois.length === 0) {
       return of([]);
     }    
-    
+
     const enrichedPois$ = pois.map(poi =>
       this.httpClient.get<GraphSinglePoiAPIResponse>(`${this.graphUrlPois}/${poi.id}`).pipe(
         map(response => {
@@ -52,6 +53,8 @@ export class EthGeoRefService {
             id: poi.id,
             thumbnail: poi.thumbnail,
             qid: feature?.qid ?? '',
+            lccn: feature?.lccn ?? '',
+            gnd: feature?.gnd ?? '',
             name: feature?.name_de ?? '',
             descriptionWikidata: feature?.descriptionWikidata ?? ''
           };

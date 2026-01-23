@@ -1,9 +1,9 @@
 // EntityPage Place
 // https://jira.ethz.ch/browse/SLSP-1991
 import { Component, Inject, inject, Renderer2, ViewEncapsulation } from '@angular/core';
-import { combineLatest, forkJoin, map, Observable, of, startWith, switchMap, catchError } from 'rxjs';
+import { combineLatest, forkJoin, map, Observable, of, startWith, switchMap, catchError, filter, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
-import { EthPlacePageService } from './eth-place-page.service';
+import { EthLocationPageService } from './eth-location-page.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
@@ -13,18 +13,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import * as L from 'leaflet';
 import { PlacePageViewModel, PlacePageRawData, PlacePageContext} from '../models/eth.model';
-import { mapETHorama, mapGeoTopics, mapGeoPoi, mapWikidata, mapMaps } from './eth-place-page.mapper';
+import { mapETHorama, mapGeoTopics, mapGeoPoi, mapWikidata, mapMaps, mapIdentifierResponseToQid } from './eth-location-page.mapper';
+import { SHELL_ROUTER } from "../injection-tokens";
 
 @Component({
-  selector: 'custom-eth-place-page',
-  templateUrl: './eth-place-page.component.html',
-  styleUrls: ['./eth-place-page.component.scss', '../../../node_modules/leaflet/dist/leaflet.css'],
+  selector: 'custom-eth-location-page',
+  templateUrl: './eth-location-page.component.html',
+  styleUrls: ['./eth-location-page.component.scss', '../../../node_modules/leaflet/dist/leaflet.css'],
   standalone: true,
   encapsulation: ViewEncapsulation.None,
   imports: [CommonModule, MatDividerModule, MatExpansionModule, MatIconModule, SafeTranslatePipe]
 })
-export class EthPlacePageComponent {
-
+export class EthLocationPageComponent {
+  private router = inject(SHELL_ROUTER); 
   placePageData$!: Observable<PlacePageViewModel | null>;
   qid: string = '';
   vid!: string | null;
@@ -34,53 +35,64 @@ export class EthPlacePageComponent {
   map!: any;
   polygonsWithCenters!: any;
   openWeight!: number;
+  otbEntityStatus!:  Observable<string>;
+  openCommonsHint: string | null = null;  
 
   constructor(
     private translate: TranslateService,
     private ethStoreService: EthStoreService,
-    public ethPlacePageService: EthPlacePageService,
+    public ethLocationPageService: EthLocationPageService,
     private renderer: Renderer2,
     private ethErrorHandlingService: EthErrorHandlingService,
     @Inject(DOCUMENT) private document: Document
   ) {}
 
+
   ngOnInit(): void {
-    this.vid = this.ethStoreService.getVid();
+    if (!this.router.url.includes('/entity/location')) {
+      return;
+    }
     
+    // check in template if image/name/desc should be rendered
+    this.otbEntityStatus = this.ethStoreService.linkedDataEntityStatus$.pipe(catchError(() => of('success')));
+    
+    this.vid = this.ethStoreService.getVid();
+
     this.placePageData$ = combineLatest([
-      this.ethStoreService.searchValue$,
-      this.translate.onLangChange.pipe(startWith({ lang: this.translate.currentLang }))
-    ]).pipe(
-      switchMap(([searchValue, langEvent]) => {
+      this.ethStoreService.linkedDataEntityId$,
+      this.translate.onLangChange.pipe(
+        startWith({ lang: this.translate.currentLang })
+      )
+    ]).pipe(map(([entityId, langEvent]) => {
         this.lang = langEvent.lang;
-        return this.initPlacePage(searchValue);
+        return entityId;
+      }),
+      filter(Boolean),
+      switchMap(entityId => this.resolveQid(entityId)),
+      switchMap(qid => this.getLocationData(qid)),
+      catchError(e => {
+        this.ethErrorHandlingService.logError(
+          e,
+          'EthLocationPageComponent.ngOnInit'
+        );
+        return of(null);
       })
     );
   }
 
-  private initPlacePage(searchValue: string): Observable<PlacePageViewModel | null> {
-    if (!searchValue || !searchValue.includes('[wd/place]')) return of(null);
-    this.qid = searchValue.split(']')[1] || '';
-    if (!this.qid) return of(null);
-
-    // Hide search results container (optional)
-    const searchContent = this.document.querySelector('.search-content');
-    if (searchContent) {
-      const observer = new MutationObserver(() => {
-        const target = searchContent.querySelector('.search-result-content');
-        if (target) {
-          this.renderer.setStyle(target, 'display', 'none');
-          observer.disconnect();
-        }
-      });
-      observer.observe(searchContent, { childList: true, subtree: true });
+  private resolveQid(entityId: string): Observable<string> {
+    if (entityId.startsWith('Q')) {
+      return of(entityId);
     }
-    // Get place data
-    return this.getPlaceData();
+
+    return this.ethLocationPageService.getIdentifierForLccn(entityId).pipe(
+      map(mapIdentifierResponseToQid),
+      filter((qid): qid is string => !!qid)
+    );
   }
 
-  private getPlaceData(): Observable<PlacePageViewModel> {
-
+  
+  private getLocationData(qid: string): Observable<PlacePageViewModel> {
     // Context
     const ctx: PlacePageContext = {
       qid: this.qid,
@@ -91,10 +103,10 @@ export class EthPlacePageComponent {
     };
 
     return forkJoin({
-      topics: this.ethPlacePageService.getTopicsFromGeoGraph(this.qid).pipe(catchError(() => of({ features: [] }))),
-      poi: this.ethPlacePageService.getPoiFromGeoGraph(this.qid).pipe(catchError(() => of({ features: [] }))),
-      ethorama: this.ethPlacePageService.getPlaceFromETHorama(this.qid).pipe(catchError(() => of({ items: [] }))),
-      wikidata: this.ethPlacePageService.getPlaceFromWikidata(this.qid, this.lang).pipe(catchError(() => of({ results: { bindings: [] } })))
+      topics: this.ethLocationPageService.getTopicsFromGeoGraph(qid).pipe(catchError(() => of({ features: [] }))),
+      poi: this.ethLocationPageService.getPoiFromGeoGraph(qid).pipe(catchError(() => of({ features: [] }))),
+      ethorama: this.ethLocationPageService.getPlaceFromETHorama(qid).pipe(catchError(() => of({ items: [] }))),
+      wikidata: this.ethLocationPageService.getPlaceFromWikidata(qid, this.lang).pipe(catchError(() => of({ results: { bindings: [] } })))
     }).pipe(
       map((rawData: PlacePageRawData) => {
         const viewModelData: PlacePageViewModel = {
@@ -104,6 +116,7 @@ export class EthPlacePageComponent {
           wikidata: mapWikidata(rawData.wikidata),
           maps: []
         };
+        //console.error("viewModelData",viewModelData)
         return viewModelData;
       }),
       switchMap((vm: PlacePageViewModel) => {
@@ -113,7 +126,7 @@ export class EthPlacePageComponent {
         const lng = coord.substring(6, coord.indexOf(' '));
         const lat = coord.substring(coord.indexOf(' ') + 1, coord.length - 1);
 
-        return this.ethPlacePageService.getMapsFromGeoGraph(lat, lng).pipe(
+        return this.ethLocationPageService.getMapsFromGeoGraph(lat, lng).pipe(
           catchError(() => of({ features: [] })),
           map((mapsData) => {
             if (!mapsData) {
@@ -179,7 +192,6 @@ export class EthPlacePageComponent {
       onEachFeature: (feature, layer) => this.onEachFeature(feature, layer),
       style: { color: '#356947', weight: 1, fillOpacity: opacity }
     });
-
     this.polygonsWithCenters.addLayer(geoJsonLayer);
     this.polygonsWithCenters.addTo(this.map);
   }
@@ -204,10 +216,18 @@ export class EthPlacePageComponent {
   
   navigate(url: string, event: Event){
     event.preventDefault();  
-    // todo change if entity page for place
-    location.href = "/nde"+ url
-    //this.router.navigateByUrl(url);
+    this.router.navigateByUrl(url);
   }      
+
+  open(id: string) {
+    this.openCommonsHint = id;
+  }
+  close() {
+    this.openCommonsHint = null;
+  }
+  isOpen(id: string): boolean {
+    return this.openCommonsHint === id;
+  }        
 
 }
 

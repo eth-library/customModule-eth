@@ -33,9 +33,10 @@ import { PersonVM, SearchVariantVM, PrimoApiResponse } from '../models/eth.model
 export class EthPersonPageComponent{
   private router = inject(SHELL_ROUTER); 
   private lang!: string;  
-  
+  openGnd: string | null = null;
   person$!: Observable<PersonVM | null>;
   linkedDataEntityId$!: Observable<string>;
+  otbEntityStatus!:  Observable<string>;
   
   constructor(
     private translate: TranslateService,
@@ -49,7 +50,7 @@ export class EthPersonPageComponent{
     if (!this.router.url.includes('/entity/person')) {
       return;
     }
-
+    this.otbEntityStatus = this.ethStoreService.linkedDataEntityStatus$.pipe(catchError(() => of('success')));
     this.lang = this.translate.currentLang || 'de';
     this.person$ = this.translate.onLangChange.pipe(
       startWith({ lang: this.lang } as LangChangeEvent), 
@@ -164,5 +165,15 @@ export class EthPersonPageComponent{
     event.preventDefault();  
     this.router.navigateByUrl(url);
   }      
+
+    open(id: string) {
+      this.openGnd = id;
+    }
+    close() {
+      this.openGnd = null;
+    }
+    isOpen(gnd: string): boolean {
+      return this.openGnd === gnd;
+    }        
 
 }

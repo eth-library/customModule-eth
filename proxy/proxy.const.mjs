@@ -5,4 +5,4 @@ const environments = {
     'PROD': 'https://slsp-eth.primo.exlibrisgroup.com/'
   }
   
-  export const PROXY_TARGET = environments['SANDBOX']; 
+  export const PROXY_TARGET = environments['PROD']; 

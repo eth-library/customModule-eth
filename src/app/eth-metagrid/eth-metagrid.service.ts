@@ -124,9 +124,7 @@ export class EthMetagridService {
         resources: []
       };
     }
-
     const concordances = response.concordances ?? [];
-
     const resources: Resource[] = concordances.flatMap(conc =>
       (conc.resources ?? [])
         .filter(res => whitelist.includes(res.provider.slug))

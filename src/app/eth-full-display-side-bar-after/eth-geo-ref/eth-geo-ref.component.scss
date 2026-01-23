@@ -66,16 +66,40 @@ details[open] .marker {
 .eth-place-card:nth-of-type(1) {
   padding-top: 8px;
 }
-
-.eth-place-card__image-container {
-  min-width: 4.063rem;
-  min-height: 4.063rem;
+.eth-place-card__image-container{
+    position: relative;
 }
-
-.eth-place-card__image {
-  max-width: 4.063rem;
-  max-height: 4.063rem;
-  object-fit: cover;
+.eth-place-card__image{
+    width: 4.063rem;
+    height: 4.063rem;
+    min-width: 4.063rem;
+    min-height: 4.063rem;
+    border-radius: 50%;
+    object-fit: cover;   
+}
+.eth-place-copyright-button{
+    position: absolute;
+    top: 3rem;
+    left: 0;
+    color: var(--sys-primary);    
+    height: 18px;
+    width: 168x;
+    background-color: var(--sys-surface-container-lowest);
+    border-radius: 50%;
+    fill: currentColor;
+    overflow: hidden;    
+}
+.eth-place-copyright-hint{
+    position: absolute;
+    top: 3.5rem;
+    left: 0;
+    width: 300px;
+    background-color: var(--whiteBG);
+    border-radius: 1rem;
+    padding: 1rem;
+    font: var(--sys-body-medium);
+    letter-spacing: var(--sys-body-medium-tracking);
+    box-shadow: var(--mat-app-elevation-shadow-level-10, none);
 }
 
 .eth-place-card__text a {

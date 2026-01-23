@@ -237,6 +237,7 @@ export interface GraphGeoInfo {
   name: string;
   gnd?: string;
   qid?: string;
+  lccn?: string;
   description?: string;
   image?: string;
   eMaps?: GraphPlaceEdgeRef[];
@@ -261,6 +262,8 @@ export interface GraphPlaceEthoramaRef {
 
 export interface GraphPoiProperties {
   qid?: string;
+  gnd?: string;
+  lccn?: string;
   descriptionWikidata?: string;
   name_de?: string;
 }
@@ -271,6 +274,8 @@ export interface EnrichedPoiAPIResponse
   id: string;
   thumbnail?: string;
   qid?: string;
+  gnd?: string;
+  lccn?: string;
   name?: string;
   descriptionWikidata?: string;
 }
@@ -319,6 +324,18 @@ export interface WikidataBinding {
   coordinate_location?: WikidataValue;
 }
 
+/* identifier for lccn from wikidata */
+export interface WikiIdentifierForLccnAPIResponse {
+  results: {
+    bindings: {
+      item: WikidataValue;
+      lccn?: WikidataValue;
+      gnd?: WikidataValue;
+      qid: WikidataValue;
+    }[];
+  };
+}
+
 /* Places VM for georeference / place cards */
 export interface PlacesGeoRefVM {
   ethorama: PlaceGeoRefVM[];
@@ -329,6 +346,8 @@ export interface PlacesGeoRefVM {
 export interface PlaceGeoRefVM {
   id?: string;
   qid: string;
+  lccn?: string;
+  gnd?: string;
   label: string;
   description?: string;
   thumbnail?: string;
@@ -348,6 +367,7 @@ export interface WikidataPlaceVM {
   name: string;
   description?: string;
   image?: string | null;
+  image_page?: string | null;
   coordinates?: string; 
   links: Array<{
     text: string;

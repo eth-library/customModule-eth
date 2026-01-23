@@ -1,10 +1,9 @@
 import { AfterViewInit, Component, inject, Inject, Input } from '@angular/core';
-import { of, Observable, catchError, map, forkJoin, tap, switchMap } from 'rxjs';
+import { of, Observable, catchError, map, forkJoin, tap, switchMap, filter, take } from 'rxjs';
 import { EthMetagridService, Person } from './eth-metagrid.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { createFeatureSelector, createSelector, Store } from '@ngrx/store';
-
 
 // get data from app store
 type FullDisplayState = {selectedRecordId:string};
@@ -115,7 +114,7 @@ export class EthMetagridComponent implements AfterViewInit {
     const gndPersons$ = gndIds?.length
       ? this.metagridService.getResourcesForGndIds(gndIds, this.moduleParameters?.whitelist).pipe(
           catchError(error => {
-            console.error('error in Metagrid addon ngAfterViewInit() gnd:', error);
+            console.error('error in Metagrid addon EthMetagridComponent.getPersons() gnd:', error);
             return of([]);
           })
         )
@@ -126,7 +125,7 @@ export class EthMetagridComponent implements AfterViewInit {
     const idRefPersons$ = idRefs?.length
       ? this.metagridService.getResourcesForIdRefs(idRefs, this.moduleParameters?.whitelist).pipe(
           catchError(error => {
-            console.error('error in Metagrid addon ngAfterViewInit() idref:', error);
+            console.error('error in Metagrid addon EthMetagridComponent.getPersons() idref:', error);
             return of([]);
           })
         )
@@ -135,41 +134,51 @@ export class EthMetagridComponent implements AfterViewInit {
     return forkJoin([gndPersons$, idRefPersons$]).pipe(
       // join persons and resources from responses    
       map(([gndPersons, idRefPersons]) => {
-        const allPersons = [...gndPersons, ...idRefPersons].map(p => ({
-          ...p,
-          personId: p.gnd ?? p.idRef
-        }));
+        const allPersons = [...gndPersons, ...idRefPersons]
+          // filter for persons with ressources
+          .filter(p => p.id !== null)
+          .filter(p => (p.resources?.length ?? 0) > 0)
+          .map(p => ({
+            ...p,
+            personId: p.gnd ?? p.idRef
+          }));
         return allPersons;
       }),
       // copy toggle links and cards to target place
-      tap(persons => setTimeout(() => this.copyMetagridLinks(persons), 1000))
+      tap( persons => {
+          const authorityContainer = this.document.querySelector('nde-full-display-details') as HTMLElement;
+          if (!authorityContainer) return;
+
+          const observer = new MutationObserver((mutations, obs) => {
+            this.copyMetagridLinks(persons, authorityContainer);
+            obs.disconnect();
+          });
+          
+          observer.observe(authorityContainer, { childList: true, subtree: true });
+        }
+      )
+      //tap(persons => setTimeout(() => this.copyMetagridLinks(persons), 1000))
     );
   
   }
 
+  
   
   // extract GND 
   private getGndIds(record:any): string[] | null {
     const lds03 = record?.pnx?.display?.['lds03'] || [];
     const gndIds: string[] = lds03.map((l: any) => {
       l = l.replace('(DE-588)', '');
-      // ALMA Ressources: link in value
-      // http://d-nb.info/gnd/4113615-9\
-      if (l.includes('//d-nb.info/gnd')) {
-        return l.substring(l.indexOf('gnd/') + 4, l.indexOf('">'));
+      // ALMA Ressources (local data): link in value
+      // https://explore.gnd.network/gnd/118527908
+      if (l.includes('/gnd/')) {
+        return l.substring(l.indexOf('/gnd/') + 5, l.indexOf('">'));
       }
-      // external data since dec 25
+      // external data sources 
+      // GND: Prelog, Vladimir (rela): 119247496
       else if (typeof l === 'string' && l.includes('GND: ')) {
         let value = l.slice(l.lastIndexOf(': ') + 2).trim();
         return value;
-      }
-      // external data (Prelog, Vladimir (rela): 119247496) todo until dec 25
-      else if (typeof l === 'string' && l.includes(':') && !l.includes('idref.fr')) {
-        const value = l.slice(l.lastIndexOf(':') + 1).trim();
-        // not: "Frisch, Max : 1911-1991"
-        if (/^\d+$/.test(value)) {
-          return value;
-        }
       }
       return null;
     }).filter(Boolean) as string[];
@@ -192,46 +201,58 @@ export class EthMetagridComponent implements AfterViewInit {
   
   
   // copy toggle links and cards to target place
-  copyMetagridLinks(persons: Person[]): void {
+  copyMetagridLinks(persons: Person[], authorityContainer: HTMLElement): void {
     
     // map person to target element
     const personIdToTargetElementMap = new Map<string, Element>();
 
-    // persons with resources
-    const personIdsWithResources = persons
-      .filter(p => (p.resources?.length ?? 0) > 0)
+    // personsIds
+    const personIds = persons
       .map(p => p.personId!);
 
-    // Alma data
-    const linkConfigs = [
-      { selector: 'a[href*="d-nb.info/gnd/"]', extractId: (href: string) => href.split('/').pop() },
-      { selector: 'a[href*="www.idref.fr/"]', extractId: (href: string) => href.split('/').pop() }
-    ];
+    // Alma links in dom
+    const links = authorityContainer.querySelectorAll<HTMLAnchorElement>('a[href]:not(.metagrid-link)');   
 
-    linkConfigs.forEach(({ selector, extractId }) => {
-      const links = this.document.querySelectorAll(selector);
-      links.forEach(selectorLink => {
-        const href = selectorLink.getAttribute('href');
-        const personIdFromHref = href ? extractId(href) : null;
-        if (!personIdFromHref || !personIdsWithResources.includes(personIdFromHref)) return;
-        const span = selectorLink.parentElement;
+    const extractId = (href: string): string | null => {
+      try {
+        const url = new URL(href);
+        return url.pathname.split('/').filter(Boolean).pop() ?? null;
+      } catch {
+        return null; 
+      }
+    };
+
+    links.forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href) return;
+
+      if (
+        href.includes('explore.gnd.network/gnd/') ||
+        href.includes('www.idref.fr/')
+      ) {
+        const personIdFromHref = extractId(href);
+        if (!personIdFromHref) return;
+
+        if (!personIdFromHref || !personIds.includes(personIdFromHref)) return;
+        const span = link.parentElement;
         if(span){
           personIdToTargetElementMap.set(personIdFromHref, span);
         }
-      });
+
+      }
     });
 
-    // external data
-    const spans = this.document.querySelectorAll('div[data-qa="detail_lds03"] span');
+    // external data in dom
+    const spans = authorityContainer.querySelectorAll('div[data-qa="detail_lds03"] span');
     spans.forEach(s => {
-      if(s.innerHTML.lastIndexOf(':')>-1){
+      if(s.innerHTML.indexOf('<a') === -1 && s.innerHTML.indexOf('GND:') > -1 && s.innerHTML.lastIndexOf(':') > -1){
         const personIdFromSpan = s.innerHTML.substring(s.innerHTML.lastIndexOf(':')+1).replace('(DE-588)', '').trim();
         personIdToTargetElementMap.set(personIdFromSpan, s);
       }
     })    
 
     // copy link and card
-    personIdsWithResources.forEach(personId => {
+    personIds.forEach(personId => {
       if(personId){
           const link = this.document.getElementById('metagrid-link-' + personId);
           const card = this.document.getElementById('metagrid-card-' + personId)

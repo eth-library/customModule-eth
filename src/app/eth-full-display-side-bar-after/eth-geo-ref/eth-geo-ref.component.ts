@@ -30,6 +30,7 @@ export class EthGeoRefComponent {
   @Input() hostComponent: HostComponent = {};
   places$!: Observable<PlacesGeoRefVM | null>;
   private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
+  openGnd: string | null = null;  
   
   lang!: string | null;
   tab!:  string | null;
@@ -106,10 +107,12 @@ export class EthGeoRefComponent {
                   uniquePois.set(p.qid, {
                     id: p.id,
                     qid: p.qid,
+                    lccn: p.lccn ?? '',
+                    gnd: p.gnd ?? '',
                     thumbnail: p.thumbnail,
                     label: p.name,
                     description: p.descriptionWikidata,
-                    url: `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${p.qid}`
+                    url: this.buildSearchUrl(p.qid, p.lccn || '')
                   });
                 }
               });
@@ -130,6 +133,31 @@ export class EthGeoRefComponent {
             eraraPlaces,
             allPlaces: [...ethorama, ...emapsPlaces, ...eraraPlaces]
           })),
+          // filter for places not rendered otb
+          switchMap(({ethorama, emapsPlaces, eraraPlaces, allPlaces}) => 
+            this.ethStoreService.linkedDataRecommendations$.pipe(
+              map((entities) => {
+                const entityIds = new Set(
+                  (entities ?? [])
+                    .map((e: any) => e.id)
+                    .filter((id: string | null | undefined): id is string => Boolean(id))
+                );              
+                const filteredPlaces = allPlaces.filter((p: any) => {
+                  const lccn = p.lccn;
+                  if (!lccn) {
+                    return true;
+                  }
+                  return !entityIds.has(lccn);
+                });
+                return {
+                  ethorama,
+                  emapsPlaces,
+                  eraraPlaces,
+                  allPlaces: filteredPlaces
+                }
+              })
+            )
+          ),
           //tap(data=>console.error(data))
         );
     }
@@ -145,24 +173,29 @@ export class EthGeoRefComponent {
 
     for (const p of places) {
       if (!p.qid || map.has(p.qid)) continue;
-
       map.set(p.qid, {
         id: p.gnd,
         qid: p.qid,
+        lccn: p.lccn ?? '',
+        gnd: p.gnd ?? '',
         thumbnail: p.image,
         label: p.name ?? '',
         description: p.description,
-        url: this.buildSearchUrl(p.qid)
+        url: this.buildSearchUrl(p.qid, p.lccn || '')
       });
     }
-
     return [...map.values()].sort((a, b) =>
       a.label.localeCompare(b.label)
     );
   }
 
-  private buildSearchUrl(qid: string): string {
-    return `/search?tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}&lang=${this.lang}&query=any,contains,[wd/place]${qid}`;
+  private buildSearchUrl(qid: string, lccn: string): string {
+    if(lccn){
+      return `/entity/location?vid=${this.vid}&lang=${this.lang}&entityId=${lccn}`;
+    }
+    else{
+      return `/entity/location?vid=${this.vid}&lang=${this.lang}&entityId=${qid}`;
+    }
   }
 
   private getSourceRecordId(record: PnxDoc): string | null{
@@ -189,6 +222,18 @@ export class EthGeoRefComponent {
     event.preventDefault(); 
     this.router.navigateByUrl(url);
   }
+
+  open(id: string) {
+    this.openGnd = id;
+  }
+  close() {
+    this.openGnd = null;
+  }
+  isOpen(gnd: string): boolean {
+    return this.openGnd === gnd;
+  }        
+
+
 }
 
   /*

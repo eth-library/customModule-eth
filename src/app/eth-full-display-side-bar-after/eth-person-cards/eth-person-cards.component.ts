@@ -35,6 +35,7 @@ export class EthPersonCardsComponent {
     @Input() hostComponent: HostComponent = {};
     private mqListener: ((e: MediaQueryListEvent) => void) | null = null;    
     private cardPositioned = false;
+      @Input() parentCtrl: any;
     
     constructor(
       private translate: TranslateService,
@@ -42,10 +43,11 @@ export class EthPersonCardsComponent {
       private ethErrorHandlingService: EthErrorHandlingService,
       private ethStoreService:EthStoreService,    
       private ethUtilsService: EthUtilsService,
-      private matomoService: EthMatomoService                    
+      private matomoService: EthMatomoService,
     ){}
 
     ngOnInit(): void {
+
       this.persons$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
         switchMap(record => this.loadPersons(record)),
         /*tap( (persons) => {
@@ -73,7 +75,6 @@ export class EthPersonCardsComponent {
       const lang = this.translate.currentLang;
       const gndList = this.getGndIds(record);     
       const idRefList = this.getIdRefs(record);   
-  
       const gndFromIdRef$ = idRefList.map(idref => this.ethPersonService.getGndByIdRef(idref));
 
       const gndStream$ = gndFromIdRef$.length > 0
@@ -151,22 +152,28 @@ export class EthPersonCardsComponent {
         
     private getGndIds(record: PnxDoc): string[] {
       const lds03 = record?.pnx?.display?.['lds03'] ?? [];
-      return lds03.map(l => {
+      return lds03.map( l => {
         l = l.replace('(DE-588)', '');
-        if (l.includes('http://d-nb.info/gnd')) {
+        // Alma:   GND: <a target="_blank" href="https://explore.gnd.network/gnd/1271627787"> Compagno, Loris 1993-</a>
+        if (l.includes('/gnd/')) {
           return l.substring(l.indexOf('gnd/') + 4, l.indexOf('">'));
-        } else if (l.includes(':')) {
-          return l.split(':')[1].trim();
         }
-        return null;
+        // externe Daten:   GND: Prelog, Vladimir (rela): 119247496
+        else if (l.includes('GND:')) {
+          return l.substring(l.lastIndexOf(': ') + 2).trim();
+        }
+        else{
+          return null;          
+        }
       }).filter((id): id is string => Boolean(id));
     }
 
     private getIdRefs(record: PnxDoc): string[] {
-      const lds90 = record?.pnx?.display?.['lds90'] ?? [];
+      const lds03 = record?.pnx?.display?.['lds03'] ?? [];
+     
       return Array.from(
         new Set(
-          lds90.map(entry => {
+          lds03.map(entry => {
             const match = entry.match(/idref\.fr\/([^">]+)/);
             return match?.[1] ?? null;
           }).filter((id): id is string => Boolean(id))

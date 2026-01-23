@@ -10,6 +10,7 @@ import { EthChangeAdressComponent } from '../eth-change-adress/eth-change-adress
 import { EthIdpWarningComponent } from '../eth-idp-warning/eth-idp-warning.component';
 import { EthRecordAvailabilityAfterComponent } from '../eth-record-availability-after/eth-record-availability-after.component';
 import { EthPlacePageComponent } from '../eth-place-page/eth-place-page.component';
+import { EthLocationPageComponent } from '../eth-location-page/eth-location-page.component';
 import { EthPersonPageComponent } from '../eth-person-page/eth-person-page.component';
 //import { EthOKMComponent } from '../eth-okm/eth-okm.component';
 //import { EthProvenienzEraraLinkComponent } from '../eth-provenienz-erara-link/eth-provenienz-erara-link.component';
@@ -36,6 +37,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-online-availability-before', EthOnlineButtonComponent],
     ['nde-search-results-container-after', EthPlacePageComponent],
     ['nde-entity-layout-bottom', EthPersonPageComponent],
+    ['nde-entity-layout-after', EthLocationPageComponent],
     ['nde-get-it-bottom',EthGetitLocationsfilterComponent],
     ['nde-location-bottom', EthLocationAfterComponent],
     ['nde-login-form-content-bottom', EthRegistrationLinkComponent],

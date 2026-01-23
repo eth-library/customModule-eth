@@ -101,6 +101,7 @@ const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId, select
 const selectLinkedDataRecommendations = createSelector(selectFullDisplayState, state => state.linkedDataRecommendations);
 
 const selectLDEntityId = createSelector(selectLDEntityState, state => state.entityId);
+const selectLDEntityStatus = createSelector(selectLDEntityState, state => state.entityStatus);
 
 const selectEMail = createSelector(selectAccount, state => state?.personalDetails?.email?.value);
 const selectPatronStatusCode = createSelector(selectAccount, state => state?.personalDetails?.patronstatus[0]?.registration[0]?.institution[0]?.patronstatuscode);
@@ -143,6 +144,7 @@ export class EthStoreService {
     readonly authenticationProfile$: Observable<string>;
     readonly linkedDataRecommendations$: Observable<LinkedDataRecommendation[]>;
     readonly linkedDataEntityId$: Observable<string>;
+    readonly linkedDataEntityStatus$: Observable<string>;
     
     constructor(
         private store: Store
@@ -192,6 +194,9 @@ export class EthStoreService {
         this.linkedDataEntityId$ = this.store.pipe(
             select(selectLDEntityId)
         );        
+        this.linkedDataEntityStatus$ = this.store.pipe(
+            select(selectLDEntityStatus)
+        );           
     }
 
     getVid(): string {

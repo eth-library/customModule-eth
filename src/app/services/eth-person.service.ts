@@ -26,7 +26,10 @@ export class EthPersonService {
         const url = `${this.baseurlRIB}/persons/person-gnd?gnd=${gnds}&lang=${lang}`;
         return this.http.get<PersonApiResponse>(url).pipe(
             catchError(e => {
-                this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersons');
+                // no persons found
+                if (e.status !== 500){
+                    this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersons');
+                }
                 return throwError(() => e);
             })
         );
@@ -174,7 +177,7 @@ export class EthPersonService {
 
     private mapEntityfactsRelatedPersons(persons: EntityfactsRelatedPersonApiResponse[]): EntityfactsRelatedPersonVM[] {
         return persons.map(p => ({
-            gnd: p['@id'].split('/').pop() || '',
+            gnd: p['@id']?.split('/').pop() || '',
             name: p.preferredName || '',
             relationship: p.relationship || ''
         }));
@@ -185,7 +188,6 @@ export class EthPersonService {
         try {
             const binding = resp.results.bindings?.[0];
             if (!binding) return undefined;
-
             const wiki: WikiVM = {
                 qid: binding.item?.value?.split('/').pop(),
                 loc: binding.loc?.value,
