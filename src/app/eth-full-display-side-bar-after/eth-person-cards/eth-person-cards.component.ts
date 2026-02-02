@@ -1,7 +1,7 @@
 // Person cards based on GND ID or IdRef in the right sidebar 
 // https://jira.ethz.ch/browse/SLSP-2095
 
-import { Component, inject, Input } from '@angular/core';
+import { Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
 import { catchError, forkJoin, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { EthPersonService } from '../../services/eth-person.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -30,13 +30,16 @@ import { HostComponent, PersonCardVM, PersonVM, PersonApiResponse, PersonResult 
 
 export class EthPersonCardsComponent {
     private router = inject(SHELL_ROUTER);  
-    openGnd: string | null = null;
+    openLicensePopover: string | null = null;
     persons$!: Observable<PersonCardVM | null>; 
     @Input() hostComponent: HostComponent = {};
-    private mqListener: ((e: MediaQueryListEvent) => void) | null = null;    
-    private cardPositioned = false;
-      @Input() parentCtrl: any;
+    //private mqListener: ((e: MediaQueryListEvent) => void) | null = null;    
+    //private cardPositioned = false;
+
+    @ViewChild('licensePopover') licensePopover?: ElementRef;
+    @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;    
     
+
     constructor(
       private translate: TranslateService,
       public ethPersonService: EthPersonService,
@@ -62,13 +65,6 @@ export class EthPersonCardsComponent {
         })
 
       )
-    }
-
-    ngOnDestroy() {
-      if (this.mqListener) {
-        const mq = window.matchMedia('(max-width: 599px)');
-        mq.removeEventListener('change', this.mqListener);
-      }
     }
 
     private loadPersons(record: PnxDoc): Observable<PersonCardVM | null> {
@@ -129,12 +125,11 @@ export class EthPersonCardsComponent {
               //console.error("entityIds",entityIds)
               //console.error("persons",persons.map((e:any)=>e.wiki?.loc))
               const filteredPersons = persons.filter((person: any) => {
-                const loc = person.wiki?.loc;
-                //console.error("loc2",person.wiki?.loc)
-                if (!loc) {
+                const lccn = person.entityfacts?.lccn || person.wiki?.loc;
+                if (!lccn) {
                   return true;
                 }
-                return !entityIds.has(loc);
+                return !entityIds.has(lccn);
               });
               return {
                 otbPersons: entities,
@@ -181,18 +176,45 @@ export class EthPersonCardsComponent {
       );
     }
 
-    open(id: string) {
-      this.openGnd = id;
-    }
-    close() {
-      this.openGnd = null;
-    }
-    isOpen(gnd: string): boolean {
-      return this.openGnd === gnd;
-    }        
-
     navigate(url: string, event: Event){
       event.preventDefault(); 
-      this.router.navigateByUrl(url);
+      this.router.navigateByUrl(url + "#eth-top");
+    }   
+    
+    open(key: string) {
+      this.openLicensePopover = key;
+      setTimeout(() => {
+        this.licensePopover?.nativeElement?.focus();
+      });
+    }
+
+    close() {
+      this.openLicensePopover = null;
+      setTimeout(() => {
+        this.licensePopoverTrigger?.nativeElement?.focus();
+      });
+    }
+
+    toggle(key: string) {
+      this.isOpen(key) ? this.close() : this.open(key);
+    }
+
+    isOpen(key: string): boolean {
+      return this.openLicensePopover === key;
+    }        
+
+    onFocusOut(event: FocusEvent) {
+      const next = event.relatedTarget as HTMLElement | null;
+      console.error(next)
+      if (!this.licensePopover?.nativeElement.contains(next)) {
+        this.close();
+      }
     }    
 }
+
+    /*ngOnDestroy() {
+      if (this.mqListener) {
+        const mq = window.matchMedia('(max-width: 599px)');
+        mq.removeEventListener('change', this.mqListener);
+      }
+    }*/

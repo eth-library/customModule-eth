@@ -1,7 +1,7 @@
 // EntityPage Person
 // https://jira.ethz.ch/browse/SLSP-1990
 
-import { Component, inject, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild, ViewEncapsulation } from '@angular/core';
 import { catchError, filter, forkJoin, map, Observable, of, startWith, Subject, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../services/eth-person.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
@@ -33,10 +33,14 @@ import { PersonVM, SearchVariantVM, PrimoApiResponse } from '../models/eth.model
 export class EthPersonPageComponent{
   private router = inject(SHELL_ROUTER); 
   private lang!: string;  
-  openGnd: string | null = null;
+  openLicensePopover: string | null = null;
   person$!: Observable<PersonVM | null>;
   linkedDataEntityId$!: Observable<string>;
   otbEntityStatus!:  Observable<string>;
+
+  @ViewChild('licensePopover') licensePopover?: ElementRef;
+  @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
+
   
   constructor(
     private translate: TranslateService,
@@ -69,9 +73,9 @@ export class EthPersonPageComponent{
           filter(data => !!data),
           map(data => {
             let person = this.ethPersonService.processPersonsResponse(data, this.lang);
-            person['qid'] = data.qid?.[0];
+            //person['qid'] = data.qid?.[0];
             person['label'] = person['entityfacts']?.preferredName || person['wiki']?.label || '';
-            person['gnd'] = data.gnd?.find((g: string) => g !== '') || '';
+            //person['gnd'] = data.gnd?.find((g: string) => g !== '') || '';
             person['yearOfBirth'] = person['wiki']?.birth?.split('-')[0] 
                                 || person['entityfacts']?.birthDate?.split(' ').pop() 
                                 || '';
@@ -166,14 +170,34 @@ export class EthPersonPageComponent{
     this.router.navigateByUrl(url);
   }      
 
-    open(id: string) {
-      this.openGnd = id;
+  open(key: string) {
+    this.openLicensePopover = key;
+    setTimeout(() => {
+      this.licensePopover?.nativeElement?.focus();
+    });
+  }
+
+  close() {
+    this.openLicensePopover = null;
+    setTimeout(() => {
+      this.licensePopoverTrigger?.nativeElement?.focus();
+    });
+  }
+
+  toggle(key: string) {
+    this.isOpen(key) ? this.close() : this.open(key);
+  }
+
+  isOpen(key: string): boolean {
+    return this.openLicensePopover === key;
+  }        
+
+  onFocusOut(event: FocusEvent) {
+    const next = event.relatedTarget as HTMLElement | null;
+    console.error(next)
+    if (!this.licensePopover?.nativeElement.contains(next)) {
+      this.close();
     }
-    close() {
-      this.openGnd = null;
-    }
-    isOpen(gnd: string): boolean {
-      return this.openGnd === gnd;
-    }        
+  }
 
 }

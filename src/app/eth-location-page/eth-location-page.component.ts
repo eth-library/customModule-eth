@@ -1,12 +1,12 @@
 // EntityPage Place
 // https://jira.ethz.ch/browse/SLSP-1991
-import { Component, Inject, inject, Renderer2, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild, ViewEncapsulation } from '@angular/core';
 import { combineLatest, forkJoin, map, Observable, of, startWith, switchMap, catchError, filter, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthLocationPageService } from './eth-location-page.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,6 +24,7 @@ import { SHELL_ROUTER } from "../injection-tokens";
   encapsulation: ViewEncapsulation.None,
   imports: [CommonModule, MatDividerModule, MatExpansionModule, MatIconModule, SafeTranslatePipe]
 })
+
 export class EthLocationPageComponent {
   private router = inject(SHELL_ROUTER); 
   placePageData$!: Observable<PlacePageViewModel | null>;
@@ -36,15 +37,17 @@ export class EthLocationPageComponent {
   polygonsWithCenters!: any;
   openWeight!: number;
   otbEntityStatus!:  Observable<string>;
-  openCommonsHint: string | null = null;  
+  openLicensePopover: string | null = null;  
+  
+  @ViewChild('licensePopover') licensePopover?: ElementRef;
+  @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
+
 
   constructor(
     private translate: TranslateService,
     private ethStoreService: EthStoreService,
     public ethLocationPageService: EthLocationPageService,
-    private renderer: Renderer2,
     private ethErrorHandlingService: EthErrorHandlingService,
-    @Inject(DOCUMENT) private document: Document
   ) {}
 
 
@@ -53,7 +56,6 @@ export class EthLocationPageComponent {
       return;
     }
     
-    // check in template if image/name/desc should be rendered
     this.otbEntityStatus = this.ethStoreService.linkedDataEntityStatus$.pipe(catchError(() => of('success')));
     
     this.vid = this.ethStoreService.getVid();
@@ -68,8 +70,8 @@ export class EthLocationPageComponent {
         return entityId;
       }),
       filter(Boolean),
-      switchMap(entityId => this.resolveQid(entityId)),
-      switchMap(qid => this.getLocationData(qid)),
+      switchMap(entityId => this.resolveEntityId(entityId)),
+      switchMap(identifier => this.getLocationData(identifier)),
       catchError(e => {
         this.ethErrorHandlingService.logError(
           e,
@@ -80,11 +82,16 @@ export class EthLocationPageComponent {
     );
   }
 
-  private resolveQid(entityId: string): Observable<string> {
-    if (entityId.startsWith('Q')) {
-      return of(entityId);
-    }
-
+  // our services can use gnd and qid, but not lccn --> map lccn to qid
+  // --> EthGeoRefComponent.buildLocationEntityUrl()
+  private resolveEntityId(entityId: string): Observable<string> {
+    // entityId=4639612-3,Q12345 - GND,QID Wikidata
+    // entityId=Q12345 - Wikidata QID
+    // entityId=GND4639612-3 GND
+    if(entityId.includes(',') || entityId.startsWith('Q') || entityId.startsWith('GND')){
+      return of(entityId)
+    } 
+    // entityId=no2002070963 lccn / LoC -> map lccn to qid
     return this.ethLocationPageService.getIdentifierForLccn(entityId).pipe(
       map(mapIdentifierResponseToQid),
       filter((qid): qid is string => !!qid)
@@ -92,10 +99,26 @@ export class EthLocationPageComponent {
   }
 
   
-  private getLocationData(qid: string): Observable<PlacePageViewModel> {
+  private getLocationData(identifier: string): Observable<PlacePageViewModel> {
+    // check for type of identifier: gnd and qid, gnd, qid
+    let qid;
+    let gnd;
+    
+    // entityId=4639612-3,Q12345
+    const parts = identifier.split(',');
+    if (parts.length === 2) {
+      [gnd, qid] = parts;
+    }    
+    // entityId=Q12345 - Wikidata QID
+    else if (identifier.startsWith('Q')) {
+      qid = identifier;
+    }
+    // entityId=GND4639612-3 GND
+    else if(identifier.startsWith('GND')){
+      gnd = identifier.slice(3);  
+    }
     // Context
     const ctx: PlacePageContext = {
-      qid: this.qid,
       lang: this.lang,
       vid: this.vid,
       tab: this.ethStoreService.getTab(),
@@ -103,10 +126,10 @@ export class EthLocationPageComponent {
     };
 
     return forkJoin({
-      topics: this.ethLocationPageService.getTopicsFromGeoGraph(qid).pipe(catchError(() => of({ features: [] }))),
-      poi: this.ethLocationPageService.getPoiFromGeoGraph(qid).pipe(catchError(() => of({ features: [] }))),
-      ethorama: this.ethLocationPageService.getPlaceFromETHorama(qid).pipe(catchError(() => of({ items: [] }))),
-      wikidata: this.ethLocationPageService.getPlaceFromWikidata(qid, this.lang).pipe(catchError(() => of({ results: { bindings: [] } })))
+      topics: qid || gnd ? this.ethLocationPageService.getTopicsFromGeoGraph(gnd, qid).pipe(catchError(() => of({ features: [] }))) : of({ features: [] }),
+      poi: qid || gnd ? this.ethLocationPageService.getPoiFromGeoGraph(gnd, qid).pipe(catchError(() => of({ features: [] }))) : of({ features: [] }),
+      ethorama: qid ? this.ethLocationPageService.getPlaceFromETHorama(qid).pipe(catchError(() => of({ items: [] }))) : of({ items: [] }),
+      wikidata: qid || gnd ? this.ethLocationPageService.getPlaceFromWikidata(gnd, qid, this.lang).pipe(catchError(() => of({ results: { bindings: [] } }))) : of({ results: { bindings: [] } })
     }).pipe(
       map((rawData: PlacePageRawData) => {
         const viewModelData: PlacePageViewModel = {
@@ -219,15 +242,35 @@ export class EthLocationPageComponent {
     this.router.navigateByUrl(url);
   }      
 
-  open(id: string) {
-    this.openCommonsHint = id;
+  open(key: string) {
+    this.openLicensePopover = key;
+    setTimeout(() => {
+      this.licensePopover?.nativeElement?.focus();
+    });
   }
+
   close() {
-    this.openCommonsHint = null;
+    this.openLicensePopover = null;
+    setTimeout(() => {
+      this.licensePopoverTrigger?.nativeElement?.focus();
+    });
   }
-  isOpen(id: string): boolean {
-    return this.openCommonsHint === id;
+
+  toggle(key: string) {
+    this.isOpen(key) ? this.close() : this.open(key);
+  }
+
+  isOpen(key: string): boolean {
+    return this.openLicensePopover === key;
   }        
+
+  onFocusOut(event: FocusEvent) {
+    const next = event.relatedTarget as HTMLElement | null;
+    console.error(next)
+    if (!this.licensePopover?.nativeElement.contains(next)) {
+      this.close();
+    }
+  }
 
 }
 

@@ -11,6 +11,7 @@ export class EthUtilsService {
     private ethErrorHandlingService: EthErrorHandlingService
   ){} 
 
+
   // sanitize text. Only a few html tags are valid.
   sanitizeText(text: string | null): string | null {
     try{
@@ -25,9 +26,9 @@ export class EthUtilsService {
       });
       return div.innerHTML;
     }
-    catch (error) {
+    catch (error:unknown) {
       this.ethErrorHandlingService.logSyncError(error, 'EthUtilsService.sanitizeText()');
-      return null;      
+      return null;
     }
   }
 

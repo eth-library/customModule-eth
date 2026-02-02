@@ -122,7 +122,8 @@
     background-color: var(--sys-surface-container-lowest);
     border-radius: 50%;
     fill: currentColor;
-    overflow: hidden;    
+    border-width: 0;
+    padding: 0;
 }
 .eth-location-copyright-hint{
     position: absolute;

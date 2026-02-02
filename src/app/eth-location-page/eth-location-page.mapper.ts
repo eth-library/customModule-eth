@@ -1,28 +1,15 @@
 import { PlacePageContext, EthoramaAPIResponse, GraphGeoInfoAPIResponse, WikiIdentifierForLccnAPIResponse, WikidataPlaceAPIResponse, EthoramaPlaceVM,  GeoTopicVM, GeoPoiVM, WikidataPlaceVM, MapVM } from '../models/eth.model';
 
-
 // ETHorama
 export function mapETHorama( response: EthoramaAPIResponse, ctx: PlacePageContext ): EthoramaPlaceVM | null {
   if (!response?.items?.length) {
     return null;
   }
 
-  const place: EthoramaPlaceVM = {
-    qid: ctx.qid,
-    contentItems: [],
+  const poi: EthoramaPlaceVM = {
     links: []
   };
 
-  // deduplicate contentItems
-  response.items.forEach(item => {
-    item.contentItems?.forEach(ci => {
-      if (!place.contentItems.some(x => x.docId === ci.docId)) {
-        place.contentItems.push(ci);
-      }
-    });
-  });
-
-  // links
   response.items.forEach(item => {
     const name =
       ctx.lang === 'en'
@@ -30,7 +17,7 @@ export function mapETHorama( response: EthoramaAPIResponse, ctx: PlacePageContex
         : item.name?.de;
     if (!name) return;
 
-    place.links.push({
+    poi.links.push({
       url:
         ctx.lang === 'en'
           ? `https://ethorama.library.ethz.ch/en/locations/${item.id}`
@@ -38,16 +25,16 @@ export function mapETHorama( response: EthoramaAPIResponse, ctx: PlacePageContex
       text: name
     });
   });
-
-  return place;
+  
+  return poi;
 }
+
 
 // Geodata Graph Topics
 export function mapGeoTopics( response: GraphGeoInfoAPIResponse, ctx: PlacePageContext): GeoTopicVM[] | null {
   if (!response?.features?.length) {
     return null;
   }
-  // todo only what is used
   return response.features
     .filter(f => f.properties)  
     .map(f => {
@@ -55,17 +42,7 @@ export function mapGeoTopics( response: GraphGeoInfoAPIResponse, ctx: PlacePageC
       return {
         name: p.name,
         gnd: p.gnd,
-        url: `/search?query=sub,contains,${encodeURIComponent(p.name)}&tab=${ctx.tab}&search_scope=${ctx.scope}&vid=${ctx.vid}&lang=${ctx.lang}&mode=advanced`,
-        eMaps: (p.eMaps ?? []).map(i => ({
-          mmsid: i.mmsid,
-          title: i.title,
-          url: `/fulldisplay?vid=${ctx.vid}&docid=alma${i.mmsid}`
-        })),
-        eRaraItems: (p.eRaraItems ?? []).map(i => ({
-          mmsid: i.mmsid,
-          title: i.title,
-          url: `/fulldisplay?vid=${ctx.vid}&docid=alma${i.mmsid}`
-        }))
+        url: `/search?query=sub,contains,${encodeURIComponent(p.name)}&tab=${ctx.tab}&search_scope=${ctx.scope}&vid=${ctx.vid}&lang=${ctx.lang}&mode=advanced`
       };
     });
 }
@@ -117,6 +94,7 @@ export function mapGeoPoi( response: GraphGeoInfoAPIResponse, ctx: PlacePageCont
   return poi;
 }
 
+
 // Identifier Response from Wikidata -> QID
 export function mapIdentifierResponseToQid( response: WikiIdentifierForLccnAPIResponse): string | null {
   const binding = response?.results?.bindings?.[0];
@@ -125,6 +103,7 @@ export function mapIdentifierResponseToQid( response: WikiIdentifierForLccnAPIRe
   }  
   return binding.qid?.value ?? null;
 }
+
 
 // Wikidata
 export function mapWikidata( response: WikidataPlaceAPIResponse): WikidataPlaceVM | null {
@@ -163,6 +142,7 @@ export function mapWikidata( response: WikidataPlaceAPIResponse): WikidataPlaceV
 
   return place;
 }
+
 
 // Maps
 export function mapMaps( filteredData: GraphGeoInfoAPIResponse): MapVM[] | null {

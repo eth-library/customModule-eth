@@ -52,7 +52,8 @@ summary::marker {
 }
 .eth-person-card{
     display: flex;
-    flex-direction: row;
+    flex-direction: row-reverse;
+    justify-content: flex-end;    
     gap: 1rem;
     margin-block: .75rem;
     font-size: 0.875rem;
@@ -81,11 +82,12 @@ summary::marker {
     left: 0;
     color: var(--sys-primary);    
     height: 18px;
-    width: 168x;
+    width: 18px;
     background-color: var(--sys-surface-container-lowest);
     border-radius: 50%;
     fill: currentColor;
-    overflow: hidden;    
+    border-width: 0;
+    padding: 0;    
 }
 .eth-person-copyright-hint{
     position: absolute;

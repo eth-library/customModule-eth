@@ -1,6 +1,8 @@
 // 
 // https://jira.ethz.ch/browse/SLSP-2009
 
+// id attribute is used for router.navigateByUrl() -> go to the top of the page  
+
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { EthStoreService } from 'src/app/services/eth-store.service';

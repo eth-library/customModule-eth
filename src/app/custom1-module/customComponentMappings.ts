@@ -9,7 +9,6 @@ import { EthLogoSublineComponent } from '../eth-logo-subline/eth-logo-subline.co
 import { EthChangeAdressComponent } from '../eth-change-adress/eth-change-adress.component';
 import { EthIdpWarningComponent } from '../eth-idp-warning/eth-idp-warning.component';
 import { EthRecordAvailabilityAfterComponent } from '../eth-record-availability-after/eth-record-availability-after.component';
-import { EthPlacePageComponent } from '../eth-place-page/eth-place-page.component';
 import { EthLocationPageComponent } from '../eth-location-page/eth-location-page.component';
 import { EthPersonPageComponent } from '../eth-person-page/eth-person-page.component';
 //import { EthOKMComponent } from '../eth-okm/eth-okm.component';
@@ -35,7 +34,6 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-record-citations-indicators-top',EthConnectedpapersComponent],
     ['nde-record-availability-after', EthRecordAvailabilityAfterComponent],
     ['nde-online-availability-before', EthOnlineButtonComponent],
-    ['nde-search-results-container-after', EthPlacePageComponent],
     ['nde-entity-layout-bottom', EthPersonPageComponent],
     ['nde-entity-layout-after', EthLocationPageComponent],
     ['nde-get-it-bottom',EthGetitLocationsfilterComponent],

@@ -56,6 +56,8 @@ details[open] .marker {
 }
 .eth-provenance-card {
   display: flex;
+  flex-direction: row-reverse;  
+  justify-content: flex-end;  
   gap: 1rem;
   margin-block: .75rem;
   font-size: .875rem;

@@ -12,9 +12,6 @@
           @for (item of items; track item; let last = $last) {
             <li role="listitem">
               <div class="eth-provenance-card">
-                <div class="eth-provenance-card__image-container">
-                    <img class="eth-provenance-card__image" [attr.src]="'https://assets.ethz.sharedien.com/assets/api/' + item.id + '/thumbnail'" alt="{{ item.title }}">
-                </div>
                 <div class="eth-provenance-card__text">
                     @if (item.description) {
                         <h5><a [href]="'/nde'+item.url" (click)="navigate(item.url,$event)">{{ item.description }}</a></h5>
@@ -29,6 +26,9 @@
                         </a>
                     </div>
                     <div class="eth-entity-type-wrapper"><span class="entity-type">{{'eth.provenance.entity' | safeTranslate | async}}</span></div>
+                </div>
+                <div class="eth-provenance-card__image-container">
+                    <img class="eth-provenance-card__image" [attr.src]="'https://assets.ethz.sharedien.com/assets/api/' + item.id + '/thumbnail'" alt="{{ item.title }}">
                 </div>
               </div>
               @if (!last) {

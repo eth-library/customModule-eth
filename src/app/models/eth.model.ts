@@ -229,6 +229,10 @@ export type GraphGeoInfoAPIResponse = GeoJSONFeatureCollection<GraphGeoInfo>;
 export type GraphSinglePoiAPIResponse = GeoJSONFeatureCollection<GraphPoiProperties>;
 
 /* places from Graph API for mmsid (georef/place card)*/
+export interface GraphGndPlacesResponse {
+  results: GraphGeoInfo[];
+}
+/*  */
 export interface GraphRelatedPlaces {
   places?: GraphGeoInfo[];
 }
@@ -338,6 +342,7 @@ export interface WikiIdentifierForLccnAPIResponse {
 
 /* Places VM for georeference / place cards */
 export interface PlacesGeoRefVM {
+  gndPlaces: PlaceGeoRefVM[] 
   ethorama: PlaceGeoRefVM[];
   emapsPlaces: PlaceGeoRefVM[];
   eraraPlaces: PlaceGeoRefVM[];
@@ -345,9 +350,9 @@ export interface PlacesGeoRefVM {
 }
 export interface PlaceGeoRefVM {
   id?: string;
-  qid: string;
-  lccn?: string;
-  gnd?: string;
+  qid: string | undefined;
+  lccn?: string | undefined;
+  gnd?: string | undefined;
   label: string;
   description?: string;
   thumbnail?: string;
@@ -379,16 +384,12 @@ export interface GeoTopicVM {
   name: string;
   gnd?: string;
   url?: string;
-  eMaps?: Array<{ title: string; url: string }>;
-  eRaraItems?: Array<{ title: string; url: string }>;
 }
 export interface GeoPoiVM {
   dossiers: Array<{ text: string; url: string }>;
   routes: Array<{ text: string; url: string }>;
 }
 export interface EthoramaPlaceVM {
-  qid: string;
-  contentItems: any[]; 
   links: Array<{ text: string; url: string }>;
 }
 export interface MapVM {
@@ -406,7 +407,6 @@ export interface PlacePageViewModel {
 
 /* Context */
 export interface PlacePageContext {
-  qid: string;
   lang: string;
   vid: string | null;
   tab: string | null;
@@ -638,6 +638,7 @@ export interface EntityfactsApiResponse {
   relatedPerson: EntityfactsRelatedPersonApiResponse[];
   placeOfActivity?: {'@id': string; preferredName?: string}[];
   placeOfBirth?: {'@id': string; preferredName?: string}[];
+  sameAs?: {'@id': string; collection?: {abbr: string}}[];
 }
 export interface EntityfactsRelatedPersonApiResponse{
   '@id': string;
@@ -673,6 +674,8 @@ export interface EntityfactsVM {
   relatedPersons: EntityfactsRelatedPersonVM[];
   placesOfActivity?: EntityfactsPlaceVM[];
   placesOfBirth?: EntityfactsPlaceVM[];
+  lccn?: string;
+  qid?: string;
 }
 export interface WikiRelatedPersonVM {
   gnd: string;

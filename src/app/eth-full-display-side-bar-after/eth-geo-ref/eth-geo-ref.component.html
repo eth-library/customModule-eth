@@ -13,30 +13,20 @@
           @for (place of places.allPlaces; track place; let last = $last) {
             <li role="listitem">
               <div class="eth-place-card">
-                @if(place.thumbnail){
-                <div class="eth-place-card__image-container">
-                    <img class="eth-place-card__image" [attr.src]="place.thumbnail" alt="{{ place.label }}">
-                    <!--div class="eth-place-copyright" (mouseenter)="open(place.qid)" (mouseleave)="close()" (focus)="open(place.qid)" (blur)="close()">
-                      <div class="eth-place-copyright-button" tabindex="0">
-                        <svg width="100%" height="100%" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false"><path d="M7.33335 12.3333H10.6667C10.9028 12.3333 11.1007 12.2535 11.2604 12.0937C11.4202 11.934 11.5 11.7361 11.5 11.5V9.83332H9.83335V10.6667H8.16669V7.33332H9.83335V8.16666H11.5V6.49999C11.5 6.26388 11.4202 6.06596 11.2604 5.90624C11.1007 5.74652 10.9028 5.66666 10.6667 5.66666H7.33335C7.09724 5.66666 6.89933 5.74652 6.7396 5.90624C6.57988 6.06596 6.50002 6.26388 6.50002 6.49999V11.5C6.50002 11.7361 6.57988 11.934 6.7396 12.0937C6.89933 12.2535 7.09724 12.3333 7.33335 12.3333ZM9.00002 17.3333C7.84724 17.3333 6.76391 17.1146 5.75002 16.6771C4.73613 16.2396 3.85419 15.6458 3.10419 14.8958C2.35419 14.1458 1.76044 13.2639 1.32294 12.25C0.885437 11.2361 0.666687 10.1528 0.666687 8.99999C0.666687 7.84721 0.885437 6.76388 1.32294 5.74999C1.76044 4.7361 2.35419 3.85416 3.10419 3.10416C3.85419 2.35416 4.73613 1.76041 5.75002 1.32291C6.76391 0.885406 7.84724 0.666656 9.00002 0.666656C10.1528 0.666656 11.2361 0.885406 12.25 1.32291C13.2639 1.76041 14.1459 2.35416 14.8959 3.10416C15.6459 3.85416 16.2396 4.7361 16.6771 5.74999C17.1146 6.76388 17.3334 7.84721 17.3334 8.99999C17.3334 10.1528 17.1146 11.2361 16.6771 12.25C16.2396 13.2639 15.6459 14.1458 14.8959 14.8958C14.1459 15.6458 13.2639 16.2396 12.25 16.6771C11.2361 17.1146 10.1528 17.3333 9.00002 17.3333ZM9.00002 15.6667C10.8611 15.6667 12.4375 15.0208 13.7292 13.7292C15.0209 12.4375 15.6667 10.8611 15.6667 8.99999C15.6667 7.13888 15.0209 5.56249 13.7292 4.27082C12.4375 2.97916 10.8611 2.33332 9.00002 2.33332C7.13891 2.33332 5.56252 2.97916 4.27085 4.27082C2.97919 5.56249 2.33335 7.13888 2.33335 8.99999C2.33335 10.8611 2.97919 12.4375 4.27085 13.7292C5.56252 15.0208 7.13891 15.6667 9.00002 15.6667Z"></path></svg>
-                      </div>
-                      @if (isOpen(place.qid)){
-                        <div class="eth-place-copyright-hint">
-                          <span>{{'eth.personCard.licence' | safeTranslate | async}} </span> 
-                            <a [href]="place.thumbnail" target="_blank" rel="noopener">Wikimedia Commons</a>
-                        </div>
-                      }    
-                    </div-->                                      
-                </div>}
                 <div class="eth-place-card__text">
                     <h5>
-                      <a [href]="'/nde'+place.url" (click)="navigate(place.url,$event)">
+                      <a [href]="'/nde' + place.url" (click)="navigate(place.url,$event)">
                         {{ place.label }}
                       </a>
                     </h5>
                     <div *ngIf="place.description">{{place.description}}</div>
                     <div class="eth-entity-type-wrapper"><span class="entity-type">{{'eth.geoRef.entity' | safeTranslate | async}}</span></div>
                 </div>
+                @if(place.thumbnail){
+                  <div class="eth-place-card__image-container">
+                      <img class="eth-place-card__image" [attr.src]="place.thumbnail" alt="{{ place.label }}">
+                  </div>
+                }
               </div>
               @if (!last) {
                 <mat-divider role="separator" class="mat-divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>

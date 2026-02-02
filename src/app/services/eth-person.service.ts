@@ -23,7 +23,7 @@ export class EthPersonService {
 
    
     getPersons(gnds: string, lang: string): Observable<PersonApiResponse> {
-        const url = `${this.baseurlRIB}/persons/person-gnd?gnd=${gnds}&lang=${lang}`;
+        const url = `${this.baseurlRIB}/persons/person-gnd-short?gnd=${gnds}&lang=${lang}`;
         return this.http.get<PersonApiResponse>(url).pipe(
             catchError(e => {
                 // no persons found
@@ -167,6 +167,18 @@ export class EthPersonService {
                         gnd: p['@id']?.split('/').pop(),
                         name: p.preferredName || ''
                     }));
+            }
+            if (resp.sameAs) {
+                const match = resp.sameAs.find((s: any) => s.collection.abbr === 'LC');
+                if (match) {
+                    ef.lccn = match['@id']?.split('/').pop();
+                }
+            }
+            if (resp.sameAs) {
+                const match = resp.sameAs.find((s: any) => s.collection.abbr === 'WIKIDATA');
+                if (match) {
+                    ef.qid = match['@id']?.split('/').pop();
+                }
             }
             return ef;
         } catch (error: unknown) {
@@ -415,12 +427,18 @@ export class EthPersonService {
             // URL der Entity
             if (person.wiki?.loc) {
                 person.url = `/entity/person?entityId=${person.wiki.loc}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
+            } else if (person.entityfacts?.lccn) {
+                person.url = `/entity/person?entityId=${person.entityfacts.lccn}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
             } else if (person.gnd) {
                 person.url = `/entity/person?entityId=${person.gnd}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
             }
 
             // Name
             person.name = person.entityfacts?.preferredName ?? person.wiki?.label ?? '';
+
+            // qid
+            person.qid = person.wiki?.qid ?? person.entityfacts?.qid ?? '';
+            
             return person;
         } catch (error: unknown) {
             this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processPersonsResponse');

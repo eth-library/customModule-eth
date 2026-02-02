@@ -14,7 +14,8 @@ export class EthLocationPageService {
     private baseurlTopics = 'https://api.library.ethz.ch/geo/v1/geo-topics';
     private baseurlMaps = 'https://api.library.ethz.ch/geo/v1/maps';
     private baseurlPoi = 'https://api.library.ethz.ch/geo/v1/pois';
-    private baseurlWikidata = 'https://daas.library.ethz.ch/rib/v3/places/';
+    private baseurlWikidataByQID = 'https://daas.library.ethz.ch/rib/v3/places/';
+    private baseurlWikidataByGND = '// https://daas.library.ethz.ch/rib/v3/places/gnd/'
     private baseUrlIdentifierForLccn = 'https://daas.library.ethz.ch/rib/v3/places/lccn-identifier';
 
     constructor(
@@ -22,9 +23,9 @@ export class EthLocationPageService {
         private ethErrorHandlingService: EthErrorHandlingService,
     ) {}
 
-    // https://api.library.ethz.ch/ethorama/v1/pois?apikey=XKosnD8xM5AuyvuovfebqpHUzkrMi0qqlVKcM5gHYDANCyds&details=true&qId=Q15283
+    // https://api.library.ethz.ch/ethorama/v1/pois?apikey=XKosnD8xM5AuyvuovfebqpHUzkrMi0qqlVKcM5gHYDANCyds&details=false&qId=Q15283
     getPlaceFromETHorama(qid: string): Observable<EthoramaAPIResponse> {
-      const url = `${this.baseurlETHorama}?apikey=XKosnD8xM5AuyvuovfebqpHUzkrMi0qqlVKcM5gHYDANCyds&details=true&qId=${qid}`;
+      const url = `${this.baseurlETHorama}?apikey=XKosnD8xM5AuyvuovfebqpHUzkrMi0qqlVKcM5gHYDANCyds&details=false&qId=${qid}`;
       return this.http.get<EthoramaAPIResponse>(url).pipe(
         catchError((e) => {
           // if not found: HTTP 500
@@ -34,9 +35,22 @@ export class EthLocationPageService {
       );
     }
 
+
+    // https://api.library.ethz.ch/geo/v1/pois?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&qid=Q15283
+    getPoiFromGeoGraph(gnd: string | undefined, qid: string | undefined): Observable<GraphGeoInfoAPIResponse> {
+      const url = `${this.baseurlPoi}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&qid=${qid}&gnd=${gnd}`;
+      return this.http.get<GraphGeoInfoAPIResponse>(url).pipe(
+        catchError((e) => {
+          this.ethErrorHandlingService.logError(e, 'EthLocationPageService.getPoiFromGeoGraph');
+          return throwError(() => e);
+        })            
+      );
+    }
+
+
     // https://api.library.ethz.ch/geo/v1/geo-topics/?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&q=Q15283
-    getTopicsFromGeoGraph(qid: string): Observable<GraphGeoInfoAPIResponse> {
-      const url = `${this.baseurlTopics}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&q=${qid}`;
+    getTopicsFromGeoGraph(gnd: string | undefined, qid: string | undefined): Observable<GraphGeoInfoAPIResponse> {
+      const url = `${this.baseurlTopics}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=false&qid=${qid}&gnd=${gnd}`;
       return this.http.get<GraphGeoInfoAPIResponse>(url).pipe(
         catchError((e) => {
           this.ethErrorHandlingService.logError(e, 'EthLocationPageService.getTopicsFromGeoGraph');
@@ -44,6 +58,7 @@ export class EthLocationPageService {
         })            
       );
     }
+    
 
     // https://daas.library.ethz.ch/rib/v3/graph/maps?lat=47.349952&lon=8.490838
     getMapsFromGeoGraph(lat: string, lng: string): Observable<GraphGeoInfoAPIResponse> {
@@ -56,20 +71,16 @@ export class EthLocationPageService {
       );
     }
     
-    // https://api.library.ethz.ch/geo/v1/pois?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&q=Q15283
-    getPoiFromGeoGraph(qid: string): Observable<GraphGeoInfoAPIResponse> {
-      const url = `${this.baseurlPoi}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&q=${qid}`;
-      return this.http.get<GraphGeoInfoAPIResponse>(url).pipe(
-        catchError((e) => {
-          this.ethErrorHandlingService.logError(e, 'EthLocationPageService.getPoiFromGeoGraph');
-          return throwError(() => e);
-        })            
-      );
-    }
 
     // https://daas.library.ethz.ch/rib/v3/places/Q27494?lang=en
-    getPlaceFromWikidata(qid: string, lang: string): Observable<WikidataPlaceAPIResponse> {
-      const url = `${this.baseurlWikidata}/${qid}?lang=${lang}`;
+    getPlaceFromWikidata(gnd: string | undefined, qid: string | undefined, lang: string): Observable<WikidataPlaceAPIResponse> {
+      let url;
+      if(qid){
+        url = `${this.baseurlWikidataByQID}/${qid}?lang=${lang}`;
+      }
+      else{
+        url = `${this.baseurlWikidataByQID}/gnd/${gnd}?lang=${lang}`;
+      }
       return this.http.get<WikidataPlaceAPIResponse>(url).pipe(
           map(response => {
             return response;

@@ -146,15 +146,18 @@ export class EthMetagridComponent implements AfterViewInit {
       }),
       // copy toggle links and cards to target place
       tap( persons => {
-          const authorityContainer = this.document.querySelector('nde-full-display-details') as HTMLElement;
-          if (!authorityContainer) return;
-
+          const detailsContainer = this.document.querySelector('nde-full-display-details') as HTMLElement;
+          if (!detailsContainer) return;
           const observer = new MutationObserver((mutations, obs) => {
-            this.copyMetagridLinks(persons, authorityContainer);
-            obs.disconnect();
+            let authorityContainer = detailsContainer.querySelector('[data-qa="detail_lds03"]') as HTMLElement;
+            let metagridCard = detailsContainer.querySelector('.metagrid-card') as HTMLElement;
+            let metagridLink = detailsContainer.querySelector('.metagrid-link') as HTMLElement;
+            if(authorityContainer && metagridCard && metagridLink){
+              this.copyMetagridLinks(persons, authorityContainer);
+              obs.disconnect();
+            }
           });
-          
-          observer.observe(authorityContainer, { childList: true, subtree: true });
+          observer.observe(detailsContainer, { childList: true, subtree: true });
         }
       )
       //tap(persons => setTimeout(() => this.copyMetagridLinks(persons), 1000))
@@ -162,7 +165,6 @@ export class EthMetagridComponent implements AfterViewInit {
   
   }
 
-  
   
   // extract GND 
   private getGndIds(record:any): string[] | null {
@@ -202,8 +204,7 @@ export class EthMetagridComponent implements AfterViewInit {
   
   // copy toggle links and cards to target place
   copyMetagridLinks(persons: Person[], authorityContainer: HTMLElement): void {
-    
-    // map person to target element
+    // create map:  person to target element
     const personIdToTargetElementMap = new Map<string, Element>();
 
     // personsIds
@@ -228,6 +229,7 @@ export class EthMetagridComponent implements AfterViewInit {
 
       if (
         href.includes('explore.gnd.network/gnd/') ||
+        href.includes('d-nb.info/gnd/') ||
         href.includes('www.idref.fr/')
       ) {
         const personIdFromHref = extractId(href);
@@ -238,19 +240,17 @@ export class EthMetagridComponent implements AfterViewInit {
         if(span){
           personIdToTargetElementMap.set(personIdFromHref, span);
         }
-
       }
     });
 
     // external data in dom
-    const spans = authorityContainer.querySelectorAll('div[data-qa="detail_lds03"] span');
+    const spans = authorityContainer.querySelectorAll('span');
     spans.forEach(s => {
       if(s.innerHTML.indexOf('<a') === -1 && s.innerHTML.indexOf('GND:') > -1 && s.innerHTML.lastIndexOf(':') > -1){
         const personIdFromSpan = s.innerHTML.substring(s.innerHTML.lastIndexOf(':')+1).replace('(DE-588)', '').trim();
         personIdToTargetElementMap.set(personIdFromSpan, s);
       }
     })    
-
     // copy link and card
     personIds.forEach(personId => {
       if(personId){

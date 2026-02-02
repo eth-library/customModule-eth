@@ -52,9 +52,9 @@ export class EthProvenienzComponent{
     ){}
    
     ngOnInit() {
-      this.vid = this.ethStoreService.getVid() || '';
-      this.tab = this.ethStoreService.getTab() || '';
-      this.scope = this.ethStoreService.getScope() || '';
+      this.vid = this.ethStoreService.getVid();
+      this.tab = this.ethStoreService.getTab();
+      this.scope = this.ethStoreService.getScope();
 
       this.items$ = this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
         map(deliveryEntity => {
@@ -62,14 +62,14 @@ export class EthProvenienzComponent{
             return null;
           }
           const { delivery } = deliveryEntity;
-          const url = delivery?.availabilityLinksUrl?.[0] ?? null;
-          const owner = delivery?.recordOwner ?? '';
+          const url = delivery?.availabilityLinksUrl?.[0];
+          const owner = delivery?.recordOwner;
 
           if (!(owner === '41SLSP_ETH' && url?.includes('doi.org/10.3931/e-rara-'))) {
             return null;
           }
 
-          return url.split('doi.org/')[1] ?? null;
+          return url.split('doi.org/')[1];
         }),
         filter((doi): doi is string => !!doi),
         switchMap(doi =>
