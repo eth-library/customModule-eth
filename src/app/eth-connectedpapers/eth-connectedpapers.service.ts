@@ -30,7 +30,7 @@ export class EthConnectedpapersService {
   
   
   // No proxy and cache
-  /*getPaperWithoutProxy(doi: string): Observable<any | null> {
+  /*getPaperWithoutProxy(doi: string): Observable<ConnectedPapersAPIResponse | null> {
     const baseUrl = 'https://rest.prod.connectedpapers.com';
 
     return this.httpClient.get<{ paperId: string }>(`${baseUrl}/id_translator/doi/${encodeURIComponent(doi)}`).pipe(
@@ -38,11 +38,11 @@ export class EthConnectedpapersService {
         if (!response.paperId) {
           return of(null);
         }
-        return this.httpClient.get<any>(`${baseUrl}/paper/${response.paperId}`);
+        return this.httpClient.get<ConnectedPapersAPIResponse>(`${baseUrl}/paper/${response.paperId}`);
       }),
       catchError(error => {
-        console.error('error in ConnectedPapers addon - EthConnectedpapersService.getPaper():', error);
-        return of(null);
+        console.error('EthConnectedpapersService.getPaper():', error);
+        return throwError(() => e);
       })
     );
   }*/

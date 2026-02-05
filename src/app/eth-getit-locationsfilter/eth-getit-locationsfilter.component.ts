@@ -21,4 +21,5 @@ export class EthGetitLocationsfilterComponent{
   ngOnInit(): void {
     this.hostComponent.filtersVisible = true; 
   }
+  
 }

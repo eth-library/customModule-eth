@@ -8,7 +8,7 @@ describe('EthGeoRefComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthGeoRefComponent]
+      imports: [EthGeoRefComponent]
     })
     .compileComponents();
 

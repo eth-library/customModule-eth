@@ -8,7 +8,7 @@ describe('EthLogoSublineComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthLogoSublineComponent]
+      imports: [EthLogoSublineComponent]
     })
     .compileComponents();
 

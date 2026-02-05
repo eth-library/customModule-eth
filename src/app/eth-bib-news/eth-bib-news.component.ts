@@ -4,7 +4,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { EthBibNewsService } from './eth-bib-news.service';
-import { catchError, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { catchError, map, Observable, of, startWith, switchMap, throwError } from 'rxjs';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
@@ -46,9 +46,9 @@ export class EthBibNewsComponent implements OnInit {
             }))
           };
         }),      
-      catchError((error) => {
-        this.ethErrorHandlingService.logError(error, 'EthBibNewsComponent.ngOnInit()')
-        return of(null);
+      catchError((e) => {
+        this.ethErrorHandlingService.logError(e, 'EthBibNewsComponent.ngOnInit()')
+        return throwError(() => e);        
       })
     );
   }

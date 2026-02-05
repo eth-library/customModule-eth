@@ -8,7 +8,7 @@ describe('EthProvenienzComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthProvenienzComponent]
+      imports: [EthProvenienzComponent]
     })
     .compileComponents();
 

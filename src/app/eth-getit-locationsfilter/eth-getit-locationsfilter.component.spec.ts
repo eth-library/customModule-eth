@@ -8,7 +8,7 @@ describe('EthGetitLocationsfilterComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [EthGetitLocationsfilterComponent]
+      imports: [EthGetitLocationsfilterComponent]
     });
     fixture = TestBed.createComponent(EthGetitLocationsfilterComponent);
     component = fixture.componentInstance;

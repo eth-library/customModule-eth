@@ -64,7 +64,6 @@ export class EthOnlineButtonComponent {
     this.links$ = source$.pipe(
       map(({ record, viewModel, deliveryEntity }) => {
         const links: { url: string; source: string }[] = [];
-        
         // only do something, if there are no onlineLinks in viewModel$. Otherwise OTB Quicklinks button is rendered.
         if (viewModel.onlineLinks?.length) {
           return [];
@@ -92,12 +91,16 @@ export class EthOnlineButtonComponent {
         });
 
         return links;
+
       }),
       tap(links => {
         // remove OTB online button
         if (links.length) {
-          this.removeOTBOnlineButton(this.elementRef.nativeElement);
+          const hostElem = this.elementRef.nativeElement;
+          this.removeOTBOnlineButton(hostElem);
+          this.checkLibkeyButton(hostElem);          
         }
+       
       }),
       catchError(err => {
         this.ethErrorHandlingService.logSyncError( err, 'EthOnlineButtonComponent.ngAfterViewInit()');
@@ -160,7 +163,10 @@ export class EthOnlineButtonComponent {
           const libkeyElementArray = Array.from(libkeyElement);
           if (libkeyElementArray?.length) {
             obs.disconnect();
-            hostElement.style.display = "none";
+            //hostElement.style.display = "none";
+            // 99118160319605508
+            const ethOnlineButton = onlineAvailabilityContainer.querySelector('.eth-quicklink-container') as HTMLElement;
+            //ethOnlineButton.style.display = "none";
           }
         });
         mo.observe(onlineAvailabilityContainer, { childList: true, subtree: true });

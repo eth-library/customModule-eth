@@ -8,7 +8,7 @@ describe('EthProvenienzEraraLinkComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthProvenienzEraraLinkComponent]
+      imports: [EthProvenienzEraraLinkComponent]
     })
     .compileComponents();
 

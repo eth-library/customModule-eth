@@ -8,7 +8,7 @@ describe('EthOKMComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthOKMComponent]
+      imports: [EthOKMComponent]
     })
     .compileComponents();
 

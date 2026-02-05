@@ -34,7 +34,8 @@ export class EthConnectedpapersComponent{
 
 
   ngOnInit() {
-    if(!this.hostComponent?.searchResult)return;
+    if(!this.hostComponent?.searchResult) return;
+    
     this.paperUrl$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
       switchMap(record => this.getPaper(record)),
       catchError(err => {

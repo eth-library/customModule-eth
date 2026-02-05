@@ -19,6 +19,7 @@ import { TranslateModule } from "@ngx-translate/core";
     TranslateModule
   ]      
 })
+
 export class EthIdpWarningComponent implements OnInit {
 
   showWarning$!: Observable<boolean>;
@@ -44,9 +45,9 @@ export class EthIdpWarningComponent implements OnInit {
       })
     )
   }
-  // todo remove TEMP
+  
   private showWarning(group: string | null, email: string | null, profile: string | null): boolean {
-    if (profile === 'AlmaTEMP') return false;
+    if (profile === 'Alma') return false;
     if (!email) return false;
     
     const ethMemberGroups = [
@@ -57,7 +58,7 @@ export class EthIdpWarningComponent implements OnInit {
     ];
     
     const isETHMember = group ? ethMemberGroups.includes(group) : false;
-    return !isETHMember && email?.includes('ethz.ch') && !email?.includes('retired.ethz.ch');
+    return !isETHMember && email?.includes('ethz.ch');
   }
 
 }

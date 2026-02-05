@@ -342,10 +342,9 @@ export interface WikiIdentifierForLccnAPIResponse {
 
 /* Places VM for georeference / place cards */
 export interface PlacesGeoRefVM {
-  gndPlaces: PlaceGeoRefVM[] 
+  gndPlacesLobid: PlaceGeoRefVM[]; 
+  gndPlacesGraph: PlaceGeoRefVM[];
   ethorama: PlaceGeoRefVM[];
-  emapsPlaces: PlaceGeoRefVM[];
-  eraraPlaces: PlaceGeoRefVM[];
   allPlaces: PlaceGeoRefVM[];
 }
 export interface PlaceGeoRefVM {
@@ -730,4 +729,77 @@ export interface EntityfactsPlaceVM {
 export interface PersonCardVM {
   otbPersons: LinkedDataRecommendation[],
   filteredPersons: PersonVM[];  
+}
+
+/* lobid */
+export interface LobidAPIResponse {
+  totalItems: number;
+  member: LobidGndMember[];
+}
+export interface LobidGndMember {
+  '@context'?: string;
+  id: string;
+  gndIdentifier: string;
+  preferredName: string;
+  type: string[];
+
+  geographicAreaCode?: LobidIdLabel[];
+  broaderTermPartitive?: LobidIdLabel[];
+  relatedDdcWithDegreeOfDeterminacy2?: LobidIdLabel[];
+  relatedDdcWithDegreeOfDeterminacy4?: LobidIdLabel[];
+
+  hasGeometry?: LobidGeometry[];
+  deprecatedUri?: string[];
+
+  biographicalOrHistoricalInformation?: string[];
+  variantName?: string[];
+  wikipedia?: LobidIdLabel[];
+  homepage?: LobidIdLabel[];
+
+  oldAuthorityNumber?: string[];
+
+  describedBy?: LobidDescribedBy;
+  sameAs?: LobidSameAs[];
+  depiction?: LobidDepiction[];
+}
+export interface LobidIdLabel {
+  id: string;
+  label?: string;
+}
+export interface LobidGeometry {
+  type: string;
+  asWKT: string[];
+}
+export interface LobidDescribedBy {
+  id: string;
+  dateModified: string;
+  descriptionLevel: LobidIdLabel;
+  dctCreator: LobidIdLabel;
+  maintainer: LobidIdLabel;
+  license: LobidIdLabel;
+}
+export interface LobidSameAs {
+  id: string;
+  collection?: {
+    id: string;
+    name: string;
+    abbr?: string;
+    publisher?: string;
+    icon?: string;
+  };
+}
+export interface LobidDepiction {
+  id: string;
+  url?: string;
+  thumbnail?: string;
+  publisher?: string;
+  copyrighted?: boolean;
+  creatorName?: string[];
+  creditText?: string[];
+  license?: {
+    id: string;
+    name: string;
+    abbr?: string;
+    attributionRequired?: boolean;
+  }[];
 }

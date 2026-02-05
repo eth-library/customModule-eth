@@ -62,7 +62,7 @@ export class EthProvenienzEraraLinkComponent {
 
       const lds09 = display.lds09;
       if (!Array.isArray(lds09) || lds09.length === 0) return of({erara:null, swisscovery:null});
-      let eraraLink = lds09.find((l: string) => l.includes('dx.doi.org/10.3931/e-rara-'));
+      let eraraLink = lds09.find((l: string) => l.includes('doi.org/10.3931/e-rara-'));
       let swisscoveryUrl = null;
       if (eraraLink) {
         const swisscoveryQuery = eraraLink.split('dx.doi.org/')[1] ?? null;

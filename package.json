@@ -12,7 +12,8 @@
     "test": "ng test",
     "postbuild": "node postbuild.js",
     "prebuild": "node prebuild.js",
-    "run:all": "node node_modules/@angular-architects/module-federation/src/server/mf-dev-server.js"
+    "run:all": "node node_modules/@angular-architects/module-federation/src/server/mf-dev-server.js",
+    "coverage": "ng test --no-watch --code-coverage"
   },
   "private": true,
   "dependencies": {

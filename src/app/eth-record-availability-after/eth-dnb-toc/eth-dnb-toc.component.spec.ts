@@ -8,7 +8,7 @@ describe('EthDnbTocComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthDnbTocComponent]
+      imports: [EthDnbTocComponent]
     })
     .compileComponents();
 

@@ -12,7 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 //import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
-import { HostComponent, PnxDoc, PlacesGeoRefVM, PlaceGeoRefVM, GraphRelatedPlacesResponse, GraphGndPlacesResponse, EthoramaAPIResponse, EnrichedPoiAPIResponse } from '../../models/eth.model';
+import { HostComponent, PnxDoc, PlacesGeoRefVM, PlaceGeoRefVM, LobidAPIResponse, GraphRelatedPlacesResponse, GraphGndPlacesResponse, EthoramaAPIResponse, EnrichedPoiAPIResponse } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-geo-ref',
@@ -72,9 +72,26 @@ export class EthGeoRefComponent {
 
       const docId = this.getSourceRecordId(record);
       const gndIds = this.getGndIds(record);   
-      const gndPlaces$ = gndIds?.length
+
+
+      const gndPlacesLobid$ = gndIds?.length
+        ? this.ethGeoRefService.getPlacesFromLobid(gndIds.join(',')).pipe(
+            map(data => this.mapGndPlacesLobidToVm(data)),
+            map(places =>
+              places.filter(
+                 p => p.description != null || p.thumbnail != null
+              )
+            ),            
+            catchError((error) => {
+              this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.gndPlacesLobid()')
+              return of([]);
+            })      
+        )
+        : of([]);
+
+      const gndPlacesGraph$ = gndIds?.length
         ? this.ethGeoRefService.getGndPlacesFromGraph(gndIds.join(',')).pipe(
-            map(data => this.mapGndPlacesToVm(data)),
+            map(data => this.mapGndPlacesGraphToVm(data)),
             catchError((error) => {
               this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getGndPlacesFromGraph()')
               return of([]);
@@ -82,7 +99,8 @@ export class EthGeoRefComponent {
         )
         : of([]);
 
-      const emapsPlaces$ = this.isEmaps(record) && docId
+        /*
+        const emapsPlaces$ = this.isEmaps(record) && docId
         ? this.ethGeoRefService.getEmapsRelatedPlacesFromGraph(docId).pipe(
             map(data => this.mapGraphPlacesToVm(data)),
             catchError((error) => {
@@ -93,7 +111,6 @@ export class EthGeoRefComponent {
         : of([]);
 
 
-        //const eraraPlaces$ = this.getSourceSystem(record) === 'ILS' && docId && docId.endsWith('5503')
         const eraraPlaces$ = docId && docId.endsWith('5503')
         ? this.ethGeoRefService.getEraraRelatedPlacesFromGraph(docId).pipe(
             map(data => this.mapGraphPlacesToVm(data)),
@@ -103,7 +120,7 @@ export class EthGeoRefComponent {
             })      
         )
         : of([]);
-
+        */
 
       const ethorama$ = docId 
         ? this.ethGeoRefService.getPlacesFromETHorama(docId).pipe(
@@ -136,16 +153,15 @@ export class EthGeoRefComponent {
         : of([]);
       
         
-        return forkJoin([gndPlaces$, ethorama$, emapsPlaces$, eraraPlaces$]).pipe(
-          map(([gndPlaces, ethorama, emapsPlaces, eraraPlaces]) => ({
-            gndPlaces,
+        return forkJoin([gndPlacesLobid$, gndPlacesGraph$, ethorama$]).pipe(
+          map(([gndPlacesLobid, gndPlacesGraph, ethorama]) => ({
+            gndPlacesLobid,
+            gndPlacesGraph,
             ethorama,
-            emapsPlaces,
-            eraraPlaces,
-            allPlaces: [...gndPlaces, ...ethorama, ...emapsPlaces, ...eraraPlaces]
+            allPlaces: [...gndPlacesLobid,...gndPlacesGraph, ...ethorama]
           })),
           // filter for places not rendered otb
-          switchMap(({gndPlaces, ethorama, emapsPlaces, eraraPlaces, allPlaces}) => 
+          switchMap(({gndPlacesLobid, gndPlacesGraph, ethorama, allPlaces}) => 
             this.ethStoreService.linkedDataRecommendations$.pipe(
               map((entities) => {
                 const entityIds = new Set(
@@ -161,47 +177,68 @@ export class EthGeoRefComponent {
                   return !entityIds.has(lccn);
                 });
                 return {
-                  gndPlaces,
+                  gndPlacesLobid,
+                  gndPlacesGraph,
                   ethorama,
-                  emapsPlaces,
-                  eraraPlaces,
                   allPlaces: filteredPlaces
                 }
               })
             )
           ),
           // deduplicate allPlaces
-          map(data => {
-            const unique = new Map<string, typeof data.allPlaces[number]>();
-
-            data.allPlaces.forEach(place => {
-              const key =
-                place.gnd ??
-                place.qid ??
-                place.lccn;
-              if (!key) {
-                return;
-              }
-              if (!unique.has(key)) {
-                unique.set(key, place);
-              }
-            });
-
-            return {
-              ...data,
-              allPlaces: Array.from(unique.values())
-            };
-          }),          
-          //tap(data=>console.error(data))
+          map(data => ({
+            ...data,
+            allPlaces: this.mergePlacesById(data.allPlaces)
+          })),
+          tap(data=>console.error(data))
         );
     }
     catch (error) {
       this.ethErrorHandlingService.logSyncError(error, 'EthGeoRefComponent.getPlaces');
-      return of({ gndPlaces: [], ethorama: [],eraraPlaces: [], emapsPlaces: [], allPlaces: []});      
+      return of({ gndPlacesLobid: [],gndPlacesGraph: [], ethorama: [],eraraPlaces: [], emapsPlaces: [], allPlaces: []});      
     }
   }
 
 
+  private mergePlacesById(places: PlaceGeoRefVM[]): PlaceGeoRefVM[] {
+    const index = new Map<string, PlaceGeoRefVM>();
+
+    const getKeys = (p: PlaceGeoRefVM) =>
+      [p.qid, p.gnd, p.lccn].filter(Boolean) as string[];
+
+    for (const place of places) {
+      const keys = getKeys(place);
+      if (keys.length === 0) continue;
+
+      const existing = keys
+        .map(k => index.get(k))
+        .find(Boolean);
+
+      if (!existing) {
+        keys.forEach(k => index.set(k, place));
+      } else {
+        const merged: PlaceGeoRefVM = {
+          ...existing,
+          ...place,
+          qid: existing.qid ?? place.qid,
+          gnd: existing.gnd ?? place.gnd,
+          lccn: existing.lccn ?? place.lccn,
+          description: existing.description ?? place.description,
+          //description: existing.description + '; ' + place.description,
+          thumbnail: existing.thumbnail ?? place.thumbnail
+        };
+
+        // Have all keys point to the merged object
+        [...new Set([...getKeys(existing), ...keys])]
+          .forEach(k => index.set(k, merged));
+      }
+    }
+
+    // extract uniques 
+    return Array.from(new Set(index.values()));
+  }
+
+  
   private getGndIds(record: PnxDoc): string[] {
     const lds03 = record?.pnx?.display?.['lds03'] ?? [];
     return lds03.map( l => {
@@ -220,6 +257,7 @@ export class EthGeoRefComponent {
     }).filter((id): id is string => Boolean(id));
   }
 
+  /*
   private mapGraphPlacesToVm( data: GraphRelatedPlacesResponse ): PlaceGeoRefVM[] {
     const places = data.features?.[0]?.properties?.places ?? [];
     const map = new Map<string, PlaceGeoRefVM>();
@@ -242,10 +280,40 @@ export class EthGeoRefComponent {
       a.label.localeCompare(b.label)
     );
   }
+    */
 
-  private mapGndPlacesToVm( data: GraphGndPlacesResponse ): PlaceGeoRefVM[] {
+private mapGndPlacesLobidToVm( data: LobidAPIResponse ): PlaceGeoRefVM[] {
     const map = new Map<string, PlaceGeoRefVM>();
-    
+    for (const p of data.member) {
+      const gnd = p.gndIdentifier;
+      const qid = p.sameAs?.find(
+        (s: any) => s.id?.includes('wikidata.org/entity/')
+      )?.id?.split('/').pop();
+      const lccn = p.sameAs?.find(
+        (s: any) => s.id?.includes('id.loc.gov')
+      )?.id?.split('/').pop();      
+      const key = gnd;
+      if (!key || map.has(key)) continue;
+      map.set(key, {
+        id: gnd,
+        qid: qid,
+        lccn: lccn,
+        gnd: gnd,
+        thumbnail:  p.depiction?.[0]?.thumbnail,
+        label: p.preferredName,
+        description: p.biographicalOrHistoricalInformation?.[0],
+        url: this.buildLocationEntityUrl(gnd, qid, lccn)!
+      });
+    }
+    return [...map.values()].sort((a, b) =>
+      a.label.localeCompare(b.label)
+    );
+  }
+
+
+  private mapGndPlacesGraphToVm( data: GraphGndPlacesResponse ): PlaceGeoRefVM[] {
+    const map = new Map<string, PlaceGeoRefVM>();
+    console.error(data)
     for (const p of data.results) {
         const key = p.qid ?? p.lccn ?? p.gnd;
         if (!key || map.has(key)) continue;

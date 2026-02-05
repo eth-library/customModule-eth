@@ -8,7 +8,7 @@ describe('EthLocationLinkComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthLocationLinkComponent]
+      imports: [EthLocationLinkComponent]
     })
     .compileComponents();
 

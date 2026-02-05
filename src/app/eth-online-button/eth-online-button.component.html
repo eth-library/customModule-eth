@@ -1,6 +1,6 @@
 @if (links$ | async; as links) { 
   @if (links && links.length > 1) {
-  <div class="flex-row flex-layout-center">
+  <div class="flex-row flex-layout-center eth-quicklink-container">
     <ng-container>
       <button  mat-button color="primary"
               [attr.aria-label]=" ( 'eth.onlineButton.linkText' | safeTranslate | async ) + ' ' + ( 'nui.aria.newWindow' | safeTranslate | async )"

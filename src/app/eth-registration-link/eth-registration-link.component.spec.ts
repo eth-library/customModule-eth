@@ -8,7 +8,7 @@ describe('EthRegistrationLinkComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthRegistrationLinkComponent]
+      imports: [EthRegistrationLinkComponent]
     })
     .compileComponents();
 

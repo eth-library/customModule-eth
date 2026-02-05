@@ -8,7 +8,7 @@ describe('EthFullDisplaySideBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthFullDisplaySideBarAfterComponent]
+      imports: [EthFullDisplaySideBarAfterComponent]
     })
     .compileComponents();
 

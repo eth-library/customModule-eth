@@ -8,7 +8,7 @@ describe('EthLocationAfterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthLocationAfterComponent]
+      imports: [EthLocationAfterComponent]
     })
     .compileComponents();
 

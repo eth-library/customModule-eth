@@ -8,7 +8,7 @@ describe('EthMatomoComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [EthMatomoComponent]
+      imports: [EthMatomoComponent]
     });
     fixture = TestBed.createComponent(EthMatomoComponent);
     component = fixture.componentInstance;

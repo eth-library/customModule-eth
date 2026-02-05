@@ -8,7 +8,7 @@ describe('EthLocationHintComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EthLocationHintComponent]
+      imports: [EthLocationHintComponent]
     })
     .compileComponents();
 
