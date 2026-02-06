@@ -1,10 +1,9 @@
 // News feed on the home page
 // https://jira.ethz.ch/browse/SLSP-2128
-
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { EthBibNewsService } from './eth-bib-news.service';
-import { catchError, map, Observable, of, startWith, switchMap, throwError } from 'rxjs';
+import { catchError, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
@@ -15,13 +14,11 @@ import { NewsFeedVM } from '../models/eth.model';
   templateUrl: './eth-bib-news.component.html',
   styleUrls: ['./eth-bib-news.component.scss'],
   standalone: true,   
-  imports: [
-    CommonModule,
-    SafeTranslatePipe
-  ]      
+  imports: [CommonModule, SafeTranslatePipe]      
 })
-
 export class EthBibNewsComponent implements OnInit {
+  private readonly LIBRARY_ETHZ_HOST = 'library.ethz.ch';
+  private readonly REDIRECTOR_HOST = 'aem-newsimage-redirector.replit.app';
 
   news$: Observable<NewsFeedVM | null> = of(null);
 
@@ -36,21 +33,30 @@ export class EthBibNewsComponent implements OnInit {
       map(event => event.lang),
       startWith(this.translate.currentLang),
       switchMap(lang => this.ethBibNewsService.getNews(lang)),
-      map(feed => {
-          if (!feed) return null;
-          return {
-            ...feed,
-            entries: feed.entries.map(entry => ({
-              ...entry,
-              image: entry.appjson?.includes('library.ethz.ch') ? entry.appjson.replace('library.ethz.ch','aem-newsimage-redirector.replit.app') : undefined
-            }))
-          };
-        }),      
+      map(feed => this.transformFeed(feed)),
       catchError((e) => {
-        this.ethErrorHandlingService.logError(e, 'EthBibNewsComponent.ngOnInit()')
-        return throwError(() => e);        
+        this.ethErrorHandlingService.logError(e, 'EthBibNewsComponent.ngOnInit()');
+        return of(null);
       })
     );
   }
-  
+
+  private transformFeed(feed: NewsFeedVM | null): NewsFeedVM | null {
+    if (!feed?.entries) return null;
+
+    return {
+      ...feed,
+      entries: feed.entries.map(entry => ({
+        ...entry,
+        image: this.processImageUrl(entry.appjson)
+      }))
+    };
+  }
+
+  private processImageUrl(appjson?: string): string | undefined {
+    if (!appjson?.includes(this.LIBRARY_ETHZ_HOST)) {
+      return undefined;
+    }
+    return appjson.replace(this.LIBRARY_ETHZ_HOST, this.REDIRECTOR_HOST);
+  }
 }

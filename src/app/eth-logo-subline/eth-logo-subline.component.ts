@@ -4,12 +4,12 @@
 // id attribute is used for router.navigateByUrl() -> go to the top of the page  
 
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from 'src/app/services/eth-error-handling.service';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SHELL_ROUTER } from "../injection-tokens";
-import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'custom-eth-logo-subline',
@@ -21,11 +21,11 @@ import {TranslateModule} from "@ngx-translate/core";
     TranslateModule
   ]        
 })
-export class EthLogoSublineComponent {
-  private router = inject(SHELL_ROUTER);  
+export class EthLogoSublineComponent implements OnInit {
   url: string  = '';
 
   constructor(
+    @Inject(SHELL_ROUTER) private router: Router,
     private ethErrorHandlingService: EthErrorHandlingService,
     private ethStoreService:EthStoreService,     
     private translate: TranslateService    
@@ -33,8 +33,8 @@ export class EthLogoSublineComponent {
 
   ngOnInit() {
     try {
-      let vid = this.ethStoreService.getVid();
-      let lang = this.translate.currentLang;
+      const vid = this.ethStoreService.getVid() ?? '';
+      const lang = this.translate.currentLang ?? 'de';
       this.url = `/home?lang=${lang}&vid=${vid}`;
     } catch (error) {
       this.ethErrorHandlingService.logSyncError(error, 'EthLogoSublineComponent.ngOnInit()');
@@ -43,6 +43,9 @@ export class EthLogoSublineComponent {
 
   navigate(event: Event){
     event.preventDefault(); 
+    if (!this.url) {
+      return;
+    }
     this.router.navigateByUrl(this.url);
   }     
   

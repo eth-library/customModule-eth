@@ -19,7 +19,7 @@ import { EthErrorHandlingService } from '../services/eth-error-handling.service'
   ]    
 })
 export class EthOKMComponent implements OnInit {
-  searchValue$!: Observable<string | null>;
+  searchValue$: Observable<string | null> = of(null);
 
   constructor(
     private ethStoreService: EthStoreService,

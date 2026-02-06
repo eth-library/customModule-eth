@@ -1,9 +1,10 @@
 import { AfterViewInit, Component, inject, Inject, Input } from '@angular/core';
-import { of, Observable, catchError, map, forkJoin, tap, switchMap, filter, take } from 'rxjs';
+import { of, Observable, catchError, map, forkJoin, tap, switchMap } from 'rxjs';
 import { EthMetagridService, Person } from './eth-metagrid.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { createFeatureSelector, createSelector, Store } from '@ngrx/store';
+import { HostComponent, PnxDoc } from '../models/eth.model';
 
 // get data from app store
 type FullDisplayState = {selectedRecordId:string};
@@ -14,6 +15,39 @@ const selectFullDisplayRecordId = createSelector(selectFullDisplayState, state =
 const selectSearchState = createFeatureSelector<SearchState>('Search');
 const selectSearchEntities = createSelector(selectSearchState, state => state.entities);
 const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId,selectSearchEntities,(selectedId, entities) => selectedId ? entities[selectedId] : null);
+
+const METAGRID_MODULE_PARAMS_DEV = {
+  whitelist: [
+    'sudoc',
+    'hallernet',
+    'fotostiftung',
+    'sikart',
+    'elites-suisses-au-xxe-siecle',
+    'bsg',
+    'dodis',
+    'helveticat',
+    'hls-dhs-dss',
+    'histoirerurale',
+    'lonsea',
+    'ssrq',
+    'alfred-escher',
+    'geschichtedersozialensicherheit'
+  ],
+  sudoc: ['Bibliographic Agency for Higher Education','Bibliographic Agency for Higher Education','Agence Bibliographique de l’Enseignement Supérieur', 'Bibliographic Agency for Higher Education'],
+  hallernet: ['Editions- und Forschungsplattform hallerNet','Editions- und Forschungsplattform hallerNet','Editions- und Forschungsplattform hallerNet','Editions- und Forschungsplattform hallerNet'],
+  fotostiftung: ['Fotostiftung Schweiz','Fotostiftung Schweiz','Fotostiftung Schweiz','Fotostiftung Schweiz'],
+  sikart: ['SIKART','SIKART','SIKART','SIKART'],
+  'elites-suisses-au-xxe-siecle': ['Schweizerische Eliten im 20. Jahrhundert',  'Swiss elites database','Elites suisses au XXe siècle','Elites suisses au XXe siècle'],
+  bsg: ['Bibliographie der Schweizergeschichte','Bibliography on Swiss History','Bibliographie de l\'histoire suisse','Bibliografia della storia svizzera'],
+  dodis: ['Diplomatische Dokumente der Schweiz','Diplomatic Documents of Switzerland','Documents diplomatiques suisses','Documenti diplomatici svizzeri'],
+  helveticat: ['Helveticat','Helveticat','Helveticat','Helveticat'],
+  'hls-dhs-dss': ['Historisches Lexikon der Schweiz','Historical Dictionary of Switzerland','Dictionnaire historique de la Suisse','Dizionario storico della Svizzera'],
+  histoirerurale: ['Archiv für Agrargeschichte','Archives of rural history','Archives de l\'histoire rurale','Archivio della storia rurale'],
+  lonsea: ['Lonsea','Lonsea','Lonsea','Lonsea'],
+  ssrq: ['Sammlung Schweizerischer Rechtsquellen','Collection of Swiss Law Sources','Collection des sources du droit suisse','Collana Fonti del diritto svizzero'],
+  'alfred-escher': ['Alfred Escher-Briefedition','Alfred Escher letters edition','Edition des lettres Alfred Escher','Edizione lettere Alfred Escher'],
+  geschichtedersozialensicherheit: ['Geschichte der sozialen Sicherheit','Geschichte der sozialen Sicherheit','Histoire de la sécurité sociale','Storia della sicurezza sociale svizzera']
+} as const;
 
 
 @Component({
@@ -28,16 +62,13 @@ const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId,selectS
 
 export class EthMetagridComponent implements AfterViewInit {
   private store = inject(Store);
-  @Input() hostComponent: any = {};
+  @Input() hostComponent: HostComponent = {};
   
-  gndIds: string[] | null = [];
-  persons$!: Observable<Person[]>;
-  moduleParametersDev: any = {};
+  persons$: Observable<Person[]> = of([]);
   openedCards = new Set<string>();
-  lang!: string | 'de';
-  openLinkText$!: Observable<string>;
-  closeLinkText$!: Observable<string>;
-  newTabText$!:  Observable<string>;
+  openLinkText$: Observable<string> = of('');
+  closeLinkText$: Observable<string> = of('');
+  newTabText$:  Observable<string> = of('');
   
 
   constructor(
@@ -56,42 +87,11 @@ export class EthMetagridComponent implements AfterViewInit {
   } 
 
 
-  getPersons(record: any) {
+  getPersons(record: PnxDoc | null) {
     // fallback of config for local development
-    // [de,en,fr,it]
-    this.moduleParametersDev = {
-      "whitelist": [
-        "sudoc",
-        "hallernet",
-        "fotostiftung",
-        "sikart",
-        "elites-suisses-au-xxe-siecle",
-        "bsg",
-        "dodis",
-        "helveticat",
-        "hls-dhs-dss",
-        "histoirerurale",
-        "lonsea",
-        "ssrq",
-        "alfred-escher",
-        "geschichtedersozialensicherheit"
-      ],
-      "sudoc": ["Bibliographic Agency for Higher Education","Bibliographic Agency for Higher Education","Agence Bibliographique de l’Enseignement Supérieur", "Bibliographic Agency for Higher Education"],
-      "hallernet": ["Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet","Editions- und Forschungsplattform hallerNet"],
-      "fotostiftung": ["Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz","Fotostiftung Schweiz"],
-      "sikart": ["SIKART","SIKART","SIKART","SIKART"],
-      "elites-suisses-au-xxe-siecle": ["Schweizerische Eliten im 20. Jahrhundert",  "Swiss elites database","Elites suisses au XXe siècle","Elites suisses au XXe siècle"],
-      "bsg": ["Bibliographie der Schweizergeschichte","Bibliography on Swiss History","Bibliographie de l'histoire suisse","Bibliografia della storia svizzera"],
-      "dodis": ["Diplomatische Dokumente der Schweiz","Diplomatic Documents of Switzerland","Documents diplomatiques suisses","Documenti diplomatici svizzeri"],
-      "helveticat": ["Helveticat","Helveticat","Helveticat","Helveticat"],
-      "hls-dhs-dss": ["Historisches Lexikon der Schweiz","Historical Dictionary of Switzerland","Dictionnaire historique de la Suisse","Dizionario storico della Svizzera"],
-      "histoirerurale": ["Archiv für Agrargeschichte","Archives of rural history","Archives de l'histoire rurale","Archivio della storia rurale"],
-      "lonsea": ["Lonsea","Lonsea","Lonsea","Lonsea"],
-      "ssrq": ["Sammlung Schweizerischer Rechtsquellen","Collection of Swiss Law Sources","Collection des sources du droit suisse","Collana Fonti del diritto svizzero"],
-      "alfred-escher": ["Alfred Escher-Briefedition","Alfred Escher letters edition","Edition des lettres Alfred Escher","Edizione lettere Alfred Escher"],
-      "geschichtedersozialensicherheit": ["Geschichte der sozialen Sicherheit","Geschichte der sozialen Sicherheit","Histoire de la sécurité sociale","Storia della sicurezza sociale svizzera"]
+    if (!this.moduleParameters || !this.moduleParameters.whitelist) {
+      this.moduleParameters = METAGRID_MODULE_PARAMS_DEV;
     }
-    if(!this.moduleParameters || !this.moduleParameters.whitelist)this.moduleParameters = this.moduleParametersDev; 
 
 
     // multilingual Text
@@ -114,7 +114,7 @@ export class EthMetagridComponent implements AfterViewInit {
     const gndPersons$ = gndIds?.length
       ? this.metagridService.getResourcesForGndIds(gndIds, this.moduleParameters?.whitelist).pipe(
           catchError(error => {
-            console.error('error in Metagrid addon EthMetagridComponent.getPersons() gnd:', error);
+            console.error('EthMetagridComponent.getPersons() gnd', error);
             return of([]);
           })
         )
@@ -125,7 +125,7 @@ export class EthMetagridComponent implements AfterViewInit {
     const idRefPersons$ = idRefs?.length
       ? this.metagridService.getResourcesForIdRefs(idRefs, this.moduleParameters?.whitelist).pipe(
           catchError(error => {
-            console.error('error in Metagrid addon EthMetagridComponent.getPersons() idref:', error);
+            console.error('EthMetagridComponent.getPersons() idref', error);
             return of([]);
           })
         )
@@ -160,14 +160,13 @@ export class EthMetagridComponent implements AfterViewInit {
           observer.observe(detailsContainer, { childList: true, subtree: true });
         }
       )
-      //tap(persons => setTimeout(() => this.copyMetagridLinks(persons), 1000))
     );
   
   }
 
   
   // extract GND 
-  private getGndIds(record:any): string[] | null {
+  private getGndIds(record: PnxDoc | null): string[] | null {
     const lds03 = record?.pnx?.display?.['lds03'] || [];
     const gndIds: string[] = lds03.map((l: any) => {
       l = l.replace('(DE-588)', '');
@@ -189,7 +188,7 @@ export class EthMetagridComponent implements AfterViewInit {
 
 
   // extract idRef
-  private getIdRefs(record:any): string[] | null {
+  private getIdRefs(record: PnxDoc | null): string[] | null {
     const lds03 = record?.pnx?.display?.['lds03'] || [];
     return Array.from(
       new Set(

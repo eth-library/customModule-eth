@@ -2,7 +2,7 @@
 // https://jira.ethz.ch/browse/SLSP-1995
 
 import { CommonModule } from '@angular/common';
-import { Component} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
@@ -20,8 +20,8 @@ import { TranslateModule } from "@ngx-translate/core";
 })
 export class EthOffcampusWarningComponent {
   
-  isOnCampus$!: Observable<boolean>;
-  showWarning$!: Observable<boolean>;
+  isOnCampus$: Observable<boolean> = of(false);
+  showWarning$: Observable<boolean> = of(false);
    
   constructor(
     private ethStoreService:EthStoreService,
@@ -46,22 +46,7 @@ export class EthOffcampusWarningComponent {
             }
             // no oa -> check delivery category
             return this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
-              map(deliveryEntity => {
-                //console.error("deliveryEntity",deliveryEntity)
-                const category = deliveryEntity?.delivery?.deliveryCategory ?? "";
-                // external data source
-                if(deliveryEntity?.delivery?.electronicServices?.[0].ilsApiId.indexOf("cdi_") === -1 && category.indexOf('Remote Search Resource') > -1){
-                    return false;
-                }
-                // public note
-                let hasPublicNote = deliveryEntity?.delivery?.electronicServices?.some((e:any) => {return e.publicNote === "Onlinezugriff via World Wide Web"});
-                if(hasPublicNote)return false;
-                // library stack
-                if (deliveryEntity?.recordId && deliveryEntity?.recordId?.indexOf('cdi_librarystack') > -1){
-                  return false;
-                }
-                return category.indexOf('Alma-E') > -1 || category.indexOf('Remote Search Resource') > -1;
-              })
+              map(deliveryEntity => this.shouldShowWarning(deliveryEntity))
             );
           })
         );
@@ -71,6 +56,32 @@ export class EthOffcampusWarningComponent {
         return of(false);
       })      
     );
+  }
+
+  private shouldShowWarning(deliveryEntity: unknown): boolean {
+    const category = (deliveryEntity as { delivery?: { deliveryCategory?: string } })?.delivery?.deliveryCategory ?? '';
+    const services = (deliveryEntity as { delivery?: { electronicServices?: unknown[] } })?.delivery?.electronicServices;
+    const firstIlsApiId = Array.isArray(services)
+      ? (services[0] as { ilsApiId?: string })?.ilsApiId ?? ''
+      : '';
+
+    if (!firstIlsApiId.includes('cdi_') && category.includes('Remote Search Resource')) {
+      return false;
+    }
+
+    const hasPublicNote = Array.isArray(services)
+      ? services.some(service => (service as { publicNote?: string })?.publicNote === 'Onlinezugriff via World Wide Web')
+      : false;
+    if (hasPublicNote) {
+      return false;
+    }
+
+    const recordId = (deliveryEntity as { recordId?: string })?.recordId ?? '';
+    if (recordId.includes('cdi_librarystack')) {
+      return false;
+    }
+
+    return category.includes('Alma-E') || category.includes('Remote Search Resource');
   }
   
 }

@@ -6,7 +6,7 @@ import { EthFullDisplaySideBarAfterComponent } from '../eth-full-display-side-ba
 import { EthBibNewsComponent } from '../eth-bib-news/eth-bib-news.component';
 import { EthRegistrationLinkComponent } from '../eth-registration-link/eth-registration-link.component';
 import { EthLogoSublineComponent } from '../eth-logo-subline/eth-logo-subline.component';
-import { EthChangeAdressComponent } from '../eth-change-adress/eth-change-adress.component';
+import { EthChangeAddressComponent } from '../eth-change-address/eth-change-address.component';
 import { EthIdpWarningComponent } from '../eth-idp-warning/eth-idp-warning.component';
 import { EthRecordAvailabilityAfterComponent } from '../eth-record-availability-after/eth-record-availability-after.component';
 import { EthLocationPageComponent } from '../eth-location-page/eth-location-page.component';
@@ -40,7 +40,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-location-bottom', EthLocationAfterComponent],
     ['nde-login-form-content-bottom', EthRegistrationLinkComponent],
     ['nde-full-display-side-bar-bottom', EthFullDisplaySideBarAfterComponent],
-    ['nde-personal-details-view-after', EthChangeAdressComponent],
+    ['nde-personal-details-view-after', EthChangeAddressComponent],
     ['nde-personal-settings-before', EthIdpWarningComponent],
     ['nde-requests-after', EthIllLinkComponent],
     //['nde-login-dialog-after', EthRegistrationLinkComponent],

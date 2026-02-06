@@ -9,12 +9,12 @@ import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import { ConnectedPapersAPIResponse, PnxDoc } from '../models/eth.model';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
-import { HostComponent } from '..//models/eth.model';
+import { HostComponent } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-connectedpapers',
   templateUrl: './eth-connectedpapers.component.html',
-  styleUrl: './eth-connectedpapers.component.scss',
+  styleUrls: ['./eth-connectedpapers.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -24,7 +24,7 @@ import { HostComponent } from '..//models/eth.model';
 
 export class EthConnectedpapersComponent{
   @Input() hostComponent: HostComponent = {};
-  paperUrl$!: Observable<string | null>;
+  paperUrl$: Observable<string | null> = of(null);
 
   constructor(
     private ethConnectedpapersService: EthConnectedpapersService,
@@ -46,36 +46,32 @@ export class EthConnectedpapersComponent{
   }
   
   private getPaper(record: PnxDoc): Observable<string  | null> {    
-    try{
-      const doi = this.getDoi(record);
-      if (!doi) {
-        return of(null);
-      }
-      const type = this.getType(record);
-      if (!type || (type !== 'article' && type !== 'articles' && type !== 'book_chapter')) {
-        return of(null);
-      }
+    const doi = this.getDoi(record);
+    if (!doi) {
+      return of(null);
+    }
 
-      return this.ethConnectedpapersService.getPaper(doi).pipe(
-        filter((response): response is ConnectedPapersAPIResponse => response !== null), 
-        map(response => {
-            if((response?.citationCount && response?.citationCount > 0) || (response?.referenceCount && response?.referenceCount > 0)){
-                return `https://www.connectedpapers.com/main/${response.id}/graph?utm_source=primonde`;
-            }
-            else{
-              return null;
-            }
-        }),
-        catchError((error) => {
-          this.ethErrorHandlingService.logError(error, 'EthConnectedpapersComponent ethConnectedpapersService.getPaper()')
-          return of(null);
-        })
-      );
+    const type = this.getType(record);
+    const allowedTypes = new Set(['article', 'articles', 'book_chapter']);
+    if (!type || !allowedTypes.has(type)) {
+      return of(null);
     }
-    catch(error: unknown){
-        this.ethErrorHandlingService.logSyncError(error, 'EthConnectedpapersComponent.getPaper()');  
+
+    return this.ethConnectedpapersService.getPaper(doi).pipe(
+      filter((response): response is ConnectedPapersAPIResponse => response !== null), 
+      map(response => {
+        const hasCitations = !!response.citationCount && response.citationCount > 0;
+        const hasReferences = !!response.referenceCount && response.referenceCount > 0;
+        if (!hasCitations && !hasReferences) {
+          return null;
+        }
+        return `https://www.connectedpapers.com/main/${response.id}/graph?utm_source=primonde`;
+      }),
+      catchError((error) => {
+        this.ethErrorHandlingService.logError(error, 'EthConnectedpapersComponent ethConnectedpapersService.getPaper()')
         return of(null);
-    }
+      })
+    );
   }
 
   private getType(record: PnxDoc): string | null {

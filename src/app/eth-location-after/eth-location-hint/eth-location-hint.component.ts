@@ -23,7 +23,7 @@ import { HostComponent } from '../../models/eth.model';
 export class EthLocationHintComponent {
 
   hint$!: Observable<SafeHtml | null>;
-  libraryCode!: string;
+  libraryCode!: string; 
   subLocationCode!: string;
   id!: string;
 
@@ -82,25 +82,19 @@ export class EthLocationHintComponent {
 
   private moveHint() {
     setTimeout(() => {
-      if(this.locationHint){
-        const hintElement = this.locationHint.nativeElement;
-        const location = this.findLocationElement(hintElement);
-        const newParentElement= location?.querySelector('.getit-holding-info')
-        if (newParentElement) {
-          this.renderer.appendChild(newParentElement, hintElement);
-        }
+      const hintElement = this.locationHint?.nativeElement;
+      if (!hintElement) {
+        return;
+      }
+
+      const location = hintElement.closest('nde-location') as HTMLElement | null;
+      const newParentElement = location?.querySelector('.getit-holding-info');
+
+      if (newParentElement && newParentElement !== hintElement.parentElement) {
+        this.renderer.appendChild(newParentElement, hintElement);
       }
     }, 100);
   }  
-
-
-  private findLocationElement(el: HTMLElement): HTMLElement | null {
-      let parent = el.parentElement;
-      while (parent && parent.tagName.toLowerCase() !== 'nde-location') {
-        parent = parent.parentElement;
-      }
-      return parent;
-  }    
 }
 
 

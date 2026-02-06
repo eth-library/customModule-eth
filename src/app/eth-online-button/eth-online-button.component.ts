@@ -7,11 +7,12 @@
 */
 // https://jira.ethz.ch/browse/SLSP-2354
 
-import { Component, ElementRef, Inject, inject, Input } from '@angular/core';
+import { Component, ElementRef, Inject, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable, catchError, combineLatest, map, of, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu'
@@ -35,19 +36,15 @@ import { PnxDoc, StoreDeliveryEntity, HostComponentViewModel, HostComponent, Onl
   styleUrls: ['./eth-online-button.component.scss']
 })
 export class EthOnlineButtonComponent {
-  links$!: Observable<OnlineButtonLinkVM[]>;
+  links$: Observable<OnlineButtonLinkVM[]> = of([]);
   @Input() hostComponent: HostComponent = {};
-
-  private router = inject(SHELL_ROUTER);
     
   constructor(
+    @Inject(SHELL_ROUTER) private router: Router,
     private ethStoreService:EthStoreService,     
     private ethErrorHandlingService: EthErrorHandlingService,
-    private elementRef: ElementRef,
-    @Inject(DOCUMENT) private document: Document       
-  ){
-    this.elementRef = elementRef;
-  }
+    private elementRef: ElementRef
+  ){}
 
 
   ngAfterViewInit() {
@@ -57,7 +54,7 @@ export class EthOnlineButtonComponent {
       deliveryEntity: this.ethStoreService.getDeliveryEntity$(this.hostComponent)
     }) as Observable<{
       record: PnxDoc;
-      viewModel: HostComponentViewModel;
+      viewModel: HostComponentViewModel | null;
       deliveryEntity: StoreDeliveryEntity;
     }>;
 
@@ -65,7 +62,7 @@ export class EthOnlineButtonComponent {
       map(({ record, viewModel, deliveryEntity }) => {
         const links: { url: string; source: string }[] = [];
         // only do something, if there are no onlineLinks in viewModel$. Otherwise OTB Quicklinks button is rendered.
-        if (viewModel.onlineLinks?.length) {
+        if (viewModel?.onlineLinks?.length) {
           return [];
         }
         // check electronicServices
@@ -85,10 +82,13 @@ export class EthOnlineButtonComponent {
           });
         }
         // add fulldisplay viewit link
-        links.push({
-          url: this.makePrimoUrl(this.getDocId(record)),
-          source: 'ViewIt'
-        });
+        const docId = this.getDocId(record);
+        if (docId) {
+          links.push({
+            url: this.makePrimoUrl(docId),
+            source: 'ViewIt'
+          });
+        }
 
         return links;
 
@@ -120,7 +120,7 @@ export class EthOnlineButtonComponent {
     return `/fulldisplay?${qs}&state=#nui.getit.service_viewit`;
   }  
 
-  updateQueryParams(updates: Record<string, any>) {
+  updateQueryParams(updates: Record<string, string>) {
     const tree = this.router.parseUrl(this.router.url);
     const current = { ...tree.queryParams };
     // merge changed values

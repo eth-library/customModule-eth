@@ -4,13 +4,15 @@ import { EthGitHintService } from './eth-git-hint.service'
 import { EthUtilsService } from '../services/eth-utils.service';
 import { EthGitHintComponent } from './eth-git-hint.component';
 import { GitHintVM } from '../models/eth.model';
-import { firstValueFrom, of, Subject } from 'rxjs';
+import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { firstValueFrom, of, Subject, throwError } from 'rxjs';
 
 describe('EthGitHintComponent', () => {
   let component: EthGitHintComponent;
   let fixture: ComponentFixture<EthGitHintComponent>;
   let gitHintServiceSpy: jasmine.SpyObj<EthGitHintService>;
   let utilsServiceSpy: jasmine.SpyObj<EthUtilsService>;
+  let errorHandlingSpy: jasmine.SpyObj<EthErrorHandlingService>;
 
   const langChange$ = new Subject<any>();
 
@@ -25,12 +27,14 @@ describe('EthGitHintComponent', () => {
     gitHintServiceSpy = jasmine.createSpyObj('EthGitHintService', ['getHint']);
     utilsServiceSpy = jasmine.createSpyObj('EthUtilsService', ['sanitizeText']);
     utilsServiceSpy.sanitizeText.and.callFake((x: any) => x);
+    errorHandlingSpy = jasmine.createSpyObj('EthErrorHandlingService', ['logError']);
 
     await TestBed.configureTestingModule({
       imports: [EthGitHintComponent],
       providers: [
         { provide: EthGitHintService, useValue: gitHintServiceSpy },
         { provide: EthUtilsService, useValue: utilsServiceSpy },
+        { provide: EthErrorHandlingService, useValue: errorHandlingSpy },
         { provide: TranslateService, useValue: translateMock }
       ]
     })
@@ -93,6 +97,44 @@ describe('EthGitHintComponent', () => {
     expect(textH1).toContain('eth.gitHint.heading');
     const hint = compiled.querySelector('div[role="alert"]');
     expect(hint?.textContent).toContain('deutscher Hinweis');
+  });
+
+
+  it('falls back to german when currentLang is missing', async () => {
+    translateMock.currentLang = undefined as any;
+    gitHintServiceSpy.getHint.and.returnValue(of('deutscher Hinweis' as GitHintVM));
+
+    fixture.detectChanges();
+
+    const result = await firstValueFrom(component.hint$);
+
+    expect(gitHintServiceSpy.getHint).toHaveBeenCalledWith('de');
+    expect(result).toBe('deutscher Hinweis');
+  });
+
+
+  it('sanitizes hint text', async () => {
+    gitHintServiceSpy.getHint.and.returnValue(of('raw-hint' as GitHintVM));
+    utilsServiceSpy.sanitizeText.and.returnValue('safe-hint');
+
+    fixture.detectChanges();
+
+    const result = await firstValueFrom(component.hint$);
+
+    expect(utilsServiceSpy.sanitizeText).toHaveBeenCalledWith('raw-hint');
+    expect(result).toBe('safe-hint');
+  });
+
+
+  it('logs errors and emits null on failure', async () => {
+    gitHintServiceSpy.getHint.and.returnValue(throwError(() => new Error('boom')));
+
+    fixture.detectChanges();
+
+    const result = await firstValueFrom(component.hint$);
+
+    expect(errorHandlingSpy.logError).toHaveBeenCalled();
+    expect(result).toBeNull();
   });
 
 });

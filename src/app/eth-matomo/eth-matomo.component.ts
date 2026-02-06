@@ -2,40 +2,34 @@
 // https://jira.ethz.ch/browse/SLSP-1954
 
 import { DestroyRef, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, distinctUntilChanged, map, Subscription, catchError, of, EMPTY, filter, tap } from 'rxjs';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { distinctUntilChanged, map, catchError, EMPTY, filter } from 'rxjs';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { SHELL_ROUTER } from "../injection-tokens";
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'custom-eth-matomo',
   templateUrl: './eth-matomo.component.html',
   styleUrls: ['./eth-matomo.component.scss'],
   standalone: true,   
-  imports: [
-    CommonModule
-  ]   
 })
 
 export class EthMatomoComponent {
-  private router = inject(SHELL_ROUTER);
+  private router = inject(SHELL_ROUTER) as Router;
 
   private trackerUrl = 'https://library-ethz.opsone-analytics.ch/';
   private siteId = '66';
-  private initialized = new BehaviorSubject<boolean>(false);
   private destroyRef = inject(DestroyRef);
 
   constructor(
-    private ethStoreService:EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService
   ) {}
 
   ngOnInit() {
     try{
       if ((document.querySelector('script[src="' + this.trackerUrl + 'matomo.js"]'))) {
-        console.log("Matomo script already loaded.");
+        console.log('Matomo script already loaded.');
         return;
       }
       
@@ -53,17 +47,16 @@ export class EthMatomoComponent {
       document.head.appendChild(matomoScript);
 
       matomoScript.onload = () => {
-        this.initialized.next(true);
         console.log('Matomo script loaded successfully');
       };
       matomoScript.onerror = () => {
         console.error('Failed to load Matomo script');
+        this.ethErrorHandlingService.logError('Failed to load Matomo script', 'EthMatomoComponent.ngOnInit()');
       };
 
       // initialize automatic page tracking 
       this.initializeTracking();
 
-      console.log("MatomoService instantiated", this)
     }
     catch (error) {
       this.ethErrorHandlingService.logSyncError(error, 'EthMatomoComponent.onInit()');
@@ -78,9 +71,7 @@ export class EthMatomoComponent {
       .pipe(
         takeUntilDestroyed(this.destroyRef),  
         filter((event: any) => 'urlAfterRedirects' in event && typeof event.urlAfterRedirects === 'string'),
-        map(event => {
-          return event.urlAfterRedirects;
-        }),
+        map(event => { return event.urlAfterRedirects; }),        
         distinctUntilChanged(),
         catchError(error => {
           this.ethErrorHandlingService.logError(error,'EthMatomoComponent.initializeTracking');
@@ -93,29 +84,6 @@ export class EthMatomoComponent {
         console.log('Tracking PageView:', url);
       });
   }
-
-  /*
-  private initializeTrackingOld(): void {
-    (window as any)._paq.push(['trackPageView']);
-    (window as any)._paq.push(['enableLinkTracking']);
-    this.ethStoreService.getRouter$()
-      .pipe(
-          // only valid state
-          map(state => state?.url),            
-          filter((url): url is string => !!url),
-          distinctUntilChanged(),
-          takeUntilDestroyed(this.destroyRef),  
-          catchError(error => {
-            this.ethErrorHandlingService.logError(error,'EthMatomoComponent.initializeTracking');
-            return EMPTY;
-          })
-        )
-        .subscribe(url => {
-          (window as any)._paq.push(['setCustomUrl', url]);
-          (window as any)._paq.push(['trackPageView']);
-          console.log('Matomo:', url);
-        });
-  }*/
 
 }
   

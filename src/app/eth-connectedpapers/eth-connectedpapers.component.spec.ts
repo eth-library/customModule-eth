@@ -1,12 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { EthConnectedpapersComponent } from './eth-connectedpapers.component';
 import { EthConnectedpapersService } from './eth-connectedpapers.service';
 import { ConnectedPapersAPIResponse, PnxDoc, HostComponent } from '../models/eth.model';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { TranslateService } from '@ngx-translate/core';
-import { firstValueFrom, of } from 'rxjs';
-import { GitHintVM } from '../models/eth.model';
+import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { firstValueFrom, of, throwError } from 'rxjs';
 
 
 describe('EthConnectedpapersComponent', () => {
@@ -14,21 +13,25 @@ describe('EthConnectedpapersComponent', () => {
   let fixture: ComponentFixture<EthConnectedpapersComponent>;
   let cpServiceSpy: jasmine.SpyObj<EthConnectedpapersService>;
   let storeServiceSpy: jasmine.SpyObj<EthStoreService>;
+  let errorHandlingSpy: jasmine.SpyObj<EthErrorHandlingService>;
 
   const translateMock = {
     currentLang: 'de',
     stream: (key: string) => of(key)
   };  
 
+
   beforeEach(async () => {
     cpServiceSpy = jasmine.createSpyObj('EthConnectedpapersService', ['getPaper']);
     storeServiceSpy = jasmine.createSpyObj('EthStoreService', ['getRecord$']);
+    errorHandlingSpy = jasmine.createSpyObj('EthErrorHandlingService', ['logError', 'logSyncError']);
 
     await TestBed.configureTestingModule({
       imports: [EthConnectedpapersComponent],
       providers: [
         { provide: EthConnectedpapersService, useValue: cpServiceSpy },
         { provide: EthStoreService, useValue: storeServiceSpy },
+        { provide: EthErrorHandlingService, useValue: errorHandlingSpy },
         { provide: TranslateService, useValue: translateMock }
       ]
     })
@@ -37,16 +40,27 @@ describe('EthConnectedpapersComponent', () => {
     fixture = TestBed.createComponent(EthConnectedpapersComponent);
     component = fixture.componentInstance;
 
+    component.hostComponent = {searchResult: {}} as HostComponent;    
+
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
+  it('does nothing when no search result is provided', async () => {
+    component.hostComponent = {} as HostComponent;
+
+    component.ngOnInit();
+
+    expect(storeServiceSpy.getRecord$).not.toHaveBeenCalled();
+
+    const result = await firstValueFrom(component.paperUrl$);
+    expect(result).toBeNull();
+  });
+
 
   it('should provide a link to connected papers', async () => {
-    component.hostComponent = {searchResult: {}} as HostComponent;
-
     storeServiceSpy.getRecord$.and.returnValue(
       of({
         pnx: {
@@ -77,8 +91,6 @@ describe('EthConnectedpapersComponent', () => {
 
   
   it('no citations and references: should return of(null)', async () => {
-    component.hostComponent = {searchResult: {}} as HostComponent;
-
     storeServiceSpy.getRecord$.and.returnValue(
       of({
         pnx: {
@@ -99,7 +111,7 @@ describe('EthConnectedpapersComponent', () => {
     expect(component.paperUrl$).toBeDefined();
 
     const result = await firstValueFrom(component.paperUrl$);
-    expect(result).toBeNull;
+    expect(result).toBeNull();
   });
 
 
@@ -126,7 +138,45 @@ describe('EthConnectedpapersComponent', () => {
     expect(component.paperUrl$).toBeDefined();
 
     const result = await firstValueFrom(component.paperUrl$);
-    expect(result).toBeNull;
+    expect(result).toBeNull();
+  });
+
+  it('missing doi: should return of(null)', async () => {
+    storeServiceSpy.getRecord$.and.returnValue(
+      of({
+        pnx: {
+          addata: {},
+          display: { type: ['article'] }
+        }
+      } as PnxDoc)
+    );
+
+    fixture.detectChanges();
+
+    const result = await firstValueFrom(component.paperUrl$);
+
+    expect(cpServiceSpy.getPaper).not.toHaveBeenCalled();
+    expect(result).toBeNull();
+  });
+
+  it('logs errors when connected papers service fails', async () => {
+    storeServiceSpy.getRecord$.and.returnValue(
+      of({
+        pnx: {
+          addata: { doi: ['10.1093/nar/gkl986'] },
+          display: { type: ['article'] }
+        }
+      } as PnxDoc)
+    );
+
+    cpServiceSpy.getPaper.and.returnValue(throwError(() => new Error('boom')));
+
+    fixture.detectChanges();
+
+    const result = await firstValueFrom(component.paperUrl$);
+
+    expect(errorHandlingSpy.logError).toHaveBeenCalled();
+    expect(result).toBeNull();
   });
 
 });

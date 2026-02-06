@@ -10,7 +10,7 @@ Angular's own sanitizer then automatically runs over it again.
 // https://jira.ethz.ch/browse/SLSP-1958
 
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { catchError, filter, map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { EthGitHintService } from './eth-git-hint.service'
 import { TranslateService } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
@@ -37,7 +37,7 @@ type Language = 'de' | 'en';
 })
 export class EthGitHintComponent implements OnInit {
   
-  hint$!: Observable<SafeHtml | null>;
+  hint$: Observable<SafeHtml | null> = of(null);
 
   constructor( 
     private translate: TranslateService,
@@ -47,10 +47,9 @@ export class EthGitHintComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    let currentLang: Language = (this.translate.currentLang as Language) ?? 'de';
-    const rawHint$: Observable<GitHintVM> = this.ethGitHintService.getHint(currentLang);
-    this.hint$ = rawHint$.pipe(
-      map((hint: GitHintVM) => this.ethUtilsService.sanitizeText(hint)),
+    const currentLang: Language = (this.translate.currentLang as Language) ?? 'de';
+    this.hint$ = this.ethGitHintService.getHint(currentLang).pipe(
+      map(hint => this.ethUtilsService.sanitizeText(hint)),
       catchError(error => {
         this.ethErrorHandlingService.logError(error, 'EthGitHintComponent');
         return of(null);

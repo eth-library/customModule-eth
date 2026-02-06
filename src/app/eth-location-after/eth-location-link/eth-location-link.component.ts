@@ -23,10 +23,10 @@ import { HostComponent } from '../../models/eth.model';
 })
 export class EthLocationLinkComponent {
 
-  link$!: Observable<SafeHtml | null>;
-  libraryCode!: string;
-  subLocationCode!: string;
-  mainLocation!: string;
+  link$: Observable<SafeHtml | null> = of(null);
+  libraryCode = '';
+  subLocationCode = '';
+  mainLocation = '';
   @Input() hostComponent: HostComponent = {};
   
   constructor(
@@ -45,12 +45,12 @@ export class EthLocationLinkComponent {
     this.mainLocation = this.hostComponent.location.mainLocation ?? '';
     this.link$ = this.getLink().pipe(
       map(text => this.ethUtilsService.sanitizeText(text)),
-      filter(text => !!text)
+      filter((text): text is string => !!text)
     );
   }
 
 
-  private getLink(): Observable<string> {    
+  private getLink(): Observable<string | null> {    
     return this.translate.stream(`eth.locationLink.${this.libraryCode}.${this.subLocationCode}`).pipe(
       switchMap(translation1 => {
         if (translation1 !== `eth.locationLink.${this.libraryCode}.${this.subLocationCode}`) {
@@ -72,7 +72,7 @@ export class EthLocationLinkComponent {
       }),
       catchError((error) => {
         this.ethErrorHandlingService.logError(error, 'EthLocationLinkComponent.getLink');
-        return of('');
+        return of(null);
       }) 
     )
   }

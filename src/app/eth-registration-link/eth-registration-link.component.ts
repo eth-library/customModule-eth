@@ -4,8 +4,7 @@
 import { Component, inject, Renderer2, DestroyRef, Inject } from '@angular/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, of, take, tap } from 'rxjs';
 
 @Component({
@@ -30,7 +29,10 @@ export class EthRegistrationLinkComponent {
     ){}
 
     ngAfterViewInit(): void {
-      const loginFormContent = this.document.querySelector('nde-login-form-content') as HTMLElement;
+      const loginFormContent = this.document.querySelector('nde-login-form-content') as HTMLElement | null;
+      if (!loginFormContent) {
+        return;
+      }
 
       // initial
       this.insertEthRegistrationLink(loginFormContent);
@@ -52,12 +54,15 @@ export class EthRegistrationLinkComponent {
           this.insertEthRegistrationLink(loginFormContent);
         }
       });
-      observer.observe(loginFormContent, {childList: true, subtree: true});      
+      observer.observe(loginFormContent, {childList: true, subtree: true});
       this.destroyRef.onDestroy(() => observer.disconnect());
     }
 
    
-    private insertEthRegistrationLink( loginFormContent: HTMLElement ): void{
+    private insertEthRegistrationLink(loginFormContent: HTMLElement | null): void{
+      if (!loginFormContent) {
+        return;
+      }
       try {
         this.translate
           .get(['eth.registrationLink.linkText', 'nui.aria.newWindow'])
@@ -67,7 +72,7 @@ export class EthRegistrationLinkComponent {
               const linktext = translations['eth.registrationLink.linkText'];
               const newWindow = translations['nui.aria.newWindow'];
               
-              // guard: check if alredy exists
+              // guard: check if already exists
               const existingLink = loginFormContent.querySelector('nde-login-dialog .eth-registration-link');
               if (existingLink) {
                 return;

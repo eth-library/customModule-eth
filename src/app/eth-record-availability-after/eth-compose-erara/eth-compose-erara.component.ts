@@ -3,8 +3,7 @@
 
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, of, forkJoin } from 'rxjs';
-import { catchError, filter, map, switchMap } from 'rxjs/operators';
+import { Observable, of, forkJoin, catchError, filter, map, switchMap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthComposeEraraService } from './eth-compose-erara.service';
@@ -23,12 +22,12 @@ export class EthComposeEraraComponent {
   @Input() hostComponent: HostComponent = {};
   private router = inject(SHELL_ROUTER);   
   
-  labelPrint$!: Observable<string | null>;
-  labelOnline$!: Observable<string | null>;
-  labelEMap$!: Observable<string | null>;
-  labelGeoTIFF$!: Observable<string | null>;
-  labelNewWindow$!: Observable<string | null>;
-  links$!: Observable<ComposeEraraLinkVM[]>;
+  labelPrint$: Observable<string> = of('');
+  labelOnline$: Observable<string> = of('');
+  labelEMap$: Observable<string> = of('');
+  labelGeoTIFF$: Observable<string> = of('');
+  labelNewWindow$: Observable<string> = of('');
+  links$: Observable<ComposeEraraLinkVM[]> = of([]);
 
 
   constructor(
@@ -44,8 +43,9 @@ export class EthComposeEraraComponent {
 
 
   ngAfterViewInit(): void {
+    this.initLabels();
     this.links$ = this.ethStoreService.isFullview$().pipe(
-      filter(Boolean),
+      filter(isFullview => !!isFullview),
       switchMap(() => this.ethStoreService.getFullDisplayRecord$()),
       switchMap(record => this.getLinks(record)),
       catchError(error => {
@@ -67,12 +67,6 @@ export class EthComposeEraraComponent {
     const sourceSystem = record.pnx?.control?.sourcesystem?.[0];
     const links: ComposeEraraLinkVM[] = [];
 
-    this.labelPrint$ = this.translate.stream('eth.composeErara.print')  as Observable<string>;
-    this.labelOnline$ = this.translate.stream('eth.composeErara.online') as Observable<string>;
-    this.labelEMap$ = this.translate.stream('eth.composeErara.emaps') as Observable<string>;
-    this.labelGeoTIFF$ = this.translate.stream('eth.composeErara.geoTiff') as Observable<string>;
-    this.labelNewWindow$ = this.translate.stream('nui.aria.newWindow') as Observable<string>;
-    
 
     // check if this an emap record
     // if so: is there an erara record?
@@ -193,6 +187,14 @@ export class EthComposeEraraComponent {
     
     return of([]);
 
+  }
+
+  private initLabels(): void {
+    this.labelPrint$ = this.translate.stream('eth.composeErara.print');
+    this.labelOnline$ = this.translate.stream('eth.composeErara.online');
+    this.labelEMap$ = this.translate.stream('eth.composeErara.emaps');
+    this.labelGeoTIFF$ = this.translate.stream('eth.composeErara.geoTiff');
+    this.labelNewWindow$ = this.translate.stream('nui.aria.newWindow');
   }
 
   private makePrimoUrl(mmsid: string): string {

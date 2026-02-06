@@ -1,5 +1,6 @@
+
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
@@ -9,22 +10,22 @@ import { NewsFeedAPIResponse } from '../models/eth.model';
   providedIn: 'root'
 })
 export class EthBibNewsService {
-
-  private readonly baseUrl = 'https://daas.library.ethz.ch/rib/v3/bib-news';
+  private static readonly BASE_URL = 'https://daas.library.ethz.ch/rib/v3/bib-news';
+  private static readonly DEFAULT_LANG = 'de';
 
   constructor(
     private httpClient: HttpClient,
     private ethErrorHandlingService: EthErrorHandlingService
   ) {}
 
-  getNews(lang: string = 'de'): Observable<NewsFeedAPIResponse> {
-    const url = `${this.baseUrl}?lang=${lang}`;
-    return this.httpClient.get<NewsFeedAPIResponse>(url).pipe(
-      catchError((e: HttpErrorResponse) => {
-        this.ethErrorHandlingService.logError(e, 'EthBibNewsService.getNews()')
-        return throwError(() => e);
+  getNews(lang: string = EthBibNewsService.DEFAULT_LANG): Observable<NewsFeedAPIResponse> {
+    const params = new HttpParams().set('lang', lang);
+    
+    return this.httpClient.get<NewsFeedAPIResponse>(EthBibNewsService.BASE_URL, { params }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        this.ethErrorHandlingService.logError(error, 'EthBibNewsService.getNews()');
+        return throwError(() => error);
       })
     );
   }
-  
 }
