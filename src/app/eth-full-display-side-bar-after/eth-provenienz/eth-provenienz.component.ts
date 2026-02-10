@@ -10,18 +10,16 @@ The provenance images are displayed in the detailed view of the respective print
 // https://jira.ethz.ch/browse/SLSP-2006
 // \eth-record-availability-after\eth-provenienz-erara-link\eth-provenienz-erara-link.component.ts
 
-import { Component , OnInit, Input, inject } from '@angular/core';
-import { Observable, catchError, map, of, Subject, tap, filter, switchMap, startWith, distinctUntilChanged, take } from 'rxjs';
+import { Component, Input, inject } from '@angular/core';
+import { Observable, catchError, defer, map, of, filter, switchMap, startWith } from 'rxjs';
 import { EthProvenienzService } from './eth-provenienz.service'
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
-import { EthUtilsService } from '../../services/eth-utils.service';
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../../injection-tokens";
 import { EthProvenienzAPIItem } from '../../models/eth.model';
-import { HostComponent } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-provenienz',
@@ -36,27 +34,13 @@ import { HostComponent } from '../../models/eth.model';
 })
 export class EthProvenienzComponent{
     private router = inject(SHELL_ROUTER);    
-    vid!: string | null;
-    tab!: string | null;
-    scope!: string | null;
-    items$!: Observable<EthProvenienzAPIItem[]>;
-    @Input() hostComponent: HostComponent = {};
-    private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
-    //private cardPositioned = false;
+    
+    items$: Observable<EthProvenienzAPIItem[]> = defer(() => {
+      const vid = this.ethStoreService.getVid();
+      const tab = this.ethStoreService.getTab();
+      const scope = this.ethStoreService.getScope();
 
-    constructor(
-      private ethProvenienzService: EthProvenienzService,
-      private ethStoreService:EthStoreService,     
-      private ethErrorHandlingService: EthErrorHandlingService,
-      //private ethUtilsService: EthUtilsService
-    ){}
-   
-    ngOnInit() {
-      this.vid = this.ethStoreService.getVid();
-      this.tab = this.ethStoreService.getTab();
-      this.scope = this.ethStoreService.getScope();
-
-      this.items$ = this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
+      return this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
         map(deliveryEntity => {
           if (!deliveryEntity) {
             return null;
@@ -75,38 +59,29 @@ export class EthProvenienzComponent{
         switchMap(doi =>
           this.ethProvenienzService.getItems(doi).pipe(
             map(response => response?.items ?? []),
-            map(items => 
+            map(items =>
               items.map(i => ({
                 ...i,
-                url: `/search?vid=${this.vid}&tab=${this.tab}&search_scope=${this.scope}&query=${i.eth_doi_link.includes('doi.org/') ? i.eth_doi_link.split('doi.org/')[1] : ''}`
+                url: `/search?vid=${vid}&tab=${tab}&search_scope=${scope}&query=${i.eth_doi_link.includes('doi.org/') ? i.eth_doi_link.split('doi.org/')[1] : ''}`
               }))
             )
-            /*tap( (items) => {
-              if (items.length > 0 && !this.cardPositioned) {
-                this.cardPositioned = true;
-                this.mqListener = this.ethUtilsService.positionCard(
-                  '.eth-provenance-cards'
-                );
-              }
-            }),*/
           )
         ),
         startWith([]),
         catchError(error => {
-          this.ethErrorHandlingService.logError(error,'EthProvenienzComponent.ngOnInit');
-          return of([]); 
+          this.ethErrorHandlingService.logError(error,'EthProvenienzComponent.items$');
+          return of([]);
         })
       );
-    }
+    });
 
-    /*
-    ngOnDestroy() {
-      if (this.mqListener) {
-        const mq = window.matchMedia('(max-width: 599px)');
-        mq.removeEventListener('change', this.mqListener);
-      }
-    }
-    */
+   
+    constructor(
+      private ethProvenienzService: EthProvenienzService,
+      private ethStoreService:EthStoreService,     
+      private ethErrorHandlingService: EthErrorHandlingService,
+    ){}
+
 
     navigate(url: string, event: Event){
       event.preventDefault();  

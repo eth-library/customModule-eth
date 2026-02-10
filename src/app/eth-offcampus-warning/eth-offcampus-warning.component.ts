@@ -2,8 +2,8 @@
 // https://jira.ethz.ch/browse/SLSP-1995
 
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { catchError, map, Observable, of, switchMap } from 'rxjs';
+import { Component } from '@angular/core';
+import { catchError, defer, map, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { TranslateModule } from "@ngx-translate/core";
@@ -19,44 +19,37 @@ import { TranslateModule } from "@ngx-translate/core";
   ]     
 })
 export class EthOffcampusWarningComponent {
-  
-  isOnCampus$: Observable<boolean> = of(false);
-  showWarning$: Observable<boolean> = of(false);
+  isOnCampus$: Observable<boolean> = defer(() => this.ethStoreService.isOnCampus$);
+  showWarning$: Observable<boolean> = this.isOnCampus$.pipe(
+    switchMap(onCampus => {
+      // onCampus -> no warning
+      if (onCampus) {
+        return of(false);
+      }
+      // offCampus -> check open access
+      return this.ethStoreService.getFullDisplayRecord$().pipe(
+        switchMap(record => {
+          if (record?.pnx?.addata?.['openaccess']?.[0] === 'true') {
+            // oa -> no warning
+            return of(false);
+          }
+          // no oa -> check delivery category
+          return this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
+            map(deliveryEntity => this.shouldShowWarning(deliveryEntity))
+          );
+        })
+      );
+    }),
+    catchError(err => {
+      this.ethErrorHandlingService.logError(err, 'EthOffcampusWarningComponent.showWarning$');
+      return of(false);
+    })
+  );
    
   constructor(
     private ethStoreService:EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService
   ){}
-
-  ngOnInit() {
-    this.isOnCampus$ = this.ethStoreService.isOnCampus$;
-    
-    this.showWarning$ = this.isOnCampus$.pipe(
-      switchMap(onCampus => {
-        // onCampus -> no warning
-        if (onCampus) {
-          return of(false);
-        }
-        // offCampus -> check open access
-        return this.ethStoreService.getFullDisplayRecord$().pipe(
-          switchMap(record => {
-            if (record?.pnx?.addata?.['openaccess']?.[0] === 'true') {
-              // oa -> no warning
-              return of(false);
-            }
-            // no oa -> check delivery category
-            return this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
-              map(deliveryEntity => this.shouldShowWarning(deliveryEntity))
-            );
-          })
-        );
-      }),
-      catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthOffcampusWarningComponent.ngOnInit()');
-        return of(false);
-      })      
-    );
-  }
 
   private shouldShowWarning(deliveryEntity: unknown): boolean {
     const category = (deliveryEntity as { delivery?: { deliveryCategory?: string } })?.delivery?.deliveryCategory ?? '';

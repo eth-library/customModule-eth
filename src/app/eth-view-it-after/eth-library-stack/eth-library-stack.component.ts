@@ -13,6 +13,12 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+const LIBRARYSTACK_URL_SNIPPET = 'www.librarystack.org';
+const FULL_DISPLAY_SELECTOR = 'nde-full-display-container';
+const VIEW_IT_BUTTON_SELECTOR = 'nde-view-it-card button';
+const TEXT1_CLASS = 'eth-librarystack-text1';
+const TEXT2_CLASS = 'eth-librarystack-text2';
+
 
 @Component({
   selector: 'custom-eth-library-stack',
@@ -38,32 +44,37 @@ export class EthLibraryStackComponent {
 
   // cdi_librarystack_primary_159090
   ngAfterViewInit() {
+    this.observeLibraryStackLinks();
+    this.observeLanguageChanges();
+  }
+
+  private observeLibraryStackLinks(): void {
     this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
-      //tap(deliveryEntity => {console.error("deliveryEntity",deliveryEntity)}),
-      map(deliveryEntity => {
-        return deliveryEntity?.delivery?.link?.some( (e) => {return e.linkURL?.includes('www.librarystack.org')}
-        ) ?? false;
-      }),
-      filter(hasLibraryStackUrl => hasLibraryStackUrl),
+      map(deliveryEntity => this.hasLibraryStackLink(deliveryEntity)),
+      filter(Boolean),
       tap(() => this.initObserver()),
-      takeUntilDestroyed(this.destroyRef),  
+      takeUntilDestroyed(this.destroyRef),
       catchError(err => {
         this.ethErrorHandlingService.logError(err, 'EthLibraryStackComponent.ngAfterViewInit');
         return of(false);
-      })      
-    )
-    .subscribe();
-
-    // change language -> render again
-    this.translate.onLangChange.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => this.changeDom());    
-
+      })
+    ).subscribe();
   }
 
+  private observeLanguageChanges(): void {
+    this.translate.onLangChange.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.changeDom());
+  }
+
+  private hasLibraryStackLink(deliveryEntity: any): boolean {
+    return deliveryEntity?.delivery?.link?.some((entry: any) =>
+      entry.linkURL?.includes(LIBRARYSTACK_URL_SNIPPET)
+    ) ?? false;
+  }
 
   initObserver() {
-    const fullDisplayContainer = this.document.querySelector('nde-full-display-container');
+    const fullDisplayContainer = this.document.querySelector(FULL_DISPLAY_SELECTOR);
     if (!fullDisplayContainer) return;
 
     const observer = new MutationObserver(() => this.changeDom());
@@ -77,13 +88,13 @@ export class EthLibraryStackComponent {
 
 
   private changeDom() {
-    const btn = this.document.querySelector('nde-view-it-card button');
+    const btn = this.document.querySelector(VIEW_IT_BUTTON_SELECTOR);
     if (!btn || !btn.parentNode) return;
 
     const parent = btn.parentNode as HTMLElement;
 
     // guard (multiple render + prevent loop dom changes)
-    if (parent.querySelector('.eth-librarystack-text1')) return;
+    if (parent.querySelector(`.${TEXT1_CLASS}`)) return;
 
     this.translate.get([
       'eth.libraryStack.text1',
@@ -93,11 +104,11 @@ export class EthLibraryStackComponent {
       take(1)
     ).subscribe(t => {
       const div1 = this.renderer.createElement('div');
-      this.renderer.addClass(div1, 'eth-librarystack-text1');
+      this.renderer.addClass(div1, TEXT1_CLASS);
       this.renderer.appendChild(div1, this.renderer.createText(t['eth.libraryStack.text1']));
 
       const div2 = this.renderer.createElement('div');
-      this.renderer.addClass(div2, 'eth-librarystack-text2');
+      this.renderer.addClass(div2, TEXT2_CLASS);
       this.renderer.appendChild(div2, this.renderer.createText(t['eth.libraryStack.text2']));
 
       this.renderer.appendChild(parent, div1);

@@ -46,7 +46,6 @@ describe('EthOffcampusWarningComponent', () => {
       value: of(true),
       writable: true
     });
-    component.ngOnInit();
 
     const result = await firstValueFrom(component.showWarning$);
 
@@ -63,8 +62,6 @@ describe('EthOffcampusWarningComponent', () => {
     storeSpy.getFullDisplayRecord$.and.returnValue(
       of({ pnx: { addata: { openaccess: ['true'] } } })
     );
-
-    component.ngOnInit();
 
     const result = await firstValueFrom(component.showWarning$);
 
@@ -90,8 +87,6 @@ describe('EthOffcampusWarningComponent', () => {
       })
     );
 
-    component.ngOnInit();
-
     const result = await firstValueFrom(component.showWarning$);
 
     expect(result).toBeTrue();
@@ -114,8 +109,6 @@ describe('EthOffcampusWarningComponent', () => {
         }
       })
     );
-
-    component.ngOnInit();
 
     const result = await firstValueFrom(component.showWarning$);
 
@@ -144,8 +137,6 @@ describe('EthOffcampusWarningComponent', () => {
       })
     );
 
-    component.ngOnInit();
-
     const result = await firstValueFrom(component.showWarning$);
 
     expect(result).toBeFalse();
@@ -170,8 +161,6 @@ describe('EthOffcampusWarningComponent', () => {
       })
     );
 
-    component.ngOnInit();
-
     const result = await firstValueFrom(component.showWarning$);
 
     expect(result).toBeFalse();
@@ -184,8 +173,6 @@ describe('EthOffcampusWarningComponent', () => {
       writable: true
     });
     storeSpy.getFullDisplayRecord$.and.returnValue(throwError(() => new Error('boom')));
-
-    component.ngOnInit();
 
     const result = await firstValueFrom(component.showWarning$);
 

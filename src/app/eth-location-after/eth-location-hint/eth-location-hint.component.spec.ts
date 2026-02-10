@@ -67,7 +67,7 @@ describe('EthLocationHintComponent', () => {
 
     let emitted: SafeHtml | null | undefined;
     component.hint$.subscribe(value => (emitted = value));
-    tick();
+    tick(101);
 
     expect(emitted).toBe('safe-hint');
     expect(translateMock.stream).toHaveBeenCalledWith('eth.locationHint.E01.AETH', { id: '123' });
@@ -83,13 +83,17 @@ describe('EthLocationHintComponent', () => {
     ndeLocation.appendChild(holding);
     ndeLocation.appendChild(wrapper);
     wrapper.appendChild(hintEl);
+    document.body.appendChild(ndeLocation);
 
     component.locationHint = new ElementRef(hintEl);
+    (component as any).renderer = rendererMock;
 
     (component as any).moveHint();
     tick(101);
 
     expect(rendererMock.appendChild).toHaveBeenCalledWith(holding, hintEl);
+
+    document.body.removeChild(ndeLocation);
   }));
 
 

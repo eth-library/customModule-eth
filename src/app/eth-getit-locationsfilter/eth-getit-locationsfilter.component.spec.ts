@@ -18,4 +18,12 @@ describe('EthGetitLocationsfilterComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('sets filtersVisible on init', () => {
+    component.hostComponent = {} as any;
+
+    component.ngOnInit();
+
+    expect(component.hostComponent.filtersVisible).toBeTrue();
+  });
 });

@@ -1,10 +1,9 @@
-import { AfterViewInit, Component, inject, Inject, Input } from '@angular/core';
-import { of, Observable, catchError, map, forkJoin, tap, switchMap } from 'rxjs';
+import { Component, inject, Inject, Input } from '@angular/core';
+import { of, Observable, catchError, map, forkJoin, tap, switchMap, defer } from 'rxjs';
 import { EthMetagridService, Person } from './eth-metagrid.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { createFeatureSelector, createSelector, Store } from '@ngrx/store';
-import { HostComponent, PnxDoc } from '../models/eth.model';
 
 // get data from app store
 type FullDisplayState = {selectedRecordId:string};
@@ -16,6 +15,7 @@ const selectSearchState = createFeatureSelector<SearchState>('Search');
 const selectSearchEntities = createSelector(selectSearchState, state => state.entities);
 const selectFullDisplayRecord = createSelector(selectFullDisplayRecordId,selectSearchEntities,(selectedId, entities) => selectedId ? entities[selectedId] : null);
 
+// constants
 const METAGRID_MODULE_PARAMS_DEV = {
   whitelist: [
     'sudoc',
@@ -49,6 +49,14 @@ const METAGRID_MODULE_PARAMS_DEV = {
   geschichtedersozialensicherheit: ['Geschichte der sozialen Sicherheit','Geschichte der sozialen Sicherheit','Histoire de la sécurité sociale','Storia della sicurezza sociale svizzera']
 } as const;
 
+// interface
+interface PnxDoc  {
+  pnx?: {
+    display?: {
+      lds03?: string[];
+    };
+  }
+}
 
 @Component({
   selector: 'addon-eth-metagrid',
@@ -60,15 +68,30 @@ const METAGRID_MODULE_PARAMS_DEV = {
   ]  
 })
 
-export class EthMetagridComponent implements AfterViewInit {
+export class EthMetagridComponent {
   private store = inject(Store);
-  @Input() hostComponent: HostComponent = {};
+    
+  persons$: Observable<Person[]> = defer(() =>
+    this.store
+      .select(selectFullDisplayRecord)
+      .pipe(switchMap(record => this.getPersons(record)))
+  );
   
-  persons$: Observable<Person[]> = of([]);
   openedCards = new Set<string>();
-  openLinkText$: Observable<string> = of('');
-  closeLinkText$: Observable<string> = of('');
-  newTabText$:  Observable<string> = of('');
+  
+  openLinkText$: Observable<string> = this.getI18nText('metagrid.link.open', {
+    de: 'Metagrid-Links zeigen',
+    en: 'Show Metagrid links',
+    fr: '..',
+    it: '..'
+  });
+  
+  closeLinkText$: Observable<string> = this.getI18nText('metagrid.close', {
+    de: 'Metagrid-Links ausblenden',
+    en: 'Hide Metagrid links'
+  });
+  
+  newTabText$: Observable<string> = this.translate.stream('nui.aria.newWindow');
   
 
   constructor(
@@ -78,36 +101,11 @@ export class EthMetagridComponent implements AfterViewInit {
     @Inject(DOCUMENT) private document: Document    
   ) {}
 
-
-  ngAfterViewInit() {
-    // select data from store to check for GND and IdRef
-    this.persons$ = this.store.select(selectFullDisplayRecord).pipe(
-      switchMap(record => this.getPersons(record))
-    )
-  } 
-
-
   getPersons(record: PnxDoc | null) {
     // fallback of config for local development
     if (!this.moduleParameters || !this.moduleParameters.whitelist) {
       this.moduleParameters = METAGRID_MODULE_PARAMS_DEV;
     }
-
-
-    // multilingual Text
-    this.openLinkText$ = this.getI18nText('metagrid.link.open', {
-      de: 'Metagrid-Links zeigen',
-      en: 'Show Metagrid links',
-      fr: '..',
-      it: '..'
-    });      
-
-    this.closeLinkText$ = this.getI18nText('metagrid.close', {
-      de: 'Metagrid-Links ausblenden',
-      en: 'Hide Metagrid links'
-    });      
-  
-    this.newTabText$ = this.translate.stream('nui.aria.newWindow');
 
     // extract GND from data and request metagrid service
     const gndIds = this.getGndIds(record);

@@ -2,7 +2,7 @@
 // https://jira.ethz.ch/browse/SLSP-2355
 
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { HostComponent } from '../models/eth.model';
 
 @Component({
@@ -14,7 +14,7 @@ import { HostComponent } from '../models/eth.model';
     CommonModule
   ]      
 })
-export class EthGetitLocationsfilterComponent{
+export class EthGetitLocationsfilterComponent implements OnInit{
 
   @Input() hostComponent: HostComponent = {};
 

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { EthMatomoComponent } from './eth-matomo.component';
@@ -36,7 +36,7 @@ describe('EthMatomoComponent', () => {
   });
 
 
-  it('initializes matomo and tracks page views on navigation', () => {
+  it('initializes matomo and tracks page views on navigation', fakeAsync(() => {
     const appendChildSpy = spyOn(document.head, 'appendChild').and.callFake(<T extends Node>(node: T): T => {
       if (node instanceof HTMLScriptElement) {
         setTimeout(() => node.onload && node.onload(new Event('load')));
@@ -46,13 +46,15 @@ describe('EthMatomoComponent', () => {
     (window as any)._paq = [];
 
     component.ngOnInit();
+    tick();
 
     routerEvents$.next(new NavigationEnd(1, '/from', '/target'));
+    tick();
 
     expect(appendChildSpy).toHaveBeenCalled();
     expect((window as any)._paq.some((entry: any[]) => entry[0] === 'setTrackerUrl')).toBeTrue();
     expect((window as any)._paq.some((entry: any[]) => entry[0] === 'trackPageView')).toBeTrue();
-  });
+  }));
 
 
   it('skips script injection when matomo script already exists', () => {

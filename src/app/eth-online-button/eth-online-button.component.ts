@@ -9,7 +9,7 @@
 
 import { Component, ElementRef, Inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, catchError, combineLatest, map, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, combineLatest, defer, map, of, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
@@ -19,7 +19,7 @@ import { MatMenuModule } from '@angular/material/menu'
 import { MatButtonModule } from '@angular/material/button';
 import { SHELL_ROUTER } from "../injection-tokens";
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
-import { PnxDoc, StoreDeliveryEntity, HostComponentViewModel, HostComponent, OnlineButtonLinkVM } from '../models/eth.model';
+import { PnxDoc, StoreDeliveryEntity, HostComponentViewModel, HostComponent, OnlineButtonVM } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-online-button',
@@ -36,29 +36,28 @@ import { PnxDoc, StoreDeliveryEntity, HostComponentViewModel, HostComponent, Onl
   styleUrls: ['./eth-online-button.component.scss']
 })
 export class EthOnlineButtonComponent {
-  links$: Observable<OnlineButtonLinkVM[]> = of([]);
-  @Input() hostComponent: HostComponent = {};
-    
-  constructor(
-    @Inject(SHELL_ROUTER) private router: Router,
-    private ethStoreService:EthStoreService,     
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private elementRef: ElementRef
-  ){}
+  private hostComponent$ = new BehaviorSubject<HostComponent>({});
 
+  @Input() set hostComponent(value: HostComponent) {
+    this.hostComponent$.next(value ?? {});
+  }
+  
+  links$: Observable<OnlineButtonVM[]> = defer(() => {
+    const source$ = this.hostComponent$.pipe(
+      switchMap(host =>
+        combineLatest({
+          record: this.ethStoreService.getRecord$(host),
+          viewModel: host.viewModel$ ?? of(null),
+          deliveryEntity: this.ethStoreService.getDeliveryEntity$(host)
+        }) as Observable<{
+          record: PnxDoc;
+          viewModel: HostComponentViewModel | null;
+          deliveryEntity: StoreDeliveryEntity;
+        }>
+      )
+    );
 
-  ngAfterViewInit() {
-    const source$ = combineLatest({
-      record: this.ethStoreService.getRecord$(this.hostComponent),
-      viewModel: this.hostComponent.viewModel$ ?? of(null),
-      deliveryEntity: this.ethStoreService.getDeliveryEntity$(this.hostComponent)
-    }) as Observable<{
-      record: PnxDoc;
-      viewModel: HostComponentViewModel | null;
-      deliveryEntity: StoreDeliveryEntity;
-    }>;
-
-    this.links$ = source$.pipe(
+    return source$.pipe(
       map(({ record, viewModel, deliveryEntity }) => {
         const links: { url: string; source: string }[] = [];
         // only do something, if there are no onlineLinks in viewModel$. Otherwise OTB Quicklinks button is rendered.
@@ -72,9 +71,9 @@ export class EthOnlineButtonComponent {
             url: es.serviceUrl,
             source: 'electronicServices'
           });
-        } 
+        }
         // check linktorsrcadditional
-        else if(record?.pnx?.links?.linktorsrcadditional?.[0]) {
+        else if (record?.pnx?.links?.linktorsrcadditional?.[0]) {
           const raw = record?.pnx?.links?.linktorsrcadditional?.[0];
           links.push({
             url: raw.replace('$$U', '').split('$$')[0],
@@ -91,23 +90,28 @@ export class EthOnlineButtonComponent {
         }
 
         return links;
-
       }),
       tap(links => {
         // remove OTB online button
         if (links.length) {
           const hostElem = this.elementRef.nativeElement;
           this.removeOTBOnlineButton(hostElem);
-          this.checkLibkeyButton(hostElem);          
+          //this.checkLibkeyButton(hostElem);
         }
-       
       }),
       catchError(err => {
-        this.ethErrorHandlingService.logSyncError( err, 'EthOnlineButtonComponent.ngAfterViewInit()');
+        this.ethErrorHandlingService.logSyncError(err, 'EthOnlineButtonComponent.links$');
         return of([]);
       })
     );
-  }    
+  });
+    
+  constructor(
+    @Inject(SHELL_ROUTER) private router: Router,
+    private ethStoreService:EthStoreService,     
+    private ethErrorHandlingService: EthErrorHandlingService,
+    private elementRef: ElementRef
+  ){}
 
   private getDocId(record: PnxDoc): string {
     return record?.pnx?.control?.recordid?.[0] || '';
@@ -165,7 +169,7 @@ export class EthOnlineButtonComponent {
             obs.disconnect();
             //hostElement.style.display = "none";
             // 99118160319605508
-            const ethOnlineButton = onlineAvailabilityContainer.querySelector('.eth-quicklink-container') as HTMLElement;
+            //const ethOnlineButton = onlineAvailabilityContainer.querySelector('.eth-quicklink-container') as HTMLElement;
             //ethOnlineButton.style.display = "none";
           }
         });

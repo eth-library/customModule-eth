@@ -3,11 +3,13 @@
 
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { catchError, filter, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, defer, filter, map, Observable, of, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from 'src/app/services/eth-error-handling.service';
 import {TranslateModule} from "@ngx-translate/core";
 import { PnxDoc } from '../../models/eth.model';
+
+const ACCESS_PROBLEM_EMAIL = 'almakb@library.ethz.ch';
 
 @Component({
   selector: 'custom-eth-online-problem',
@@ -21,60 +23,37 @@ import { PnxDoc } from '../../models/eth.model';
 })
 
 export class EthOnlineProblemComponent {
-  showLink$!: Observable<boolean>;
-  mailLink!: string;
+  mailLink = '';
 
   constructor(
     private ethStoreService:EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService
   ){}
 
-  ngOnInit() {
-    this.showLink$ = this.ethStoreService.getFullDisplayRecord$().pipe(
+  readonly showLink$: Observable<boolean> = defer(() =>
+    this.ethStoreService.getFullDisplayRecord$().pipe(
       filter((record): record is PnxDoc => record !== null),
       tap(record => this.setMailLink(record)),
       map(() => true),
       catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthOnlineProblemComponent');
+        this.ethErrorHandlingService.logError(err, 'EthOnlineProblemComponent.showLink$');
         return of(false);
       })
-    );
-  }
+    )
+  );
   
-  setMailLink(record:PnxDoc){
-    let mmsId = record?.pnx?.control?.recordid[0];
-    let title = record?.pnx?.display?.title?.[0] || '';
-    let creationdate = record?.pnx?.display?.creationdate?.[0] || '';
-    let creator = record?.pnx?.display?.creator?.join(', ') || '';
-    let publisher = record?.pnx?.display?.publisher?.[0] || '';
-    //let jtitle = record?.pnx?.addata?.jtitle?.[0] || '';
-    let type = record?.pnx?.display?.type?.[0] || '';
-    let identifier = '';
-    if(record?.pnx?.display?.identifier && record?.pnx?.display?.identifier?.length > 0){
-        let ident = record?.pnx?.display?.identifier[0];
-        if(ident.indexOf('<b>ISBN')>-1){
-            identifier = record?.pnx?.display?.identifier.join(', ').replace(/<\/b>/g, '').replace(/<b>/g, '');
-        }
-        else if(ident.indexOf('<b>ISSN')>-1){
-            identifier = record?.pnx?.display?.identifier.join(', ').replace(/<\/b>/g, '').replace(/<b>/g, '');
-        }
-        else if(ident.indexOf('$$V')>-1 && ident.indexOf('ISBN')>-1){
-            identifier = 'ISBN: ' + ident.substring(ident.indexOf('$$V') + 3);
-        }
-        else if(ident.indexOf('$$V')>-1 && ident.indexOf('ISSN')>-1){
-            identifier = 'ISSN: ' + ident.substring(ident.indexOf('$$V') + 3);
-        }
-        else if(ident.indexOf('$$V')>-1 && ident.indexOf('DOI')>-1){
-            identifier = 'DOI: ' + ident.substring(ident.indexOf('$$V') + 3);
-        }
-        else{
-          identifier = ident;
-        }
-    }
-    let url = location.href;
-    let userAgent = navigator.userAgent;    
+  private setMailLink(record:PnxDoc): void {
+    const mmsId = record?.pnx?.control?.recordid?.[0] ?? '';
+    const title = record?.pnx?.display?.title?.[0] || '';
+    const creationdate = record?.pnx?.display?.creationdate?.[0] || '';
+    const creator = record?.pnx?.display?.creator?.join(', ') || '';
+    const publisher = record?.pnx?.display?.publisher?.[0] || '';
+    const type = record?.pnx?.display?.type?.[0] || '';
+    const identifier = this.extractIdentifier(record);
+    const url = location.href;
+    const userAgent = navigator.userAgent;
 
-let body= `** Attached Metadata **
+    const body = `** Attached Metadata **
 Title: ${title}
 Author: ${creator}
 Publisher: ${publisher}
@@ -89,6 +68,26 @@ USER_AGENT: ${userAgent}
 Please describe the access problem briefly:
 `;
 
-    this.mailLink = `mailto:almakb@library.ethz.ch?subject=Report access problem: ${mmsId} - "${title}"&body=${encodeURIComponent(body)}`;
+    this.mailLink = `mailto:${ACCESS_PROBLEM_EMAIL}?subject=Report access problem: ${mmsId} - "${title}"&body=${encodeURIComponent(body)}`;
+  }
+
+  private extractIdentifier(record: PnxDoc): string {
+    const identifiers = record?.pnx?.display?.identifier ?? [];
+    if (identifiers.length === 0) return '';
+
+    const ident = identifiers[0] ?? '';
+    if (ident.includes('<b>ISBN') || ident.includes('<b>ISSN')) {
+      return identifiers.join(', ').replace(/<\/b>/g, '').replace(/<b>/g, '');
+    }
+    if (ident.includes('$$V') && ident.includes('ISBN')) {
+      return `ISBN: ${ident.substring(ident.indexOf('$$V') + 3)}`;
+    }
+    if (ident.includes('$$V') && ident.includes('ISSN')) {
+      return `ISSN: ${ident.substring(ident.indexOf('$$V') + 3)}`;
+    }
+    if (ident.includes('$$V') && ident.includes('DOI')) {
+      return `DOI: ${ident.substring(ident.indexOf('$$V') + 3)}`;
+    }
+    return ident;
   }
 }

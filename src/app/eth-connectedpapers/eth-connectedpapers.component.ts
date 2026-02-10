@@ -3,7 +3,7 @@
 
 import { Component, Input } from '@angular/core';
 import { EthConnectedpapersService } from './eth-connectedpapers.service'
-import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, defer, filter, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import { ConnectedPapersAPIResponse, PnxDoc } from '../models/eth.model';
@@ -24,7 +24,20 @@ import { HostComponent } from '../models/eth.model';
 
 export class EthConnectedpapersComponent{
   @Input() hostComponent: HostComponent = {};
-  paperUrl$: Observable<string | null> = of(null);
+  
+  paperUrl$: Observable<string | null> = defer(() => {
+    if (!this.hostComponent?.searchResult) {
+      return of(null);
+    }
+
+    return this.ethStoreService.getRecord$(this.hostComponent).pipe(
+      switchMap(record => this.getPaper(record)),
+      catchError(err => {
+        this.ethErrorHandlingService.logError(err, 'EthConnectedpapersComponent.paperUrl$');
+        return of(null);
+      })
+    );
+  });
 
   constructor(
     private ethConnectedpapersService: EthConnectedpapersService,
@@ -33,18 +46,6 @@ export class EthConnectedpapersComponent{
   ){}
 
 
-  ngOnInit() {
-    if(!this.hostComponent?.searchResult) return;
-    
-    this.paperUrl$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
-      switchMap(record => this.getPaper(record)),
-      catchError(err => {
-        this.ethErrorHandlingService.logError( err, 'EthConnectedpapersComponent.ngOnInit');
-        return of(null);
-      })
-    )
-  }
-  
   private getPaper(record: PnxDoc): Observable<string  | null> {    
     const doi = this.getDoi(record);
     if (!doi) {

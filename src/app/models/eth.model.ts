@@ -199,13 +199,11 @@ export interface EthProvenienzAPIItem {
   title: string;
 }
 
-
-/* online button: links */
-export interface OnlineButtonLinkVM {
+/* online button ViewModel */
+export interface OnlineButtonVM {
   url: string;
   source: string;
 }
-
 
 /* GeoJSON - Geodata Graph API */
 /* generic types */
@@ -355,8 +353,19 @@ export interface PlaceGeoRefVM {
   label: string;
   description?: string;
   thumbnail?: string;
-  url: string;
+  url?: string;
 }
+
+export interface GeoRefContext {
+  lang: string;
+  vid: string;
+};
+
+export interface GeoRefIds {
+  gnd?: string;
+  qid?: string;
+  lccn?: string;
+};
 
 /* PlacePage raw data from APIs */
 export interface PlacePageRawData {

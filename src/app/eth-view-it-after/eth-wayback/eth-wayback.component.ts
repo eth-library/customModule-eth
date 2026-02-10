@@ -7,11 +7,17 @@
 
 import { Component, DestroyRef, inject, Inject, Renderer2 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { catchError, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
+import { catchError, filter, map, Observable, of, take, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from "@ngx-translate/core";
+
+const WAYBACK_URL_SNIPPET = 'https://wayback.archive-It.org';
+const FULL_DISPLAY_SELECTOR = 'nde-full-display-container';
+const VIEW_IT_BUTTON_SELECTOR = 'nde-view-it-card button';
+const WAYBACK_HINT_ID = 'eth-wayback-hint';
+const WAYBACK_HINT_CLASS = 'eth-wayback';
 
 
 @Component({
@@ -39,13 +45,14 @@ export class EthWaybackComponent {
 
   // 99117429500405503
   ngAfterViewInit() {
+    this.observeWaybackLinks();
+    this.observeLanguageChanges();
+  }
+
+  private observeWaybackLinks(): void {
     this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
-      map(deliveryEntity =>
-        deliveryEntity?.delivery?.link?.some(
-          (e) => e.linkURL?.includes('https://wayback.archive-It.org')
-        ) ?? false
-      ),
-      filter(hasWaybackUrl => hasWaybackUrl),
+      map(deliveryEntity => this.hasWaybackLink(deliveryEntity)),
+      filter(Boolean),
       tap(() => this.initObserver()),
       takeUntilDestroyed(this.destroyRef),
       catchError(err => {
@@ -53,15 +60,22 @@ export class EthWaybackComponent {
         return of(false);
       })
     ).subscribe();
+  }
 
+  private observeLanguageChanges(): void {
     this.translate.onLangChange.pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => this.changeDom());    
+    ).subscribe(() => this.changeDom());
+  }
 
+  private hasWaybackLink(deliveryEntity: any): boolean {
+    return deliveryEntity?.delivery?.link?.some((entry: any) =>
+      entry.linkURL?.includes(WAYBACK_URL_SNIPPET)
+    ) ?? false;
   }
 
   private initObserver() {
-    const fullDisplayContainer = this.document.querySelector('nde-full-display-container');
+    const fullDisplayContainer = this.document.querySelector(FULL_DISPLAY_SELECTOR);
     if (!fullDisplayContainer) return;
 
     const observer = new MutationObserver(() => this.changeDom());
@@ -75,14 +89,18 @@ export class EthWaybackComponent {
   }
 
   private changeDom() {
-    const btn = this.document.querySelector('nde-view-it-card button');
+    const btn = this.document.querySelector(VIEW_IT_BUTTON_SELECTOR);
     const btnH5 = btn?.querySelector('h5');
     const parent = btn?.parentNode as HTMLElement | null;
 
     if (!btn || !btnH5 || !parent) return;
 
-    const existing = parent.querySelector('#eth-wayback-hint') as HTMLElement | null;
-    if (existing && btnH5.textContent === this.translate.instant('eth.wayback.linkText') && existing.textContent === this.translate.instant('eth.wayback.text')) {
+    const existing = parent.querySelector(`#${WAYBACK_HINT_ID}`) as HTMLElement | null;
+    if (
+      existing &&
+      btnH5.textContent === this.translate.instant('eth.wayback.linkText') &&
+      existing.textContent === this.translate.instant('eth.wayback.text')
+    ) {
       return;
     }    
 
@@ -104,8 +122,8 @@ export class EthWaybackComponent {
 
       if (!hintDiv) {
         hintDiv = this.renderer.createElement('div');
-        this.renderer.addClass(hintDiv, 'eth-wayback');
-        this.renderer.setAttribute(hintDiv, 'id', 'eth-wayback-hint');
+        this.renderer.addClass(hintDiv, WAYBACK_HINT_CLASS);
+        this.renderer.setAttribute(hintDiv, 'id', WAYBACK_HINT_ID);
         this.renderer.insertBefore(parent, hintDiv, btn.nextSibling);
       }
       const safeHintDiv = hintDiv as HTMLElement;

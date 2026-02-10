@@ -15,7 +15,7 @@ import { EthPersonPageComponent } from '../eth-person-page/eth-person-page.compo
 //import { EthProvenienzEraraLinkComponent } from '../eth-provenienz-erara-link/eth-provenienz-erara-link.component';
 import { EthGetitLocationsfilterComponent } from '../eth-getit-locationsfilter/eth-getit-locationsfilter.component';
 import { EthViewItAfterComponent } from '../eth-view-it-after/eth-view-it-after.component';
-//import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
+import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
 import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offcampus-warning.component';
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
 import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
@@ -44,10 +44,8 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-personal-settings-before', EthIdpWarningComponent],
     ['nde-requests-after', EthIllLinkComponent],
     //['nde-login-dialog-after', EthRegistrationLinkComponent],
-
-    //['nde-full-display-service-container-after', EthFullDisplayServiceContainerAfterComponent],
     //['nde-search-bar-presenter-after', EthOKMComponent],
-    //['nde-full-display-details-bottom', EthMetagridComponent],
+    ['nde-full-display-details-bottom', EthMetagridComponent],
 ])
 
 

@@ -5,14 +5,13 @@ import { Component, inject, Input } from '@angular/core';
 import { EthGeoRefService } from './eth-geo-ref.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
-import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, defer, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
-//import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
-import { HostComponent, PnxDoc, PlacesGeoRefVM, PlaceGeoRefVM, LobidAPIResponse, GraphRelatedPlacesResponse, GraphGndPlacesResponse, EthoramaAPIResponse, EnrichedPoiAPIResponse } from '../../models/eth.model';
+import { HostComponent, PnxDoc, PlacesGeoRefVM, PlaceGeoRefVM, LobidAPIResponse, GeoRefContext, GeoRefIds, GraphGndPlacesResponse, EthoramaAPIResponse, EnrichedPoiAPIResponse } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-geo-ref',
@@ -28,55 +27,37 @@ import { HostComponent, PnxDoc, PlacesGeoRefVM, PlaceGeoRefVM, LobidAPIResponse,
 export class EthGeoRefComponent {
   private router = inject(SHELL_ROUTER);
   @Input() hostComponent: HostComponent = {};
-  places$!: Observable<PlacesGeoRefVM | null>;
-  //private mqListener: ((e: MediaQueryListEvent) => void) | null = null;
-  openGnd: string | null = null;  
   
-  lang!: string | null;
-  tab!:  string | null;
-  scope!:  string | null;
-  vid!:  string | null;
+  places$: Observable<PlacesGeoRefVM | null> = defer(() =>
+    this.ethStoreService.getRecord$(this.hostComponent).pipe(
+      switchMap(record => this.getPlaces(record)),
+      catchError(err => {
+        this.ethErrorHandlingService.logError(err, 'EthGeoRefComponent.places$');
+        return of(null);
+      })
+    )
+  );
+  
+  openGnd: string | null = null;  
   
   constructor(
     private ethErrorHandlingService: EthErrorHandlingService,
     private ethGeoRefService: EthGeoRefService,
     private ethStoreService:EthStoreService,     
     private translate: TranslateService,
-    //private matomoService: EthMatomoService    
   ) {}
 
-  ngOnInit() {
-    this.places$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
-      switchMap(record => this.getPlaces(record)),
-      /*tap( (places) => {
-        if (places.ethorama.length > 0 && !this.cardPositioned) {
-          this.cardPositioned = true;
-          this.mqListener = this.ethUtilsService.positionCard(
-            '.eth-place-cards'
-          );
-        }
-      }),*/
-      catchError(err => {
-        this.ethErrorHandlingService.logError( err, 'EthGeoRefComponent.ngOnInit');
-        return of(null);      
-      })
-    )
-  }
 
   getPlaces(record: PnxDoc): Observable<PlacesGeoRefVM> { 
     try {
-      this.lang = this.translate.currentLang;
-      this.vid = this.ethStoreService.getVid() || '';
-      this.tab = this.ethStoreService.getTab() || '';
-      this.scope = this.ethStoreService.getScope() || '';
-
+      const context = this.getContext();
       const docId = this.getSourceRecordId(record);
       const gndIds = this.getGndIds(record);   
 
 
       const gndPlacesLobid$ = gndIds?.length
         ? this.ethGeoRefService.getPlacesFromLobid(gndIds.join(',')).pipe(
-            map(data => this.mapGndPlacesLobidToVm(data)),
+            map(data => this.mapGndPlacesLobidToVm(data, context)),
             map(places =>
               places.filter(
                  p => p.description != null || p.thumbnail != null
@@ -91,7 +72,7 @@ export class EthGeoRefComponent {
 
       const gndPlacesGraph$ = gndIds?.length
         ? this.ethGeoRefService.getGndPlacesFromGraph(gndIds.join(',')).pipe(
-            map(data => this.mapGndPlacesGraphToVm(data)),
+            map(data => this.mapGndPlacesGraphToVm(data, context)),
             catchError((error) => {
               this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getGndPlacesFromGraph()')
               return of([]);
@@ -128,19 +109,19 @@ export class EthGeoRefComponent {
               return data?.items?.length ? this.ethGeoRefService.enrichPOIs(data.items) : of<EnrichedPoiAPIResponse[]>([])
             }),
             map((enrichedPois: EnrichedPoiAPIResponse[]) => {
-              const uniquePois = new Map();
+              const uniquePois = new Map<string, PlaceGeoRefVM>();
               enrichedPois.forEach(p => {
                 const key = p.qid ?? p.lccn;
                 if (!key || uniquePois.has(key)) return;    
-                uniquePois.set(p.qid, {
+                uniquePois.set(key, {
                   id: p.id,
                   qid: p.qid,
                   lccn: p.lccn,
                   gnd: p.gnd,
                   thumbnail: p.thumbnail,
-                  label: p.name,
+                  label: p.name ?? '',
                   description: p.descriptionWikidata,
-                  url: this.buildLocationEntityUrl(p.gnd, p.qid, p.lccn)!
+                  url: this.buildLocationEntityUrl({ gnd: p.gnd, qid: p.qid, lccn: p.lccn }, context)!
                 });
               });
               return Array.from(uniquePois.values()).sort((a,b) => a.label.localeCompare(b.label));
@@ -189,13 +170,12 @@ export class EthGeoRefComponent {
           map(data => ({
             ...data,
             allPlaces: this.mergePlacesById(data.allPlaces)
-          })),
-          tap(data=>console.error(data))
+          }))
         );
     }
     catch (error) {
       this.ethErrorHandlingService.logSyncError(error, 'EthGeoRefComponent.getPlaces');
-      return of({ gndPlacesLobid: [],gndPlacesGraph: [], ethorama: [],eraraPlaces: [], emapsPlaces: [], allPlaces: []});      
+      return of({ gndPlacesLobid: [], gndPlacesGraph: [], ethorama: [], allPlaces: []});      
     }
   }
 
@@ -257,32 +237,7 @@ export class EthGeoRefComponent {
     }).filter((id): id is string => Boolean(id));
   }
 
-  /*
-  private mapGraphPlacesToVm( data: GraphRelatedPlacesResponse ): PlaceGeoRefVM[] {
-    const places = data.features?.[0]?.properties?.places ?? [];
-    const map = new Map<string, PlaceGeoRefVM>();
-
-    for (const p of places) {
-        const key = p.qid ?? p.lccn ?? p.gnd;
-        if (!key || map.has(key)) continue;
-        map.set(key, {
-          id: p.gnd,
-          qid: p.qid,
-          lccn: p.lccn,
-          gnd: p.gnd,
-          thumbnail: p.image,
-          label: p.name,
-          description: p.description,
-          url: this.buildLocationEntityUrl(p.gnd, p.qid, p.lccn)!
-        });
-      }
-    return [...map.values()].sort((a, b) =>
-      a.label.localeCompare(b.label)
-    );
-  }
-    */
-
-private mapGndPlacesLobidToVm( data: LobidAPIResponse ): PlaceGeoRefVM[] {
+  private mapGndPlacesLobidToVm( data: LobidAPIResponse, context: GeoRefContext ): PlaceGeoRefVM[] {
     const map = new Map<string, PlaceGeoRefVM>();
     for (const p of data.member) {
       const gnd = p.gndIdentifier;
@@ -302,7 +257,7 @@ private mapGndPlacesLobidToVm( data: LobidAPIResponse ): PlaceGeoRefVM[] {
         thumbnail:  p.depiction?.[0]?.thumbnail,
         label: p.preferredName,
         description: p.biographicalOrHistoricalInformation?.[0],
-        url: this.buildLocationEntityUrl(gnd, qid, lccn)!
+        url: this.buildLocationEntityUrl({ gnd, qid, lccn }, context)!
       });
     }
     return [...map.values()].sort((a, b) =>
@@ -311,9 +266,8 @@ private mapGndPlacesLobidToVm( data: LobidAPIResponse ): PlaceGeoRefVM[] {
   }
 
 
-  private mapGndPlacesGraphToVm( data: GraphGndPlacesResponse ): PlaceGeoRefVM[] {
+  private mapGndPlacesGraphToVm( data: GraphGndPlacesResponse, context: GeoRefContext ): PlaceGeoRefVM[] {
     const map = new Map<string, PlaceGeoRefVM>();
-    console.error(data)
     for (const p of data.results) {
         const key = p.qid ?? p.lccn ?? p.gnd;
         if (!key || map.has(key)) continue;
@@ -325,7 +279,7 @@ private mapGndPlacesLobidToVm( data: LobidAPIResponse ): PlaceGeoRefVM[] {
           thumbnail: p.image,
           label: p.name,
           description: p.description,
-          url: this.buildLocationEntityUrl(p.gnd, p.qid, p.lccn)!
+          url: this.buildLocationEntityUrl({ gnd: p.gnd, qid: p.qid, lccn: p.lccn }, context)!
         });
       }
     return [...map.values()].sort((a, b) =>
@@ -333,22 +287,26 @@ private mapGndPlacesLobidToVm( data: LobidAPIResponse ): PlaceGeoRefVM[] {
     );
   }
 
-  private buildLocationEntityUrl(gnd?: string, qid?: string, lccn?: string): string | undefined {
-    if( gnd || lccn || qid ){
+  private buildLocationEntityUrl(ids: GeoRefIds, context: GeoRefContext): string | undefined {
+    const { gnd, qid, lccn } = ids;
+    if (!context.vid) {
+      return undefined;
+    }
+    if (gnd || lccn || qid) {
       let entityId = '';
-      if(lccn){
+      if (lccn) {
         entityId = lccn;
       }
-      else if(gnd && qid){
+      else if (gnd && qid) {
         entityId = `${gnd},${qid}`;
       }
-      else if(qid){
+      else if (qid) {
         entityId = qid;
       }
-      else if(gnd){
+      else if (gnd) {
         entityId = `GND${gnd}`;
       }
-      return `/entity/location?vid=${this.vid}&lang=${this.lang}&entityId=${entityId}`;
+      return `/entity/location?vid=${context.vid}&lang=${context.lang}&entityId=${entityId}`;
     }
     else {
       return undefined
@@ -359,7 +317,8 @@ private mapGndPlacesLobidToVm( data: LobidAPIResponse ): PlaceGeoRefVM[] {
   private getSourceRecordId(record: PnxDoc): string | undefined{
     return record?.pnx?.control?.['sourcerecordid']?.[0];
   }
-
+  
+  /*
   private getType(record: PnxDoc): string | undefined {
     return record?.pnx?.display?.['type']?.[0];
   }
@@ -371,6 +330,14 @@ private mapGndPlacesLobidToVm( data: LobidAPIResponse ): PlaceGeoRefVM[] {
   private isEmaps(record: PnxDoc): boolean {
     return this.getType(record) === 'map' && this.getLds50(record)?.some((i: string) => i.includes('E01emaps')) 
   }
+  */
+
+  private getContext(): GeoRefContext {
+    return {
+      lang: this.translate.currentLang ?? '',
+      vid: this.ethStoreService.getVid() || ''
+    };
+  }
 
     navigate(url: string, event: Event){
     event.preventDefault(); 
@@ -378,11 +345,3 @@ private mapGndPlacesLobidToVm( data: LobidAPIResponse ): PlaceGeoRefVM[] {
   }
 
 }
-
-  /*
-  ngOnDestroy() {
-    if (this.mqListener) {
-      const mq = window.matchMedia('(max-width: 599px)');
-      mq.removeEventListener('change', this.mqListener);
-    }
-  }*/

@@ -2,17 +2,15 @@
 // https://jira.ethz.ch/browse/SLSP-2095
 
 import { Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
-import { catchError, forkJoin, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, defer, forkJoin, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { EthPersonService } from '../../services/eth-person.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
-import { EthUtilsService } from '../../services/eth-utils.service';
 import { PnxDoc } from '../../models/eth.model';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
-import { EthMatomoService } from '../../eth-matomo/eth-matomo.service';
 import { SHELL_ROUTER } from "../../injection-tokens";
 import { HostComponent, PersonCardVM, PersonVM, PersonApiResponse, PersonResult } from '../../models/eth.model';
 
@@ -31,10 +29,11 @@ import { HostComponent, PersonCardVM, PersonVM, PersonApiResponse, PersonResult 
 export class EthPersonCardsComponent {
     private router = inject(SHELL_ROUTER);  
     openLicensePopover: string | null = null;
-    persons$!: Observable<PersonCardVM | null>; 
-    @Input() hostComponent: HostComponent = {};
-    //private mqListener: ((e: MediaQueryListEvent) => void) | null = null;    
-    //private cardPositioned = false;
+    private hostComponent$ = new BehaviorSubject<HostComponent>({});
+
+    @Input() set hostComponent(value: HostComponent) {
+      this.hostComponent$.next(value ?? {});
+    }
 
     @ViewChild('licensePopover') licensePopover?: ElementRef;
     @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;    
@@ -44,31 +43,33 @@ export class EthPersonCardsComponent {
       private translate: TranslateService,
       public ethPersonService: EthPersonService,
       private ethErrorHandlingService: EthErrorHandlingService,
-      private ethStoreService:EthStoreService,    
-      private ethUtilsService: EthUtilsService,
-      private matomoService: EthMatomoService,
+      private ethStoreService:EthStoreService,
     ){}
 
-    ngOnInit(): void {
+    persons$: Observable<PersonCardVM | null> = defer(() => {
+      const record$ = this.hostComponent$.pipe(
+        switchMap(host => this.ethStoreService.getRecord$(host))
+      );
+      const lang$ = this.translate.onLangChange.pipe(
+        map(event => event.lang),
+        startWith(this.translate.currentLang)
+      );
 
-      this.persons$ = this.ethStoreService.getRecord$(this.hostComponent).pipe(
-        switchMap(record => this.loadPersons(record)),
-        /*tap( (persons) => {
-          if(persons.filteredPersons.length > 0 && !this.cardPositioned) {
-            this.cardPositioned = true;
-            this.mqListener = this.ethUtilsService.positionCard('.eth-person-cards');
-          }
-        })*/
+      return combineLatest([record$, lang$]).pipe(
+        switchMap(([record, lang]) => this.loadPersons(record, lang || 'de')),
+        switchMap((persons: PersonVM[]) =>
+          this.ethStoreService.linkedDataRecommendations$.pipe(
+            map((entities) => this.filterPersons(persons, entities))
+          )
+        ),
         catchError(err => {
           this.ethErrorHandlingService.logSyncError( err, 'EthPersonCardsComponent.ngOnInit');
           return of({'otbPersons': [],'filteredPersons': []});      
         })
+      );
+    });
 
-      )
-    }
-
-    private loadPersons(record: PnxDoc): Observable<PersonCardVM | null> {
-      const lang = this.translate.currentLang;
+    private loadPersons(record: PnxDoc, lang: string): Observable<PersonVM[]> {
       const gndList = this.getGndIds(record);     
       const idRefList = this.getIdRefs(record);   
       const gndFromIdRef$ = idRefList.map(idref => this.ethPersonService.getGndByIdRef(idref));
@@ -111,38 +112,32 @@ export class EthPersonCardsComponent {
             .filter(Boolean)
             .filter((person: PersonVM) => person.entityfacts?.preferredName || person.wiki?.label);             
         }),
-
-        // filter for persons not rendered otb
-        switchMap((persons: PersonVM[]) =>
-          this.ethStoreService.linkedDataRecommendations$.pipe(
-            map((entities) => {
-              //console.error("entities",entities) 
-              const entityIds = new Set(
-                (entities ?? [])
-                  .map((e: any) => e.id)
-                  .filter((id: string | null | undefined): id is string => Boolean(id))
-              );              
-              //console.error("entityIds",entityIds)
-              //console.error("persons",persons.map((e:any)=>e.wiki?.loc))
-              const filteredPersons = persons.filter((person: any) => {
-                const lccn = person.entityfacts?.lccn || person.wiki?.loc;
-                if (!lccn) {
-                  return true;
-                }
-                return !entityIds.has(lccn);
-              });
-              return {
-                otbPersons: entities,
-                filteredPersons: filteredPersons
-              }
-            })
-          )
-        ),
         catchError(error => {
           this.ethErrorHandlingService.logError(error, 'EthPersonCardsComponent.loadPersons');
-          return of(null);
+          return of([]);
         })
       )
+    }
+
+    private filterPersons(persons: PersonVM[], entities: any[] | null | undefined): PersonCardVM {
+      const entityIds = new Set(
+        (entities ?? [])
+          .map((e: any) => e.id)
+          .filter((id: string | null | undefined): id is string => Boolean(id))
+      );
+
+      const filteredPersons = persons.filter((person: any) => {
+        const lccn = person.entityfacts?.lccn || person.wiki?.loc;
+        if (!lccn) {
+          return true;
+        }
+        return !entityIds.has(lccn);
+      });
+
+      return {
+        otbPersons: entities ?? [],
+        filteredPersons: filteredPersons
+      };
     }
         
     private getGndIds(record: PnxDoc): string[] {
@@ -205,16 +200,9 @@ export class EthPersonCardsComponent {
 
     onFocusOut(event: FocusEvent) {
       const next = event.relatedTarget as HTMLElement | null;
-      console.error(next)
       if (!this.licensePopover?.nativeElement.contains(next)) {
         this.close();
       }
     }    
 }
 
-    /*ngOnDestroy() {
-      if (this.mqListener) {
-        const mq = window.matchMedia('(max-width: 599px)');
-        mq.removeEventListener('change', this.mqListener);
-      }
-    }*/

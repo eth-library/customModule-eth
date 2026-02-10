@@ -40,8 +40,6 @@ describe('EthLocationLinkComponent', () => {
 
   it('does nothing when no location is provided', () => {
     component.hostComponent = {};
-    component.ngOnInit();
-
     expect(translateMock.stream).not.toHaveBeenCalled();
   });
 
@@ -57,8 +55,6 @@ describe('EthLocationLinkComponent', () => {
 
     translateMock.stream.and.returnValue(of('raw-link'));
     utilsMock.sanitizeText.and.returnValue('safe-link');
-
-    component.ngOnInit();
 
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
@@ -88,8 +84,6 @@ describe('EthLocationLinkComponent', () => {
       return of(null);
     });
     utilsMock.sanitizeText.and.returnValue('library-link');
-
-    component.ngOnInit();
 
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
@@ -123,8 +117,6 @@ describe('EthLocationLinkComponent', () => {
     });
     utilsMock.sanitizeText.and.callFake(value => value as string);
 
-    component.ngOnInit();
-
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
 
@@ -148,7 +140,6 @@ describe('EthLocationLinkComponent', () => {
     translateMock.stream.and.returnValue(throwError(() => new Error('boom')));
     utilsMock.sanitizeText.and.callFake(value => value as string);
 
-    component.ngOnInit();
     component.link$.subscribe();
 
     expect(errorHandlingMock.logError).toHaveBeenCalled();

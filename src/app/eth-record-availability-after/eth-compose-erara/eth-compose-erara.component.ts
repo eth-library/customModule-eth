@@ -3,7 +3,7 @@
 
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, of, forkJoin, catchError, filter, map, switchMap } from 'rxjs';
+import { Observable, of, forkJoin, catchError, filter, map, switchMap, defer } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthComposeEraraService } from './eth-compose-erara.service';
@@ -22,12 +22,23 @@ export class EthComposeEraraComponent {
   @Input() hostComponent: HostComponent = {};
   private router = inject(SHELL_ROUTER);   
   
-  labelPrint$: Observable<string> = of('');
-  labelOnline$: Observable<string> = of('');
-  labelEMap$: Observable<string> = of('');
-  labelGeoTIFF$: Observable<string> = of('');
-  labelNewWindow$: Observable<string> = of('');
-  links$: Observable<ComposeEraraLinkVM[]> = of([]);
+  labelPrint$: Observable<string> = this.translate.stream('eth.composeErara.print');
+  labelOnline$: Observable<string> = this.translate.stream('eth.composeErara.online');
+  labelEMap$: Observable<string> = this.translate.stream('eth.composeErara.emaps');
+  labelGeoTIFF$: Observable<string> = this.translate.stream('eth.composeErara.geoTiff');
+  labelNewWindow$: Observable<string> = this.translate.stream('nui.aria.newWindow');
+  
+  links$: Observable<ComposeEraraLinkVM[]> = defer(() =>
+    this.ethStoreService.isFullview$().pipe(
+      filter(isFullview => !!isFullview),
+      switchMap(() => this.ethStoreService.getFullDisplayRecord$()),
+      switchMap(record => this.getLinks(record)),
+      catchError(error => {
+        this.ethErrorHandlingService.logError(error, 'EthComposeEraraComponent.links$');
+        return of([]);
+      })
+    )
+  );
 
 
   constructor(
@@ -40,20 +51,6 @@ export class EthComposeEraraComponent {
   // Online: 99117338116605503
   // Print: 990042488650205503
   // e-maps: 99117999030205503
-
-
-  ngAfterViewInit(): void {
-    this.initLabels();
-    this.links$ = this.ethStoreService.isFullview$().pipe(
-      filter(isFullview => !!isFullview),
-      switchMap(() => this.ethStoreService.getFullDisplayRecord$()),
-      switchMap(record => this.getLinks(record)),
-      catchError(error => {
-        this.ethErrorHandlingService.logError(error, 'EthComposeEraraComponent.ngAfterViewInit');
-        return of([]);
-      })
-    );
-  }
 
 
   private getLinks(record: PnxDoc | null): Observable<ComposeEraraLinkVM[]> {
@@ -187,14 +184,6 @@ export class EthComposeEraraComponent {
     
     return of([]);
 
-  }
-
-  private initLabels(): void {
-    this.labelPrint$ = this.translate.stream('eth.composeErara.print');
-    this.labelOnline$ = this.translate.stream('eth.composeErara.online');
-    this.labelEMap$ = this.translate.stream('eth.composeErara.emaps');
-    this.labelGeoTIFF$ = this.translate.stream('eth.composeErara.geoTiff');
-    this.labelNewWindow$ = this.translate.stream('nui.aria.newWindow');
   }
 
   private makePrimoUrl(mmsid: string): string {

@@ -30,6 +30,17 @@ describe('EthRegistrationLinkComponent', () => {
     documentRef = TestBed.inject(DOCUMENT);
   });
 
+  const buildLoginDialog = (doc: Document) => {
+    const loginFormContent = doc.createElement('nde-login-form-content');
+    const dialog = doc.createElement('nde-login-dialog');
+    const content = doc.createElement('div');
+    content.classList.add('mat-mdc-dialog-content');
+    dialog.appendChild(content);
+    loginFormContent.appendChild(dialog);
+    doc.body.appendChild(loginFormContent);
+    return { loginFormContent, dialog, content };
+  };
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -48,13 +59,7 @@ describe('EthRegistrationLinkComponent', () => {
 
 
   it('inserts registration link into the login dialog', () => {
-    const loginFormContent = documentRef.createElement('nde-login-form-content');
-    const dialog = documentRef.createElement('nde-login-dialog');
-    const content = documentRef.createElement('div');
-    content.classList.add('mat-mdc-dialog-content');
-    dialog.appendChild(content);
-    loginFormContent.appendChild(dialog);
-    documentRef.body.appendChild(loginFormContent);
+    const { loginFormContent } = buildLoginDialog(documentRef);
 
     translateMock.get.and.returnValue(of({
       'eth.registrationLink.linkText': 'Register',
@@ -71,17 +76,30 @@ describe('EthRegistrationLinkComponent', () => {
   });
 
 
+  it('sets aria label and includes an icon', () => {
+    const { loginFormContent } = buildLoginDialog(documentRef);
+
+    translateMock.get.and.returnValue(of({
+      'eth.registrationLink.linkText': 'Register',
+      'nui.aria.newWindow': 'new window'
+    }));
+
+    component.ngAfterViewInit();
+
+    const link = loginFormContent.querySelector('a.eth-registration-link') as HTMLAnchorElement | null;
+    const svg = link?.querySelector('svg');
+    expect(link?.getAttribute('aria-label')).toBe('Register new window');
+    expect(svg).toBeTruthy();
+
+    documentRef.body.removeChild(loginFormContent);
+  });
+
+
   it('does not insert link when it already exists', () => {
-    const loginFormContent = documentRef.createElement('nde-login-form-content');
-    const dialog = documentRef.createElement('nde-login-dialog');
-    const content = documentRef.createElement('div');
-    content.classList.add('mat-mdc-dialog-content');
+    const { loginFormContent, dialog, content } = buildLoginDialog(documentRef);
     const existing = documentRef.createElement('a');
     existing.classList.add('eth-registration-link');
-    dialog.appendChild(content);
     dialog.appendChild(existing);
-    loginFormContent.appendChild(dialog);
-    documentRef.body.appendChild(loginFormContent);
 
     translateMock.get.and.returnValue(of({
       'eth.registrationLink.linkText': 'Register',
@@ -96,15 +114,30 @@ describe('EthRegistrationLinkComponent', () => {
     documentRef.body.removeChild(loginFormContent);
   });
 
+
+  it('re-inserts link when removed', () => {
+    const { loginFormContent } = buildLoginDialog(documentRef);
+
+    translateMock.get.and.returnValue(of({
+      'eth.registrationLink.linkText': 'Register',
+      'nui.aria.newWindow': 'new window'
+    }));
+
+    component.ngAfterViewInit();
+    const initialLink = loginFormContent.querySelector('a.eth-registration-link');
+    initialLink?.remove();
+
+    (component as any).insertEthRegistrationLink(loginFormContent);
+
+    const link = loginFormContent.querySelector('a.eth-registration-link');
+    expect(link).toBeTruthy();
+
+    documentRef.body.removeChild(loginFormContent);
+  });
+
   
   it('logs translation errors', () => {
-    const loginFormContent = documentRef.createElement('nde-login-form-content');
-    const dialog = documentRef.createElement('nde-login-dialog');
-    const content = documentRef.createElement('div');
-    content.classList.add('mat-mdc-dialog-content');
-    dialog.appendChild(content);
-    loginFormContent.appendChild(dialog);
-    documentRef.body.appendChild(loginFormContent);
+    const { loginFormContent } = buildLoginDialog(documentRef);
 
     translateMock.get.and.returnValue(throwError(() => new Error('boom')));
 

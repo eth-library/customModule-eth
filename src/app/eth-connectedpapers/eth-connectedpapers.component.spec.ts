@@ -48,11 +48,9 @@ describe('EthConnectedpapersComponent', () => {
     expect(component).toBeTruthy();
   });
 
+
   it('does nothing when no search result is provided', async () => {
     component.hostComponent = {} as HostComponent;
-
-    component.ngOnInit();
-
     expect(storeServiceSpy.getRecord$).not.toHaveBeenCalled();
 
     const result = await firstValueFrom(component.paperUrl$);
@@ -141,6 +139,7 @@ describe('EthConnectedpapersComponent', () => {
     expect(result).toBeNull();
   });
 
+
   it('missing doi: should return of(null)', async () => {
     storeServiceSpy.getRecord$.and.returnValue(
       of({
@@ -159,6 +158,7 @@ describe('EthConnectedpapersComponent', () => {
     expect(result).toBeNull();
   });
 
+  
   it('logs errors when connected papers service fails', async () => {
     storeServiceSpy.getRecord$.and.returnValue(
       of({

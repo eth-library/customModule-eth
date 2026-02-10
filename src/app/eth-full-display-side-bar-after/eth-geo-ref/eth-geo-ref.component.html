@@ -15,9 +15,13 @@
               <div class="eth-place-card">
                 <div class="eth-place-card__text">
                     <h5>
-                      <a [href]="'/nde' + place.url" (click)="navigate(place.url,$event)">
-                        {{ place.label }}
-                      </a>
+                      @if (place.url) {
+                        <a [href]="'/nde' + place.url" (click)="navigate(place.url,$event)">
+                          {{ place.label }}
+                        </a>
+                      } @else {
+                        <span>{{ place.label }}</span>
+                      }
                     </h5>
                     <div *ngIf="place.description">{{place.description}}</div>
                     <div class="eth-entity-type-wrapper"><span class="entity-type">{{'eth.geoRef.entity' | safeTranslate | async}}</span></div>

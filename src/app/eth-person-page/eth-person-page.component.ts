@@ -2,7 +2,7 @@
 // https://jira.ethz.ch/browse/SLSP-1990
 
 import { Component, ElementRef, inject, ViewChild, ViewEncapsulation } from '@angular/core';
-import { catchError, filter, forkJoin, map, Observable, of, startWith, Subject, switchMap, tap } from 'rxjs';
+import { catchError, defer, filter, forkJoin, map, Observable, of, startWith, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../services/eth-person.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
@@ -34,9 +34,26 @@ export class EthPersonPageComponent{
   private router = inject(SHELL_ROUTER); 
   private lang!: string;  
   openLicensePopover: string | null = null;
-  person$!: Observable<PersonVM | null>;
-  linkedDataEntityId$!: Observable<string>;
-  otbEntityStatus!:  Observable<string>;
+  
+  person$: Observable<PersonVM | null> = defer(() => {
+    if (!this.router.url.includes('/entity/person')) {
+      return of(null);
+    }
+    this.lang = this.translate.currentLang || 'de';
+    return this.translate.onLangChange.pipe(
+      startWith({ lang: this.lang } as LangChangeEvent),
+      switchMap(evt => {
+        this.lang = evt.lang;
+        return this.loadPerson();
+      })
+    );
+  });
+
+  otbEntityStatus: Observable<string> = defer(() =>
+    this.ethStoreService.linkedDataEntityStatus$.pipe(
+      catchError(() => of('success'))
+    )
+  );
 
   @ViewChild('licensePopover') licensePopover?: ElementRef;
   @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
@@ -48,22 +65,6 @@ export class EthPersonPageComponent{
     private ethStoreService:EthStoreService,         
     private ethErrorHandlingService: EthErrorHandlingService,
   ){}
-
-
-  ngOnInit(): void {
-    if (!this.router.url.includes('/entity/person')) {
-      return;
-    }
-    this.otbEntityStatus = this.ethStoreService.linkedDataEntityStatus$.pipe(catchError(() => of('success')));
-    this.lang = this.translate.currentLang || 'de';
-    this.person$ = this.translate.onLangChange.pipe(
-      startWith({ lang: this.lang } as LangChangeEvent), 
-      switchMap(evt => {
-        this.lang = evt.lang;
-        return this.loadPerson();
-      })
-    );
-  }
   
   private loadPerson(): Observable<PersonVM | null> {
     return this.ethStoreService.linkedDataEntityId$.pipe(
@@ -86,7 +87,7 @@ export class EthPersonPageComponent{
         );
       }),
       catchError(error => {
-        this.ethErrorHandlingService.logSyncError(error, 'EthPersonPageComponent.ngAfterViewInit');
+        this.ethErrorHandlingService.logSyncError(error, 'EthPersonPageComponent.loadPerson');
         return of(null);
       })
     );    

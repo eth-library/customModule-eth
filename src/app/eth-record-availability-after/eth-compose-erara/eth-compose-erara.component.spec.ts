@@ -58,8 +58,6 @@ describe('EthComposeEraraComponent', () => {
     storeSpy.isFullview$.and.returnValue(of(true));
     storeSpy.getFullDisplayRecord$.and.returnValue(of({} as any));
 
-    component.ngAfterViewInit();
-
     const result = await firstValueFrom(component.links$);
 
     expect(result).toEqual([]);
@@ -92,8 +90,6 @@ describe('EthComposeEraraComponent', () => {
 
     storeSpy.getFullDisplayRecord$.and.returnValue(of(record));
 
-    component.ngAfterViewInit();
-
     const result = await firstValueFrom(component.links$);
 
     expect(result.length).toBe(2);
@@ -120,8 +116,6 @@ describe('EthComposeEraraComponent', () => {
     } as any;
 
     storeSpy.getFullDisplayRecord$.and.returnValue(of(record));
-
-    component.ngAfterViewInit();
 
     const result = await firstValueFrom(component.links$);
 
@@ -154,8 +148,6 @@ describe('EthComposeEraraComponent', () => {
     } as any;
 
     storeSpy.getFullDisplayRecord$.and.returnValue(of(record));
-
-    component.ngAfterViewInit();
 
     const result = await firstValueFrom(component.links$);
 

@@ -5,20 +5,32 @@
       @for (news of news.entries; track news.link) {
         <div class="eth-news">
           <header class="flex-column gap-1">
-            <a target="_blank" rel="noopener external" [href]="news.link">
-              <h3 class="mat-title eth-news-headline" role="heading" aria-level="3">
+            <h3 class="mat-title eth-news-headline">
+              <a target="_blank"
+                rel="noopener external"
+                [attr.aria-label]="news.title + ' ' + (('nui.aria.newWindow' | safeTranslate | async) ?? '')"
+                [href]="news.link">
                 {{ news.title }}
-              </h3>
-            </a>
+              </a>
+            </h3>
           </header>
           <article class="eth-news-content">
-            <a target="_blank" rel="noopener external" [href]="news.link" class="eth-news-image-link" aria-hidden="true" tabindex="-1">
+            <a target="_blank" 
+              rel="noopener external"
+              [href]="news.link"
+              class="eth-news-image-link"
+              aria-hidden="true"
+              tabindex="-1">
               @if (news.image) {
                 <img [src]="news.image" alt="">
               }
             </a>
             <p>
-              <a class="eth-news-teaser" target="_blank" rel="noopener external" [href]="news.link">
+              <a class="eth-news-teaser" 
+                target="_blank"
+                rel="noopener external"
+                [attr.aria-label]="news.lead + ' ' + (('nui.aria.newWindow' | safeTranslate | async) ?? '')"
+                [href]="news.link">
                 {{ news.lead }}
               </a>
             </p>
@@ -28,6 +40,7 @@
     </div>
     <div class="eth-news-footer">
       <a target="_blank" rel="noopener external"
+        [attr.aria-label]="(('eth.bibNews.all' | safeTranslate | async) ?? '') + ' ' + (('nui.aria.newWindow' | safeTranslate | async) ?? '')"
          href="https://library.ethz.ch/news-und-kurse/news-swisscovery.html">
         <span>{{'eth.bibNews.all' | safeTranslate | async}}</span>
       </a>

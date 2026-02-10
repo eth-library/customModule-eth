@@ -14,7 +14,7 @@ import { Component, Input, inject } from '@angular/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthStoreService } from '../../services/eth-store.service';
 import { CommonModule } from '@angular/common';
-import { catchError, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, defer, Observable, of, switchMap } from 'rxjs';
 import { TranslateService } from "@ngx-translate/core";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../../injection-tokens";
@@ -33,8 +33,16 @@ import { HostComponent, PnxDoc, ProvenanceEraraLinksVM } from '../../models/eth.
 export class EthProvenienzEraraLinkComponent {
   @Input() hostComponent: HostComponent = {};
   private router = inject(SHELL_ROUTER);   
-    
-  links$!: Observable<ProvenanceEraraLinksVM>;
+
+  readonly links$: Observable<ProvenanceEraraLinksVM> = defer(() =>
+    this.ethStoreService.getFullDisplayRecord$().pipe(
+      switchMap(record => this.getLinks(record)),
+      catchError(error => {
+        this.ethErrorHandlingService.logError(error, 'EthProvenienzEraraLinkComponent.linksStream');
+        return of({ erara: null, swisscovery: null });
+      })
+    )
+  );
 
   constructor(
     private ethErrorHandlingService: EthErrorHandlingService,
@@ -44,41 +52,44 @@ export class EthProvenienzEraraLinkComponent {
 
   // provenience cards: 99117339955005503
   // e-rara links: 99120725885805503
-  ngAfterViewInit() {
-    this.links$ = this.ethStoreService.getFullDisplayRecord$().pipe(
-      switchMap(record => this.getLinks(record)),
-      catchError(error => {
-        this.ethErrorHandlingService.logError(error, 'EthProvenienzEraraLinkComponent.ngAfterViewInit');
-        return of({erara:null, swisscovery:null});
-      })  
-    );
-  }
-
 
   private getLinks(record: PnxDoc | null): Observable<ProvenanceEraraLinksVM> {
     try {
       const display = record?.pnx?.display;
-      if (!display?.source?.[0] || display?.source[0] !== 'eth_epics_provenienz') return of({erara:null, swisscovery:null});
+      if (!display?.source?.[0] || display?.source[0] !== 'eth_epics_provenienz') {
+        return of({ erara: null, swisscovery: null });
+      }
 
       const lds09 = display.lds09;
-      if (!Array.isArray(lds09) || lds09.length === 0) return of({erara:null, swisscovery:null});
-      let eraraLink = lds09.find((l: string) => l.includes('doi.org/10.3931/e-rara-'));
-      let swisscoveryUrl = null;
-      if (eraraLink) {
-        const swisscoveryQuery = eraraLink.split('dx.doi.org/')[1] ?? null;
-        const tab = this.ethStoreService.getTab() || '';
-        const scope = this.ethStoreService.getScope() || '';
-        const vid = this.ethStoreService.getVid() || '';
-        swisscoveryUrl = `/search?query=${swisscoveryQuery}&vid=${vid}&tab=${tab}&search_scope=${scope}`;
+      if (!Array.isArray(lds09) || lds09.length === 0) {
+        return of({ erara: null, swisscovery: null });
       }
+
+      const eraraLink = this.findEraraLink(lds09);
+      const swisscoveryUrl = eraraLink ? this.makeSwisscoveryUrl(eraraLink) : null;
+
       return of({
         erara: eraraLink ?? null,
         swisscovery: swisscoveryUrl
-      })
+      });
     } catch(error: unknown){
         this.ethErrorHandlingService.logSyncError(error, 'EthProvenienzEraraLinkComponent.getLinks');  
-        return of({erara:null, swisscovery:null});
+        return of({ erara: null, swisscovery: null });
     }
+  }
+
+  private findEraraLink(lds09: string[]): string | null {
+    return lds09.find(link => link.includes('doi.org/10.3931/e-rara-')) ?? null;
+  }
+
+  private makeSwisscoveryUrl(eraraLink: string): string | null {
+    const swisscoveryQuery = eraraLink.split('dx.doi.org/')[1] ?? null;
+    if (!swisscoveryQuery) return null;
+
+    const tab = this.ethStoreService.getTab() || '';
+    const scope = this.ethStoreService.getScope() || '';
+    const vid = this.ethStoreService.getVid() || '';
+    return `/search?query=${swisscoveryQuery}&vid=${vid}&tab=${tab}&search_scope=${scope}`;
   }
 
   navigate(url: string, event: Event){

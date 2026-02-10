@@ -1,25 +1,24 @@
 // Integration Matomo
 // https://jira.ethz.ch/browse/SLSP-1954
 
-import { DestroyRef, Component, inject } from '@angular/core';
+import { DestroyRef, Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, map, catchError, EMPTY, filter } from 'rxjs';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { SHELL_ROUTER } from "../injection-tokens";
-import { NavigationEnd, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'custom-eth-matomo',
   templateUrl: './eth-matomo.component.html',
-  styleUrls: ['./eth-matomo.component.scss'],
   standalone: true,   
 })
 
-export class EthMatomoComponent {
+export class EthMatomoComponent implements OnInit {
   private router = inject(SHELL_ROUTER) as Router;
 
-  private trackerUrl = 'https://library-ethz.opsone-analytics.ch/';
-  private siteId = '66';
+  private readonly trackerUrl = 'https://library-ethz.opsone-analytics.ch/';
+  private readonly siteId = '66';
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -48,14 +47,13 @@ export class EthMatomoComponent {
 
       matomoScript.onload = () => {
         console.log('Matomo script loaded successfully');
+        // initialize automatic page tracking after script is ready
+        this.initializeTracking();
       };
       matomoScript.onerror = () => {
         console.error('Failed to load Matomo script');
         this.ethErrorHandlingService.logError('Failed to load Matomo script', 'EthMatomoComponent.ngOnInit()');
       };
-
-      // initialize automatic page tracking 
-      this.initializeTracking();
 
     }
     catch (error) {

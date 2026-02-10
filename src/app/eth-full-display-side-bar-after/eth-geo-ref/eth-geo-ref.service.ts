@@ -10,8 +10,8 @@ import { GraphRelatedPlacesResponse, GraphGndPlacesResponse, EthoramaAPIResponse
 export class EthGeoRefService {
 
   private readonly graphUrlPois = 'https://daas.library.ethz.ch/rib/v3/graph/pois';
-  private readonly graphUrlEmaps = 'https://daas.library.ethz.ch/rib/v3/graph/e-maps';
-  private readonly graphUrlErara = 'https://daas.library.ethz.ch/rib/v3/graph/e-rara-items';
+  //private readonly graphUrlEmaps = 'https://daas.library.ethz.ch/rib/v3/graph/e-maps';
+  //private readonly graphUrlErara = 'https://daas.library.ethz.ch/rib/v3/graph/e-rara-items';
   private readonly graphUrlGnd = 'https://daas.library.ethz.ch/rib/v3/graph/places-by-gnd-list';
   private readonly ethoramaUrl = 'https://api.library.ethz.ch/ethorama/v1/pois?apikey=BKFefOQWF3VGq2sreNcyLqK7Gob61xO9jnLQAd0wy82ktIYn&pageSize=100&details=false';
   private readonly lobidUrl = 'https://daas.library.ethz.ch/rib/v3/places/lobid/gnds';
@@ -46,7 +46,6 @@ export class EthGeoRefService {
   // https://daas.library.ethz.ch/rib/v3/graph/places?gnd=4018272-1
   getGndPlacesFromGraph(gnds: string): Observable<GraphGndPlacesResponse> {
     const url = `${this.graphUrlGnd}?gnd=${gnds}`;
-    console.error(url)
     return this.httpClient.get<GraphGndPlacesResponse>(url);
   }  
 

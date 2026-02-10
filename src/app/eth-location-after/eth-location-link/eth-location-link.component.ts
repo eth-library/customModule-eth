@@ -3,7 +3,7 @@
 
 import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
-import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, defer, filter, map, Observable, of, switchMap } from 'rxjs';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthUtilsService } from '../../services/eth-utils.service';
 import { CommonModule } from '@angular/common';
@@ -23,7 +23,18 @@ import { HostComponent } from '../../models/eth.model';
 })
 export class EthLocationLinkComponent {
 
-  link$: Observable<SafeHtml | null> = of(null);
+  link$: Observable<SafeHtml | null> = defer(() => {
+    if (!this.hostComponent?.location) return of(null);
+    this.hostComponent.expanded = true;
+    this.subLocationCode = this.hostComponent.location.subLocationCode ?? '';
+    this.libraryCode = this.hostComponent.location.libraryCode ?? '';
+    this.mainLocation = this.hostComponent.location.mainLocation ?? '';
+
+    return this.getLink().pipe(
+      map(text => this.ethUtilsService.sanitizeText(text)),
+      filter((text): text is string => !!text)
+    );
+  });
   libraryCode = '';
   subLocationCode = '';
   mainLocation = '';
@@ -35,21 +46,7 @@ export class EthLocationLinkComponent {
     private ethUtilsService: EthUtilsService
   ){} 
 
-  
-    // 990010808770205503 
-  ngOnInit(): void {
-    if(!this.hostComponent?.location)return;
-    this.hostComponent.expanded = true;
-    this.subLocationCode = this.hostComponent.location.subLocationCode ?? '';
-    this.libraryCode = this.hostComponent.location.libraryCode ?? '';
-    this.mainLocation = this.hostComponent.location.mainLocation ?? '';
-    this.link$ = this.getLink().pipe(
-      map(text => this.ethUtilsService.sanitizeText(text)),
-      filter((text): text is string => !!text)
-    );
-  }
-
-
+  // 990010808770205503 
   private getLink(): Observable<string | null> {    
     return this.translate.stream(`eth.locationLink.${this.libraryCode}.${this.subLocationCode}`).pipe(
       switchMap(translation1 => {

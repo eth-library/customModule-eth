@@ -1,8 +1,8 @@
 // If a user with an ETH email address does not belong to an ETH user group, a message will be displayed stating that the user must link their edu-id account to their ETH account.
 // https://jira.ethz.ch/browse/SLSP-1985
 
-import { Component, OnInit } from '@angular/core';
-import { catchError, combineLatest, map, Observable, of, take, tap } from 'rxjs';
+import { Component } from '@angular/core';
+import { catchError, combineLatest, defer, map, Observable, of } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
@@ -20,32 +20,26 @@ import { TranslateModule } from "@ngx-translate/core";
   ]      
 })
 
-export class EthIdpWarningComponent implements OnInit {
-
-  showWarning$!: Observable<boolean>;
+export class EthIdpWarningComponent {
+  showWarning$: Observable<boolean> = defer(() =>
+    combineLatest([
+      this.ethStoreService.userGroup$,
+      this.ethStoreService.email$,
+      this.ethStoreService.authenticationProfile$
+    ]).pipe(
+      map(([group, email, profile]) => this.showWarning(group, email, profile)),
+      catchError(error => {
+        this.ethErrorHandlingService.logError(error, 'EthIdpWarningComponent.showWarning$');
+        return of(false);
+      })
+    )
+  );
 
   constructor(
     private ethStoreService:EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService
   ){}
 
-  ngOnInit(): void {
-    this.showWarning$ = combineLatest([
-      this.ethStoreService.userGroup$,
-      this.ethStoreService.email$,
-      this.ethStoreService.authenticationProfile$
-    ])
-    .pipe(
-      map(([group, email, profile]) =>
-        this.showWarning(group, email, profile)
-      ),
-      catchError(error => {
-        this.ethErrorHandlingService.logError(error, 'EthIdpWarningComponent');
-        return of(false);
-      })
-    )
-  }
-  
   private showWarning(group: string | null, email: string | null, profile: string | null): boolean {
     if (profile === 'Alma') return false;
     if (!email) return false;

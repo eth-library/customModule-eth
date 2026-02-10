@@ -1,10 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { By } from '@angular/platform-browser';
+import { TranslateService } from '@ngx-translate/core';
 import { EthOnlineButtonComponent } from './eth-online-button.component';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { SHELL_ROUTER } from '../injection-tokens';
-import { firstValueFrom, of } from 'rxjs';
+import { Subject, firstValueFrom, of, take } from 'rxjs';
+
+const translateServiceMock = {
+  stream: (key: string) => of(key)
+};
 
 describe('EthOnlineButtonComponent', () => {
   let component: EthOnlineButtonComponent;
@@ -29,7 +35,8 @@ describe('EthOnlineButtonComponent', () => {
       providers: [
         { provide: EthStoreService, useValue: storeSpy },
         { provide: EthErrorHandlingService, useValue: errorHandlingSpy },
-        { provide: SHELL_ROUTER, useValue: routerSpy }
+        { provide: SHELL_ROUTER, useValue: routerSpy },
+        { provide: TranslateService, useValue: translateServiceMock }
       ]
     })
     .compileComponents();
@@ -43,15 +50,13 @@ describe('EthOnlineButtonComponent', () => {
   });
 
 
-  it('returns no online button when view model has online links', async () => {
+  it('renders no online button when view model has online links (OTB Quicklinks)', async () => {
     component.hostComponent = { viewModel$: of({ onlineLinks: [{}] }) } as any;
     storeSpy.getRecord$.and.returnValue(of({} as any));
     storeSpy.getDeliveryEntity$.and.returnValue(of({} as any));
 
     spyOn(component, 'removeOTBOnlineButton');
-    spyOn(component, 'checkLibkeyButton');
-
-    component.ngAfterViewInit();
+    //spyOn(component, 'checkLibkeyButton');
 
     const result = await firstValueFrom(component.links$);
 
@@ -59,7 +64,7 @@ describe('EthOnlineButtonComponent', () => {
   });
 
 
-  it('prefers electronic services and adds ViewIt link', async () => {
+  it('prefers electronic services over linktorsrcadditional and adds ViewIt link', async () => {
     component.hostComponent = { viewModel$: of(null) } as any;
     storeSpy.getRecord$.and.returnValue(of({ pnx: { control: { recordid: ['doc123'] } } } as any));
     storeSpy.getDeliveryEntity$.and.returnValue(of({
@@ -70,8 +75,6 @@ describe('EthOnlineButtonComponent', () => {
 
     spyOn(component, 'removeOTBOnlineButton');
     spyOn(component, 'checkLibkeyButton');
-
-    component.ngAfterViewInit();
 
     const result = await firstValueFrom(component.links$);
 
@@ -95,8 +98,6 @@ describe('EthOnlineButtonComponent', () => {
     spyOn(component, 'removeOTBOnlineButton');
     spyOn(component, 'checkLibkeyButton');
 
-    component.ngAfterViewInit();
-
     const result = await firstValueFrom(component.links$);
 
     expect(result[0]).toEqual({ url: 'http://example.test', source: 'pnx' });
@@ -113,8 +114,6 @@ describe('EthOnlineButtonComponent', () => {
     spyOn(component, 'removeOTBOnlineButton');
     spyOn(component, 'checkLibkeyButton');
 
-    component.ngAfterViewInit();
-
     const result = await firstValueFrom(component.links$);
 
     expect(result.length).toBe(1);
@@ -122,13 +121,77 @@ describe('EthOnlineButtonComponent', () => {
   });
 
 
-  it('navigates internally for ViewIt links', () => {
+  it('renders quicklink button', async () => {
+    component.hostComponent = { viewModel$: of(null) } as any;
+    storeSpy.getRecord$.and.returnValue(of({ pnx: { control: { recordid: ['doc123'] } } } as any));
+    storeSpy.getDeliveryEntity$.and.returnValue(of({
+      delivery: {
+        electronicServices: [{ serviceUrl: 'https://service.test', ilsApiId: 'alma_123' }]
+      }
+    } as any));
+
+    spyOn(component, 'removeOTBOnlineButton');
+    //spyOn(component, 'checkLibkeyButton');
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const container = fixture.debugElement.query(By.css('.eth-quicklink-container'));
+    const mainButton = fixture.debugElement.query(By.css('.eth-quicklink-button'));
+    const expandButton = fixture.debugElement.query(By.css('.eth-quicklink-expand-button'));
+    const mainButtonText = (mainButton?.nativeElement as HTMLElement | null)?.textContent || '';
+
+    expect(container).toBeTruthy();
+    expect(mainButton).toBeTruthy();
+    expect(expandButton).toBeTruthy();
+    expect(mainButtonText.trim()).toContain('eth.onlineButton.linkText');
+  });
+
+
+  it('navigates for ViewIt links by navigateByUrl', () => {
     const event = { preventDefault: jasmine.createSpy('preventDefault') } as unknown as Event;
 
     component.navigate('ViewIt', '/fulldisplay?docid=doc123', event);
 
     expect(event.preventDefault).toHaveBeenCalled();
     expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/fulldisplay?docid=doc123');
+  });
+
+
+  it('recomputes links when hostComponent changes', (done) => {
+    const recordA$ = new Subject<any>();
+    const deliveryA$ = new Subject<any>();
+    const recordB$ = new Subject<any>();
+    const deliveryB$ = new Subject<any>();
+
+    storeSpy.getRecord$.and.callFake((host: any) => (host?.id === 'A' ? recordA$ : recordB$));
+    storeSpy.getDeliveryEntity$.and.callFake((host: any) => (host?.id === 'A' ? deliveryA$ : deliveryB$));
+
+    spyOn(component, 'removeOTBOnlineButton');
+
+    const results: any[] = [];
+    component.links$.pipe(take(2)).subscribe(value => {
+      results.push(value);
+      if (results.length === 2) {
+        expect(results[0][0]).toEqual({ url: 'http://example.test', source: 'pnx' });
+        expect(results[1][0]).toEqual({ url: 'https://service.test', source: 'electronicServices' });
+        done();
+      }
+    });
+
+    component.hostComponent = { id: 'A', viewModel$: of(null) } as any;
+    recordA$.next({
+      pnx: {
+        control: { recordid: ['docA'] },
+        links: { linktorsrcadditional: ['$$Uhttp://example.test$$Ddesc'] }
+      }
+    });
+    deliveryA$.next({ delivery: { electronicServices: [] } });
+
+    component.hostComponent = { id: 'B', viewModel$: of(null) } as any;
+    recordB$.next({ pnx: { control: { recordid: ['docB'] } } });
+    deliveryB$.next({ delivery: { electronicServices: [{ serviceUrl: 'https://service.test' }] } });
   });
 
 

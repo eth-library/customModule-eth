@@ -1,7 +1,7 @@
 // EntityPage Place
 // https://jira.ethz.ch/browse/SLSP-1991
 import { Component, ElementRef, inject, ViewChild, ViewEncapsulation } from '@angular/core';
-import { combineLatest, forkJoin, map, Observable, of, startWith, switchMap, catchError, filter, tap } from 'rxjs';
+import { combineLatest, defer, forkJoin, map, Observable, of, startWith, switchMap, catchError, filter } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthLocationPageService } from './eth-location-page.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -27,7 +27,37 @@ import { SHELL_ROUTER } from "../injection-tokens";
 
 export class EthLocationPageComponent {
   private router = inject(SHELL_ROUTER); 
-  placePageData$!: Observable<PlacePageViewModel | null>;
+
+  placePageData$: Observable<PlacePageViewModel | null> = defer(() => {
+    if (!this.router.url.includes('/entity/location')) {
+      return of(null);
+    }
+
+    this.vid = this.ethStoreService.getVid();
+
+    return combineLatest([
+      this.ethStoreService.linkedDataEntityId$,
+      this.translate.onLangChange.pipe(
+        startWith({ lang: this.translate.currentLang })
+      )
+    ]).pipe(
+      map(([entityId, langEvent]) => {
+        this.lang = langEvent.lang;
+        return entityId;
+      }),
+      filter(Boolean),
+      switchMap(entityId => this.resolveEntityId(entityId)),
+      switchMap(identifier => this.getLocationData(identifier)),
+      catchError(e => {
+        this.ethErrorHandlingService.logError(
+          e,
+          'EthLocationPageComponent.placePageData$'
+        );
+        return of(null);
+      })
+    );
+  });
+  
   qid: string = '';
   vid!: string | null;
   tab!: string | null;
@@ -36,7 +66,13 @@ export class EthLocationPageComponent {
   map!: any;
   polygonsWithCenters!: any;
   openWeight!: number;
-  otbEntityStatus!:  Observable<string>;
+
+  otbEntityStatus: Observable<string> = defer(() =>
+    this.ethStoreService.linkedDataEntityStatus$.pipe(
+      catchError(() => of('success'))
+    )
+  );
+
   openLicensePopover: string | null = null;  
   
   @ViewChild('licensePopover') licensePopover?: ElementRef;
@@ -49,38 +85,6 @@ export class EthLocationPageComponent {
     public ethLocationPageService: EthLocationPageService,
     private ethErrorHandlingService: EthErrorHandlingService,
   ) {}
-
-
-  ngOnInit(): void {
-    if (!this.router.url.includes('/entity/location')) {
-      return;
-    }
-    
-    this.otbEntityStatus = this.ethStoreService.linkedDataEntityStatus$.pipe(catchError(() => of('success')));
-    
-    this.vid = this.ethStoreService.getVid();
-
-    this.placePageData$ = combineLatest([
-      this.ethStoreService.linkedDataEntityId$,
-      this.translate.onLangChange.pipe(
-        startWith({ lang: this.translate.currentLang })
-      )
-    ]).pipe(map(([entityId, langEvent]) => {
-        this.lang = langEvent.lang;
-        return entityId;
-      }),
-      filter(Boolean),
-      switchMap(entityId => this.resolveEntityId(entityId)),
-      switchMap(identifier => this.getLocationData(identifier)),
-      catchError(e => {
-        this.ethErrorHandlingService.logError(
-          e,
-          'EthLocationPageComponent.ngOnInit'
-        );
-        return of(null);
-      })
-    );
-  }
 
   // our services can use gnd and qid, but not lccn --> map lccn to qid
   // --> EthGeoRefComponent.buildLocationEntityUrl()

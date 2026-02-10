@@ -2,9 +2,9 @@
 // https://jira.ethz.ch/browse/SLSP-1986
 
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { OnInit, Component, Inject } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, of, combineLatest } from 'rxjs';
+import { Observable, of, combineLatest, defer } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
@@ -25,11 +25,66 @@ interface TranslationBundle {
   templateUrl: './eth-ill-link.component.html',
   styleUrls: ['./eth-ill-link.component.scss']
 })
-export class EthIllLinkComponent implements OnInit {
+export class EthIllLinkComponent {
+  // do we need an ILL link? In this case: create the querystring of the ILL link.
+  qs$: Observable<string | null> = defer(() =>
+    combineLatest([
+      this.ethStoreService.getFullDisplayRecord$(),
+      this.ethStoreService.getFullDisplayDeliveryEntity$()
+    ]).pipe(
+      switchMap(([record, deliveryEntity]) => this.getQs(record, deliveryEntity)),
+      catchError(err => {
+        this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.qs$');
+        return of(null);
+      }),
+      shareReplay({
+        bufferSize: 1,
+        refCount: true
+      })
+    )
+  );
 
-  qs$!: Observable<string | null>;
-  url$!: Observable<string | null>;
-  translations$!: Observable<TranslationBundle | null>;
+  // get translations, if needed
+  translations$: Observable<TranslationBundle | null> = this.qs$.pipe(
+    switchMap(qs =>
+      qs
+        ? combineLatest([
+            this.translate.stream('eth.illLink.text1'),
+            this.translate.stream('eth.illLink.text2'),
+            this.translate.stream('eth.illLink.text3'),
+            this.translate.stream('eth.illLink.linkText'),
+            this.translate.stream('nui.aria.newWindow')
+          ]).pipe(
+            map(([t1, t2, t3, linkText, newWindow]) => ({
+              t1,
+              t2,
+              t3,
+              linkText,
+              newWindow
+            }))
+          )
+        : of(null)
+    ),
+    catchError(err => {
+      this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.translations$');
+      return of(null);
+    })
+  );
+
+  // build URL
+  url$: Observable<string | null> = this.qs$.pipe(
+    switchMap(qs =>
+      qs
+        ? this.translate.stream('eth.illLink.url').pipe(
+            map(baseUrl => `${baseUrl}?${qs}`)
+          )
+        : of(null)
+    ),
+    catchError(err => {
+      this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.url$');
+      return of(null);
+    })
+  );
 
   constructor(
     private ethStoreService: EthStoreService,
@@ -37,68 +92,6 @@ export class EthIllLinkComponent implements OnInit {
     private translate: TranslateService,
     @Inject(DOCUMENT) private document: Document
   ) {}
-
-  ngOnInit(): void {
-    // do we need an ILL link? In this case: create the querystring of the ILL link. 
-    this.qs$ = combineLatest([
-      this.ethStoreService.getFullDisplayRecord$(),
-      this.ethStoreService.getFullDisplayDeliveryEntity$()
-    ]).pipe(
-      switchMap(([record, deliveryEntity]) =>
-        this.getQs(record, deliveryEntity)
-      ),
-      catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.ngOnInit() get qs');
-        return of(null);
-      }),
-      shareReplay({
-        bufferSize: 1,
-        refCount: true
-      })
-    );
-
-    // get translations, if needed
-    this.translations$ = this.qs$.pipe(
-      switchMap(qs =>
-        qs
-          ? combineLatest([
-              this.translate.stream('eth.illLink.text1'),
-              this.translate.stream('eth.illLink.text2'),
-              this.translate.stream('eth.illLink.text3'),
-              this.translate.stream('eth.illLink.linkText'),
-              this.translate.stream('nui.aria.newWindow')
-            ]).pipe(
-              map(([t1, t2, t3, linkText, newWindow]) => ({
-                t1,
-                t2,
-                t3,
-                linkText,
-                newWindow
-              }))
-            )
-          : of(null)
-      ),
-      catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.ngOnInit() get translations');
-        return of(null);
-      })      
-    );
-
-    // build URL
-    this.url$ = this.qs$.pipe(
-      switchMap(qs =>
-        qs
-          ? this.translate.stream('eth.illLink.url').pipe(
-              map(baseUrl => `${baseUrl}?${qs}`)
-            )
-          : of(null)
-      ),
-      catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.ngOnInit() build url');
-        return of(null);
-      })      
-    );
-  }
 
   // do we need an ILL link? If so, build querystring
   private getQs(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {

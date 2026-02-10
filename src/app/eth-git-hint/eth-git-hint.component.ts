@@ -9,8 +9,8 @@ Angular's own sanitizer then automatically runs over it again.
  */
 // https://jira.ethz.ch/browse/SLSP-1958
 
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { catchError, map, Observable, of } from 'rxjs';
+import { Component, ViewEncapsulation } from '@angular/core';
+import { catchError, defer, map, Observable, of } from 'rxjs';
 import { EthGitHintService } from './eth-git-hint.service'
 import { TranslateService } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
@@ -35,9 +35,18 @@ type Language = 'de' | 'en';
     SafeTranslatePipe
   ]    
 })
-export class EthGitHintComponent implements OnInit {
-  
-  hint$: Observable<SafeHtml | null> = of(null);
+export class EthGitHintComponent {
+  hint$: Observable<SafeHtml | null> = defer(() =>
+    this.ethGitHintService
+      .getHint((this.translate.currentLang as Language) ?? 'de')
+      .pipe(
+        map(hint => this.ethUtilsService.sanitizeText(hint)),
+        catchError(error => {
+          this.ethErrorHandlingService.logError(error, 'EthGitHintComponent');
+          return of(null);
+        })
+      )
+  );
 
   constructor( 
     private translate: TranslateService,
@@ -45,16 +54,5 @@ export class EthGitHintComponent implements OnInit {
     private ethErrorHandlingService: EthErrorHandlingService,
     private ethUtilsService: EthUtilsService
   ) {}
-
-  ngOnInit() {
-    const currentLang: Language = (this.translate.currentLang as Language) ?? 'de';
-    this.hint$ = this.ethGitHintService.getHint(currentLang).pipe(
-      map(hint => this.ethUtilsService.sanitizeText(hint)),
-      catchError(error => {
-        this.ethErrorHandlingService.logError(error, 'EthGitHintComponent');
-        return of(null);
-      })
-    );
-  }
 
 }

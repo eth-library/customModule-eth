@@ -7,6 +7,10 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { catchError, of, take, tap } from 'rxjs';
 
+const REGISTRATION_URL = 'https://library.ethz.ch/recherchieren-und-nutzen/ausleihen-und-nutzen/swisscovery-hilfe-auf-einen-blick.html#r';
+const LINK_SELECTOR = 'nde-login-dialog .eth-registration-link';
+const CONTENT_SELECTOR = 'nde-login-dialog .mat-mdc-dialog-content';
+
 @Component({
   selector: 'custom-eth-registration-link',
   templateUrl: './eth-registration-link.component.html',
@@ -30,20 +34,16 @@ export class EthRegistrationLinkComponent {
 
     ngAfterViewInit(): void {
       const loginFormContent = this.document.querySelector('nde-login-form-content') as HTMLElement | null;
-      if (!loginFormContent) {
-        return;
-      }
+      if (!loginFormContent) return;
 
-      // initial
       this.insertEthRegistrationLink(loginFormContent);
+      this.observeDialogChanges(loginFormContent);
+    }
 
-      // observer: after dialog change (clicking  "INSTITUTIONAL ACCOUNTS" and coming back)
+    private observeDialogChanges(loginFormContent: HTMLElement): void {
       const observer = new MutationObserver((mutations) => {
-        // guard
-        if (loginFormContent.querySelector('.eth-registration-link')) {
-          return;
-        }
-        // methods dialog?
+        if (loginFormContent.querySelector('.eth-registration-link')) return;
+
         const isMethodsDialog = mutations.some(m =>
           Array.from(m.addedNodes).some(node =>
             node instanceof HTMLElement &&
@@ -54,15 +54,12 @@ export class EthRegistrationLinkComponent {
           this.insertEthRegistrationLink(loginFormContent);
         }
       });
-      observer.observe(loginFormContent, {childList: true, subtree: true});
+
+      observer.observe(loginFormContent, { childList: true, subtree: true });
       this.destroyRef.onDestroy(() => observer.disconnect());
     }
 
-   
-    private insertEthRegistrationLink(loginFormContent: HTMLElement | null): void{
-      if (!loginFormContent) {
-        return;
-      }
+    private insertEthRegistrationLink(loginFormContent: HTMLElement): void{
       try {
         this.translate
           .get(['eth.registrationLink.linkText', 'nui.aria.newWindow'])
@@ -72,36 +69,13 @@ export class EthRegistrationLinkComponent {
               const linktext = translations['eth.registrationLink.linkText'];
               const newWindow = translations['nui.aria.newWindow'];
               
-              // guard: check if already exists
-              const existingLink = loginFormContent.querySelector('nde-login-dialog .eth-registration-link');
-              if (existingLink) {
-                return;
-              }
-              const container = loginFormContent.querySelector('nde-login-dialog .mat-mdc-dialog-content');
-              if (!container) {
-                return;
-              }
-              const link = this.renderer.createElement('a');
-              this.renderer.setAttribute(link,'href','https://library.ethz.ch/recherchieren-und-nutzen/ausleihen-und-nutzen/swisscovery-hilfe-auf-einen-blick.html#r');
-              this.renderer.setAttribute(link, 'target', '_blank');
-              this.renderer.setAttribute(link, 'aria-label', `${linktext} ${newWindow}`);
-              this.renderer.addClass(link, 'eth-registration-link');
-              this.renderer.appendChild(link, this.renderer.createText(linktext));
+              const existingLink = loginFormContent.querySelector(LINK_SELECTOR);
+              if (existingLink) return;
 
-              // create svg
-              const svg = this.renderer.createElement('svg', 'svg');
-              this.renderer.setAttribute(svg, 'xmlns', 'http://www.w3.org/2000/svg');
-              this.renderer.setAttribute(svg, 'viewBox', '0 -960 960 960');
-              this.renderer.setAttribute(svg, 'aria-hidden', 'true');
-              this.renderer.setAttribute(svg, 'focusable', 'false');
-              const path = this.renderer.createElement('path', 'svg');
-              this.renderer.setAttribute(path,'d','m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z');
+              const container = loginFormContent.querySelector(CONTENT_SELECTOR);
+              if (!container) return;
 
-              // append svg to link
-              this.renderer.appendChild(svg, path);
-              this.renderer.appendChild(link, svg);
-
-              // insert link
+              const link = this.buildRegistrationLink(linktext, newWindow);
               this.renderer.insertBefore(container.parentNode, link, container.nextSibling);
             }),
             catchError(err => {
@@ -114,6 +88,34 @@ export class EthRegistrationLinkComponent {
       catch (error) {
         this.ethErrorHandlingService.logSyncError(error,'EthRegistrationLinkComponent.ngAfterViewInit()');
       }
+    }
+
+    private buildRegistrationLink(linktext: string, newWindow: string): HTMLElement {
+      const link = this.renderer.createElement('a');
+      this.renderer.setAttribute(link, 'href', REGISTRATION_URL);
+      this.renderer.setAttribute(link, 'target', '_blank');
+      this.renderer.setAttribute(link, 'aria-label', `${linktext} ${newWindow}`);
+      this.renderer.addClass(link, 'eth-registration-link');
+      this.renderer.appendChild(link, this.renderer.createText(linktext));
+
+      const svg = this.buildExternalLinkIcon();
+      this.renderer.appendChild(link, svg);
+
+      return link;
+    }
+
+    private buildExternalLinkIcon(): HTMLElement {
+      const svg = this.renderer.createElement('svg', 'svg');
+      this.renderer.setAttribute(svg, 'xmlns', 'http://www.w3.org/2000/svg');
+      this.renderer.setAttribute(svg, 'viewBox', '0 -960 960 960');
+      this.renderer.setAttribute(svg, 'aria-hidden', 'true');
+      this.renderer.setAttribute(svg, 'focusable', 'false');
+
+      const path = this.renderer.createElement('path', 'svg');
+      this.renderer.setAttribute(path, 'd', 'm256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z');
+      this.renderer.appendChild(svg, path);
+
+      return svg;
     }
 
 }

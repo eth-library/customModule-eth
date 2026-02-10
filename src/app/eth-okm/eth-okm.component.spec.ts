@@ -42,8 +42,6 @@ describe('EthOKMComponent', () => {
       writable: true
     });
 
-    component.ngOnInit();
-
     const result = await firstValueFrom(component.searchValue$);
 
     expect(result).toBe('query');
@@ -53,8 +51,6 @@ describe('EthOKMComponent', () => {
   it('returns null when in full view', async () => {
     storeSpy.isFullview$.and.returnValue(of(true));
 
-    component.ngOnInit();
-
     const result = await firstValueFrom(component.searchValue$);
 
     expect(result).toBeNull();
@@ -63,8 +59,6 @@ describe('EthOKMComponent', () => {
 
   it('logs errors and returns null', async () => {
     storeSpy.isFullview$.and.returnValue(throwError(() => new Error('boom')));
-
-    component.ngOnInit();
 
     const result = await firstValueFrom(component.searchValue$);
 
