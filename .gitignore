@@ -25,3 +25,5 @@ tsconfig*
 # System files
 .DS_Store
 Thumbs.db
+build-settings.env
+m3-theme.scss
