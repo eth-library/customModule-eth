@@ -33,10 +33,10 @@ describe('EthGitHintService', () => {
   });
 
   it('returns the hint for the requested language', () => {
-    const mockResponse: GitHintAPIResponse = { de: 'Hallo', en: 'Hello' };
+    const mockResponse: GitHintAPIResponse = { de: 'deutscher hinweis', en: 'english hint' };
 
     service.getHint('en').subscribe(response => {
-      expect(response).toBe('Hello');
+      expect(response).toBe('english hint');
     });
 
     const req = httpMock.expectOne(BASE_URL);

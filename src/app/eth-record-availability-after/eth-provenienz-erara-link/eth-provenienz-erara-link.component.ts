@@ -98,16 +98,3 @@ export class EthProvenienzEraraLinkComponent {
   }    
 
 }
-
-
-/**
-             eth.provenienzEraraLink.erara:{
-                de: 'Quelle in e-rara',
-                en: 'Source in e-rara'
-            },
-            eth.provenienzEraraLink.swisscovery: {
-                de: 'Details Provenienzvermerk',
-                en: 'Details provenance mark'
-            }
- 
- */

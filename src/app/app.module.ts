@@ -17,7 +17,7 @@ export const AppModule = ({providers, shellRouter}: {providers:any, shellRouter:
    @NgModule({
     declarations: [
       AppComponent,
-      AutoAssetSrcDirective,
+      AutoAssetSrcDirective, 
     ],
     exports: [AutoAssetSrcDirective],
     imports: [

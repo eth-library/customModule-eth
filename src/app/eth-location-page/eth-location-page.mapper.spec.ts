@@ -46,6 +46,7 @@ describe('eth-location-page.mapper', () => {
     expect(result?.dossiers[0].url).toContain('/de/themen/d1');
     expect(result?.routes[0].url).toContain('/de/reisen/r1');
   });
+  
 
   it('maps identifier response to qid', () => {
     const resp = { results: { bindings: [{ qid: { value: 'Q123' } }] } } as any;

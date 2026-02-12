@@ -14,8 +14,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from "@ngx-translate/core";
 
 const WAYBACK_URL_SNIPPET = 'https://wayback.archive-It.org';
-const FULL_DISPLAY_SELECTOR = 'nde-full-display-container';
-const VIEW_IT_BUTTON_SELECTOR = 'nde-view-it-card button';
 const WAYBACK_HINT_ID = 'eth-wayback-hint';
 const WAYBACK_HINT_CLASS = 'eth-wayback';
 
@@ -56,7 +54,7 @@ export class EthWaybackComponent {
       tap(() => this.initObserver()),
       takeUntilDestroyed(this.destroyRef),
       catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthWaybackComponent.ngAfterViewInit');
+        this.ethErrorHandlingService.logError(err, 'EthWaybackComponent.observeWaybackLinks');
         return of(false);
       })
     ).subscribe();
@@ -75,7 +73,7 @@ export class EthWaybackComponent {
   }
 
   private initObserver() {
-    const fullDisplayContainer = this.document.querySelector(FULL_DISPLAY_SELECTOR);
+    const fullDisplayContainer = this.document.querySelector('nde-full-display-container');
     if (!fullDisplayContainer) return;
 
     const observer = new MutationObserver(() => this.changeDom());
@@ -89,7 +87,7 @@ export class EthWaybackComponent {
   }
 
   private changeDom() {
-    const btn = this.document.querySelector(VIEW_IT_BUTTON_SELECTOR);
+    const btn = this.document.querySelector('nde-view-it-card button');
     const btnH5 = btn?.querySelector('h5');
     const parent = btn?.parentNode as HTMLElement | null;
 

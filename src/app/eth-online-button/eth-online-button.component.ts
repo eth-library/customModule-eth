@@ -92,9 +92,9 @@ export class EthOnlineButtonComponent {
         return links;
       }),
       tap(links => {
-        // remove OTB online button
         if (links.length) {
           const hostElem = this.elementRef.nativeElement;
+          // remove OTB online button
           this.removeOTBOnlineButton(hostElem);
           //this.checkLibkeyButton(hostElem);
         }
@@ -167,10 +167,10 @@ export class EthOnlineButtonComponent {
           const libkeyElementArray = Array.from(libkeyElement);
           if (libkeyElementArray?.length) {
             obs.disconnect();
-            //hostElement.style.display = "none";
             // 99118160319605508
-            //const ethOnlineButton = onlineAvailabilityContainer.querySelector('.eth-quicklink-container') as HTMLElement;
-            //ethOnlineButton.style.display = "none";
+            // hostElement.style.display = "none";
+            const ethOnlineButton = onlineAvailabilityContainer.querySelector('.eth-quicklink-container') as HTMLElement;
+            ethOnlineButton.style.display = "none";
           }
         });
         mo.observe(onlineAvailabilityContainer, { childList: true, subtree: true });

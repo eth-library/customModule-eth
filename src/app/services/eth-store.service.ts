@@ -1,23 +1,23 @@
 import { Injectable } from '@angular/core';
 import { createFeatureSelector, createSelector, select, Store } from '@ngrx/store';
-import { filter, map, Observable, of, switchMap } from 'rxjs';
+import { filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import type { Params, Data } from '@angular/router';
 import { StoreDeliveryEntity, HostComponent, PnxDoc, LinkedDataRecommendation } from '../models/eth.model';
 
 type SearchParams = {q:string, tab:string, scope:string}
 type SearchState = {searchParams: SearchParams, ids: string[], entities: Record<string, PnxDoc>}
 
-export interface RouterState {
+interface RouterState {
   state: RouterRootState;
   navigationId: number;
 }
 
-export interface RouterRootState {
+interface RouterRootState {
   url: string;
   root: RouterNode;
 }
 
-export interface RouterNode {
+interface RouterNode {
   url: { path: string; parameters: Params }[];
   params: Params;
   queryParams: Params;

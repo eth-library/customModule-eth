@@ -60,9 +60,11 @@ describe('EthOnlineProblemComponent', () => {
     fixture.detectChanges();
   });
 
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
 
   it('sets mail link and shows link for valid record', () => {
     storeService.getFullDisplayRecord$.and.returnValue(of(buildPnxDoc({
@@ -88,6 +90,7 @@ describe('EthOnlineProblemComponent', () => {
     expect(decodeURIComponent(component.mailLink)).toContain('ISBN 978-3-16-148410-0');
   });
 
+
   it('extracts ISSN and DOI identifiers', () => {
     const issnRecord = buildPnxDoc({
       pnx: {
@@ -109,6 +112,7 @@ describe('EthOnlineProblemComponent', () => {
     expect(decodeURIComponent(component.mailLink)).toContain('DOI: 10.1234/5678 DOI');
   });
 
+
   it('logs errors when record stream fails', () => {
     storeService.getFullDisplayRecord$.and.returnValue(throwError(() => new Error('boom')));
 
@@ -116,4 +120,5 @@ describe('EthOnlineProblemComponent', () => {
 
     expect(errorHandlingSpy.logError).toHaveBeenCalled();
   });
+  
 });

@@ -10,11 +10,11 @@ import { GraphRelatedPlacesResponse, GraphGndPlacesResponse, EthoramaAPIResponse
 export class EthGeoRefService {
 
   private readonly graphUrlPois = 'https://daas.library.ethz.ch/rib/v3/graph/pois';
-  //private readonly graphUrlEmaps = 'https://daas.library.ethz.ch/rib/v3/graph/e-maps';
-  //private readonly graphUrlErara = 'https://daas.library.ethz.ch/rib/v3/graph/e-rara-items';
   private readonly graphUrlGnd = 'https://daas.library.ethz.ch/rib/v3/graph/places-by-gnd-list';
   private readonly ethoramaUrl = 'https://api.library.ethz.ch/ethorama/v1/pois?apikey=BKFefOQWF3VGq2sreNcyLqK7Gob61xO9jnLQAd0wy82ktIYn&pageSize=100&details=false';
   private readonly lobidUrl = 'https://daas.library.ethz.ch/rib/v3/places/lobid/gnds';
+  //private readonly graphUrlEmaps = 'https://daas.library.ethz.ch/rib/v3/graph/e-maps';
+  //private readonly graphUrlErara = 'https://daas.library.ethz.ch/rib/v3/graph/e-rara-items';
 
   constructor(
     private httpClient: HttpClient,
@@ -31,17 +31,6 @@ export class EthGeoRefService {
     return this.httpClient.get<EthoramaAPIResponse>(`${this.ethoramaUrl}&docId=${docId}`);
   }
   
-    // https://daas.library.ethz.ch/rib/v3/graph/e-rara-items/990038990900205503?edges=true
-  /*getEraraRelatedPlacesFromGraph(docId: string): Observable<GraphRelatedPlacesResponse> {
-    const url = `${this.graphUrlErara}/${docId}?edges=true`;
-    return this.httpClient.get<GraphRelatedPlacesResponse>(url);
-  } */ 
-  
-  // https://daas.library.ethz.ch/rib/v3/graph/e-maps/99117998955005503?edges=true
-  /*getEmapsRelatedPlacesFromGraph(docId: string): Observable<GraphRelatedPlacesResponse> {
-    const url = `${this.graphUrlEmaps}/${docId}?edges=true`;
-    return this.httpClient.get<GraphRelatedPlacesResponse>(url);
-  } */ 
 
   // https://daas.library.ethz.ch/rib/v3/graph/places?gnd=4018272-1
   getGndPlacesFromGraph(gnds: string): Observable<GraphGndPlacesResponse> {
@@ -86,5 +75,17 @@ export class EthGeoRefService {
     );
     return forkJoin(enrichedPois$);
   }
+ 
+  // https://daas.library.ethz.ch/rib/v3/graph/e-rara-items/990038990900205503?edges=true
+  /*getEraraRelatedPlacesFromGraph(docId: string): Observable<GraphRelatedPlacesResponse> {
+    const url = `${this.graphUrlErara}/${docId}?edges=true`;
+    return this.httpClient.get<GraphRelatedPlacesResponse>(url);
+  } */ 
+  
+  // https://daas.library.ethz.ch/rib/v3/graph/e-maps/99117998955005503?edges=true
+  /*getEmapsRelatedPlacesFromGraph(docId: string): Observable<GraphRelatedPlacesResponse> {
+    const url = `${this.graphUrlEmaps}/${docId}?edges=true`;
+    return this.httpClient.get<GraphRelatedPlacesResponse>(url);
+  } */ 
   
 }

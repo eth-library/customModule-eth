@@ -32,6 +32,7 @@ describe('EthLocationPageService', () => {
     httpMock.verify();
   });
 
+
   it('requests ETHorama place by qid', () => {
     service.getPlaceFromETHorama('Q123').subscribe();
 
@@ -42,6 +43,7 @@ describe('EthLocationPageService', () => {
     expect(req.request.urlWithParams).toContain('qId=Q123');
     req.flush({ items: [] });
   });
+
 
   it('requests topics from geo graph', () => {
     service.getTopicsFromGeoGraph('G1', 'Q1').subscribe();
@@ -55,6 +57,7 @@ describe('EthLocationPageService', () => {
     req.flush({ features: [] });
   });
 
+
   it('requests maps from geo graph', () => {
     service.getMapsFromGeoGraph('47.3', '8.5').subscribe();
 
@@ -67,6 +70,7 @@ describe('EthLocationPageService', () => {
     req.flush({ features: [] });
   });
 
+
   it('requests wikidata place by qid', () => {
     service.getPlaceFromWikidata(undefined, 'Q72', 'de').subscribe();
 
@@ -74,6 +78,7 @@ describe('EthLocationPageService', () => {
     expect(req.request.method).toBe('GET');
     req.flush({ results: { bindings: [] } });
   });
+
 
   it('requests identifier for lccn', () => {
     service.getIdentifierForLccn('n79007751').subscribe();
@@ -83,6 +88,7 @@ describe('EthLocationPageService', () => {
     req.flush({ results: { bindings: [] } });
   });
 
+  
   it('logs errors from getPlaceFromWikidata', () => {
     service.getPlaceFromWikidata('G1', undefined, 'de').subscribe({
       error: () => {

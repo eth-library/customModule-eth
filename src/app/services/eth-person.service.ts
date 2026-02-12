@@ -33,7 +33,7 @@ export class EthPersonService {
                 return throwError(() => e);
             })
         );
-    }    
+    }
         
     getPerson(id: string, lang: string): Observable<PersonApiResponse> {
         if(id.startsWith('Q')){

@@ -63,6 +63,7 @@ describe('EthWaybackComponent', () => {
     expect(component).toBeTruthy();
   });
 
+
   it('initializes observer when a wayback link exists', () => {
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
       delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/123' }] }
@@ -74,6 +75,7 @@ describe('EthWaybackComponent', () => {
 
     expect(initObserverSpy).toHaveBeenCalled();
   });
+
 
   it('skips observer when no wayback link exists', () => {
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
@@ -87,6 +89,7 @@ describe('EthWaybackComponent', () => {
     expect(initObserverSpy).not.toHaveBeenCalled();
   });
 
+
   it('updates button label and hint text', () => {
     const { container, card, header } = buildViewItDom(documentRef);
 
@@ -99,6 +102,7 @@ describe('EthWaybackComponent', () => {
     documentRef.body.removeChild(container);
   });
 
+
   it('re-renders on language change', () => {
     const changeDomSpy = spyOn(component as any, 'changeDom');
 
@@ -108,6 +112,7 @@ describe('EthWaybackComponent', () => {
     expect(changeDomSpy).toHaveBeenCalled();
   });
 
+  
   it('logs errors when delivery stream fails', () => {
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(throwError(() => new Error('boom')));
 

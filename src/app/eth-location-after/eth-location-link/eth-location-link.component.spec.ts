@@ -44,12 +44,12 @@ describe('EthLocationLinkComponent', () => {
   });
 
 
-  it('emits sanitized link and expands host when translation exists', () => {
+  it('show a sanitized link when translation exists and expands location container', () => {
     component.hostComponent = {
       location: {
         libraryCode: 'E01',
         subLocationCode: 'AETH',
-        mainLocation: 'Main'
+        mainLocation: 'ETH Main'
       }
     };
 
@@ -65,41 +65,41 @@ describe('EthLocationLinkComponent', () => {
   });
 
 
-  it('falls back to library link when sublocation is missing', () => {
+  it('falls back to library translation when there is no sublocation translation in code tables', () => {
     component.hostComponent = {
       location: {
         libraryCode: 'E33',
-        subLocationCode: 'UNKNOWN',
+        subLocationCode: 'E33XYZ',
         mainLocation: 'Chemie'
       }
     };
 
     translateMock.stream.and.callFake((key: string) => {
-      if (key === 'eth.locationLink.E33.UNKNOWN') {
-        return of('eth.locationLink.E33.UNKNOWN');
+      if (key === 'eth.locationLink.E33.E33XYZ') {
+        return of('eth.locationLink.E33.E33XYZ');
       }
       if (key === 'eth.locationLink.E33') {
-        return of('library-link');
+        return of('E33-link');
       }
       return of(null);
     });
-    utilsMock.sanitizeText.and.returnValue('library-link');
+    utilsMock.sanitizeText.and.returnValue('E33-link');
 
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
 
-    expect(emitted).toBe('library-link');
-    expect(translateMock.stream).toHaveBeenCalledWith('eth.locationLink.E33.UNKNOWN');
+    expect(emitted).toBe('E33-link');
+    expect(translateMock.stream).toHaveBeenCalledWith('eth.locationLink.E33.E33XYZ');
     expect(translateMock.stream).toHaveBeenCalledWith('eth.locationLink.E33');
   });
 
 
-  it('falls back to default link when no specific translations exist', () => {
+  it('falls back to default when there is no sublocation and location translation in code tables', () => {
     component.hostComponent = {
       location: {
         libraryCode: 'E99',
         subLocationCode: 'E99XX',
-        mainLocation: 'Default Name'
+        mainLocation: 'XYZ-Bibliothek'
       }
     };
 
@@ -120,10 +120,10 @@ describe('EthLocationLinkComponent', () => {
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
 
-    expect(emitted).toBe('default-E99-Default Name');
+    expect(emitted).toBe('default-E99-XYZ-Bibliothek');
     expect(translateMock.stream).toHaveBeenCalledWith('eth.locationLink.default', {
       code: 'E99',
-      libraryName: 'Default Name'
+      libraryName: 'XYZ-Bibliothek'
     });
   });
 

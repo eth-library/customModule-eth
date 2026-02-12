@@ -56,6 +56,7 @@ describe('EthLibraryStackComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  
   it('initializes observer when a library stack link exists', () => {
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
       delivery: { link: [{ linkURL: 'https://www.librarystack.org/item' }] }
@@ -68,6 +69,7 @@ describe('EthLibraryStackComponent', () => {
     expect(initObserverSpy).toHaveBeenCalled();
   });
 
+
   it('skips observer when no library stack link exists', () => {
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
       delivery: { link: [{ linkURL: 'https://example.com/other' }] }
@@ -79,6 +81,7 @@ describe('EthLibraryStackComponent', () => {
 
     expect(initObserverSpy).not.toHaveBeenCalled();
   });
+
 
   it('renders hint text once', () => {
     const { container, card } = buildViewItDom(documentRef);
@@ -97,6 +100,7 @@ describe('EthLibraryStackComponent', () => {
 
     documentRef.body.removeChild(container);
   });
+  
 
   it('re-renders on language change', () => {
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
@@ -115,6 +119,7 @@ describe('EthLibraryStackComponent', () => {
     expect(changeDomSpy).toHaveBeenCalled();
   });
 
+
   it('logs errors when delivery stream fails', () => {
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(throwError(() => new Error('boom')));
 
@@ -122,4 +127,5 @@ describe('EthLibraryStackComponent', () => {
 
     expect(errorHandlingSpy.logError).toHaveBeenCalled();
   });
+
 });

@@ -102,7 +102,7 @@ describe('EthGeoRefComponent', () => {
   });
 
 
-  it('renders text instead of link when url is missing', async () => {
+  it('renders text instead of link when url of a location is missing', async () => {
     const place: PlaceGeoRefVM = {
       id: 'p2',
       qid: 'Q2',

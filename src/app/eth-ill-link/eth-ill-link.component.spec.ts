@@ -39,17 +39,20 @@ describe('EthIllLinkComponent', () => {
     fixture.detectChanges();
   });
 
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('qs$ is null when availability is not "no_inventory"', async () => {
+
+  it('no ill link when availability is not "no_inventory"', async () => {
     // default mocked availability = 'available'
     const qs = await firstValueFrom(component.qs$);
     expect(qs).toBeNull();
   });
 
-  it('qs$ is null when nde-get-it-from-other element exists', async () => {
+
+  it('no ill link when nde-get-it-from-other element exists', async () => {
     // set availability to no_inventory but add nde-get-it-from-other element -> should be null
     storeServiceMock.getFullDisplayDeliveryEntity$ = () =>
       of({ delivery: { availability: ['no_inventory'] } });
@@ -67,8 +70,7 @@ describe('EthIllLinkComponent', () => {
   });
 
 
-  it('qs$ emits built qs when rapido no-offer element exists', async () => {
-    // Cleanup old fixture
+  it('ill link when no_inventory and rapido no-offer element exists', async () => {
     if (fixture) {
       fixture.destroy();
     }
@@ -86,7 +88,7 @@ describe('EthIllLinkComponent', () => {
       }
     };
   
-    const newStoreServiceMock = {
+    const storeServiceMock = {
       getFullDisplayRecord$: () => of(record),
       getFullDisplayDeliveryEntity$: () =>
         of({ delivery: { availability: ['no_inventory'] } })
@@ -97,7 +99,7 @@ describe('EthIllLinkComponent', () => {
     await TestBed.configureTestingModule({
       imports: [EthIllLinkComponent],
       providers: [
-        { provide: EthStoreService, useValue: newStoreServiceMock },
+        { provide: EthStoreService, useValue: storeServiceMock },
         { provide: TranslateService, useValue: translateMock },
         { provide: EthErrorHandlingService, useValue: errorHandlingMock },
         { provide: DOCUMENT, useValue: document }
@@ -142,7 +144,7 @@ describe('EthIllLinkComponent', () => {
       }
     };
   
-    const newStoreServiceMock = {
+    const storeServiceMock = {
       getFullDisplayRecord$: () => of(record),
       getFullDisplayDeliveryEntity$: () =>
         of({ delivery: { availability: ['no_inventory'] } })
@@ -158,7 +160,7 @@ describe('EthIllLinkComponent', () => {
     await TestBed.configureTestingModule({
       imports: [EthIllLinkComponent],
       providers: [
-        { provide: EthStoreService, useValue: newStoreServiceMock },
+        { provide: EthStoreService, useValue: storeServiceMock },
         { provide: TranslateService, useValue: newTranslateMock },
         { provide: EthErrorHandlingService, useValue: errorHandlingMock },
         { provide: DOCUMENT, useValue: document }

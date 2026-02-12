@@ -25,11 +25,13 @@ export class EthLocationLinkComponent {
 
   link$: Observable<SafeHtml | null> = defer(() => {
     if (!this.hostComponent?.location) return of(null);
+
+    // expand location container
     this.hostComponent.expanded = true;
+
     this.subLocationCode = this.hostComponent.location.subLocationCode ?? '';
     this.libraryCode = this.hostComponent.location.libraryCode ?? '';
     this.mainLocation = this.hostComponent.location.mainLocation ?? '';
-
     return this.getLink().pipe(
       map(text => this.ethUtilsService.sanitizeText(text)),
       filter((text): text is string => !!text)

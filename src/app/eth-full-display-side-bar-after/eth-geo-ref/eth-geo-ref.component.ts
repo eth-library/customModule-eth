@@ -38,8 +38,7 @@ export class EthGeoRefComponent {
     )
   );
   
-  openGnd: string | null = null;  
-  
+
   constructor(
     private ethErrorHandlingService: EthErrorHandlingService,
     private ethGeoRefService: EthGeoRefService,
@@ -79,29 +78,6 @@ export class EthGeoRefComponent {
             })      
         )
         : of([]);
-
-        /*
-        const emapsPlaces$ = this.isEmaps(record) && docId
-        ? this.ethGeoRefService.getEmapsRelatedPlacesFromGraph(docId).pipe(
-            map(data => this.mapGraphPlacesToVm(data)),
-            catchError((error) => {
-              this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getEmapsRelatedPlacesFromGraph()')
-              return of([]);
-            })      
-        )
-        : of([]);
-
-
-        const eraraPlaces$ = docId && docId.endsWith('5503')
-        ? this.ethGeoRefService.getEraraRelatedPlacesFromGraph(docId).pipe(
-            map(data => this.mapGraphPlacesToVm(data)),
-            catchError((error) => {
-              this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getEraraRelatedPlacesFromGraph()')
-              return of([]);
-            })      
-        )
-        : of([]);
-        */
 
       const ethorama$ = docId 
         ? this.ethGeoRefService.getPlacesFromETHorama(docId).pipe(
@@ -339,9 +315,33 @@ export class EthGeoRefComponent {
     };
   }
 
-    navigate(url: string, event: Event){
+
+  navigate(url: string, event: Event){
     event.preventDefault(); 
     this.router.navigateByUrl(url + "#eth-top");
   }
 
 }
+
+        /*
+        const emapsPlaces$ = this.isEmaps(record) && docId
+        ? this.ethGeoRefService.getEmapsRelatedPlacesFromGraph(docId).pipe(
+            map(data => this.mapGraphPlacesToVm(data)),
+            catchError((error) => {
+              this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getEmapsRelatedPlacesFromGraph()')
+              return of([]);
+            })      
+        )
+        : of([]);
+
+
+        const eraraPlaces$ = docId && docId.endsWith('5503')
+        ? this.ethGeoRefService.getEraraRelatedPlacesFromGraph(docId).pipe(
+            map(data => this.mapGraphPlacesToVm(data)),
+            catchError((error) => {
+              this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getEraraRelatedPlacesFromGraph()')
+              return of([]);
+            })      
+        )
+        : of([]);
+        */

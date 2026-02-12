@@ -32,7 +32,7 @@ export class EthIllLinkComponent {
       this.ethStoreService.getFullDisplayRecord$(),
       this.ethStoreService.getFullDisplayDeliveryEntity$()
     ]).pipe(
-      switchMap(([record, deliveryEntity]) => this.getQs(record, deliveryEntity)),
+      switchMap(([record, deliveryEntity]) => this.resolveQsOrNull(record, deliveryEntity)),
       catchError(err => {
         this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.qs$');
         return of(null);
@@ -93,8 +93,9 @@ export class EthIllLinkComponent {
     @Inject(DOCUMENT) private document: Document
   ) {}
 
+
   // do we need an ILL link? If so, build querystring
-  private getQs(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
+  private resolveQsOrNull(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
     try {
       if ((deliveryEntity?.delivery?.availability?.[0] ?? '') !== 'no_inventory') {
         return of(null);
@@ -128,7 +129,7 @@ export class EthIllLinkComponent {
         return () => mo.disconnect();
       });
     } catch (error) {
-        this.ethErrorHandlingService.logSyncError(error, 'EthIllLinkComponent.getQs()');
+        this.ethErrorHandlingService.logSyncError(error, 'EthIllLinkComponent.resolveQsOrNull()');
         return of(null);
     }
 

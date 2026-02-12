@@ -64,7 +64,7 @@ describe('EthOnlineButtonComponent', () => {
   });
 
 
-  it('prefers electronic services over linktorsrcadditional and adds ViewIt link', async () => {
+  it('prefers electronic services over linktorsrcadditional and adds fullview viewIt link', async () => {
     component.hostComponent = { viewModel$: of(null) } as any;
     storeSpy.getRecord$.and.returnValue(of({ pnx: { control: { recordid: ['doc123'] } } } as any));
     storeSpy.getDeliveryEntity$.and.returnValue(of({

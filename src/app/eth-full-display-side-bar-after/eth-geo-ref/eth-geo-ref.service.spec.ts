@@ -31,7 +31,7 @@ describe('EthGeoRefService', () => {
   });
 
 
-  it('requests places from Lobid with gndids to get more identifier', () => {
+  it('requests places from lobid (with gnd ids) to get more identifier', () => {
     service.getPlacesFromLobid('4066337-1,117561940').subscribe();
 
     const req = httpMock.expectOne('https://daas.library.ethz.ch/rib/v3/places/lobid/gnds?gnds=4066337-1,117561940');

@@ -11,9 +11,6 @@ yarn-error.log
 # Visual Studio Code
 .vscode/
 
-# code coverage
-/coverage
-
 
 # Miscellaneous
 /.angular/cache

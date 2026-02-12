@@ -63,7 +63,7 @@ export class EthPersonCardsComponent {
           )
         ),
         catchError(err => {
-          this.ethErrorHandlingService.logSyncError( err, 'EthPersonCardsComponent.ngOnInit');
+          this.ethErrorHandlingService.logSyncError( err, 'EthPersonCardsComponent persons$');
           return of({'otbPersons': [],'filteredPersons': []});      
         })
       );

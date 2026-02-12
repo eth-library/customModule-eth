@@ -54,7 +54,6 @@ describe('EthIdpWarningComponent', () => {
       ]
     }).compileComponents();
 
-
     fixture = TestBed.createComponent(EthIdpWarningComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -66,7 +65,7 @@ describe('EthIdpWarningComponent', () => {
   });
 
 
-  it('showWarning$ emits false because of Profile', async () => {
+  it('no warning because of Profile "Alma"', async () => {
     userGroup$.next('ETH_Student');
     email$.next('student.bla@ethz.ch');
     authenticationProfile$.next('Alma');
@@ -76,7 +75,7 @@ describe('EthIdpWarningComponent', () => {
   });
 
 
-  it('showWarning$ emits true because of: no eth userGroup, but eth mail', async () => {
+  it('warning because of: no eth userGroup, but eth mail', async () => {
     userGroup$.next('AnyOther');
     email$.next('student.bla@ethz.ch');
     authenticationProfile$.next('Other');
@@ -86,7 +85,7 @@ describe('EthIdpWarningComponent', () => {
   });
   
 
-  it('showWarning$ emits false because of: no eth userGroup, no eth email', async () => {
+  it('no warning because of: no eth userGroup, no eth email', async () => {
     userGroup$.next('AnyOther');
     email$.next('bla@gmx.ch');
     authenticationProfile$.next('Other');

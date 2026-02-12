@@ -37,7 +37,8 @@ export class EthUtilsService {
    * Moves a card element to a new location when the viewport is narrow (< 600px).
    * @param cardSelector CSS selector for the card (e.g., ‘.eth-place-cards’)
    */
-  positionCard(cardSelector: string): ((e: MediaQueryListEvent) => void) | undefined {
+  // It is not currently in use since the info cards in the right sidebar are responsive by default.
+    positionCard(cardSelector: string): ((e: MediaQueryListEvent) => void) | undefined {
     try{
       const move = (toMobile: boolean) => {
         const card = document.querySelector(cardSelector) as HTMLElement | null;

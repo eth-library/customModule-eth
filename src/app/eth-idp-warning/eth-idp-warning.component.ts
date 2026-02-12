@@ -21,6 +21,7 @@ import { TranslateModule } from "@ngx-translate/core";
 })
 
 export class EthIdpWarningComponent {
+  
   showWarning$: Observable<boolean> = defer(() =>
     combineLatest([
       this.ethStoreService.userGroup$,

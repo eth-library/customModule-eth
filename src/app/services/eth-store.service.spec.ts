@@ -1,35 +1,41 @@
 import { TestBed } from '@angular/core/testing';
-import { Observable, firstValueFrom, of } from 'rxjs';
+import { Observable, firstValueFrom, map, of } from 'rxjs';
 import { EthStoreService } from './eth-store.service';
 import { Store } from '@ngrx/store';
 import { HostComponent, PnxDoc, StoreDeliveryEntity } from '../models/eth.model';
+import { BehaviorSubject } from 'rxjs';
+
 
 class MockStore {
-  private state: any;
+  private state$: BehaviorSubject<any>;
 
   constructor(initialState: any) {
-    this.state = initialState;
+    this.state$ = new BehaviorSubject(initialState);
   }
 
   setState(nextState: any) {
-    this.state = nextState;
+    this.state$.next(nextState);
+  }
+
+  getState() {
+    return this.state$.getValue();
   }
 
   pipe(...ops: any[]): Observable<any> {
-    return ops.reduce((obs, op) => op(obs), of(this.state));
+    return ops.reduce((obs, op) => op(obs), this.state$.asObservable());
   }
 
   select(selector: any): Observable<any> {
-    return of(selector(this.state));
+    return this.state$.asObservable().pipe(map(selector));
   }
 
   selectSignal(selector: any): () => any {
-    return () => selector(this.state);
+    return () => selector(this.state$.getValue());
   }
 }
 
 const makeState = (overrides: any = {}) => ({
-  user: { isLoggedIn: false, decodedJwt: { onCampus: 'false', userName: 'u', userGroup: 'g', authenticationProfile: 'a', language: 'de' } },
+  user: { isLoggedIn: false, decodedJwt: { onCampus: 'true', userName: 'u', userGroup: 'g', authenticationProfile: 'a', language: 'de' } },
   account: { personalDetails: { email: [{ value: 'test@example.com' }], patronstatus: [{ registration: [{ institution: [{ patronstatuscode: 'X', patronstatusname: 'Y' }] }] }] } },
   Search: { searchParams: { q: '', tab: '', scope: '' }, ids: [], entities: {} },
   viewConfig: { config: { vid: 'VID', 'primo-view': { scopes: [{ 'scope-id': 'SCOPE', tab: 'TAB' }] } } },
@@ -55,6 +61,75 @@ describe('EthStoreService', () => {
     });
 
     service = TestBed.inject(EthStoreService);
+  });
+
+
+  it('isOnCampus$ returns true when onCampus is "true"', async () => {
+    mockStore.setState(makeState({
+      user: {
+        isLoggedIn: false,
+        decodedJwt: {
+          onCampus: 'true',
+          userName: 'u',
+          userGroup: 'g',
+          authenticationProfile: 'a',
+          language: 'de'
+        }
+      }
+    }));
+    const value = await firstValueFrom(service.isOnCampus$);
+    expect(value).toBeTrue();
+  });
+
+  it('isOnCampus$ returns false when onCampus is not "true"', async () => {
+    mockStore.setState(makeState({
+      user: {
+        isLoggedIn: false,
+        decodedJwt: {
+          onCampus: 'false',
+          userName: 'u',
+          userGroup: 'g',
+          authenticationProfile: 'a',
+          language: 'de'
+        }
+      }
+    }));
+    const value = await firstValueFrom(service.isOnCampus$);
+    expect(value).toBeFalse();
+  });
+
+  it('isLoggedIn$ returns true when isLoggedIn is true', async () => {
+    mockStore.setState(makeState({
+      user: {
+        isLoggedIn: true,
+        decodedJwt: {
+          onCampus: 'true',
+          userName: 'u',
+          userGroup: 'g',
+          authenticationProfile: 'a',
+          language: 'de'
+        }
+      }
+    }));
+    const value = await firstValueFrom(service.isLoggedIn$);
+    expect(value).toBeTrue();
+  });
+
+  it('isLoggedIn$ returns false when isLoggedIn is false', async () => {
+    mockStore.setState(makeState({
+      user: {
+        isLoggedIn: false,
+        decodedJwt: {
+          onCampus: 'true',
+          userName: 'u',
+          userGroup: 'g',
+          authenticationProfile: 'a',
+          language: 'de'
+        }
+      }
+    }));
+    const value = await firstValueFrom(service.isLoggedIn$);
+    expect(value).toBeFalse();
   });
 
 
@@ -89,12 +164,11 @@ describe('EthStoreService', () => {
   });
 
 
-  it('returns full display record when available', async () => {
+  it('returns pnx record based on selectedRecordId from store (fullview)', async () => {
     const fullRecord = { pnx: { } } as PnxDoc;
-    const listRecord = { pnx: { } } as PnxDoc;
 
     mockStore.setState(makeState({
-      Search: { searchParams: { q: '', tab: '', scope: '' }, ids: [], entities: { full1: fullRecord, list1: listRecord } },
+      Search: { searchParams: { q: '', tab: '', scope: '' }, ids: [], entities: { full1: fullRecord } },
       'full-display': { selectedRecordId: 'full1', linkedDataRecommendations: [] }
     }));
 
@@ -104,8 +178,8 @@ describe('EthStoreService', () => {
   });
 
 
-  it('falls back to listview record when full display record missing', async () => {
-    const listRecord = { pnx: { display: { } } } as PnxDoc;
+  it('returns pnx record based on recordid from hostComponent (listview)', async () => {
+    const listRecord = { pnx: { } } as PnxDoc;
 
     mockStore.setState(makeState({
       Search: { searchParams: { q: '', tab: '', scope: '' }, ids: [], entities: { list1: listRecord } },
@@ -118,7 +192,7 @@ describe('EthStoreService', () => {
   });
 
 
-  it('returns full display delivery entity when available', async () => {
+  it('returns delivery entity based on selectedRecordId from store (fullview)', async () => {
     const fullEntity = { delivery: { electronicServices: [] } } as StoreDeliveryEntity;
 
     mockStore.setState(makeState({
@@ -131,7 +205,7 @@ describe('EthStoreService', () => {
   });
 
 
-  it('falls back to listview delivery entity when full display missing', async () => {
+  it('returns delivery entity based on recordid from hostComponent (listview)', async () => {
     const listEntity = { delivery: { electronicServices: [] } } as StoreDeliveryEntity;
 
     mockStore.setState(makeState({

@@ -65,7 +65,7 @@ describe('EthProvenienzComponent', () => {
   });
 
 
-  it('returns empty items when owner is not 41SLSP_ETH', (done) => {
+  it('returns nothing when owner is not 41SLSP_ETH', (done) => {
     component.items$.pipe(take(1)).subscribe(items => {
       expect(items).toEqual([]);
       expect(provenienzService.getItems).not.toHaveBeenCalled();
@@ -76,6 +76,21 @@ describe('EthProvenienzComponent', () => {
       delivery: {
         recordOwner: '41SLSP_OTHER',
         availabilityLinksUrl: ['https://doi.org/10.3931/e-rara-123']
+      }
+    });
+  });
+
+
+  it('returns nothing when url does not include "doi.org/10.3931/e-rara-"', (done) => {
+    component.items$.subscribe(items => {
+      expect(items).toEqual([]);
+      done();
+    });
+
+    deliveryEntity$.next({
+      delivery: {
+        recordOwner: '41SLSP_ETH',
+        availabilityLinksUrl: ['https://bla.org/10.1234/e-rara-123']
       }
     });
   });
@@ -189,6 +204,7 @@ describe('EthProvenienzComponent', () => {
     });
 
     fixture.detectChanges();
+    
     fixture.whenStable().then(() => {
       fixture.detectChanges();
 

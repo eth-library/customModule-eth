@@ -106,7 +106,7 @@ describe('EthPersonCardsComponent', () => {
   });
 
 
-  it('skips person loading when no ids exist', (done) => {
+  it('no person loading when no ids exist', (done) => {
     component.hostComponent = {};
 
     component.persons$.pipe(take(1)).subscribe(result => {

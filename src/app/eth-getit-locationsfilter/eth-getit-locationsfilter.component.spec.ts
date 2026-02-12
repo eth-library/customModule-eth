@@ -19,6 +19,7 @@ describe('EthGetitLocationsfilterComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  
   it('sets filtersVisible on init', () => {
     component.hostComponent = {} as any;
 

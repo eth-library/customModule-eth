@@ -51,7 +51,7 @@ describe('EthLocationHintComponent', () => {
   });
 
 
-  it('emits sanitized hint when translation exists', fakeAsync(() => {
+  it('show a sanitized hint when translation exists', fakeAsync(() => {
     component.hostComponent = {
       location: {
         libraryCode: 'E01',
@@ -71,6 +71,39 @@ describe('EthLocationHintComponent', () => {
 
     expect(emitted).toBe('safe-hint');
     expect(translateMock.stream).toHaveBeenCalledWith('eth.locationHint.E01.AETH', { id: '123' });
+  }));
+
+
+  it('falls back to library translation when there is no sublocation translation in code tables', fakeAsync(() => {
+    component.hostComponent = {
+      location: {
+        libraryCode: 'E33',
+        subLocationCode: 'BLA',
+        ilsApiId: '456'
+      }
+    };
+
+    translateMock.stream.and.callFake((key: string) => {
+      if (key === 'eth.locationHint.E33.BLA') {
+        return of('eth.locationHint.E33.BLA');
+      }
+      if (key === 'eth.locationHint.E33') {
+        return of('hint-for-E33');
+      }
+      return of(null);
+    });
+    utilsMock.sanitizeText.and.returnValue('fallback-hint');
+
+    component.ngAfterViewInit();
+
+    let emitted: SafeHtml | null | undefined;
+    component.hint$.subscribe(value => (emitted = value));
+    tick();
+    tick(101);
+
+    expect(emitted).toBe('fallback-hint');
+    expect(translateMock.stream).toHaveBeenCalledWith('eth.locationHint.E33.BLA', { id: '456' });
+    expect(translateMock.stream).toHaveBeenCalledWith('eth.locationHint.E33', { id: '456' });
   }));
 
 
@@ -94,39 +127,6 @@ describe('EthLocationHintComponent', () => {
     expect(rendererMock.appendChild).toHaveBeenCalledWith(holding, hintEl);
 
     document.body.removeChild(ndeLocation);
-  }));
-
-
-  it('falls back to library translation when sublocation is missing', fakeAsync(() => {
-    component.hostComponent = {
-      location: {
-        libraryCode: 'E33',
-        subLocationCode: 'UNKNOWN',
-        ilsApiId: '456'
-      }
-    };
-
-    translateMock.stream.and.callFake((key: string) => {
-      if (key === 'eth.locationHint.E33.UNKNOWN') {
-        return of('eth.locationHint.E33.UNKNOWN');
-      }
-      if (key === 'eth.locationHint.E33') {
-        return of('fallback-hint');
-      }
-      return of(null);
-    });
-    utilsMock.sanitizeText.and.returnValue('fallback-hint');
-
-    component.ngAfterViewInit();
-
-    let emitted: SafeHtml | null | undefined;
-    component.hint$.subscribe(value => (emitted = value));
-    tick();
-    tick(101);
-
-    expect(emitted).toBe('fallback-hint');
-    expect(translateMock.stream).toHaveBeenCalledWith('eth.locationHint.E33.UNKNOWN', { id: '456' });
-    expect(translateMock.stream).toHaveBeenCalledWith('eth.locationHint.E33', { id: '456' });
   }));
 
   

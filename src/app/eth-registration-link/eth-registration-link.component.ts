@@ -86,7 +86,7 @@ export class EthRegistrationLinkComponent {
           .subscribe();
       } 
       catch (error) {
-        this.ethErrorHandlingService.logSyncError(error,'EthRegistrationLinkComponent.ngAfterViewInit()');
+        this.ethErrorHandlingService.logSyncError(error,'EthRegistrationLinkComponent.insertEthRegistrationLink()');
       }
     }
 

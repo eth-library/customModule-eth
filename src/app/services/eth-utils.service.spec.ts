@@ -29,12 +29,13 @@ describe('EthUtilsService', () => {
     expect(result).toBe('<p>Ok</p>alert(1)<strong>Bold</strong>');
   });
 
+
   it('returns null for empty input', () => {
     expect(service.sanitizeText(null)).toBeNull();
   });
 
 
-  it('logs sync errors in sanitizeText', () => {
+  it('logs errors in sanitizeText()', () => {
     spyOn(document, 'createElement').and.throwError('boom');
 
     const result = service.sanitizeText('<p>x</p>');

@@ -49,7 +49,7 @@ describe('EthConnectedpapersComponent', () => {
   });
 
 
-  it('does nothing when no search result is provided', async () => {
+  it('does nothing when no hostComponent is provided', async () => {
     component.hostComponent = {} as HostComponent;
     expect(storeServiceSpy.getRecord$).not.toHaveBeenCalled();
 
@@ -74,8 +74,7 @@ describe('EthConnectedpapersComponent', () => {
       id:"b9cc21d97d7fb24beec903a686b5c90c26d547f6"
     } as ConnectedPapersAPIResponse));
 
-
-    fixture.detectChanges();
+    //fixture.detectChanges();
 
     expect(component.paperUrl$).toBeDefined();
 
@@ -88,7 +87,7 @@ describe('EthConnectedpapersComponent', () => {
   });
 
   
-  it('no citations and references: should return of(null)', async () => {
+  it('no citations and references: should return of(null) -> no link rendered', async () => {
     storeServiceSpy.getRecord$.and.returnValue(
       of({
         pnx: {
@@ -104,7 +103,7 @@ describe('EthConnectedpapersComponent', () => {
       id:"b9cc21d97d7fb24beec903a686b5c90c26d547f6"
     } as ConnectedPapersAPIResponse));
 
-    fixture.detectChanges();
+    //fixture.detectChanges();
 
     expect(component.paperUrl$).toBeDefined();
 
@@ -113,7 +112,7 @@ describe('EthConnectedpapersComponent', () => {
   });
 
 
-  it('type book: should return of(null)', async () => {
+  it('type book: should return of(null) -> no link rendered', async () => {
     component.hostComponent = {searchResult: {}} as HostComponent;
 
     storeServiceSpy.getRecord$.and.returnValue(
@@ -131,7 +130,7 @@ describe('EthConnectedpapersComponent', () => {
       id:"b9cc21d97d7fb24beec903a686b5c90c26d547f6"
     } as ConnectedPapersAPIResponse));
 
-    fixture.detectChanges();
+    //fixture.detectChanges();
 
     expect(component.paperUrl$).toBeDefined();
 
@@ -140,7 +139,7 @@ describe('EthConnectedpapersComponent', () => {
   });
 
 
-  it('missing doi: should return of(null)', async () => {
+  it('missing doi: should return of(null) -> no link rendered', async () => {
     storeServiceSpy.getRecord$.and.returnValue(
       of({
         pnx: {
@@ -150,7 +149,7 @@ describe('EthConnectedpapersComponent', () => {
       } as PnxDoc)
     );
 
-    fixture.detectChanges();
+    //fixture.detectChanges();
 
     const result = await firstValueFrom(component.paperUrl$);
 
@@ -171,7 +170,7 @@ describe('EthConnectedpapersComponent', () => {
 
     cpServiceSpy.getPaper.and.returnValue(throwError(() => new Error('boom')));
 
-    fixture.detectChanges();
+    //fixture.detectChanges();
 
     const result = await firstValueFrom(component.paperUrl$);
 
