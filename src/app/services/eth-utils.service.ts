@@ -38,7 +38,8 @@ export class EthUtilsService {
    * @param cardSelector CSS selector for the card (e.g., ‘.eth-place-cards’)
    */
   // It is not currently in use since the info cards in the right sidebar are responsive by default.
-    positionCard(cardSelector: string): ((e: MediaQueryListEvent) => void) | undefined {
+/*
+  positionCard(cardSelector: string): ((e: MediaQueryListEvent) => void) | undefined {
     try{
       const move = (toMobile: boolean) => {
         const card = document.querySelector(cardSelector) as HTMLElement | null;
@@ -85,5 +86,5 @@ export class EthUtilsService {
       return undefined;
     }
   }
-
+  */
 }

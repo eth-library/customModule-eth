@@ -54,7 +54,7 @@ describe('EthOffcampusWarningComponent', () => {
   });
 
 
-  it('does not warn for open access records', async () => {
+  it('does not warn for open access records (offcampus)', async () => {
     Object.defineProperty(storeSpy, 'isOnCampus$', {
       value: of(false),
       writable: true

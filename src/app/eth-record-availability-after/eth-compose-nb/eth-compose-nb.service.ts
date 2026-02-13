@@ -13,9 +13,9 @@ export class EthComposeNbService {
     private ethErrorHandlingService: EthErrorHandlingService
   ) {}
 
+  // https://daas.library.ethz.ch/rib/v3/mapping/redirect?result=map&id=ebi01_prod004464904
   getPrintData(nebisId: string): Observable<NbPrintApiResponse | null> {
     const url = `${this.baseUrl}/mapping/redirect?result=map&id=${encodeURIComponent(nebisId)}`;
-
     return this.http.get<NbPrintApiResponse>(url).pipe(
       catchError(error => {
         if (error.status !== 404) {
@@ -26,6 +26,7 @@ export class EthComposeNbService {
     );
   }
 
+  // https://daas.library.ethz.ch/rib/v3/search?limit=50&q=any,contains,oai%3Aagora.ch%3A004464904
   getOnlineData(oaiId: string): Observable<PrimoApiResponse | null> {
     const url = `${this.baseUrl}/search?limit=50&q=any,contains,${encodeURIComponent(oaiId)}`;
 

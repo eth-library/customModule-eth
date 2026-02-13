@@ -36,7 +36,8 @@ export class EthLogoSublineComponent implements OnInit {
       const vid = this.ethStoreService.getVid() ?? '';
       const lang = this.translate.currentLang ?? 'de';
       this.url = `/home?lang=${lang}&vid=${vid}`;
-    } catch (error) {
+    }
+    catch (error) {
       this.ethErrorHandlingService.logSyncError(error, 'EthLogoSublineComponent.ngOnInit()');
     }
   }

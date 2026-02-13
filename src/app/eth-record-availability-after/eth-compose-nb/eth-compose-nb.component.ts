@@ -13,7 +13,7 @@ import { SHELL_ROUTER } from "../../injection-tokens";
 import { HostComponent, ComposeNbLinkVM, PnxDoc } from '../../models/eth.model';
 
 // oai:agora.ch:004261444_08 (oai:agora.ch:000280096) - 99118814985305503  -> multiple online/one print
-// single result: 990044649040205503 --  oai:agora.ch:004464904
+// online: 99118815313805503; print: 990044649040205503  --  oai:agora.ch:004464904
 @Component({
   selector: 'custom-eth-compose-nb',
   standalone: true,

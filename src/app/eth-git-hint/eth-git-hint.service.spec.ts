@@ -59,3 +59,4 @@ describe('EthGitHintService', () => {
     expect(errorHandlingSpy.logError).toHaveBeenCalled();
   });
 });
+

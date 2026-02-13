@@ -20,6 +20,7 @@ import { TranslateModule } from "@ngx-translate/core";
 })
 export class EthOffcampusWarningComponent {
   isOnCampus$: Observable<boolean> = defer(() => this.ethStoreService.isOnCampus$);
+  
   showWarning$: Observable<boolean> = this.isOnCampus$.pipe(
     switchMap(onCampus => {
       // onCampus -> no warning

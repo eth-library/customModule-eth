@@ -484,5 +484,3 @@ export class EthPersonService {
         return providerLabel[slug]?.[langIndex] ?? slug;  
     }
 }
-
-

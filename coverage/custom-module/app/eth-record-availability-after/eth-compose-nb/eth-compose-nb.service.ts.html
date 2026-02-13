@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">7.14% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">7.14% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -104,7 +104,8 @@
 <a name='L39'></a><a href='#L39'>39</a>
 <a name='L40'></a><a href='#L40'>40</a>
 <a name='L41'></a><a href='#L41'>41</a>
-<a name='L42'></a><a href='#L42'>42</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -112,35 +113,36 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -153,35 +155,36 @@ import { NbPrintApiResponse, PrimoApiResponse } from '../../models/eth.model';
 &nbsp;
 @Injectable({ providedIn: 'root' })
 export class EthComposeNbService {
-  private readonly <span class="cstat-no" title="statement not covered" >baseUrl = 'https://daas.library.ethz.ch/rib/v3';</span>
+  private readonly baseUrl = 'https://daas.library.ethz.ch/rib/v3';
 &nbsp;
-<span class="fstat-no" title="function not covered" >  constructor(</span>
-    private <span class="cstat-no" title="statement not covered" >http: HttpClient,</span>
-    private <span class="cstat-no" title="statement not covered" >ethErrorHandlingService: EthErrorHandlingService</span>
+  constructor(
+    private http: HttpClient,
+    private ethErrorHandlingService: EthErrorHandlingService
   ) {}
 &nbsp;
-<span class="fstat-no" title="function not covered" >  getPrintData(</span>nebisId: string): Observable&lt;NbPrintApiResponse | null&gt; {
-    const url = <span class="cstat-no" title="statement not covered" >`${this.baseUrl}/mapping/redirect?result=map&amp;id=${encodeURIComponent(nebisId)}`;</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >    return this.http.get&lt;NbPrintApiResponse&gt;(url).pipe(</span>
-      catchError(<span class="fstat-no" title="function not covered" >error </span>=&gt; {
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (error.status !== 404) {</span>
-<span class="cstat-no" title="statement not covered" >          this.ethErrorHandlingService.logError(error, 'EthComposeNbService.getPrintData');</span>
+  // https://daas.library.ethz.ch/rib/v3/mapping/redirect?result=map&amp;id=ebi01_prod004464904
+  getPrintData(nebisId: string): Observable&lt;NbPrintApiResponse | null&gt; {
+    const url = `${this.baseUrl}/mapping/redirect?result=map&amp;id=${encodeURIComponent(nebisId)}`;
+    return this.http.get&lt;NbPrintApiResponse&gt;(url).pipe(
+      catchError(error =&gt; {
+        if (error.status !== 404) {
+          this.ethErrorHandlingService.logError(error, 'EthComposeNbService.getPrintData');
         }
-<span class="cstat-no" title="statement not covered" >        return of(null);</span>
+        return of(null);
       })
     );
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  getOnlineData(</span>oaiId: string): Observable&lt;PrimoApiResponse | null&gt; {
-    const url = <span class="cstat-no" title="statement not covered" >`${this.baseUrl}/search?limit=50&amp;q=any,contains,${encodeURIComponent(oaiId)}`;</span>
+  // https://daas.library.ethz.ch/rib/v3/search?limit=50&amp;q=any,contains,oai%3Aagora.ch%3A004464904
+  getOnlineData(oaiId: string): Observable&lt;PrimoApiResponse | null&gt; {
+    const url = `${this.baseUrl}/search?limit=50&amp;q=any,contains,${encodeURIComponent(oaiId)}`;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return this.http.get&lt;PrimoApiResponse&gt;(url).pipe(</span>
-      catchError(<span class="fstat-no" title="function not covered" >error </span>=&gt; {
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (error.status !== 404) {</span>
-<span class="cstat-no" title="statement not covered" >          this.ethErrorHandlingService.logError(error, 'EthComposeNbService.getOnlineData');</span>
+    return this.http.get&lt;PrimoApiResponse&gt;(url).pipe(
+      catchError(error =&gt; {
+        if (error.status !== 404) {
+          this.ethErrorHandlingService.logError(error, 'EthComposeNbService.getOnlineData');
         }
-<span class="cstat-no" title="statement not covered" >        return of(null);</span>
+        return of(null);
       })
     );
   }
@@ -193,7 +196,7 @@ export class EthComposeNbService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-12T14:08:58.090Z
+                at 2026-02-13T11:30:12.777Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

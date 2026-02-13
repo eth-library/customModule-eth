@@ -15,7 +15,6 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { EthStoreService } from '../../services/eth-store.service';
 import { CommonModule } from '@angular/common';
 import { catchError, defer, Observable, of, switchMap } from 'rxjs';
-import { TranslateService } from "@ngx-translate/core";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../../injection-tokens";
 import { HostComponent, PnxDoc, ProvenanceEraraLinksVM } from '../../models/eth.model';
@@ -38,7 +37,7 @@ export class EthProvenienzEraraLinkComponent {
     this.ethStoreService.getFullDisplayRecord$().pipe(
       switchMap(record => this.getLinks(record)),
       catchError(error => {
-        this.ethErrorHandlingService.logError(error, 'EthProvenienzEraraLinkComponent.linksStream');
+        this.ethErrorHandlingService.logError(error, 'EthProvenienzEraraLinkComponent.links$');
         return of({ erara: null, swisscovery: null });
       })
     )
@@ -46,13 +45,11 @@ export class EthProvenienzEraraLinkComponent {
 
   constructor(
     private ethErrorHandlingService: EthErrorHandlingService,
-    private translate: TranslateService,
     private ethStoreService:EthStoreService    
   ) {}
 
   // provenience cards: 99117339955005503
-  // e-rara links: 99120725885805503
-
+  // e-rara links: 99117362226905503
   private getLinks(record: PnxDoc | null): Observable<ProvenanceEraraLinksVM> {
     try {
       const display = record?.pnx?.display;
@@ -65,7 +62,7 @@ export class EthProvenienzEraraLinkComponent {
         return of({ erara: null, swisscovery: null });
       }
 
-      const eraraLink = this.findEraraLink(lds09);
+      const eraraLink = this.getEraraLink(lds09);
       const swisscoveryUrl = eraraLink ? this.makeSwisscoveryUrl(eraraLink) : null;
 
       return of({
@@ -78,9 +75,11 @@ export class EthProvenienzEraraLinkComponent {
     }
   }
 
-  private findEraraLink(lds09: string[]): string | null {
+
+  private getEraraLink(lds09: string[]): string | null {
     return lds09.find(link => link.includes('doi.org/10.3931/e-rara-')) ?? null;
   }
+
 
   private makeSwisscoveryUrl(eraraLink: string): string | null {
     const swisscoveryQuery = eraraLink.split('dx.doi.org/')[1] ?? null;

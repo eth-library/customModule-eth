@@ -49,7 +49,7 @@ describe('EthProvenienzEraraLinkComponent', () => {
 
     storeService.getTab.and.returnValue('default_tab');
     storeService.getScope.and.returnValue('default_scope');
-    storeService.getVid.and.returnValue('ETH');
+    storeService.getVid.and.returnValue('41SLSP_ETH:ETH');
 
     await TestBed.configureTestingModule({
       imports: [EthProvenienzEraraLinkComponent],
@@ -72,7 +72,7 @@ describe('EthProvenienzEraraLinkComponent', () => {
   });
 
 
-  it('returns null links when source is not eth_epics_provenienz', async () => {
+  it('no links when it is not from eth_epics_provenienz', async () => {
     storeService.getFullDisplayRecord$.and.returnValue(of(buildPnxDoc({
       pnx: {
         display: { source: ['Alma'] }
@@ -99,11 +99,11 @@ describe('EthProvenienzEraraLinkComponent', () => {
     const links = await firstValueFrom(component.links$);
 
     expect(links.erara).toBe('https://dx.doi.org/10.3931/e-rara-12345');
-    expect(links.swisscovery).toBe('/search?query=10.3931/e-rara-12345&vid=ETH&tab=default_tab&search_scope=default_scope');
+    expect(links.swisscovery).toBe('/search?query=10.3931/e-rara-12345&vid=41SLSP_ETH:ETH&tab=default_tab&search_scope=default_scope');
   });
 
   
-  it('returns null swisscovery url when no matching e-rara link exists', async () => {
+  it('no swisscovery url when no matching e-rara link exists', async () => {
     storeService.getFullDisplayRecord$.and.returnValue(of(buildPnxDoc({
       pnx: {
         display: {

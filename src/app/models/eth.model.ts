@@ -463,6 +463,8 @@ export interface DnbTocDnbLinkVM {
 export interface NbPrintApiResponse {
   map?: {
     almaSearch?: string;
+    legacyId?: string;
+    source?: string;
   }[];
 }
 export interface ComposeNbLinkVM {

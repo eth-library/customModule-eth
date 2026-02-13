@@ -107,4 +107,63 @@ describe('EthPersonService', () => {
 
     expect(errorHandlingSpy.logError).toHaveBeenCalled();
   });
+
+
+  it('returns correct person page URL', () => {
+    const url = service.getPersonPageUrl('Q123');
+    expect(url).toBe('/entity/person?entityId=Q123&vid=41SLSP_ETH:ETH_CUSTOMIZING');
+  });
+
+
+  it('returns correct place page link', () => {
+    const url = service.getPlacePageLink('Q456');
+    expect(url).toContain('[wd/place]Q456');
+    expect(url).toContain('/nde/search?query=');
+  });
+
+
+  it('returns provider label for current language', () => {
+    (translateMock as any).currentLang = 'de';
+    expect(service.getProviderLabel('gnd')).toBe('Gemeinsame Normdatei (GND)');
+    (translateMock as any).currentLang = 'en';
+    expect(service.getProviderLabel('gnd')).toBe('Integrated authority file (GND)');
+    (translateMock as any).currentLang = 'fr';
+    expect(service.getProviderLabel('gnd')).toBe('Integrated authority file (GND)');
+    (translateMock as any).currentLang = 'it';
+    expect(service.getProviderLabel('gnd')).toBe('Integrated authority file (GND)');
+  });
+
+
+  it('returns slug if provider label is missing', () => {
+    (translateMock as any).currentLang = 'de';
+    expect(service.getProviderLabel('unknown-provider')).toBe('unknown-provider');
+  });
+
+
+  it('getGndByIdRef propagates errors except 404', (done) => {
+    service.getGndByIdRef('fail').subscribe({
+      next: () => fail('should error'),
+      error: (err) => {
+        expect(err.status).toBe(500);
+        done();
+      }
+    });
+    const req = httpMock.expectOne('https://daas.library.ethz.ch/rib/v3/persons/gnd/sudoc/fail');
+    req.flush('fail', { status: 500, statusText: 'Server Error' });
+  });
+
+
+  it('searchPrimoData propagates errors', (done) => {
+    service.searchPrimoData('foo', 'TAB', 'SCOPE', 'de').subscribe({
+      next: () => fail('should error'),
+      error: (err) => {
+        expect(err.status).toBe(500);
+        expect(errorHandlingSpy.logError).toHaveBeenCalled();
+        done();
+      }
+    });
+    const req = httpMock.expectOne((request) => request.url.includes('/search'));
+    req.flush('fail', { status: 500, statusText: 'Server Error' });
+  });  
+
 });

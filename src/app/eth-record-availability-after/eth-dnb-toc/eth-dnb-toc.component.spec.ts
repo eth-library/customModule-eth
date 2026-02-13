@@ -82,13 +82,14 @@ describe('EthDnbTocComponent', () => {
   });
 
 
-  it('returns alma links when alma links are present', async () => {
+  it('returns alma links when wanted alma links are present', async () => {
     storeService.isFullview$.and.returnValue(of(true));
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
       delivery: {
         link: [
-          { linkType: 'linktorsrc', displayLabel: 'TOC', linkURL: 'https://example.com/toc' },
-          { linkType: 'linktorsrc', displayLabel: '$$Elinktorsrc', linkURL: 'https://example.com/skip' }
+          { linkType: 'linktorsrc', displayLabel: 'some', linkURL: 'https://example.com/toc' },
+          { linkType: 'linktorsrc', displayLabel: 'someOther', linkURL: 'https://tma.e-pics.ethz.ch/' },
+          { linkType: 'linktorsrc', displayLabel: '$$Elinktorsrc', linkURL: 'https://example.com/nope' }
         ]
       }
     }));
@@ -101,9 +102,16 @@ describe('EthDnbTocComponent', () => {
   });
 
 
-  it('returns dnb links when no alma links exist', async () => {
+  it('returns dnb links when no wanted alma links exist', async () => {
     storeService.isFullview$.and.returnValue(of(true));
-    storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({ delivery: { link: [] } }));
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
+      delivery: {
+        link: [
+          { linkType: 'linktorsrc', displayLabel: 'someOther', linkURL: 'https://tma.e-pics.ethz.ch/' },
+          { linkType: 'linktorsrc', displayLabel: '$$Elinktorsrc', linkURL: 'https://example.com/nope' }
+        ]
+      }
+    }));
     storeService.getFullDisplayRecord$.and.returnValue(of(buildPnxDoc({
       pnx: {
         display: { title: ['My Title'] },
@@ -130,7 +138,7 @@ describe('EthDnbTocComponent', () => {
   });
 
 
-  it('dedupes dnb links by uri', async () => {
+  it('dedupes multiple dnb links by uri', async () => {
     storeService.isFullview$.and.returnValue(of(true));
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({ delivery: { link: [] } }));
     storeService.getFullDisplayRecord$.and.returnValue(of(buildPnxDoc({

@@ -86,7 +86,7 @@ describe('EthPersonPageComponent', () => {
   });
 
 
-  it('returns null when page is not an person entity page', (done) => {
+  it('returns null when page is not a person entity page', (done) => {
     router.url = '/search';
     createComponent();
 

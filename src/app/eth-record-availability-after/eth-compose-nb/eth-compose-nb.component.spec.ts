@@ -55,7 +55,7 @@ describe('EthComposeNbComponent', () => {
       'getScope'
     ]);
 
-    storeService.getVid.and.returnValue('ETH');
+    storeService.getVid.and.returnValue('41SLSP_ETH:ETH');
     storeService.getTab.and.returnValue('default_tab');
     storeService.getScope.and.returnValue('default_scope');
 
@@ -146,7 +146,7 @@ describe('EthComposeNbComponent', () => {
   });
 
 
-  it('mapOnlineDocs filters invalid docs and sorts by band number', () => {
+  it('online links: sorts by band number', () => {
     const docs = [
       buildPnxDoc({
         pnx: {
@@ -175,13 +175,14 @@ describe('EthComposeNbComponent', () => {
     expect(links[1].sortKey).toBe('Band 2');
   });
 
+
   it('makePrimoUrl composes expected full display url', () => {
-    storeService.getVid.and.returnValue('ETH');
+    storeService.getVid.and.returnValue('41SLSP_ETH:ETH');
     storeService.getTab.and.returnValue('default_tab');
     storeService.getScope.and.returnValue('default_scope');
 
     const url = (component as any).makePrimoUrl('99118814985305503');
 
-    expect(url).toBe('/fulldisplay?vid=ETH&docid=alma99118814985305503&tab=default_tab&search_scope=default_scope');
+    expect(url).toBe('/fulldisplay?vid=41SLSP_ETH:ETH&docid=alma99118814985305503&tab=default_tab&search_scope=default_scope');
   });
 });

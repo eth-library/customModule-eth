@@ -35,7 +35,7 @@ describe('EthOKMComponent', () => {
   });
 
 
-  it('uses search value when not in full view', async () => {
+  it('uses search value only when in searchresult list', async () => {
     storeSpy.isFullview$.and.returnValue(of(false));
     Object.defineProperty(storeSpy, 'searchValue$', {
       value: of('query'),

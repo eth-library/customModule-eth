@@ -44,7 +44,7 @@ describe('EthUtilsService', () => {
     expect(errorHandlingSpy.logSyncError).toHaveBeenCalled();
   });
 
-
+  /*
   it('returns a listener for positionCard', () => {
     const matchMediaSpy = spyOn(window, 'matchMedia').and.returnValue({
       matches: false,
@@ -56,4 +56,5 @@ describe('EthUtilsService', () => {
     expect(matchMediaSpy).toHaveBeenCalledWith('(max-width: 599px)');
     expect(listener).toEqual(jasmine.any(Function));
   });
+  */
 });
