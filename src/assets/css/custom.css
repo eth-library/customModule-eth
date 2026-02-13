@@ -1,44 +1,188 @@
+/*************************/
+/* Fixed Design Sections */
+/*************************/
+
+/* Apply ETHZ font */
+@font-face {
+    font-family: "DINPro";
+    src: url("https://ethz.ch/bin/ethz/fonts/regular.woff2") format("woff2"), url("https://ethz.ch/bin/ethz/fonts/regular.woff") format("woff");
+    font-style: normal;
+    font-weight: normal;
+    font-display: fallback;
+}
+
+body,
+html,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+input,
+select,
+textarea,
+.eth-news-teaser,
+.eth-location-link a,
+.getit-library-title,
+.mat-expansion-panel-content,
+.mat-expansion-panel-header,
+.mat-body-large,
+.mat-body-medium,
+.mat-title-medium,
+.mat-mdc-button,
+.mat-mdc-menu-item,
+.mat-mdc-card-title,
+.mat-mdc-card-subtitle {
+    font-family: "DINPro", helvetica, arial, sans-serif !important;
+}
+
+
 /* screenreader only */
 .eth-visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
+
 /* language switch */
-.user-area-lang-list mat-option[aria-label='Français']{
-    display: none; 
+.user-area-lang-list mat-option[aria-label='Français'] {
+    display: none;
 }
-.user-area-lang-list mat-option[aria-label='Italiano']{ 
-    display: none; 
+
+.user-area-lang-list mat-option[aria-label='Italiano'] {
+    display: none;
 }
+
 /* language switch mobile */
-button[aria-label='mypref.language.optionfr']{
-    display: none; 
+button[aria-label='mypref.language.optionfr'] {
+    display: none;
 }
-button[aria-label='mypref.language.optionit']{
-    display: none; 
+
+button[aria-label='mypref.language.optionit'] {
+    display: none;
 }
+
 /* online quicklink button */
 .eth-quicklink-expand-button.mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
     border-radius: unset;
 }
+
 /* logo */
-nde-logo img{
+nde-logo img {
     max-width: 100px;
     height: auto;
 }
+
 @media (min-width: 600px) {
-    nde-logo img{
+    nde-logo img {
         max-width: 150px;
     }
 }
+
 /* connectedpapers parent container */
-nde-record-citations-indicators{
+nde-record-citations-indicators {
     display: flex;
+}
+
+/* Search Bar & Dropdowns - Reduced Border Radius */
+div.mat-mdc-autocomplete-panel,
+.eth-news,
+.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface,
+.quick-filter-btn.mat-mdc-outlined-button,
+.mat-mdc-mini-fab,
+.pagination-container,
+.search-results-container,
+.nde-rapido-links-main-content,
+.results-top-bar-container,
+.main-landing-page .welcome-announcements-container .welcome a,
+.main-landing-page .welcome-announcements-container .announcements,
+.main-landing-page .menu-container .menu li a,
+.search-bar-wrapper,
+.mat-mdc-button {
+    border-radius: 2px !important;
+    /* Force override */
+}
+
+.record-thumbnail {
+    border-radius: unset !important;
+    /* Force override */
+}
+
+div.mat-mdc-autocomplete-panel {
+    border-top-left-radius: unset !important;
+    border-top-right-radius: unset !important;
+}
+
+div.search-results-container {
+    border-top-left-radius: unset !important;
+    border-top-right-radius: unset !important;
+}
+
+.results-top-bar-container {
+    border-bottom-left-radius: unset !important;
+    border-bottom-right-radius: unset !important;
+}
+
+/***************************/
+/* Dynamic Design Sections */
+/***************************/
+
+/* Example Design 'petrol1' - Red Borders */
+/* ---------------------------------- */
+
+/* body.design-petrol1 nde-logo img {
+    border: 5px solid red;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+} */
+
+/* Override background image for Red design */
+body.design-petrol1 .top-bar-background-image {
+    background-image: url("../homepage/homepage_background.jpg") !important;
+}
+
+/* Design 'petrol2' */
+/* ----------------*/
+
+/* Logo Mark for testing */
+/* body.design-petrol2 nde-logo img {
+    border: 5px solid #007894;
+    box-shadow: 0 0 10px #00596D;
+} */
+
+/* Override background image with Teal Color + Gradient + Canvas */
+/* Note: The canvas element (#particle-canvas) is injected via custom.js */
+body.design-petrol2 .top-bar-background-image {
+    background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%), #00596D !important;
+    position: relative;
+    overflow: hidden;
+}
+
+body.design-petrol2 .top-bar-background-image #particle-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.8;
+}
+
+/* Ensure content sits on top */
+body.design-petrol2 .custom-search-bar-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Override background overlay color and opacity */
+body.design-petrol2 .background-overlay {
+    background-color: #00596D !important;
+    opacity: .3 !important;
 }
