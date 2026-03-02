@@ -88,7 +88,6 @@ export class EthOnlineButtonComponent {
             source: 'ViewIt'
           });
         }
-
         return links;
       }),
       tap(links => {
@@ -96,7 +95,7 @@ export class EthOnlineButtonComponent {
           const hostElem = this.elementRef.nativeElement;
           // remove OTB online button
           this.removeOTBOnlineButton(hostElem);
-          //this.checkLibkeyButton(hostElem);
+          this.checkLibkeyButton(hostElem);
         }
       }),
       catchError(err => {

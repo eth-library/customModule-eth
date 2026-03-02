@@ -4,7 +4,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { of, Subject } from 'rxjs';
 
 // Mock TranslateService
-
 const langChange$ = new Subject<any>();
 
 const translateServiceMock = {

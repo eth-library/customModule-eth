@@ -29,7 +29,6 @@ export class EthConnectedpapersComponent{
     if (!this.hostComponent?.searchResult) {
       return of(null);
     }
-
     return this.ethStoreService.getRecord$(this.hostComponent).pipe(
       switchMap(record => this.getPaper(record)),
       catchError(err => {
