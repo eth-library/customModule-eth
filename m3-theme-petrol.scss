@@ -140,9 +140,5 @@ $light-theme: mat.define-theme((
     theme-type: light,
     primary: $_primary,
     tertiary: $_tertiary,
-    use-system-variables: true,
-  ),
-  typography: (
-    use-system-variables: true,
   ),
 ));

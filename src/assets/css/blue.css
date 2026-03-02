@@ -1,0 +1,26 @@
+/* Override background image for blue design */
+body.design-blue .top-bar-background-image {
+    /* Use shorthand to reset color/image/repeat/position */
+    background: none !important;
+}
+
+/* Override background overlay opacity and color */
+body.design-blue .custom-search-bar-container .background-overlay {
+    opacity: 1.0 !important;
+    background-color: #215CAF !important;
+    /* Example: Blue. Change to your desired color */
+}
+
+/* Hide the header and footer component */
+body.design-blue nde-header {
+    display: none !important;
+}
+
+body.design-blue nde-footer {
+    display: none !important;
+}
+
+/* Hide the Userlike chatbot widget
+div[data-test-id="userlike-container"] {
+    display: none !important;
+} */

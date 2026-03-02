@@ -1,0 +1,471 @@
+/* Override background image for v2 design */
+body.design-v2 .top-bar-background-image {
+    /* Use shorthand to reset color/image/repeat/position */
+    background: url("../homepage/bg1.jpg") no-repeat center center !important;
+    background-size: cover !important;
+}
+
+/* Override background overlay opacity and color */
+body.design-v2 .custom-search-bar-container .background-overlay {
+    opacity: 1.0 !important;
+    background-color: #08407E !important;
+    /* Change to your desired color */
+}
+
+
+/* Reduced Border Radius */
+/*************************/
+/* Search Bar & Dropdowns - Reduced Border Radius */
+div.mat-mdc-autocomplete-panel,
+.eth-news,
+.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface,
+.quick-filter-btn.mat-mdc-outlined-button,
+.mat-mdc-mini-fab,
+.pagination-container,
+.search-results-container,
+.nde-rapido-links-main-content,
+.results-top-bar-container,
+.main-landing-page .welcome-announcements-container .welcome a,
+.main-landing-page .welcome-announcements-container .announcements,
+.main-landing-page .menu-container .menu li a,
+.search-bar-wrapper,
+.mat-mdc-button {
+    border-radius: 0px !important;
+    /* Force override */
+}
+
+.record-thumbnail {
+    border-radius: unset !important;
+    /* Force override */
+}
+
+div.mat-mdc-autocomplete-panel {
+    border-top-left-radius: unset !important;
+    border-top-right-radius: unset !important;
+}
+
+div.search-results-container {
+    border-top-left-radius: unset !important;
+    border-top-right-radius: unset !important;
+}
+
+.results-top-bar-container {
+    border-bottom-left-radius: unset !important;
+    border-bottom-right-radius: unset !important;
+}
+
+
+
+/* Apply ETHZ font */
+
+@font-face {
+    font-family: "DINPro";
+    src: url("../fonts/regular.woff2") format("woff2");
+    font-style: normal;
+    font-weight: normal;
+    font-display: fallback;
+}
+
+@font-face {
+    font-family: "DINPro";
+    src: url("../fonts/bold.woff2") format("woff2");
+    font-style: normal;
+    font-weight: bold;
+    font-display: fallback;
+}
+
+@font-face {
+    font-family: "v2";
+    src: url("../fonts/medium.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 500;
+    font-display: fallback;
+}
+
+@font-face {
+    font-family: "Material Icons Outlined";
+    src: url("../fonts/MaterialIcons-Outlined.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: block;
+}
+
+/* Apply scoped font-family rules */
+body.design-v2,
+body.design-v2 html,
+body.design-v2 h1,
+body.design-v2 h2,
+body.design-v2 h3,
+body.design-v2 h4,
+body.design-v2 h5,
+body.design-v2 h6,
+body.design-v2 button,
+body.design-v2 input,
+body.design-v2 select,
+body.design-v2 textarea,
+body.design-v2 .eth-news-teaser,
+body.design-v2 .eth-location-link a,
+body.design-v2 .getit-library-title,
+body.design-v2 .mat-expansion-panel-content,
+body.design-v2 .mat-expansion-panel-header,
+body.design-v2 .mat-body-large,
+body.design-v2 .mat-body-medium,
+body.design-v2 .mat-title-medium,
+body.design-v2 .mat-mdc-button,
+body.design-v2 .mat-mdc-menu-item,
+body.design-v2 .mat-mdc-card-title,
+body.design-v2 .mat-mdc-card-subtitle {
+    font-family: "DINPro", helvetica, arial, sans-serif !important;
+}
+
+/* ==============================
+   Header File styling (ETH custom)
+   ============================== */
+
+/* Responsiveness for custom breadcrumb header */
+.breadcrumb-container {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+@media (min-width: 600px) and (max-width: 959.98px) {
+    .breadcrumb-container {
+        width: clamp(288px, 88.42544317%, 848px);
+        padding: 0;
+        margin: 0 auto;
+    }
+}
+
+@media (min-width: 960px) and (max-width: 1279.98px) {
+    .breadcrumb-container {
+        width: clamp(912px, 85%, 1088px);
+        padding: 0;
+        margin: 0 auto;
+    }
+}
+
+@media (min-width: 1280px) {
+    .breadcrumb-container {
+        /* User specified clamp */
+        width: clamp(1088px, 85%, 1368px);
+        padding: 0;
+        margin: 0 auto;
+    }
+}
+
+
+/* ==============================
+   Main-Navigation  styling (ETH custom)
+   ============================== */
+
+/* logo */
+nde-logo {
+    display: none !important;
+}
+
+/* Align first navigation item with logo */
+nde-main-menu .main-menu-container ul li:first-child a.main-manu-label,
+prm-main-menu .main-menu-container ul li:first-child a.main-manu-label {
+    padding-left: 0 !important;
+}
+
+/* Ensure navigation container matches logo container widths */
+/* This ensures they stay aligned during resize */
+nde-main-menu .main-menu-container,
+prm-main-menu .main-menu-container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin: 0 auto !important;
+    width: 100%;
+    /* Default */
+}
+
+@media (min-width: 600px) and (max-width: 959.98px) {
+
+    nde-main-menu .main-menu-container,
+    prm-main-menu .main-menu-container {
+        width: clamp(288px, 88.42544317%, 848px) !important;
+    }
+}
+
+@media (min-width: 960px) and (max-width: 1279.98px) {
+
+    nde-main-menu .main-menu-container,
+    prm-main-menu .main-menu-container {
+        width: clamp(912px, 85%, 1088px) !important;
+    }
+}
+
+/* Override material button padding for navigation links */
+nde-main-menu .main-menu-container .mat-mdc-button {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Ensure navigation container has no left margin at any size */
+nde-main-menu .main-menu-container {
+    margin-left: 0 !important;
+}
+
+
+/* Additional alignment fixes for all viewports */
+nde-main-menu .main-menu-container ul li a.main-manu-label {
+    padding-left: 0 !important;
+}
+
+/* Ensure container aligns with logo at smaller breakpoints */
+@media (max-width: 959.98px) {
+    nde-main-menu .main-menu-container {
+        margin-left: 0 !important;
+    }
+}
+
+
+@media (min-width: 1280px) {
+
+    nde-main-menu .main-menu-container,
+    prm-main-menu .main-menu-container {
+        width: clamp(1088px, 85%, 1368px) !important;
+    }
+}
+
+/* Larger, non‑uppercase navigation text */
+.main-menu-container .mdc-button {
+    --mdc-filled-button-label-text-transform: none;
+    --mdc-text-button-label-text-transform: none;
+    font-size: 20px;
+    text-transform: none !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    line-height: 26px !important;
+}
+
+/* remove divider between navigation items */
+.mat-divider.nde-divider.mat-divider-vertical {
+    display: none !important;
+}
+
+/* gap between navigation items */
+.main-menu-container {
+    gap: 1.8rem;
+
+}
+
+/* 1. Alle nativen Underlines entfernen */
+.main-menu-container a.mdc-button,
+.main-menu-container a.mdc-button:hover {
+    text-decoration: none !important;
+}
+
+/* 2. Material Hover Background deaktivieren */
+.main-menu-container .mdc-button:hover {
+    background-color: transparent !important;
+}
+
+/* 3. Material State Layer / Ripple Hover entfernen */
+.main-menu-container .mdc-button .mat-mdc-button-persistent-ripple,
+.main-menu-container .mdc-button .mat-mdc-button-ripple,
+.main-menu-container .mdc-button .mdc-button__ripple {
+    display: none !important;
+}
+
+/* 4. Label vorbereiten */
+.main-menu-container .mdc-button .mdc-button__label {
+    position: relative;
+}
+
+/* 5. Animierte Underline */
+.main-menu-container .mdc-button .mdc-button__label::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    transition: width 0.2s ease;
+}
+
+/* 6. Hover & Active */
+.main-menu-container .mdc-button:hover .mdc-button__label::after,
+.main-menu-container .mdc-button.selected-page .mdc-button__label::after {
+    width: 100%;
+}
+
+/* JEDE text-decoration innerhalb des Menüs deaktivieren */
+.main-menu-container .mdc-button,
+.main-menu-container .mdc-button *,
+.main-menu-container .mdc-button:hover,
+.main-menu-container .mdc-button:hover * {
+    text-decoration: none !important;
+}
+
+/* Basisfarbe */
+.main-menu-container .mdc-button {
+    color: #222 !important;
+}
+
+/* Hover-Farbe */
+.main-menu-container .mdc-button:hover {
+    color: #335e9e !important;
+}
+
+/* Active Page bleibt dunkel */
+.main-menu-container .mdc-button.selected-page {
+    color: #222 !important;
+}
+
+/* Icons im Main Menu: Grundfarbe */
+.main-menu-container .mat-icon {
+    fill: #222 !important;
+}
+
+/* Icons im Main Menu: Hover-Farbe */
+.main-menu-container a.mdc-button:hover .mat-icon {
+    fill: #335e9e !important;
+}
+
+/* Active Page: wieder #222 */
+.main-menu-container a.mdc-button.selected-page .mat-icon {
+    fill: #222 !important;
+}
+
+/* Grundfarbe für SVG-Pfade im Main Menu (inkl. QR) */
+.main-menu-container .mat-icon svg path,
+.main-menu-container .mat-icon svg g path {
+    fill: #222 !important;
+    stroke: none !important;
+}
+
+/* Hover-Farbe */
+.main-menu-container .mdc-button:hover .mat-icon svg path,
+.main-menu-container .mdc-button:hover .mat-icon svg g path {
+    fill: #335e9e !important;
+    stroke: none !important;
+}
+
+/* Active/Selected wieder #222 */
+.main-menu-container .mdc-button.selected-page .mat-icon svg path,
+.main-menu-container .mdc-button.selected-page .mat-icon svg g path {
+    fill: #222 !important;
+    stroke: none !important;
+}
+
+/* Header Shadow entfernen */
+header.top-bar.mat-elevation-z3 {
+    box-shadow: none !important;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+}
+
+
+/* ==============================
+   BACK TO TOP
+   ============================== */
+nde-back-to-top {
+    display: none;
+}
+
+/* ==============================
+   FOOTER (ETH custom)
+   ============================== */
+
+nde-footer {
+    display: block;
+    /* Sicherheitshalber */
+    background: #222;
+}
+
+.eth-footer {
+    background: #222;
+    color: #fff;
+    font-family: 'DINPro', sans-serif, Arial;
+    font-size: .9rem;
+}
+
+.eth-footer__inner {
+    margin: 0 auto;
+    padding: 32px 0px 18px;
+}
+
+.eth-footer__grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 28px;
+    padding-bottom: 22px;
+    padding-top: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, .18);
+}
+
+.eth-footer__grid2 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 28px;
+    padding-bottom: 22px;
+    padding-top: 18px;
+}
+
+.eth-footer__title {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: .2px;
+}
+
+.eth-footer__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.eth-footer__text {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.eth-footer a {
+    color: #fff;
+    text-decoration: none;
+    text-underline-offset: 4px;
+}
+
+.eth-footer a:hover {
+    color: #d8d8d8;
+    text-decoration: underline;
+}
+
+/* Bottom bar */
+.eth-footer__bottom {
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.eth-footer__bottomlinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-size: .85rem;
+}
+
+.eth-footer__copyright {
+    font-size: .78rem;
+    opacity: .9;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .eth-footer__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .eth-footer__grid {
+        grid-template-columns: 1fr;
+    }
+}
