@@ -1,0 +1,58 @@
+
+/*************************/
+/* Fixed Design Sections */
+/*************************/
+
+
+/* screenreader only */
+.eth-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* language switch */
+.user-area-lang-list mat-option[aria-label='Français'] {
+    display: none;
+}
+
+.user-area-lang-list mat-option[aria-label='Italiano'] {
+    display: none;
+}
+
+/* language switch mobile */
+button[aria-label='mypref.language.optionfr'] {
+    display: none;
+}
+
+button[aria-label='mypref.language.optionit'] {
+    display: none;
+}
+
+/* online quicklink button */
+.eth-quicklink-expand-button.mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
+    border-radius: unset;
+}
+
+/* logo */
+nde-logo img {
+    max-width: 100px;
+    height: auto;
+}
+
+@media (min-width: 600px) {
+    nde-logo img {
+        max-width: 150px;
+    }
+}
+
+/* connectedpapers parent container */
+nde-record-citations-indicators {
+    display: flex;
+}

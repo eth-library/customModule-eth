@@ -140,5 +140,11 @@ $light-theme: mat.define-theme((
     theme-type: light,
     primary: $_primary,
     tertiary: $_tertiary,
+    use-system-variables: true,
+    system-variables-prefix: 'md-sys-color',
+  ),
+  typography: (
+    use-system-variables: true,
+    system-variables-prefix: 'md-sys-color',
   ),
 ));

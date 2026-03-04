@@ -62,13 +62,19 @@ module.exports = {
     new ModuleFederationPlugin({
         library: { type: "module" },
 
+        /*
+        name: "customModule",
+        filename: "remoteEntry.js",
+        exposes: {
+            './custom-module': './src/bootstrap.ts',
+        },        
+        */
         // For remotes (please adjust)
         name: "customModule",
         filename: "remoteEntry.js",
         exposes: {
             './custom-module': './src/bootstrap.ts',
         },
-
         // For hosts (please adjust)
         // remotes: {
         //     "mfe1": "http://localhost:3000/remoteEntry.js",

@@ -1,6 +1,6 @@
-.eth-idp-warning{
-    background-color: var(--sys-inverse-on-surface);
-    color: var(--sys-outline);
+    .eth-idp-warning{
+    color: var(--md-sys-color-on-background);    
+    background-color: var(--md-sys-color-background);  
     font-size: var(--mat-expansion-container-text-size, var(--mat-sys-body-large-size));        
     padding: 1rem;
     border-radius: .5rem;

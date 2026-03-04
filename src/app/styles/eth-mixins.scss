@@ -1,0 +1,18 @@
+@mixin sync-material-prefixes() {
+    $color-roles: (
+        'primary', 'on-primary', 'primary-container', 'on-primary-container',
+        'secondary', 'on-secondary', 'secondary-container', 'on-secondary-container',
+        'tertiary', 'on-tertiary', 'tertiary-container', 'on-tertiary-container',
+        'error', 'on-error', 'error-container', 'on-error-container',
+        'outline', 'outline-variant',
+        'surface', 'on-surface', 'surface-variant', 'on-surface-variant',
+        'surface-container-lowest', 'surface-container-low', 'surface-container', 
+        'surface-container-high', 'surface-container-highest',
+        'inverse-surface', 'inverse-on-surface', 'inverse-primary',
+        'scrim', 'shadow'
+    );
+
+    @each $role in $color-roles {
+        --sys-#{$role}: var(--md-sys-color-#{$role}) !important;
+    }
+}

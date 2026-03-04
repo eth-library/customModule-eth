@@ -20,6 +20,7 @@ import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offca
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
 import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
 //import { EthFullDisplayServiceContainerAfterComponent } from '../eth-full-display-service-container-after/eth-full-display-service-container-after.component';
+import { EthThemeComponent } from '../eth-theme/eth-theme.component';
 
 
 
@@ -45,6 +46,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-requests-after', EthIllLinkComponent],
     //['nde-login-dialog-after', EthRegistrationLinkComponent],
     //['nde-search-bar-presenter-after', EthOKMComponent],
+    ['nde-app-layout-top', EthThemeComponent],
     //['nde-full-display-details-bottom', EthMetagridComponent],
 ])
 

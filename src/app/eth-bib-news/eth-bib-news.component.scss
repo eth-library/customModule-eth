@@ -1,7 +1,7 @@
 .eth-news-container{
     margin: 1rem auto;
     padding: 1rem 0;
-    background-color: var(--sys-inverse-on-surface);    
+    background-color: var(--md-sys-color-background);    
 }
 @media (min-width: 1280px) {
     .eth-news-container {
@@ -35,7 +35,7 @@
 .eth-news-headline{
     font: var(--sys-title-medium);
     font-weight: 600;
-    color: var(--sys-primary);
+    color: var(--md-sys-color-on-background);    
 }
 .eth-news-content{
     display: flex; 
@@ -44,7 +44,7 @@
     gap: 16px;
 }
 .eth-news-teaser {
-    color: var(--sys-primary);
+    color: var(--md-sys-color-on-background);    
     font: var(--sys-body-large);    
 }
 .eth-news-content img {
@@ -69,7 +69,7 @@
 }
 .eth-news-container a{
     text-decoration: none;
-    color: var(--sys-primary);
+    color: var(--md-sys-color-on-background);    
 }
 .eth-news-container a:focus,.eth-news-container a:hover{
     text-decoration: underline;
