@@ -1,4 +1,4 @@
-import { Component, inject, Inject, Input } from '@angular/core';
+import { Component, DestroyRef, inject, Inject, Input } from '@angular/core';
 import { of, Observable, catchError, map, forkJoin, tap, switchMap, defer } from 'rxjs';
 import { EthMetagridService, Person } from './eth-metagrid.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
@@ -70,6 +70,8 @@ interface PnxDoc  {
 
 export class EthMetagridComponent {
   private store = inject(Store);
+  private destroyRef = inject(DestroyRef);
+  private detailsObserver?: MutationObserver;
     
   persons$: Observable<Person[]> = defer(() =>
     this.store
@@ -99,7 +101,9 @@ export class EthMetagridComponent {
     private metagridService: EthMetagridService,
     private translate: TranslateService,
     @Inject(DOCUMENT) private document: Document    
-  ) {}
+  ) {
+    this.destroyRef.onDestroy(() => this.disconnectDetailsObserver());
+  }
 
   getPersons(record: PnxDoc | null) {
     // fallback of config for local development
@@ -143,23 +147,35 @@ export class EthMetagridComponent {
         return allPersons;
       }),
       // copy toggle links and cards to target place
-      tap( persons => {
-          const detailsContainer = this.document.querySelector('nde-full-display-details') as HTMLElement;
-          if (!detailsContainer) return;
-          const observer = new MutationObserver((mutations, obs) => {
-            let authorityContainer = detailsContainer.querySelector('[data-qa="detail_lds03"]') as HTMLElement;
-            let metagridCard = detailsContainer.querySelector('.metagrid-card') as HTMLElement;
-            let metagridLink = detailsContainer.querySelector('.metagrid-link') as HTMLElement;
-            if(authorityContainer && metagridCard && metagridLink){
-              this.copyMetagridLinks(persons, authorityContainer);
-              obs.disconnect();
-            }
-          });
-          observer.observe(detailsContainer, { childList: true, subtree: true });
-        }
-      )
+      tap(persons => this.observeDetailsContainer(persons))
     );
   
+  }
+
+  private observeDetailsContainer(persons: Person[]): void {
+    this.disconnectDetailsObserver();
+
+    const detailsContainer = this.document.querySelector('nde-full-display-details') as HTMLElement | null;
+    if (!detailsContainer) return;
+
+    this.detailsObserver = new MutationObserver((_mutations, observer) => {
+      const authorityContainer = detailsContainer.querySelector('[data-qa="detail_lds03"]') as HTMLElement | null;
+      const metagridCard = detailsContainer.querySelector('.metagrid-card') as HTMLElement | null;
+      const metagridLink = detailsContainer.querySelector('.metagrid-link') as HTMLElement | null;
+
+      if (authorityContainer && metagridCard && metagridLink) {
+        this.copyMetagridLinks(persons, authorityContainer);
+        observer.disconnect();
+        this.detailsObserver = undefined;
+      }
+    });
+
+    this.detailsObserver.observe(detailsContainer, { childList: true, subtree: true });
+  }
+
+  private disconnectDetailsObserver(): void {
+    this.detailsObserver?.disconnect();
+    this.detailsObserver = undefined;
   }
 
   

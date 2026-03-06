@@ -2,7 +2,7 @@
 // https://jira.ethz.ch/browse/SLSP-1986
 
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, DestroyRef, inject, Inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, of, combineLatest, defer } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
@@ -26,6 +26,8 @@ interface TranslationBundle {
   styleUrls: ['./eth-ill-link.component.scss']
 })
 export class EthIllLinkComponent {
+  private destroyRef = inject(DestroyRef);
+
   // do we need an ILL link? In this case: create the querystring of the ILL link.
   qs$: Observable<string | null> = defer(() =>
     combineLatest([
@@ -113,20 +115,22 @@ export class EthIllLinkComponent {
 
       // wait for rapido
       return new Observable<string>(observer => {
-        const mo = new MutationObserver(() => {
+        const obs = new MutationObserver((_m, obs) => {
           const rapidoNoOffer = this.document.querySelector(
             '[data-qa="rapido.tiles.noOfferTileLine1"]'
           );
           if (rapidoNoOffer) {
-            mo.disconnect();
+            obs.disconnect();
             observer.next(this.buildQs(record));
             observer.complete();
           }
         });
 
-        mo.observe(this.document.body, { childList: true, subtree: true });
+        obs.observe(this.document.body, { childList: true, subtree: true });
 
-        return () => mo.disconnect();
+        this.destroyRef.onDestroy(() => obs.disconnect());
+
+        return () => obs?.disconnect();
       });
     } catch (error) {
         this.ethErrorHandlingService.logSyncError(error, 'EthIllLinkComponent.resolveQsOrNull()');

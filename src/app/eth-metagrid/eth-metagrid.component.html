@@ -1,4 +1,6 @@
-@for (person of persons$ | async; track person.personId) {
+@let persons = persons$ | async;
+
+@for (person of persons ?? []; track person.personId) {
     @if ((person.resources?.length ?? 0) > 0) {
       <div [attr.id]="'metagrid-card-' + person.personId" class="metagrid-card">
         <div class="metagrid-powered">
@@ -14,7 +16,7 @@
       </div>
     }
 }
-@for (person of persons$ | async; track person.personId) {
+@for (person of persons ?? []; track person.personId) {
   @if ((person.resources?.length ?? 0) > 0 && person.personId) {
     <button #button
         class="metagrid-toggle-link"

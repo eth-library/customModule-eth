@@ -103,6 +103,7 @@ export interface PnxDoc  {
     };
     links?: {
       linktorsrcadditional?: string[];
+      openurladditional?: string[]; 
     };
     control?: {
       sourcerecordid:   string[];

@@ -55,8 +55,8 @@ describe('EthOnlineButtonComponent', () => {
     storeSpy.getRecord$.and.returnValue(of({} as any));
     storeSpy.getDeliveryEntity$.and.returnValue(of({} as any));
 
-    spyOn(component, 'removeOTBOnlineButton');
-    //spyOn(component, 'checkLibkeyButton');
+    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'observeLibkeyAppearance');
 
     const result = await firstValueFrom(component.links$);
 
@@ -73,8 +73,8 @@ describe('EthOnlineButtonComponent', () => {
       }
     } as any));
 
-    spyOn(component, 'removeOTBOnlineButton');
-    spyOn(component, 'checkLibkeyButton');
+    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'observeLibkeyAppearance');
 
     const result = await firstValueFrom(component.links$);
 
@@ -95,8 +95,8 @@ describe('EthOnlineButtonComponent', () => {
     } as any));
     storeSpy.getDeliveryEntity$.and.returnValue(of({ delivery: { electronicServices: [] } } as any));
 
-    spyOn(component, 'removeOTBOnlineButton');
-    spyOn(component, 'checkLibkeyButton');
+    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'observeLibkeyAppearance');
 
     const result = await firstValueFrom(component.links$);
 
@@ -111,8 +111,8 @@ describe('EthOnlineButtonComponent', () => {
       delivery: { electronicServices: [{ serviceUrl: 'https://service.test', ilsApiId: 'alma_123' }] }
     } as any));
 
-    spyOn(component, 'removeOTBOnlineButton');
-    spyOn(component, 'checkLibkeyButton');
+    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'observeLibkeyAppearance');
 
     const result = await firstValueFrom(component.links$);
 
@@ -123,31 +123,49 @@ describe('EthOnlineButtonComponent', () => {
 
   it('renders quicklink button', async () => {
     component.hostComponent = { viewModel$: of(null) } as any;
-    storeSpy.getRecord$.and.returnValue(of({ pnx: { control: { recordid: ['doc123'] } } } as any));
-    storeSpy.getDeliveryEntity$.and.returnValue(of({
-      delivery: {
-        electronicServices: [{ serviceUrl: 'https://service.test', ilsApiId: 'alma_123' }]
-      }
-    } as any));
 
-    spyOn(component, 'removeOTBOnlineButton');
-    //spyOn(component, 'checkLibkeyButton');
+    storeSpy.getRecord$.and.returnValue(
+      of({ pnx: { control: { recordid: ['doc123'] } } } as any)
+    );
+
+    storeSpy.getDeliveryEntity$.and.returnValue(
+      of({
+        delivery: {
+          electronicServices: [
+            { serviceUrl: 'https://service.test', ilsApiId: 'alma_123' }
+          ]
+        }
+      } as any)
+    );
+
+    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'observeLibkeyAppearance');
 
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const container = fixture.debugElement.query(By.css('.eth-quicklink-container'));
-    const mainButton = fixture.debugElement.query(By.css('.eth-quicklink-button'));
-    const expandButton = fixture.debugElement.query(By.css('.eth-quicklink-expand-button'));
-    const mainButtonText = (mainButton?.nativeElement as HTMLElement | null)?.textContent || '';
+    const container = fixture.debugElement.query(
+      By.css('.eth-quicklink-container')
+    );
+
+    const mainButton = fixture.debugElement.query(
+      By.css('.eth-quicklink-button')
+    );
+
+    const expandButton = fixture.debugElement.query(
+      By.css('.eth-quicklink-expand-button')
+    );
+
+    const mainButtonText =
+      (mainButton?.nativeElement as HTMLElement | null)?.textContent || '';
 
     expect(container).toBeTruthy();
     expect(mainButton).toBeTruthy();
     expect(expandButton).toBeTruthy();
-    expect(mainButtonText.trim()).toContain('eth.onlineButton.linkText');
+    expect(mainButtonText.trim())
+      .toContain('eth.onlineButton.linkText');
   });
-
 
   it('navigates for ViewIt links by navigateByUrl', () => {
     const event = { preventDefault: jasmine.createSpy('preventDefault') } as unknown as Event;
@@ -168,7 +186,7 @@ describe('EthOnlineButtonComponent', () => {
     storeSpy.getRecord$.and.callFake((host: any) => (host?.id === 'A' ? recordA$ : recordB$));
     storeSpy.getDeliveryEntity$.and.callFake((host: any) => (host?.id === 'A' ? deliveryA$ : deliveryB$));
 
-    spyOn(component, 'removeOTBOnlineButton');
+    spyOn<any>(component, 'hideOTBOnlineButton');
 
     const results: any[] = [];
     component.links$.pipe(take(2)).subscribe(value => {

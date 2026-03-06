@@ -61,15 +61,15 @@ module.exports = {
 
     new ModuleFederationPlugin({
         library: { type: "module" },
-
         /*
-        name: "customModule",
+        name: "ETH_CUSTOMIZING",
         filename: "remoteEntry.js",
         exposes: {
-            './custom-module': './src/bootstrap.ts',
-        },        
-        */
+            './ETH_CUSTOMIZING': './src/bootstrapETH_CUSTOMIZING.ts',
+        },*/        
+        
         // For remotes (please adjust)
+
         name: "customModule",
         filename: "remoteEntry.js",
         exposes: {
