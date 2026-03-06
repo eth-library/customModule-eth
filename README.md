@@ -1,5 +1,9 @@
 # CustomModule
 
+**Note:**
+This repository contains customized frontend code for Primo NDE based on the open source examples provided by Ex Libris.
+Original code © Ex Libris, Ltd., licensed under the BSD-3-Clause License.
+
 ### Overview
 The NDE Customization package offers options to enhance and extend the functionality of Primo’s New Discovery Experience (NDE). You can add and develop your own components, customize theme templates, and tailor the discovery interface to your specific needs.
 
