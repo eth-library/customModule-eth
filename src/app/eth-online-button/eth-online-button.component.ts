@@ -75,7 +75,7 @@ export class EthOnlineButtonComponent  {
       a.every((v, i) => v.url === b[i]?.url && v.source === b[i]?.source)
     ),
     tap(links => {
-      if (links.length) {
+      if (links.length > 1) {
         this.hideOTBOnlineButton();
         //this.observeLibkeyAppearance();
       }
@@ -105,7 +105,7 @@ export class EthOnlineButtonComponent  {
 
     // OOTB Quicklinks exist → do nothing
     if (viewModel?.onlineLinks?.length) {
-      console.error("viewModel?.onlineLinks",viewModel?.onlineLinks)
+      //console.error("viewModel?.onlineLinks",viewModel?.onlineLinks)
       return [];
     }
 
@@ -115,7 +115,7 @@ export class EthOnlineButtonComponent  {
     const electronicService = deliveryEntity?.delivery?.electronicServices?.[0];
     if (electronicService?.serviceUrl) {
       // external data + /view/action/uresolver.do z.B. e-maps
-      console.error("electronicService?.serviceUrl",electronicService?.serviceUrl)
+      //console.error("electronicService?.serviceUrl",electronicService?.serviceUrl)
       links.push({
         url: electronicService.serviceUrl,
         source: 'electronicServices'
@@ -125,7 +125,7 @@ export class EthOnlineButtonComponent  {
       // https://knowledge.exlibrisgroup.com/Primo/Content_Corner/Central_Discovery_Index/Documentation_and_Training/Documentation_and_Training_(English)/CDI_-_The_Central_Discovery_Index/050CDI_and_Linking_to_Electronic_Full_Text 
       const raw = record?.pnx?.links?.linktorsrcadditional?.[0];
       if (raw) {
-        console.error("record?.pnx?.links?.linktorsrcadditional",record?.pnx?.links?.linktorsrcadditional)
+        //console.error("record?.pnx?.links?.linktorsrcadditional",record?.pnx?.links?.linktorsrcadditional)
         links.push({
           url: this.extractPnxUrl(raw),
           source: 'pnx'

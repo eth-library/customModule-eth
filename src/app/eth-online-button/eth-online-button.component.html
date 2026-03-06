@@ -6,7 +6,7 @@
               [attr.aria-label]=" ( 'eth.onlineButton.linkText' | safeTranslate | async ) + ' ' + ( 'nui.aria.newWindow' | safeTranslate | async )"
               (click)="navigate(links[0].source,links[0].url,$event)"
                class="eth-quicklink-button">
-        <span>{{ 'eth.onlineButton.linkText' | safeTranslate | async }} CP</span>
+        <span>{{ 'eth.onlineButton.linkText' | safeTranslate | async }}</span>
       </button>
       <button class="eth-quicklink-expand-button mat-mdc-icon-button"
               mat-icon-button
