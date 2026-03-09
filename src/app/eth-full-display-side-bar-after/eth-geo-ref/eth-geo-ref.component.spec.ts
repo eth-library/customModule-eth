@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, of, throwError } from 'rxjs';
 import { EthGeoRefComponent } from './eth-geo-ref.component';
 import { EthGeoRefService } from './eth-geo-ref.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
@@ -37,9 +37,18 @@ describe('EthGeoRefComponent', () => {
     navigateByUrl: jasmine.createSpy('navigateByUrl')
   };
 
+  const createRecord = (lds03: string[] = [], sourcerecordid: string[] = []) => ({
+    pnx: {
+      display: { lds03 },
+      control: { sourcerecordid }
+    }
+  } as unknown as PnxDoc);
+
   beforeEach(async () => {
     linkedDataRecommendations$ = new BehaviorSubject<any[]>([]);
     storeServiceMock.linkedDataRecommendations$ = linkedDataRecommendations$.asObservable();
+    storeServiceMock.getRecord$.calls.reset();
+    storeServiceMock.getRecord$.and.returnValue(of(createRecord()));
 
     geoRefServiceSpy = jasmine.createSpyObj<EthGeoRefService>('EthGeoRefService', [
       'getPlacesFromLobid',
@@ -73,6 +82,15 @@ describe('EthGeoRefComponent', () => {
   it('should create', () => {
     fixture.detectChanges();
     expect(component).toBeTruthy();
+  });
+
+  it('emits null via places$ when getRecord$ fails', async () => {
+    storeServiceMock.getRecord$.and.returnValue(throwError(() => new Error('record fail')));
+
+    const result = await firstValueFrom(component.places$);
+
+    expect(result).toBeNull();
+    expect(errorHandlingSpy.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthGeoRefComponent.places$');
   });
 
 
@@ -159,13 +177,37 @@ describe('EthGeoRefComponent', () => {
   it('logs errors when getPlacesFromLobid fails', (done) => {
     geoRefServiceSpy.getPlacesFromLobid.and.returnValue(throwError(() => new Error('boom')));
 
-    const record = {
-      pnx: { display: { lds03: ['GND: Test: 123'] }, control: { sourcerecordid: [] } }
-    } as unknown as PnxDoc;
+    const record = createRecord(['GND: Test: 123']);
 
     component.getPlaces(record).subscribe(result => {
       expect(result.gndPlacesLobid.length).toBe(0);
       expect(errorHandlingSpy.logError).toHaveBeenCalled();
+      done();
+    });
+  });
+
+  it('filters lobid places without description or thumbnail', (done) => {
+    geoRefServiceSpy.getPlacesFromLobid.and.returnValue(of({
+      member: [
+        {
+          gndIdentifier: '123',
+          preferredName: 'Empty',
+          biographicalOrHistoricalInformation: [],
+          depiction: []
+        },
+        {
+          gndIdentifier: '456',
+          preferredName: 'Rich',
+          biographicalOrHistoricalInformation: ['Desc']
+        }
+      ]
+    } as any));
+
+    const record = createRecord(['GND: Test: 123', 'GND: Test: 456']);
+
+    component.getPlaces(record).subscribe(result => {
+      expect(result.gndPlacesLobid.length).toBe(1);
+      expect(result.gndPlacesLobid[0].label).toBe('Rich');
       done();
     });
   });
@@ -176,13 +218,23 @@ describe('EthGeoRefComponent', () => {
       results: [{ gnd: '123', qid: 'Q1', name: 'Place A', description: 'Desc' }]
     } as any));
 
-    const record = {
-      pnx: { display: { lds03: ['GND: Test: 123'] }, control: { sourcerecordid: [] } }
-    } as unknown as PnxDoc;
+    const record = createRecord(['GND: Test: 123']);
 
     component.getPlaces(record).subscribe(result => {
       expect(result.gndPlacesGraph.length).toBe(1);
       expect(result.gndPlacesGraph[0].label).toBe('Place A');
+      done();
+    });
+  });
+
+  it('logs errors when getGndPlacesFromGraph fails', (done) => {
+    geoRefServiceSpy.getGndPlacesFromGraph.and.returnValue(throwError(() => new Error('graph')));
+
+    const record = createRecord(['GND: Test: 123']);
+
+    component.getPlaces(record).subscribe(result => {
+      expect(result.gndPlacesGraph).toEqual([]);
+      expect(errorHandlingSpy.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthGeoRefComponent.getGndPlacesFromGraph()');
       done();
     });
   });
@@ -202,13 +254,57 @@ describe('EthGeoRefComponent', () => {
       }
     ] as any));
 
-    const record = {
-      pnx: { display: { lds03: [] }, control: { sourcerecordid: ['doc1'] } }
-    } as unknown as PnxDoc;
+    const record = createRecord([], ['doc1']);
 
     component.getPlaces(record).subscribe(result => {
       expect(result.ethorama.length).toBe(1);
       expect(result.ethorama[0].label).toBe('ETHorama Place');
+      done();
+    });
+  });
+
+  it('drops ethorama cards without identifiers', (done) => {
+    geoRefServiceSpy.getPlacesFromETHorama.and.returnValue(of({ items: [{ id: 'p1' }, { id: 'p2' }] } as any));
+    geoRefServiceSpy.enrichPOIs.and.returnValue(of([
+      { id: 'p1', name: 'Missing ids' },
+      { id: 'p2', qid: 'Q2', name: 'Valid' }
+    ] as any));
+
+    const record = createRecord([], ['doc1']);
+
+    component.getPlaces(record).subscribe(result => {
+      expect(result.ethorama.length).toBe(1);
+      expect(result.ethorama[0].qid).toBe('Q2');
+      done();
+    });
+  });
+
+  it('deduplicates ethorama cards sharing keys', (done) => {
+    geoRefServiceSpy.getPlacesFromETHorama.and.returnValue(of({ items: [{ id: 'p1' }, { id: 'p2' }] } as any));
+    geoRefServiceSpy.enrichPOIs.and.returnValue(of([
+      { id: 'p1', qid: 'Q2', name: 'First', thumbnail: 'thumb1' },
+      { id: 'p2', qid: 'Q2', name: 'Second', thumbnail: 'thumb2' }
+    ] as any));
+
+    const record = createRecord([], ['doc1']);
+
+    component.getPlaces(record).subscribe(result => {
+      expect(result.ethorama.length).toBe(1);
+      expect(result.ethorama[0].label).toBe('First');
+      expect(result.ethorama[0].thumbnail).toBe('thumb1');
+      done();
+    });
+  });
+
+  it('returns empty ethorama list when upstream fails', (done) => {
+    geoRefServiceSpy.getPlacesFromETHorama.and.returnValue(throwError(() => new Error('500')));
+
+    const record = createRecord([], ['doc1']);
+
+    component.getPlaces(record).subscribe(result => {
+      expect(result.ethorama).toEqual([]);
+      expect(geoRefServiceSpy.enrichPOIs).not.toHaveBeenCalled();
+      expect(errorHandlingSpy.logError).not.toHaveBeenCalled();
       done();
     });
   });
@@ -223,14 +319,34 @@ describe('EthGeoRefComponent', () => {
 
     linkedDataRecommendations$.next([{ id: 'L1' }]);
 
-    const record = {
-      pnx: { display: { lds03: [] }, control: { sourcerecordid: ['doc1'] } }
-    } as unknown as PnxDoc;
+    const record = createRecord([], ['doc1']);
 
     component.getPlaces(record).subscribe(result => {
       expect(result.allPlaces.length).toBe(1);
       expect(result.allPlaces[0].lccn).toBe('L2');
       done();
+    });
+  });
+
+  it('logs sync errors when getPlaces throws before creating streams', (done) => {
+    const originalGetContext = (component as any).getContext;
+    (component as any).getContext = () => {
+      throw new Error('sync');
+    };
+
+    const record = createRecord();
+
+    component.getPlaces(record).subscribe({
+      next: result => {
+        expect(result).toEqual({ gndPlacesLobid: [], gndPlacesGraph: [], ethorama: [], allPlaces: [] });
+        expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthGeoRefComponent.getPlaces');
+        (component as any).getContext = originalGetContext;
+        done();
+      },
+      error: err => {
+        (component as any).getContext = originalGetContext;
+        fail(err);
+      }
     });
   });
 
@@ -267,5 +383,101 @@ describe('EthGeoRefComponent', () => {
     const mergedQ1 = merged.find(p => p.qid === 'Q1');
     expect(mergedQ1.description).toBe('Desc 1');
     expect(mergedQ1.thumbnail).toBe('thumb');
+  });
+  
+
+  it('ignores places without identifiers when merging', () => {
+    const places = [
+      { id: '1', label: 'No ids' },
+      { id: '2', qid: 'Q2', label: 'Has id' }
+    ] as any;
+
+    const merged = (component as any).mergePlacesById(places) as any[];
+
+    expect(merged.length).toBe(1);
+    expect(merged[0].qid).toBe('Q2');
+  });
+
+  describe('mapGndPlacesLobidToVm', () => {
+    it('maps lobid responses into sorted place models', () => {
+      const data = {
+        member: [
+          {
+            gndIdentifier: '456',
+            preferredName: 'B Place',
+            sameAs: [
+              { id: 'https://www.wikidata.org/entity/Q2' },
+              { id: 'https://id.loc.gov/authorities/names/n456' }
+            ],
+            depiction: [{ thumbnail: 'thumb-b' }],
+            biographicalOrHistoricalInformation: ['Bio B']
+          },
+          {
+            gndIdentifier: '123',
+            preferredName: 'A Place',
+            sameAs: [
+              { id: 'https://www.wikidata.org/entity/Q1' }
+            ],
+            depiction: [{ thumbnail: 'thumb-a' }],
+            biographicalOrHistoricalInformation: ['Bio A']
+          }
+        ]
+      } as any;
+
+      const result = (component as any).mapGndPlacesLobidToVm(data, { vid: 'vid', lang: 'de' });
+
+      expect(result[0].label).toBe('A Place');
+      expect(result[0].url).toContain('entityId=123,Q1');
+      expect(result[1].lccn).toBe('n456');
+    });
+  });
+
+  describe('mapGndPlacesGraphToVm', () => {
+    it('maps graph responses into sorted place models', () => {
+      const data = {
+        results: [
+          { gnd: '123', qid: 'Q1', name: 'Alpha', description: 'Desc A', image: 'img-a' },
+          { gnd: '456', lccn: 'n456', name: 'Beta', description: 'Desc B' }
+        ]
+      } as any;
+
+      const result = (component as any).mapGndPlacesGraphToVm(data, { vid: 'vid', lang: 'de' });
+
+      expect(result.length).toBe(2);
+      expect(result[0].label).toBe('Alpha');
+      expect(result[1].url).toContain('entityId=n456');
+    });
+  });
+
+  describe('buildLocationEntityUrl', () => {
+    it('returns undefined when vid is missing', () => {
+      const url = (component as any).buildLocationEntityUrl({ gnd: '123' }, { vid: '', lang: 'de' });
+      expect(url).toBeUndefined();
+    });
+
+    it('prefers lccn when present', () => {
+      const url = (component as any).buildLocationEntityUrl({ lccn: 'n123' }, { vid: 'vid', lang: 'de' });
+      expect(url).toContain('entityId=n123');
+    });
+
+    it('combines gnd and qid when both available', () => {
+      const url = (component as any).buildLocationEntityUrl({ gnd: '123', qid: 'Q1' }, { vid: 'vid', lang: 'de' });
+      expect(url).toContain('entityId=123,Q1');
+    });
+
+    it('falls back to qid only', () => {
+      const url = (component as any).buildLocationEntityUrl({ qid: 'Q1' }, { vid: 'vid', lang: 'de' });
+      expect(url).toContain('entityId=Q1');
+    });
+
+    it('builds from gnd when qid is missing', () => {
+      const url = (component as any).buildLocationEntityUrl({ gnd: '123' }, { vid: 'vid', lang: 'de' });
+      expect(url).toContain('entityId=GND123');
+    });
+
+    it('returns undefined when no identifiers exist', () => {
+      const url = (component as any).buildLocationEntityUrl({}, { vid: 'vid', lang: 'de' });
+      expect(url).toBeUndefined();
+    });
   });
 });

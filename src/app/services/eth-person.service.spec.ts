@@ -166,4 +166,312 @@ describe('EthPersonService', () => {
     req.flush('fail', { status: 500, statusText: 'Server Error' });
   });  
 
+
+  it('logs non-500 errors from getPersons()', () => {
+    errorHandlingSpy.logError.calls.reset();
+
+    service.getPersons('123', 'de').subscribe({
+      error: () => {
+        // expected
+      }
+    });
+
+    const req = httpMock.expectOne('https://daas.library.ethz.ch/rib/v3/persons/person-gnd-short?gnd=123&lang=de');
+    req.flush('bad request', { status: 400, statusText: 'Bad Request' });
+
+    expect(errorHandlingSpy.logError).toHaveBeenCalledWith(jasmine.anything(), 'EthPersonService.getPersons');
+  });
+
+
+  it('does not log getPersons() 500 errors', () => {
+    errorHandlingSpy.logError.calls.reset();
+
+    service.getPersons('123', 'de').subscribe({ error: () => {} });
+
+    const req = httpMock.expectOne('https://daas.library.ethz.ch/rib/v3/persons/person-gnd-short?gnd=123&lang=de');
+    req.flush('server error', { status: 500, statusText: 'Error' });
+
+    expect(errorHandlingSpy.logError).not.toHaveBeenCalled();
+  });
+
+
+  it('processPrometheusResponse filters and relabels URLs', () => {
+    const resp: any = [
+      [],
+      ['Label DB 1', 'Label DB 2', 'Label EPics', 'Ignored'],
+      [],
+      [
+        'https://www.deutsche-biographie.de/person1',
+        'https://www.deutsche-biographie.de/person2',
+        'https://ba.e-pics.ethz.ch/foo',
+        'https://archivdatenbank-online.ethz.ch/hsa/bar'
+      ]
+    ];
+
+    const links = (service as any).processPrometheusResponse(resp);
+
+    expect(links.length).toBe(3);
+    expect(links[0]).toEqual({ url: 'https://www.deutsche-biographie.de/person1', label: 'Deutsche Biographie' });
+    expect(links[1].label).toBe('Bilder im E-Pics Bildarchiv');
+    expect(links[2].label).toBe('Hochschularchiv der ETH Zürich');
+  });
+
+
+  it('processEntityfactsResponse maps places, ids, and related persons', () => {
+    const resp: any = {
+      '@type': 'person',
+      preferredName: 'Entity Name',
+      biographicalOrHistoricalInformation: 'Bio',
+      professionOrOccupation: [{ '@id': '1', preferredName: 'Engineer' }],
+      dateOfBirth: '1900',
+      dateOfDeath: '1980',
+      depiction: { '@id': 'img', url: 'img.jpg' },
+      familialRelationship: [{ '@id': 'http://d-nb.info/gnd/1', preferredName: 'Parent', relationship: 'mother' }],
+      relatedPerson: [{ '@id': 'http://d-nb.info/gnd/2', preferredName: 'Sibling' }],
+      placeOfActivity: [{ '@id': 'http://d-nb.info/gnd/3', preferredName: 'Zurich' }],
+      placeOfBirth: [{ '@id': 'http://d-nb.info/gnd/4', preferredName: 'Bern' }],
+      sameAs: [
+        { '@id': 'http://id.loc.gov/authorities/names/n123', collection: { abbr: 'LC' } },
+        { '@id': 'https://www.wikidata.org/entity/Q987', collection: { abbr: 'WIKIDATA' } }
+      ]
+    };
+
+    const ef = (service as any).processEntityfactsResponse(resp);
+
+    expect(ef.preferredName).toBe('Entity Name');
+    expect(ef.placesOfActivity?.[0]).toEqual({ gnd: '3', name: 'Zurich' });
+    expect(ef.placesOfBirth?.[0]).toEqual({ gnd: '4', name: 'Bern' });
+    expect(ef.relatedPersons.length).toBe(2);
+    expect(ef.lccn).toBe('n123');
+    expect(ef.qid).toBe('Q987');
+  });
+
+
+  it('processWikiResponse builds links and profiles', () => {
+    const resp: any = {
+      results: {
+        bindings: [{
+          item: { value: 'https://www.wikidata.org/entity/Q1' },
+          loc: { value: 'LOC1' },
+          itemLabel: { value: 'Label' },
+          itemDescription: { value: 'Desc' },
+          image: { value: 'img.jpg' },
+          birth: { value: '1900-01-01' },
+          death: { value: '1950-01-01' },
+          birthplaceLabel: { value: 'City' },
+          deathplaceLabel: { value: 'Town' },
+          aliasList: { value: 'Alias1|Alias2' },
+          wc: { value: 'Category:Foo' },
+          hls: { value: '123' },
+          orcid: { value: '0000-0000' },
+          scholar: { value: 'scholarId' },
+          scopus: { value: '12345' },
+          researchgate: { value: 'Researcher' },
+          dimension: { value: 'dim123' }
+        }]
+      }
+    };
+
+    const wiki = (service as any).processWikiResponse(resp);
+
+    expect(wiki?.links?.length).toBe(3);
+    expect(wiki?.profiles?.length).toBe(5);
+    expect(wiki?.aVariants?.[0]).toBe('Label');
+    expect(wiki?.qid).toBe('Q1');
+    expect(wiki?.loc).toBe('LOC1');
+  });
+
+
+  it('processWikipediaUrlListResponse prioritizes requested language', () => {
+    const resp: any = {
+      results: {
+        bindings: [{
+          wikipediaUrlList: { value: 'https://en.wikipedia.org/wiki/Entity;https://de.wikipedia.org/wiki/Entity' }
+        }]
+      }
+    };
+
+    const url = (service as any).processWikipediaUrlListResponse(resp, 'de');
+    expect(url).toBe('https://de.wikipedia.org/wiki/Entity');
+
+    const fallback = (service as any).processWikipediaUrlListResponse(resp, 'fr');
+    expect(fallback).toBe('https://en.wikipedia.org/wiki/Entity');
+  });
+
+
+  it('processRelatedPersonsResponse removes duplicates and skips invalid entries', () => {
+    const resp: any = {
+      results: {
+        bindings: [
+          {
+            item: { value: 'https://www.wikidata.org/entity/Q10' },
+            itemLabel: { value: 'Person A' },
+            itemDescription: { value: 'Desc' },
+            image: { value: 'img' },
+            gndId: { value: 'gndA' },
+            teacherBirths: { value: '1900' }
+          },
+          {
+            item: { value: 'https://www.wikidata.org/entity/Person A' },
+            itemLabel: { value: 'Person A' },
+            teacherBirths: { value: '1900' }
+          },
+          {
+            itemLabel: { value: 'Missing Item' }
+          }
+        ]
+      }
+    };
+
+    const persons = (service as any).processRelatedPersonsResponse(resp);
+
+    expect(persons.length).toBe(1);
+    expect(persons[0].qid).toBe('Q10');
+    expect(persons[0].name).toBe('Person A');
+  });
+
+
+  it('processWikiArchivesAtResponse maps entries and logs errors', () => {
+    errorHandlingSpy.logSyncError.calls.reset();
+    const resp: any = {
+      results: {
+        bindings: [{
+          ref: { value: 'http://archives/1' },
+          archivedLabel: { value: 'Archive Label' },
+          inventoryno: { value: 'INV' }
+        }]
+      }
+    };
+
+    const links = (service as any).processWikiArchivesAtResponse(resp);
+    expect(links).toEqual([{ url: 'http://archives/1', label: 'Archive Label', inventoryno: 'INV' }]);
+
+    const fallback = (service as any).processWikiArchivesAtResponse(null);
+    expect(fallback).toEqual([]);
+    expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.anything(), 'EthPersonService.processWikiArchivesAtResponse');
+  });
+
+
+  it('processMetagridResponse whitelists providers and keeps order', () => {
+    const resp: any = {
+      meta: { limit: 1, start: 0, total: 1, uri: '' },
+      concordances: [{
+        resources: [
+          { provider: { slug: 'sikart' }, link: { uri: 'https://sikart' } },
+          { provider: { slug: 'dodis' }, link: { uri: 'https://dodis' } },
+          { provider: { slug: 'hls-dhs-dss' }, link: { uri: 'https://hls' } },
+          { provider: { slug: 'unknown' }, link: { uri: 'https://ignored' } }
+        ]
+      }]
+    };
+
+    const links = (service as any).processMetagridResponse(resp);
+
+    expect(links.map((l: any) => l.slug)).toEqual(['dodis', 'hls-dhs-dss', 'sikart']);
+  });
+
+
+  it('processPersonsResponse aggregates upstream provider payloads', () => {
+    const personResp: any = {
+      results: [
+        {
+          gnd: 'GND123',
+          provider: 'hub.culturegraph.org',
+          resp: {
+            '@type': 'person',
+            preferredName: 'Entity Name',
+            familialRelationship: [],
+            relatedPerson: [],
+            sameAs: [
+              { '@id': 'http://id.loc.gov/authorities/names/n1', collection: { abbr: 'LC' } },
+              { '@id': 'https://www.wikidata.org/entity/Q100', collection: { abbr: 'WIKIDATA' } }
+            ]
+          }
+        },
+        {
+          provider: 'api.metagrid.ch',
+          resp: {
+            meta: { limit: 1, start: 0, total: 1, uri: '' },
+            concordances: [{ resources: [{ provider: { slug: 'dodis' }, link: { uri: 'https://dodis' } }] }]
+          }
+        },
+        {
+          provider: 'prometheus.lmu.de',
+          resp: [
+            [],
+            ['Label'],
+            [],
+            ['https://ba.e-pics.ethz.ch/foo']
+          ]
+        },
+        {
+          provider: 'query.wikidata.org',
+          resp: {
+            head: { vars: ['teacherBirths'] },
+            results: { bindings: [{ item: { value: 'https://www.wikidata.org/entity/QT' }, itemLabel: { value: 'Teacher' } }] }
+          }
+        },
+        {
+          provider: 'query.wikidata.org',
+          resp: {
+            head: { vars: ['studentBirths'] },
+            results: { bindings: [{ item: { value: 'https://www.wikidata.org/entity/QS' }, itemLabel: { value: 'Student' } }] }
+          }
+        },
+        {
+          provider: 'query.wikidata.org',
+          resp: {
+            head: { vars: ['wikipediaUrlList'] },
+            results: { bindings: [{ wikipediaUrlList: { value: 'https://de.wikipedia.org/wiki/Entity' } }] }
+          }
+        },
+        {
+          provider: 'query.wikidata.org',
+          resp: {
+            head: { vars: ['birth'] },
+            results: {
+              bindings: [{
+                item: { value: 'https://www.wikidata.org/entity/Q100' },
+                itemLabel: { value: 'Wiki Label' },
+                loc: { value: 'LOC100' },
+                birth: { value: '1900' }
+              }]
+            }
+          }
+        },
+        {
+          provider: 'query.wikidata.org',
+          resp: {
+            head: { vars: ['refnode'] },
+            results: { bindings: [{ ref: { value: 'http://archives/1' }, archivedLabel: { value: 'Archive' } }] }
+          }
+        }
+      ]
+    };
+
+    const person = service.processPersonsResponse(personResp, '');
+
+    expect(person.gnd).toBe('GND123');
+    expect(person.entityfacts?.preferredName).toBe('Entity Name');
+    expect(person.metagridLinks?.[0].url).toBe('https://dodis');
+    expect(person.prometheusLinks?.length).toBeGreaterThan(0);
+    expect(person.teachers?.length).toBe(1);
+    expect(person.students?.length).toBe(1);
+    expect(person.wikipediaUrl).toBe('https://de.wikipedia.org/wiki/Entity');
+    expect(person.wikiArchivesAtLinks?.[0].url).toBe('http://archives/1');
+    expect(person.url).toBe('/entity/person?entityId=LOC100&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=de');
+    expect(person.name).toBe('Entity Name');
+    expect(person.qid).toBe('Q100');
+  });
+
+
+  it('processPersonsResponse logs failures and returns fallback object', () => {
+    errorHandlingSpy.logSyncError.calls.reset();
+
+    const person = service.processPersonsResponse({} as any, 'de');
+
+    expect(person).toEqual({ gnd: '', url: '' });
+    expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.anything(), 'EthPersonService.processPersonsResponse');
+  });
+
 });

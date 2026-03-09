@@ -94,7 +94,7 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
 </head>
 
 <body id="HTMLReporter" class="html-reporter">
-<h1>Tested in Chrome Headless 145.0.0.0 (Windows 10) on Fri Mar 06 2026</h1>
+<h1>Tested in Chrome Headless 145.0.0.0 (Windows 10) on Mon Mar 09 2026</h1>
 
 <div class="alert">
 
@@ -102,7 +102,7 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
 
   
   <span class="passingAlert bar"><span class="fold-buttons"><a href="#" onclick="fold();">Fold</a> | 
-  <a href="#" onclick="unfold();">Unfold</a></span>268 specs, 0 failed, 0 pending</span>
+  <a href="#" onclick="unfold();">Unfold</a></span>361 specs, 0 failed, 0 pending</span>
   
 
 
@@ -253,6 +253,68 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
   
     <div class="summary-section" onclick="toggleSection(this);">
       
+        <div class="description section-starter" style="margin-left:0px">EthConnectedpapersComponent<span 
+            class="summary-section-totals"><span 
+            class="summary-section-total passed">7</span></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">should create<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">does nothing when no hostComponent is provided<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">should provide a link to connected papers<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">no citations and references: should return of(null) -&gt; no link rendered<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">type book: should return of(null) -&gt; no link rendered<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">missing doi: should return of(null) -&gt; no link rendered<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs errors when connected papers service fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+    </div>
+  
+    <div class="summary-section" onclick="toggleSection(this);">
+      
+        <div class="description section-starter" style="margin-left:0px">EthConnectedpapersService<span 
+            class="summary-section-totals"><span 
+            class="summary-section-total passed">4</span></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">returns null without calling http when doi is empty<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">requests the paper for a doi<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">returns null for 404 responses without logging<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs and rethrows non-404 errors<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+    </div>
+  
+    <div class="summary-section" onclick="toggleSection(this);">
+      
         <div class="description section-starter" style="margin-left:0px">EthGitHintComponent<span 
             class="summary-section-totals"><span 
             class="summary-section-total passed">7</span></span>
@@ -324,97 +386,6 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
   
     <div class="summary-section" onclick="toggleSection(this);">
       
-        <div class="description section-starter" style="margin-left:0px">EthIllLinkComponent<span 
-            class="summary-section-totals"><span 
-            class="summary-section-total passed">5</span></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should create<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">no ill link when availability is not &quot;no_inventory&quot;<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">no ill link when nde-get-it-from-other element exists<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">ill link when no_inventory and rapido no-offer element exists<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">url$ builds full url from translation when qs present<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-    </div>
-  
-    <div class="summary-section" onclick="toggleSection(this);">
-      
-        <div class="description section-starter" style="margin-left:0px">EthConnectedpapersComponent<span 
-            class="summary-section-totals"><span 
-            class="summary-section-total passed">7</span></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should create<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">does nothing when no hostComponent is provided<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should provide a link to connected papers<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">no citations and references: should return of(null) -&gt; no link rendered<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">type book: should return of(null) -&gt; no link rendered<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">missing doi: should return of(null) -&gt; no link rendered<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">logs errors when connected papers service fails<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-    </div>
-  
-    <div class="summary-section" onclick="toggleSection(this);">
-      
-        <div class="description section-starter" style="margin-left:0px">EthConnectedpapersService<span 
-            class="summary-section-totals"><span 
-            class="summary-section-total passed">4</span></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">returns null without calling http when doi is empty<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">requests the paper for a doi<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">returns null for 404 responses without logging<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">logs and rethrows non-404 errors<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-    </div>
-  
-    <div class="summary-section" onclick="toggleSection(this);">
-      
         <div class="description section-starter" style="margin-left:0px">EthIdpWarningComponent<span 
             class="summary-section-totals"><span 
             class="summary-section-total passed">5</span></span>
@@ -444,9 +415,111 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
   
     <div class="summary-section" onclick="toggleSection(this);">
       
+        <div class="description section-starter" style="margin-left:0px">EthIllLinkComponent<span 
+            class="summary-section-totals"><span 
+            class="summary-section-total passed">15</span></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">should create<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">no ill link when availability is not &quot;no_inventory&quot;<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">no ill link when nde-get-it-from-other element exists<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">ill link when no_inventory and rapido no-offer element exists<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">url$ builds full url from translation when qs present<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">qs$ logs errors when store observable fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">translations$ returns null when translation stream errors<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">url$ returns null when base url translation fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">emits querystring once rapido appears later<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs sync errors when resolveQsOrNull throws<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">buildQs returns empty string when record missing<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">buildQs builds article query string<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">buildQs builds book chapter query string<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">buildQs uses display fallback and skips empty publisher<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">buildQs logs sync errors when accessor throws<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+    </div>
+  
+    <div class="summary-section" onclick="toggleSection(this);">
+      
+        <div class="description section-starter" style="margin-left:0px">EthLogoSublineComponent<span 
+            class="summary-section-totals"><span 
+            class="summary-section-total passed">6</span></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">should create<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">builds the home url on init<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">falls back to default language when currentLang is missing<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs sync errors when url building fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">navigates to the built url<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">does not navigate when url is empty<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+    </div>
+  
+    <div class="summary-section" onclick="toggleSection(this);">
+      
         <div class="description section-starter" style="margin-left:0px">EthLocationPageComponent<span 
             class="summary-section-totals"><span 
-            class="summary-section-total passed">8</span></span>
+            class="summary-section-total passed">16</span></span>
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">should create<span 
@@ -481,16 +554,52 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
             class="summary-section-totals"></span>
         </div>
       
+        <div class="specSummary passed" style="margin-left:14px">logs errors and emits null when resolveEntityId fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">falls back to success when otbEntityStatus stream errors<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">retrieves complete data for combined gnd and qid identifiers<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">handles gnd identifiers and service errors gracefully<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">prevents default navigation and delegates to shell router<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">opens, toggles and closes the license popover<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">closes the popover when focus leaves the element<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">removes previous map and aborts when map container is missing<span 
+            class="summary-section-totals"></span>
+        </div>
+      
     </div>
   
     <div class="summary-section" onclick="toggleSection(this);">
       
         <div class="description section-starter" style="margin-left:0px">eth-location-page.mapper<span 
             class="summary-section-totals"><span 
-            class="summary-section-total passed">6</span></span>
+            class="summary-section-total passed">12</span></span>
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">maps ETHorama response to links<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">skips nameless ETHorama entries and falls back to german names in english mode<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -502,7 +611,15 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
             class="summary-section-totals"></span>
         </div>
       
+        <div class="specSummary passed" style="margin-left:14px">prefers english texts for geo poi dossiers and routes<span 
+            class="summary-section-totals"></span>
+        </div>
+      
         <div class="specSummary passed" style="margin-left:14px">maps identifier response to qid<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">returns null when identifier response has no bindings<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -510,7 +627,19 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
             class="summary-section-totals"></span>
         </div>
       
+        <div class="specSummary passed" style="margin-left:14px">adds optional wikidata links when identifiers exist<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">returns null when wikidata response is empty<span 
+            class="summary-section-totals"></span>
+        </div>
+      
         <div class="specSummary passed" style="margin-left:14px">maps maps response and normalizes urls<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">returns null when maps response lacks features and appends attribution/e-rara labels<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -520,7 +649,7 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
       
         <div class="description section-starter" style="margin-left:0px">EthLocationPageService<span 
             class="summary-section-totals"><span 
-            class="summary-section-total passed">6</span></span>
+            class="summary-section-total passed">11</span></span>
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">requests ETHorama place by qid<span 
@@ -547,61 +676,23 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
             class="summary-section-totals"></span>
         </div>
       
-    </div>
-  
-    <div class="summary-section" onclick="toggleSection(this);">
-      
-        <div class="description section-starter" style="margin-left:0px">EthMatomoComponent<span 
-            class="summary-section-totals"><span 
-            class="summary-section-total passed">4</span></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should create<span 
+        <div class="specSummary passed" style="margin-left:14px">logs errors from getPlaceFromETHorama<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">initializes matomo and tracks page views on navigation<span 
+        <div class="specSummary passed" style="margin-left:14px">logs errors from getPoiFromGeoGraph<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">skips script injection when matomo script already exists<span 
+        <div class="specSummary passed" style="margin-left:14px">logs errors from getTopicsFromGeoGraph<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">logs sync errors during init<span 
+        <div class="specSummary passed" style="margin-left:14px">logs errors from getMapsFromGeoGraph<span 
             class="summary-section-totals"></span>
         </div>
       
-    </div>
-  
-    <div class="summary-section" onclick="toggleSection(this);">
-      
-        <div class="description section-starter" style="margin-left:0px">EthLogoSublineComponent<span 
-            class="summary-section-totals"><span 
-            class="summary-section-total passed">6</span></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should create<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">builds the home url on init<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">falls back to default language when currentLang is missing<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">logs sync errors when url building fails<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">navigates to the built url<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">does not navigate when url is empty<span 
+        <div class="specSummary passed" style="margin-left:14px">logs errors from getIdentifierForLccn<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -656,6 +747,31 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">returns placeholder person when request fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+    </div>
+  
+    <div class="summary-section" onclick="toggleSection(this);">
+      
+        <div class="description section-starter" style="margin-left:0px">EthMatomoComponent<span 
+            class="summary-section-totals"><span 
+            class="summary-section-total passed">4</span></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">should create<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">initializes matomo and tracks page views on navigation<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">skips script injection when matomo script already exists<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs sync errors during init<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -735,7 +851,7 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
       
         <div class="description section-starter" style="margin-left:0px">EthOnlineButtonComponent<span 
             class="summary-section-totals"><span 
-            class="summary-section-total passed">8</span></span>
+            class="summary-section-total passed">13</span></span>
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">should create<span 
@@ -770,13 +886,33 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
             class="summary-section-totals"></span>
         </div>
       
+        <div class="specSummary passed" style="margin-left:14px">falls back to default viewModel observable and suppresses duplicate emissions<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs sync errors and returns empty list when stream fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">opens external links in a new tab<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">hides the default online availability button when custom links exist<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">observes libkey appearance and hides ETH quicklink when detected<span 
+            class="summary-section-totals"></span>
+        </div>
+      
     </div>
   
     <div class="summary-section" onclick="toggleSection(this);">
       
         <div class="description section-starter" style="margin-left:0px">EthPersonPageComponent<span 
             class="summary-section-totals"><span 
-            class="summary-section-total passed">6</span></span>
+            class="summary-section-total passed">20</span></span>
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">should create<span 
@@ -800,6 +936,62 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">uses entityfacts name or (if no entityfacts name) wikidata name<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">returns null and logs when person loading fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">falls back to german when current language is empty<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">emits success when otbEntityStatus stream errors<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">builds precision recall links with gnd and birthyear combinations<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">adds precision recall query with year when gnd is missing<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">adds precision recall query with gnd when year is missing<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">builds advanced search link for authority queries<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">trims any,contains prefix for normal searches<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs errors when search link lookup fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">navigates via router for internal links<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">manages license popover focus correctly<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">closes the popover when focus leaves the element<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">keeps popover open when focus stays inside<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">reassigns panel ids for accessibility<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -922,7 +1114,7 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
       
         <div class="description section-starter" style="margin-left:0px">EthPersonService<span 
             class="summary-section-totals"><span 
-            class="summary-section-total passed">13</span></span>
+            class="summary-section-total passed">24</span></span>
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">get persons by a list of GNDs<span 
@@ -974,6 +1166,50 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">searchPrimoData propagates errors<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs non-500 errors from getPersons()<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">does not log getPersons() 500 errors<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">processPrometheusResponse filters and relabels URLs<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">processEntityfactsResponse maps places, ids, and related persons<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">processWikiResponse builds links and profiles<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">processWikipediaUrlListResponse prioritizes requested language<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">processRelatedPersonsResponse removes duplicates and skips invalid entries<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">processWikiArchivesAtResponse maps entries and logs errors<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">processMetagridResponse whitelists providers and keeps order<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">processPersonsResponse aggregates upstream provider payloads<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">processPersonsResponse logs failures and returns fallback object<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1071,41 +1307,16 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
   
     <div class="summary-section" onclick="toggleSection(this);">
       
-        <div class="description section-starter" style="margin-left:0px">EthPersonCardsComponent<span 
-            class="summary-section-totals"><span 
-            class="summary-section-total passed">5</span></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should create<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">loads persons and filters persons with already rendered otb cards<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">no person loading when no ids exist<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">reloads persons on language change<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">renders person cards in the template<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-    </div>
-  
-    <div class="summary-section" onclick="toggleSection(this);">
-      
         <div class="description section-starter" style="margin-left:0px">EthGeoRefComponent<span 
             class="summary-section-totals"><span 
-            class="summary-section-total passed">10</span></span>
+            class="summary-section-total passed">26</span></span>
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">should create<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">emits null via places$ when getRecord$ fails<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1125,7 +1336,15 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
             class="summary-section-totals"></span>
         </div>
       
+        <div class="specSummary passed" style="margin-left:14px">filters lobid places without description or thumbnail<span 
+            class="summary-section-totals"></span>
+        </div>
+      
         <div class="specSummary passed" style="margin-left:14px">returns places from Geo Graph<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs errors when getGndPlacesFromGraph fails<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1133,7 +1352,23 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
             class="summary-section-totals"></span>
         </div>
       
+        <div class="specSummary passed" style="margin-left:14px">drops ethorama cards without identifiers<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">deduplicates ethorama cards sharing keys<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">returns empty ethorama list when upstream fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
         <div class="specSummary passed" style="margin-left:14px">filters out location cards already rendered otb<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs sync errors when getPlaces throws before creating streams<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1142,6 +1377,54 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">merges places by shared ids<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">ignores places without identifiers when merging<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="description br" style="margin-left:14px">mapGndPlacesLobidToVm<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:28px">maps lobid responses into sorted place models<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="description br" style="margin-left:14px">mapGndPlacesGraphToVm<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:28px">maps graph responses into sorted place models<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="description br" style="margin-left:14px">buildLocationEntityUrl<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:28px">returns undefined when vid is missing<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:28px">prefers lccn when present<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:28px">combines gnd and qid when both available<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:28px">falls back to qid only<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:28px">builds from gnd when qid is missing<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:28px">returns undefined when no identifiers exist<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1171,6 +1454,67 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">enriches POIs and returns fallback on error<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+    </div>
+  
+    <div class="summary-section" onclick="toggleSection(this);">
+      
+        <div class="description section-starter" style="margin-left:0px">EthPersonCardsComponent<span 
+            class="summary-section-totals"><span 
+            class="summary-section-total passed">13</span></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">should create<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">loads persons and filters persons with already rendered otb cards<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">no person loading when no ids exist<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">reloads persons on language change<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">renders person cards in the template<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">emits empty person cards when persons$ pipeline errors<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs errors when loadPersons fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">keeps persons without identifiers when filtering<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">parses gnd ids with Alma links<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">navigates via router when navigate is called<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">handles license popover open and close helpers<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">toggles popover state<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">closes popover when focus leaves element<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1232,6 +1576,39 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
   
     <div class="summary-section" onclick="toggleSection(this);">
       
+        <div class="description section-starter" style="margin-left:0px">EthLocationLinkComponent<span 
+            class="summary-section-totals"><span 
+            class="summary-section-total passed">6</span></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">should create<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">does nothing when no location is provided<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">show a sanitized link when translation exists and expands location container<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">falls back to library translation when there is no sublocation translation in code tables<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">falls back to default when there is no sublocation and location translation in code tables<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs translation errors and emits nothing<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+    </div>
+  
+    <div class="summary-section" onclick="toggleSection(this);">
+      
         <div class="description section-starter" style="margin-left:0px">EthLocationHintComponent<span 
             class="summary-section-totals"><span 
             class="summary-section-total passed">6</span></span>
@@ -1265,7 +1642,7 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
   
     <div class="summary-section" onclick="toggleSection(this);">
       
-        <div class="description section-starter" style="margin-left:0px">EthComposeNbComponent<span 
+        <div class="description section-starter" style="margin-left:0px">EthDnbTocComponent<span 
             class="summary-section-totals"><span 
             class="summary-section-total passed">5</span></span>
         </div>
@@ -1274,19 +1651,19 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">builds a print link when source is online/ eth_nachlassbibliothek<span 
+        <div class="specSummary passed" style="margin-left:14px">returns alma links when wanted alma links are present<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">builds sorted online links when source is Alma / Print<span 
+        <div class="specSummary passed" style="margin-left:14px">returns dnb links when no wanted alma links exist<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">online links: sorts by band number<span 
+        <div class="specSummary passed" style="margin-left:14px">dedupes multiple dnb links by uri<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">makePrimoUrl composes expected full display url<span 
+        <div class="specSummary passed" style="margin-left:14px">normalizes titles and clears matches to the record title<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1294,36 +1671,16 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
   
     <div class="summary-section" onclick="toggleSection(this);">
       
-        <div class="description section-starter" style="margin-left:0px">EthComposeNbService<span 
+        <div class="description section-starter" style="margin-left:0px">EthDnbTocService<span 
             class="summary-section-totals"><span 
-            class="summary-section-total passed">7</span></span>
+            class="summary-section-total passed">2</span></span>
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">should be created<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">should fetch print data<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should return null and not log error for 404 in getPrintData<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should log error for non-404 in getPrintData<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should fetch online data<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should return null and not log error for 404 in getOnlineData<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should log error for non-404 in getOnlineData<span 
+        <div class="specSummary passed" style="margin-left:14px">should get a TOC link for a given ISBN<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1413,40 +1770,7 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
   
     <div class="summary-section" onclick="toggleSection(this);">
       
-        <div class="description section-starter" style="margin-left:0px">EthLocationLinkComponent<span 
-            class="summary-section-totals"><span 
-            class="summary-section-total passed">6</span></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should create<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">does nothing when no location is provided<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">show a sanitized link when translation exists and expands location container<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">falls back to library translation when there is no sublocation translation in code tables<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">falls back to default when there is no sublocation and location translation in code tables<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">logs translation errors and emits nothing<span 
-            class="summary-section-totals"></span>
-        </div>
-      
-    </div>
-  
-    <div class="summary-section" onclick="toggleSection(this);">
-      
-        <div class="description section-starter" style="margin-left:0px">EthDnbTocComponent<span 
+        <div class="description section-starter" style="margin-left:0px">EthComposeNbComponent<span 
             class="summary-section-totals"><span 
             class="summary-section-total passed">5</span></span>
         </div>
@@ -1455,19 +1779,19 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">returns alma links when wanted alma links are present<span 
+        <div class="specSummary passed" style="margin-left:14px">builds a print link when source is online/ eth_nachlassbibliothek<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">returns dnb links when no wanted alma links exist<span 
+        <div class="specSummary passed" style="margin-left:14px">builds sorted online links when source is Alma / Print<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">dedupes multiple dnb links by uri<span 
+        <div class="specSummary passed" style="margin-left:14px">online links: sorts by band number<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">normalizes titles and clears matches to the record title<span 
+        <div class="specSummary passed" style="margin-left:14px">makePrimoUrl composes expected full display url<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1475,41 +1799,36 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
   
     <div class="summary-section" onclick="toggleSection(this);">
       
-        <div class="description section-starter" style="margin-left:0px">EthDnbTocService<span 
+        <div class="description section-starter" style="margin-left:0px">EthComposeNbService<span 
             class="summary-section-totals"><span 
-            class="summary-section-total passed">2</span></span>
+            class="summary-section-total passed">7</span></span>
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">should be created<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">should get a TOC link for a given ISBN<span 
+        <div class="specSummary passed" style="margin-left:14px">should fetch print data<span 
             class="summary-section-totals"></span>
         </div>
       
-    </div>
-  
-    <div class="summary-section" onclick="toggleSection(this);">
-      
-        <div class="description section-starter" style="margin-left:0px">EthProvenienzEraraLinkComponent<span 
-            class="summary-section-totals"><span 
-            class="summary-section-total passed">4</span></span>
-        </div>
-      
-        <div class="specSummary passed" style="margin-left:14px">should create<span 
+        <div class="specSummary passed" style="margin-left:14px">should return null and not log error for 404 in getPrintData<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">no links when it is not from eth_epics_provenienz<span 
+        <div class="specSummary passed" style="margin-left:14px">should log error for non-404 in getPrintData<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">builds swisscovery url from e-rara doi link<span 
+        <div class="specSummary passed" style="margin-left:14px">should fetch online data<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">no swisscovery url when no matching e-rara link exists<span 
+        <div class="specSummary passed" style="margin-left:14px">should return null and not log error for 404 in getOnlineData<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">should log error for non-404 in getOnlineData<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1550,32 +1869,48 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
   
     <div class="summary-section" onclick="toggleSection(this);">
       
-        <div class="description section-starter" style="margin-left:0px">EthWaybackComponent<span 
+        <div class="description section-starter" style="margin-left:0px">EthProvenienzEraraLinkComponent<span 
             class="summary-section-totals"><span 
-            class="summary-section-total passed">6</span></span>
+            class="summary-section-total passed">10</span></span>
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">should create<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">initializes observer when a wayback link exists<span 
+        <div class="specSummary passed" style="margin-left:14px">no links when it is not from eth_epics_provenienz<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">skips observer when no wayback link exists<span 
+        <div class="specSummary passed" style="margin-left:14px">builds swisscovery url from e-rara doi link<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">updates button label and hint text<span 
+        <div class="specSummary passed" style="margin-left:14px">no swisscovery url when no matching e-rara link exists<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">re-renders on language change<span 
+        <div class="specSummary passed" style="margin-left:14px">returns null links when lds09 data is missing<span 
             class="summary-section-totals"></span>
         </div>
       
-        <div class="specSummary passed" style="margin-left:14px">logs errors when delivery stream fails<span 
+        <div class="specSummary passed" style="margin-left:14px">logs and recovers when record stream errors<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs sync errors surfaced inside getLinks<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">returns null swisscovery url when DOI segment is missing<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">finds first matching DOI link in lds09 array<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">navigates via router while preventing default<span 
             class="summary-section-totals"></span>
         </div>
       
@@ -1601,6 +1936,55 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
         </div>
       
         <div class="specSummary passed" style="margin-left:14px">logs errors when record stream fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+    </div>
+  
+    <div class="summary-section" onclick="toggleSection(this);">
+      
+        <div class="description section-starter" style="margin-left:0px">EthWaybackComponent<span 
+            class="summary-section-totals"><span 
+            class="summary-section-total passed">10</span></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">should create<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">initializes observer when a wayback link exists<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">skips observer when no wayback link exists<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">updates button label and hint text<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">returns early when required DOM nodes are missing<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">skips redundant DOM updates when link and hint already match translations<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">re-renders on language change<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">logs errors when delivery stream fails<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">detects wayback links using the snippet matcher<span 
+            class="summary-section-totals"></span>
+        </div>
+      
+        <div class="specSummary passed" style="margin-left:14px">observes DOM mutations and disconnects on destroy<span 
             class="summary-section-totals"></span>
         </div>
       

@@ -16,6 +16,7 @@ export interface StoreDeliveryEntity {
     availabilityLinksUrl?: string[];
     electronicServices?: StoreElectronicService[];
     availability?: string[];
+    almaOpenurl?: string;
     link?: DeliveryLink[];
     deliveryCategory?: string[];    
   };

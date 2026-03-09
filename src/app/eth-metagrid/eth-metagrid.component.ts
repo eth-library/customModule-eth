@@ -49,6 +49,7 @@ const METAGRID_MODULE_PARAMS_DEV = {
   geschichtedersozialensicherheit: ['Geschichte der sozialen Sicherheit','Geschichte der sozialen Sicherheit','Histoire de la sécurité sociale','Storia della sicurezza sociale svizzera']
 } as const;
 
+
 // interface
 interface PnxDoc  {
   pnx?: {
@@ -57,6 +58,7 @@ interface PnxDoc  {
     };
   }
 }
+
 
 @Component({
   selector: 'addon-eth-metagrid',
@@ -67,7 +69,6 @@ interface PnxDoc  {
     CommonModule
   ]  
 })
-
 export class EthMetagridComponent {
   private store = inject(Store);
   private destroyRef = inject(DestroyRef);

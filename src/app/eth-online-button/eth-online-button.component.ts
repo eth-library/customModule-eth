@@ -103,9 +103,8 @@ export class EthOnlineButtonComponent  {
     deliveryEntity: StoreDeliveryEntity
   ): OnlineButtonVM[] {
 
-    // OOTB Quicklinks exist → do nothing
+    // OOTB Quicklinks exists → do nothing
     if (viewModel?.onlineLinks?.length) {
-      //console.error("viewModel?.onlineLinks",viewModel?.onlineLinks)
       return [];
     }
 
@@ -115,7 +114,6 @@ export class EthOnlineButtonComponent  {
     const electronicService = deliveryEntity?.delivery?.electronicServices?.[0];
     if (electronicService?.serviceUrl) {
       // external data + /view/action/uresolver.do z.B. e-maps
-      //console.error("electronicService?.serviceUrl",electronicService?.serviceUrl)
       links.push({
         url: electronicService.serviceUrl,
         source: 'electronicServices'
@@ -125,7 +123,6 @@ export class EthOnlineButtonComponent  {
       // https://knowledge.exlibrisgroup.com/Primo/Content_Corner/Central_Discovery_Index/Documentation_and_Training/Documentation_and_Training_(English)/CDI_-_The_Central_Discovery_Index/050CDI_and_Linking_to_Electronic_Full_Text 
       const raw = record?.pnx?.links?.linktorsrcadditional?.[0];
       if (raw) {
-        //console.error("record?.pnx?.links?.linktorsrcadditional",record?.pnx?.links?.linktorsrcadditional)
         links.push({
           url: this.extractPnxUrl(raw),
           source: 'pnx'
@@ -152,14 +149,12 @@ export class EthOnlineButtonComponent  {
 
   private makePrimoUrl(docId: string): string {
     const tree = this.router.parseUrl(this.router.url);
-
     const params = new URLSearchParams({
       ...tree.queryParams,
-      docid: docId,
-      state: '#nui.getit.service_viewit'
+      docid: docId
     });
 
-    return `/fulldisplay?${params.toString()}`;
+    return `/fulldisplay?${params.toString()}&state=#nui.getit.service_viewit`;
   }
 
   

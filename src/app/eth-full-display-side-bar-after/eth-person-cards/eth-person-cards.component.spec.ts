@@ -1,13 +1,13 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { BehaviorSubject, Observable, Subject, of, take } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, of, take, throwError } from 'rxjs';
 import { EthPersonCardsComponent } from './eth-person-cards.component';
 import { EthPersonService } from '../../services/eth-person.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { SHELL_ROUTER } from '../../injection-tokens';
-import { PnxDoc } from '../../models/eth.model';
+import { PnxDoc, PersonVM } from '../../models/eth.model';
 
 describe('EthPersonCardsComponent', () => {
   let component: EthPersonCardsComponent;
@@ -17,8 +17,9 @@ describe('EthPersonCardsComponent', () => {
 
   let ethPersonService: jasmine.SpyObj<EthPersonService>;
   let translateService: { currentLang: string; onLangChange: Subject<{ lang: string }>; stream: (key: string) => Observable<string> };
-  let ethStoreService: { getRecord$: (host: any) => Observable<PnxDoc>; linkedDataRecommendations$: Observable<any[]> };
+  let ethStoreService: { getRecord$: jasmine.Spy; linkedDataRecommendations$: Observable<any[]> };
   let ethErrorHandlingService: jasmine.SpyObj<EthErrorHandlingService>;
+  let routerMock: { navigateByUrl: jasmine.Spy };
 
   beforeEach(async () => {
     record$ = new Subject<PnxDoc>();
@@ -37,7 +38,7 @@ describe('EthPersonCardsComponent', () => {
     };
 
     ethStoreService = {
-      getRecord$: () => record$.asObservable(),
+      getRecord$: jasmine.createSpy('getRecord$').and.callFake(() => record$.asObservable()),
       linkedDataRecommendations$: linkedDataRecommendations$.asObservable()
     };
 
@@ -46,6 +47,8 @@ describe('EthPersonCardsComponent', () => {
       'logSyncError'
     ]);
 
+    routerMock = { navigateByUrl: jasmine.createSpy('navigateByUrl') };
+
     await TestBed.configureTestingModule({
       imports: [EthPersonCardsComponent],
       providers: [
@@ -53,7 +56,7 @@ describe('EthPersonCardsComponent', () => {
         { provide: TranslateService, useValue: translateService },
         { provide: EthStoreService, useValue: ethStoreService },
         { provide: EthErrorHandlingService, useValue: ethErrorHandlingService },
-        { provide: SHELL_ROUTER, useValue: { navigateByUrl: jasmine.createSpy('navigateByUrl') } }
+        { provide: SHELL_ROUTER, useValue: routerMock }
       ]
     })
     .compileComponents();
@@ -175,5 +178,99 @@ describe('EthPersonCardsComponent', () => {
       expect((cardTitle.nativeElement as HTMLElement).textContent).toContain('Name A');
       done();
     });
+  });
+
+
+  it('emits empty person cards when persons$ pipeline errors', (done) => {
+    component.hostComponent = {};
+    ethStoreService.getRecord$.and.returnValue(throwError(() => new Error('store fail')));
+
+    component.persons$.pipe(take(1)).subscribe(result => {
+      expect(result).toEqual({ otbPersons: [], filteredPersons: [] });
+      expect(ethErrorHandlingService.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthPersonCardsComponent persons$');
+      done();
+    });
+  });
+
+
+  it('logs errors when loadPersons fails', (done) => {
+    component.hostComponent = {};
+    ethStoreService.getRecord$.and.returnValue(of({ pnx: { display: { lds03: ['GND: Test: 123'] } } } as PnxDoc));
+    ethPersonService.getGndByIdRef.and.returnValue(of(null));
+    ethPersonService.getPersons.and.returnValue(throwError(() => new Error('load fail')));
+
+    component.persons$.pipe(take(1)).subscribe(result => {
+      expect(result?.filteredPersons).toEqual([]);
+      expect(ethErrorHandlingService.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthPersonCardsComponent.loadPersons');
+      done();
+    });
+  });
+
+  it('keeps persons without identifiers when filtering', () => {
+    const persons: PersonVM[] = [{ entityfacts: { preferredName: 'Name' } } as any];
+    const entities = [{ id: 'L1' }];
+
+    const result = (component as any).filterPersons(persons, entities);
+
+    expect(result.filteredPersons.length).toBe(1);
+    expect(result.filteredPersons[0].entityfacts?.preferredName).toBe('Name');
+  });
+
+  it('parses gnd ids with Alma links', () => {
+    const record = {
+      pnx: {
+        display: {
+          lds03: ['GND: <a href="https://explore.gnd.network/gnd/118527908">Name</a>']
+        }
+      }
+    } as PnxDoc;
+
+    const ids = (component as any).getGndIds(record);
+
+    expect(ids).toEqual(['118527908']);
+  });
+
+  it('navigates via router when navigate is called', () => {
+    const event = { preventDefault: jasmine.createSpy('preventDefault') } as unknown as Event;
+
+    component.navigate('/entity/person/123', event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(routerMock.navigateByUrl).toHaveBeenCalledWith('/entity/person/123#eth-top');
+  });
+
+  it('handles license popover open and close helpers', fakeAsync(() => {
+    const focusSpy = jasmine.createSpy('focus');
+    const triggerFocusSpy = jasmine.createSpy('triggerFocus');
+    (component as any).licensePopover = { nativeElement: { focus: focusSpy } };
+    (component as any).licensePopoverTrigger = { nativeElement: { focus: triggerFocusSpy } };
+
+    component.open('license');
+    tick();
+    expect(component.isOpen('license')).toBeTrue();
+    expect(focusSpy).toHaveBeenCalled();
+
+    component.close();
+    tick();
+    expect(component.isOpen('license')).toBeFalse();
+    expect(triggerFocusSpy).toHaveBeenCalled();
+  }));
+
+  it('toggles popover state', () => {
+    component.toggle('license');
+    expect(component.isOpen('license')).toBeTrue();
+
+    component.toggle('license');
+    expect(component.isOpen('license')).toBeFalse();
+  });
+
+  it('closes popover when focus leaves element', () => {
+    const containsSpy = jasmine.createSpy('contains').and.returnValue(false);
+    (component as any).licensePopover = { nativeElement: { contains: containsSpy } };
+    component.openLicensePopover = 'license';
+
+    component.onFocusOut({ relatedTarget: null } as FocusEvent);
+
+    expect(component.isOpen('license')).toBeFalse();
   });
 });

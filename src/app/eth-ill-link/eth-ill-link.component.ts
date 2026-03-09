@@ -103,7 +103,7 @@ export class EthIllLinkComponent {
         return of(null);
       }
 
-      // GetIt from Other exists → no ILL
+      // "GetIt from Other" exists → no ILL
       if (this.document.querySelector('nde-get-it-from-other')) {
         return of(null);
       }
@@ -113,7 +113,7 @@ export class EthIllLinkComponent {
         return of(this.buildQs(record));
       }
 
-      // wait for rapido
+      // wait for rapido to appear
       return new Observable<string>(observer => {
         const obs = new MutationObserver((_m, obs) => {
           const rapidoNoOffer = this.document.querySelector(

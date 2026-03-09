@@ -14,8 +14,25 @@ describe('EthWaybackComponent', () => {
   let translateMock: jasmine.SpyObj<TranslateService>;
   let onLangChange$: Subject<any>;
   let documentRef: Document;
+  let mutationCallbacks: MutationCallback[];
+  let mockObservers: MockMutationObserver[];
+  let originalMutationObserver: typeof MutationObserver;
+
+  class MockMutationObserver {
+    observe = jasmine.createSpy('observe');
+    disconnect = jasmine.createSpy('disconnect');
+    constructor(public callback: MutationCallback) {
+      mutationCallbacks.push(callback);
+      mockObservers.push(this);
+    }
+  }
 
   beforeEach(async () => {
+    mutationCallbacks = [];
+    mockObservers = [];
+    originalMutationObserver = window.MutationObserver;
+    (window as unknown as { MutationObserver: typeof MutationObserver }).MutationObserver = MockMutationObserver as unknown as typeof MutationObserver;
+
     storeService = jasmine.createSpyObj<EthStoreService>('EthStoreService', [
       'getFullDisplayDeliveryEntity$'
     ]);
@@ -45,6 +62,11 @@ describe('EthWaybackComponent', () => {
     component = fixture.componentInstance;
     documentRef = TestBed.inject(DOCUMENT);
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    (window as unknown as { MutationObserver: typeof MutationObserver }).MutationObserver = originalMutationObserver;
+    documentRef?.querySelectorAll('nde-full-display-container').forEach(node => node.parentNode?.removeChild(node));
   });
 
   const buildViewItDom = (doc: Document) => {
@@ -103,6 +125,38 @@ describe('EthWaybackComponent', () => {
   });
 
 
+  it('returns early when required DOM nodes are missing', () => {
+    const container = documentRef.createElement('nde-full-display-container');
+    const card = documentRef.createElement('nde-view-it-card');
+    container.appendChild(card);
+    documentRef.body.appendChild(container);
+    translateMock.get.calls.reset();
+
+    (component as any).changeDom();
+
+    expect(translateMock.get).not.toHaveBeenCalled();
+
+    documentRef.body.removeChild(container);
+  });
+
+
+  it('skips redundant DOM updates when link and hint already match translations', () => {
+    const { container, card, header, button } = buildViewItDom(documentRef);
+    header.textContent = 'Wayback';
+    const hint = documentRef.createElement('div');
+    hint.id = 'eth-wayback-hint';
+    hint.textContent = 'Hint';
+    card.appendChild(hint);
+    translateMock.get.calls.reset();
+
+    (component as any).changeDom();
+
+    expect(translateMock.get).not.toHaveBeenCalled();
+
+    documentRef.body.removeChild(container);
+  });
+
+
   it('re-renders on language change', () => {
     const changeDomSpy = spyOn(component as any, 'changeDom');
 
@@ -119,5 +173,37 @@ describe('EthWaybackComponent', () => {
     component.ngAfterViewInit();
 
     expect(errorHandlingSpy.logError).toHaveBeenCalled();
+  });
+
+
+  it('detects wayback links using the snippet matcher', () => {
+    expect((component as any).hasWaybackLink({ delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/foo' }] } })).toBeTrue();
+    expect((component as any).hasWaybackLink({ delivery: { link: [{ linkURL: 'https://example.com' }] } })).toBeFalse();
+    expect((component as any).hasWaybackLink(null)).toBeFalse();
+  });
+
+
+  it('observes DOM mutations and disconnects on destroy', () => {
+    const { container } = buildViewItDom(documentRef);
+    const changeDomSpy = spyOn(component as any, 'changeDom');
+    let destroyCallback: (() => void) | undefined;
+    spyOn(component['destroyRef'], 'onDestroy').and.callFake((cb: () => void) => {
+      destroyCallback = cb;
+      return () => {};
+    });
+
+    (component as any).initObserver();
+
+    expect(mockObservers.length).toBe(1);
+    expect(mockObservers[0].observe).toHaveBeenCalledWith(container, { childList: true, subtree: true });
+    expect(changeDomSpy).toHaveBeenCalledTimes(1);
+
+    mutationCallbacks[0]?.([], mockObservers[0] as unknown as MutationObserver);
+    expect(changeDomSpy).toHaveBeenCalledTimes(2);
+
+    destroyCallback?.();
+    expect(mockObservers[0].disconnect).toHaveBeenCalled();
+
+    documentRef.body.removeChild(container);
   });
 });

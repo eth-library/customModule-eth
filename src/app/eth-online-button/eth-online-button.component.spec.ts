@@ -6,7 +6,7 @@ import { EthOnlineButtonComponent } from './eth-online-button.component';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { SHELL_ROUTER } from '../injection-tokens';
-import { Subject, firstValueFrom, of, take } from 'rxjs';
+import { Subject, firstValueFrom, of, take, throwError } from 'rxjs';
 
 const translateServiceMock = {
   stream: (key: string) => of(key)
@@ -210,6 +210,121 @@ describe('EthOnlineButtonComponent', () => {
     component.hostComponent = { id: 'B', viewModel$: of(null) } as any;
     recordB$.next({ pnx: { control: { recordid: ['docB'] } } });
     deliveryB$.next({ delivery: { electronicServices: [{ serviceUrl: 'https://service.test' }] } });
+  });
+
+
+  it('falls back to default viewModel observable and suppresses duplicate emissions', (done) => {
+    const record$ = new Subject<any>();
+    const delivery$ = new Subject<any>();
+
+    storeSpy.getRecord$.and.returnValue(record$);
+    storeSpy.getDeliveryEntity$.and.returnValue(delivery$);
+
+    const received: any[] = [];
+    const subscription = component.links$.subscribe(value => received.push(value));
+
+    component.hostComponent = { id: 'X' } as any;
+
+    const baseRecord = {
+      pnx: { control: { recordid: ['doc123'] }, links: { linktorsrcadditional: ['$$Uhttp://example.test'] } }
+    } as any;
+    const deliveryPayload = { delivery: { electronicServices: [] } } as any;
+
+    delivery$.next(deliveryPayload);
+    record$.next(baseRecord);
+    record$.next({ ...baseRecord });
+
+    setTimeout(() => {
+      expect(received.length).toBe(1);
+      subscription.unsubscribe();
+      done();
+    }, 0);
+  });
+
+
+  it('logs sync errors and returns empty list when stream fails', (done) => {
+    storeSpy.getRecord$.and.returnValue(throwError(() => new Error('boom')));
+    storeSpy.getDeliveryEntity$.and.returnValue(of({} as any));
+    errorHandlingSpy.logSyncError.calls.reset();
+
+    component.hostComponent = { viewModel$: of(null) } as any;
+
+    component.links$.pipe(take(1)).subscribe(value => {
+      expect(value).toEqual([]);
+      expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthOnlineButtonComponent.links$');
+      done();
+    });
+  });
+
+
+  it('opens external links in a new tab', () => {
+    const openSpy = spyOn(window, 'open');
+    const event = new MouseEvent('click');
+
+    component.navigate('pnx', 'https://example.test', event);
+
+    expect(openSpy).toHaveBeenCalledWith('https://example.test', '_blank', 'noopener,noreferrer');
+  });
+
+
+  it('hides the default online availability button when custom links exist', () => {
+    const container = document.createElement('div');
+    const otb = document.createElement('nde-online-availability');
+    container.appendChild(otb);
+    const hostEl = { closest: () => container } as any;
+    (component as any).elementRef = { nativeElement: hostEl };
+
+    (component as any).hideOTBOnlineButton();
+
+    expect(otb.style.display).toBe('none');
+  });
+
+
+  it('observes libkey appearance and hides ETH quicklink when detected', () => {
+    const container = document.createElement('div');
+    const quicklink = document.createElement('div');
+    quicklink.classList.add('eth-quicklink-container');
+    container.appendChild(quicklink);
+    const hostEl = { closest: () => container } as any;
+    (component as any).elementRef = { nativeElement: hostEl };
+
+    const originalObserver = (window as any).MutationObserver;
+    const observeSpy = jasmine.createSpy('observe');
+    const disconnectSpy = jasmine.createSpy('disconnect');
+    let mutationCallback: ((m: MutationRecord[], obs: MutationObserver) => void) | null = null;
+
+    class MutationObserverMock {
+      constructor(cb: any) {
+        mutationCallback = cb;
+      }
+      observe = observeSpy;
+      disconnect = disconnectSpy;
+    }
+    (window as any).MutationObserver = MutationObserverMock as any;
+
+    const destroySpy = jasmine.createSpy('onDestroy');
+    let destroyFn: (() => void) | null = null;
+    destroySpy.and.callFake((cb: () => void) => { destroyFn = cb; });
+    (component as any).destroyRef = { onDestroy: destroySpy };
+
+    (component as any).observeLibkeyAppearance();
+
+    expect(observeSpy).toHaveBeenCalledWith(container, { childList: true, subtree: true });
+
+    const libkey = document.createElement('div');
+    libkey.classList.add('ti-stack-options-container');
+    container.appendChild(libkey);
+
+    const callback = mutationCallback as ((m: MutationRecord[], obs: MutationObserver) => void) | null;
+    callback?.([], { disconnect: disconnectSpy } as any);
+
+    expect(quicklink.style.display).toBe('none');
+    expect(disconnectSpy).toHaveBeenCalled();
+    const destroy = destroyFn as (() => void) | null;
+    destroy?.();
+    expect(disconnectSpy).toHaveBeenCalledTimes(2);
+
+    (window as any).MutationObserver = originalObserver;
   });
 
 

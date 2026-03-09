@@ -101,4 +101,87 @@ describe('EthLocationPageService', () => {
 
     expect(errorHandlingSpy.logError).toHaveBeenCalled();
   });
+
+
+  it('logs errors from getPlaceFromETHorama', (done) => {
+    errorHandlingSpy.logError.calls.reset();
+
+    service.getPlaceFromETHorama('Q1').subscribe({
+      error: () => {
+        expect(errorHandlingSpy.logError).toHaveBeenCalled();
+        done();
+      }
+    });
+
+    const req = httpMock.expectOne((request) =>
+      request.url.startsWith('https://api.library.ethz.ch/ethorama/v1/pois')
+    );
+    req.flush('boom', { status: 500, statusText: 'Server Error' });
+  });
+
+
+  it('logs errors from getPoiFromGeoGraph', (done) => {
+    errorHandlingSpy.logError.calls.reset();
+
+    service.getPoiFromGeoGraph('G1', 'Q1').subscribe({
+      error: () => {
+        expect(errorHandlingSpy.logError).toHaveBeenCalled();
+        done();
+      }
+    });
+
+    const req = httpMock.expectOne((request) =>
+      request.url.startsWith('https://api.library.ethz.ch/geo/v1/pois')
+    );
+    req.flush('boom', { status: 500, statusText: 'Server Error' });
+  });
+
+
+  it('logs errors from getTopicsFromGeoGraph', (done) => {
+    errorHandlingSpy.logError.calls.reset();
+
+    service.getTopicsFromGeoGraph('G1', 'Q1').subscribe({
+      error: () => {
+        expect(errorHandlingSpy.logError).toHaveBeenCalled();
+        done();
+      }
+    });
+
+    const req = httpMock.expectOne((request) =>
+      request.url.startsWith('https://api.library.ethz.ch/geo/v1/geo-topics')
+    );
+    req.flush('boom', { status: 500, statusText: 'Server Error' });
+  });
+
+
+  it('logs errors from getMapsFromGeoGraph', (done) => {
+    errorHandlingSpy.logError.calls.reset();
+
+    service.getMapsFromGeoGraph('47.3', '8.5').subscribe({
+      error: () => {
+        expect(errorHandlingSpy.logError).toHaveBeenCalled();
+        done();
+      }
+    });
+
+    const req = httpMock.expectOne((request) =>
+      request.url.startsWith('https://api.library.ethz.ch/geo/v1/maps')
+    );
+    req.flush('boom', { status: 500, statusText: 'Server Error' });
+  });
+
+
+  it('logs errors from getIdentifierForLccn', (done) => {
+    errorHandlingSpy.logError.calls.reset();
+
+    service.getIdentifierForLccn('n123').subscribe({
+      error: () => {
+        expect(errorHandlingSpy.logError).toHaveBeenCalled();
+        done();
+      }
+    });
+
+    const req = httpMock.expectOne('https://daas.library.ethz.ch/rib/v3/places/lccn-identifier/n123');
+    req.flush('boom', { status: 500, statusText: 'Server Error' });
+  });
 });
