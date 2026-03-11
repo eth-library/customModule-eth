@@ -27,3 +27,7 @@ tsconfig*
 Thumbs.db
 build-settings.env
 m3-theme.scss
+
+# test
+/coverage
+/test-results
