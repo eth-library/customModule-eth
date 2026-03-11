@@ -36,7 +36,7 @@ export class EthOffcampusWarningComponent {
           }
           // no oa -> check delivery category
           return this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
-            map(deliveryEntity => this.shouldShowWarning(deliveryEntity))
+            map(deliveryEntity => this.shouldShowWarningBasedOnDelivery(deliveryEntity))
           );
         })
       );
@@ -52,7 +52,7 @@ export class EthOffcampusWarningComponent {
     private ethErrorHandlingService: EthErrorHandlingService
   ){}
 
-  private shouldShowWarning(deliveryEntity: unknown): boolean {
+  private shouldShowWarningBasedOnDelivery(deliveryEntity: unknown): boolean {
     const category = (deliveryEntity as { delivery?: { deliveryCategory?: string } })?.delivery?.deliveryCategory ?? '';
     const services = (deliveryEntity as { delivery?: { electronicServices?: unknown[] } })?.delivery?.electronicServices;
     const firstIlsApiId = Array.isArray(services)
@@ -79,17 +79,3 @@ export class EthOffcampusWarningComponent {
   }
   
 }
-
-/**
-eth.offcampusWarning.text1
-ETH Library’s licensed e-resources are accessible via the ETH network or 
-Lizenzierte E-Ressourcen der ETH-Bibliothek sind über das ETH-Netzwerk oder 
-
-eth.offcampusWarning.text2
-.
-zugänglich.
-
-eth.offcampusWarning.url
-https://unlimited.ethz.ch/en/help/network/vpn
-https://unlimited.ethz.ch/help/network/vpn
-*/

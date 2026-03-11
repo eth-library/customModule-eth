@@ -41,12 +41,12 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-location-bottom', EthLocationAfterComponent],
     ['nde-login-form-content-bottom', EthRegistrationLinkComponent],
     ['nde-full-display-side-bar-bottom', EthFullDisplaySideBarAfterComponent],
-    ['nde-personal-details-view-after', EthChangeAddressComponent],
+    ['nde-personal-details-info-after', EthChangeAddressComponent],
     ['nde-personal-settings-before', EthIdpWarningComponent],
     ['nde-requests-after', EthIllLinkComponent],
     //['nde-login-dialog-after', EthRegistrationLinkComponent],
     //['nde-search-bar-presenter-after', EthOKMComponent],
-    //['nde-app-layout-top', EthThemeComponent],
+    ['nde-app-layout-top', EthThemeComponent],
     //['nde-full-display-details-bottom', EthMetagridComponent],
 ])
 

@@ -110,10 +110,14 @@ export class EthOnlineButtonComponent  {
 
     const links: OnlineButtonVM[] = [];
 
-    // take only first serviceUrl
+    // take only first serviceUrl (we show only one)
+    /*console.error(1111111111)
+    console.error("almaOpenurl",deliveryEntity?.delivery?.almaOpenurl)
+    console.error("electronicServices",deliveryEntity?.delivery?.electronicServices?.[0].serviceUrl)
+    console.error("linktorsrcadditional",record?.pnx?.links?.linktorsrcadditional)*/
     const electronicService = deliveryEntity?.delivery?.electronicServices?.[0];
     if (electronicService?.serviceUrl) {
-      // external data + /view/action/uresolver.do z.B. e-maps
+      // external data + /view/action/uresolver.do?operation=resolveService&package_service_id=17890018850005503&institutionId=5503&customerId=5500&VE=true z.B. e-maps
       links.push({
         url: electronicService.serviceUrl,
         source: 'electronicServices'
@@ -124,12 +128,13 @@ export class EthOnlineButtonComponent  {
       const raw = record?.pnx?.links?.linktorsrcadditional?.[0];
       if (raw) {
         links.push({
-          url: this.extractPnxUrl(raw),
+          url: this.extractDollarUrl(raw),
           source: 'pnx'
         });
       }
     }
-
+    /* almaOpenurl: https://eu03.alma.exlibrisgroup.com/view/uresolver/41SLSP_ETH/openurl?ctx_enc=info:ofi/enc:UTF-8&ctx_id=10_1&ctx_tim=2026-03-10 07:00:29&ctx_ver=Z39.88-2004&url_ctx_fmt=info:ofi/fmt:kev:mtx:ctx&url_ver=Z39.88-2004&rfr_id=info:sid/primo.exlibrisgroup.com-crossref&rft_val_fmt=info:ofi/fmt:kev:mtx:journal&rft.genre=article&rft.atitle=La+cin%C3%A9aste+d%E2%80%99Hitler%2C+un+monstre+d%E2%80%99%C3%A9go%C3%AFsme+et+de+racisme%3A+%C3%80+propos+du+film+Leni+Riefenstahl%2C+la+lumi%C3%A8re+et+les+ombres%2C+film+documentaire+d%E2%80%99Andres+Veiel%2C+2024&rft.jtitle=Cahiers+d%27histoire+%28Espaces+Marx+%28Association%29%29&rft.au=Maurel%2C+Chlo%C3%A9&rft.date=2025&rft.volume=163&rft.spage=205&rft.epage=208&rft.pages=205-208&rft.issn=1271-6669&rft.eissn=2102-5916&rft_id=info:doi/10.4000%2F14jxy&rft_dat=<crossref>10_4000_14jxy</crossref>&svc_dat=viewit */
+    
     // in template check: links.length > 1
     const docId = record?.pnx?.control?.recordid?.[0];
     if (docId) {
@@ -142,7 +147,7 @@ export class EthOnlineButtonComponent  {
     return links;
   }
 
-  private extractPnxUrl(raw: string): string {
+  private extractDollarUrl(raw: string): string {
     return raw.replace('$$U', '').split('$$')[0];
   }
 

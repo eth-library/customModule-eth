@@ -50,7 +50,7 @@ describe('EthOnlineButtonComponent', () => {
   });
 
 
-  it('renders no online button when view model has online links (OTB Quicklinks)', async () => {
+  it('renders no online button when OTB Quicklinks exists (viewModel$ has online links)', async () => {
     component.hostComponent = { viewModel$: of({ onlineLinks: [{}] }) } as any;
     storeSpy.getRecord$.and.returnValue(of({} as any));
     storeSpy.getDeliveryEntity$.and.returnValue(of({} as any));
@@ -64,7 +64,7 @@ describe('EthOnlineButtonComponent', () => {
   });
 
 
-  it('prefers electronic services over linktorsrcadditional and adds fullview viewIt link', async () => {
+  it('check first electronic services and adds fullview viewIt link', async () => {
     component.hostComponent = { viewModel$: of(null) } as any;
     storeSpy.getRecord$.and.returnValue(of({ pnx: { control: { recordid: ['doc123'] } } } as any));
     storeSpy.getDeliveryEntity$.and.returnValue(of({
@@ -121,7 +121,7 @@ describe('EthOnlineButtonComponent', () => {
   });
 
 
-  it('renders quicklink button', async () => {
+  it('renders online button', async () => {
     component.hostComponent = { viewModel$: of(null) } as any;
 
     storeSpy.getRecord$.and.returnValue(
@@ -280,7 +280,7 @@ describe('EthOnlineButtonComponent', () => {
   });
 
 
-  it('observes libkey appearance and hides ETH quicklink when detected', () => {
+  it('observes libkey appearance and hides ETH online button when detected', () => {
     const container = document.createElement('div');
     const quicklink = document.createElement('div');
     quicklink.classList.add('eth-quicklink-container');

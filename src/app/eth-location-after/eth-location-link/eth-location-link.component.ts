@@ -32,11 +32,18 @@ export class EthLocationLinkComponent {
     this.subLocationCode = this.hostComponent.location.subLocationCode ?? '';
     this.libraryCode = this.hostComponent.location.libraryCode ?? '';
     this.mainLocation = this.hostComponent.location.mainLocation ?? '';
-    return this.getLink().pipe(
+    return this.getLink()
+    .pipe(
       map(text => this.ethUtilsService.sanitizeText(text)),
-      filter((text): text is string => !!text)
-    );
+      filter((text): text is string => !!text),
+      switchMap(text =>
+        this.translate.get('nui.aria.newWindow').pipe(
+          map(newWindowText => this.extendAnchorAriaLabel(text, newWindowText))
+        )
+      )
+    )
   });
+  
   libraryCode = '';
   subLocationCode = '';
   mainLocation = '';
@@ -75,6 +82,30 @@ export class EthLocationLinkComponent {
       }) 
     )
   }
+
+  private extendAnchorAriaLabel(text: string, newWindowText: string): string {
+    try {
+      const hint = (newWindowText ?? '').trim();
+      if (!hint) return text;
+
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = text;
+
+      wrapper.querySelectorAll('a[target="_blank"]').forEach(anchor => {
+        const currentAria = (anchor.getAttribute('aria-label') ?? '').trim();
+        const fallbackLabel = (anchor.textContent ?? '').trim();
+        const baseLabel = currentAria || fallbackLabel;
+
+        anchor.setAttribute('aria-label', baseLabel ? `${baseLabel} ${hint}` : hint);
+      });
+      return wrapper.innerHTML;
+    }
+    catch (error: unknown) {
+      this.ethErrorHandlingService.logSyncError(error, 'EthLocationLinkComponent.extendAnchorAriaLabel()');
+      return text;
+    }
+  }
+
 }
 
 /*

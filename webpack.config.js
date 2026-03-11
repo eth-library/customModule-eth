@@ -70,10 +70,10 @@ module.exports = {
         
         // For remotes (please adjust)
 
-        name: "customModule",
+        name: "ETH_CUSTOMIZING",
         filename: "remoteEntry.js",
         exposes: {
-            './custom-module': './src/bootstrap.ts',
+            './ETH_CUSTOMIZING': './src/bootstrapETH_CUSTOMIZING.ts',
         },
         // For hosts (please adjust)
         // remotes: {

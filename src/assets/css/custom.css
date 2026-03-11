@@ -55,3 +55,18 @@ nde-logo img {
 nde-record-citations-indicators {
     display: flex;
 }
+
+/*****************************************/
+/* Hide elements from slsp customizing */
+/*****************************************/
+/* edit account settings */
+/*nde-personal-details-view-bottom-from-remote-0{
+  display:none;
+}*/
+.edit-details{
+  display:none;
+}
+/* login dialog: register/help */
+.login-box-links{
+  display:none;
+}

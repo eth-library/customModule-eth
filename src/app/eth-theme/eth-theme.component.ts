@@ -11,6 +11,7 @@ import { DOCUMENT } from '@angular/common';
 })
 export class EthThemeComponent implements OnInit, OnDestroy {
   private linkEl?: HTMLLinkElement;
+  private linkEl2?: HTMLLinkElement;
 
   constructor(private renderer: Renderer2, @Inject(DOCUMENT) private document: Document) {}
 
@@ -25,6 +26,15 @@ export class EthThemeComponent implements OnInit, OnDestroy {
         this.renderer.appendChild(this.document.head, externalLink);
         this.linkEl = externalLink;
       }
+      const externalCss2 = 'https://daas.library.ethz.ch/addon/eth/assets/css/custom.css';
+      const already2 = Array.from(this.document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
+      if (!already2.some(l => l.href === externalCss2)) {
+        const externalLink2 = this.renderer.createElement('link') as HTMLLinkElement;
+        this.renderer.setAttribute(externalLink2, 'rel', 'stylesheet');
+        this.renderer.setAttribute(externalLink2, 'href', externalCss2);
+        this.renderer.appendChild(this.document.head, externalLink2);
+        this.linkEl2 = externalLink2;
+      }
     } catch (e) {
       // ignore
     }
@@ -34,6 +44,10 @@ export class EthThemeComponent implements OnInit, OnDestroy {
     if (this.linkEl) {
       try { this.renderer.removeChild(this.document.head, this.linkEl); } catch { }
       this.linkEl = undefined;
+    }
+    if (this.linkEl2) {
+      try { this.renderer.removeChild(this.document.head, this.linkEl2); } catch { }
+      this.linkEl2 = undefined;
     }
   }
 }

@@ -46,7 +46,10 @@ describe('EthLocationHintComponent', () => {
     component.hostComponent = {};
     component.ngAfterViewInit();
 
-    expect(component.hint$).toBeUndefined();
+    let emitted: SafeHtml | null | undefined;
+    component.hint$.subscribe(value => (emitted = value));
+
+    expect(emitted).toBeNull();
     expect(translateMock.stream).not.toHaveBeenCalled();
   });
 
@@ -107,7 +110,7 @@ describe('EthLocationHintComponent', () => {
   }));
 
 
-  it('moves the hint element into the holding info container', fakeAsync(() => {
+  it('moves the hint element into the holding info container', () => {
     const hintEl = document.createElement('div');
     const wrapper = document.createElement('div');
     const holding = document.createElement('div');
@@ -118,16 +121,14 @@ describe('EthLocationHintComponent', () => {
     wrapper.appendChild(hintEl);
     document.body.appendChild(ndeLocation);
 
-    component.locationHint = new ElementRef(hintEl);
+    (component as any).shouldMoveHint = true;
     (component as any).renderer = rendererMock;
-
-    (component as any).moveHint();
-    tick(101);
+    component.locationHint = new ElementRef(hintEl);
 
     expect(rendererMock.appendChild).toHaveBeenCalledWith(holding, hintEl);
 
     document.body.removeChild(ndeLocation);
-  }));
+  });
 
   
   it('logs translation errors and returns null', fakeAsync(() => {

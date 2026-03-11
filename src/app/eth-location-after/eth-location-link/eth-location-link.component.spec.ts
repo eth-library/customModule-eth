@@ -14,9 +14,11 @@ describe('EthLocationLinkComponent', () => {
   let utilsMock: jasmine.SpyObj<EthUtilsService>;
 
   beforeEach(async () => {
-    translateMock = jasmine.createSpyObj<TranslateService>('TranslateService', ['stream']);
-    errorHandlingMock = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError']);
+    translateMock = jasmine.createSpyObj<TranslateService>('TranslateService', ['stream', 'get']);
+    errorHandlingMock = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logSyncError']);
     utilsMock = jasmine.createSpyObj<EthUtilsService>('EthUtilsService', ['sanitizeText']);
+
+    translateMock.get.and.returnValue(of('(opens in a new window)'));
 
     await TestBed.configureTestingModule({
       imports: [EthLocationLinkComponent],
@@ -44,7 +46,7 @@ describe('EthLocationLinkComponent', () => {
   });
 
 
-  it('show a sanitized link when translation exists and expands location container', () => {
+  it('show a sanitized link when translation exists for this library / sublocation', () => {
     component.hostComponent = {
       location: {
         libraryCode: 'E01',
@@ -62,6 +64,27 @@ describe('EthLocationLinkComponent', () => {
     expect(component.hostComponent.expanded).toBeTrue();
     expect(emitted).toBe('safe-link');
     expect(translateMock.stream).toHaveBeenCalledWith('eth.locationLink.E01.AETH');
+    expect(translateMock.get).toHaveBeenCalledWith('nui.aria.newWindow');
+  });
+
+
+  it('extends aria-label for links opening in a new window', () => {
+    component.hostComponent = {
+      location: {
+        libraryCode: 'E01',
+        subLocationCode: 'AETH',
+        mainLocation: 'ETH Main'
+      }
+    };
+
+    translateMock.stream.and.returnValue(of('<a href="https://example.org" target="_blank">Library</a>'));
+    translateMock.get.and.returnValue(of('(opens in a new window)'));
+    utilsMock.sanitizeText.and.callFake(value => value as string);
+
+    let emitted: SafeHtml | null | undefined;
+    component.link$.subscribe(value => (emitted = value));
+
+    expect(emitted as string).toContain('aria-label="Library (opens in a new window)"');
   });
 
 
@@ -94,7 +117,7 @@ describe('EthLocationLinkComponent', () => {
   });
 
 
-  it('falls back to default when there is no sublocation and location translation in code tables', () => {
+  it('falls back to slsp default when there is no sublocation and location translation in code tables', () => {
     component.hostComponent = {
       location: {
         libraryCode: 'E99',
@@ -111,7 +134,7 @@ describe('EthLocationLinkComponent', () => {
         return of('eth.locationLink.E99');
       }
       if (key === 'eth.locationLink.default') {
-        return of(`default-${params?.['code']}-${params?.['libraryName']}`);
+        return of(`<a href="https://registration.slsp.ch/libraries?search=E99" target="_blank">XYZ-Bibliothek</a>`);
       }
       return of(null);
     });
@@ -120,7 +143,7 @@ describe('EthLocationLinkComponent', () => {
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
 
-    expect(emitted).toBe('default-E99-XYZ-Bibliothek');
+    expect(emitted).toBe('<a href="https://registration.slsp.ch/libraries?search=E99" target="_blank" aria-label="XYZ-Bibliothek (opens in a new window)">XYZ-Bibliothek</a>');
     expect(translateMock.stream).toHaveBeenCalledWith('eth.locationLink.default', {
       code: 'E99',
       libraryName: 'XYZ-Bibliothek'

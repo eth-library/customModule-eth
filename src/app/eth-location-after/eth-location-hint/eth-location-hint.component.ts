@@ -1,9 +1,9 @@
 // Various libraries have special notes. We read these from the code tables (Bib code would be part of the code table code).
 // https://jira.ethz.ch/browse/SLSP-1969
 
-import { Component, Input, ViewEncapsulation, Inject, Renderer2, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, ViewEncapsulation, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { catchError, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
+import { catchError, defer, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthUtilsService } from '../../services/eth-utils.service';
 import { CommonModule } from '@angular/common';
@@ -26,9 +26,16 @@ export class EthLocationHintComponent {
   libraryCode!: string; 
   subLocationCode!: string;
   id!: string;
+  private locationHintRef?: ElementRef<HTMLDivElement>;
+  private shouldMoveHint = false;
 
-  @Input() hostComponent: HostComponent = {};  
-  @ViewChild('locationHint', { static: false }) locationHint!: ElementRef<HTMLDivElement>;
+  @Input() hostComponent: HostComponent = {};
+  
+  @ViewChild('locationHint', { static: false })
+  set locationHint(value: ElementRef<HTMLDivElement> | undefined) {
+    this.locationHintRef = value;
+    this.moveHintIfReady();
+  }
   
   constructor(
     private translate: TranslateService,
@@ -38,24 +45,30 @@ export class EthLocationHintComponent {
   ){} 
 
   ngAfterViewInit(): void {
-    // 990010808770205503 
-    if(!this.hostComponent?.location)return;
-    this.libraryCode = this.hostComponent.location.libraryCode || '';
-    this.subLocationCode = this.hostComponent.location.subLocationCode || '';
-    this.id = this.hostComponent.location.ilsApiId  || '';
+    // 990010808770205503
+    this.hint$ = defer(() => {
+      if (!this.hostComponent?.location) return of(null);
 
-    if(this.libraryCode.substring(0,1) === 'E'){
-      this.hint$ = this.getLocationHint().pipe(
+      this.libraryCode = this.hostComponent.location.libraryCode || '';
+      this.subLocationCode = this.hostComponent.location.subLocationCode || '';
+      this.id = this.hostComponent.location.ilsApiId || '';
+
+      if (!this.libraryCode.startsWith('E')) return of(null);
+
+      return this.getLocationHint().pipe(
         map(hint => this.ethUtilsService.sanitizeText(hint)),
         filter((hint): hint is string => !!hint),
         take(1),
-        tap(() => {this.moveHint()}),
+        tap(() => {
+          this.shouldMoveHint = true;
+          this.moveHintIfReady();
+        }),
         catchError(error => {
           this.ethErrorHandlingService.logError(error, 'EthLocationHintComponent.ngAfterViewInit()');
           return of(null);
         })
       );
-    }
+    });
   }  
 
   private getLocationHint(): Observable<string | null> {
@@ -80,21 +93,23 @@ export class EthLocationHintComponent {
     )
   }
 
-  private moveHint() {
-    setTimeout(() => {
-      const hintElement = this.locationHint?.nativeElement;
-      if (!hintElement) {
-        return;
-      }
+  private moveHintIfReady(): void {
+    if (!this.shouldMoveHint) return;
 
-      const location = hintElement.closest('nde-location') as HTMLElement | null;
-      const newParentElement = location?.querySelector('.getit-holding-info');
+    const hintElement = this.locationHintRef?.nativeElement;
+    if (!hintElement) {
+      return;
+    }
 
-      if (newParentElement && newParentElement !== hintElement.parentElement) {
-        this.renderer.appendChild(newParentElement, hintElement);
-      }
-    }, 100);
-  }  
+    const location = hintElement.closest('nde-location') as HTMLElement | null;
+    const newParentElement = location?.querySelector('.getit-holding-info');
+
+    if (newParentElement && newParentElement !== hintElement.parentElement) {
+      this.renderer.appendChild(newParentElement, hintElement);
+    }
+
+    this.shouldMoveHint = false;
+  }
 }
 
 
