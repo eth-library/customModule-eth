@@ -41,7 +41,7 @@ describe('EthOffcampusWarningComponent', () => {
   });
 
   
-  it('does not warn when on campus', async () => {
+  it('does not issue a warning if you are on campus', async () => {
     Object.defineProperty(storeSpy, 'isOnCampus$', {
       value: of(true),
       writable: true

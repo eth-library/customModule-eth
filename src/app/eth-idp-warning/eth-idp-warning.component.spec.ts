@@ -65,7 +65,7 @@ describe('EthIdpWarningComponent', () => {
   });
 
 
-  it('no warning because of Profile "Alma"', async () => {
+  it('no warning because of Profile "Alma" (institutional account)', async () => {
     userGroup$.next('ETH_Student');
     email$.next('student.bla@ethz.ch');
     authenticationProfile$.next('Alma');

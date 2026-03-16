@@ -1,4 +1,5 @@
-// Various special locations/libraries have links to their own CMS pages.
+// Various locations or libraries have links to their own CMS pages.
+// If there are no corresponding pages in the codetable, the SLSP Registry is used.
 // https://jira.ethz.ch/browse/SLSP-1971
 
 import { Component, Input, ViewEncapsulation } from '@angular/core';

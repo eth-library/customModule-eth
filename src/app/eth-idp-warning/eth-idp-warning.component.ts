@@ -1,4 +1,5 @@
-// If a user with an ETH email address does not belong to an ETH user group, a message will be displayed stating that the user must link their edu-id account to their ETH account.
+// If a user with an ETH email address does not belong to an ETH user group,
+// a message is displayed (on the /nde/account/settings page) stating that the user must link their edu-id account to their ETH account.
 // https://jira.ethz.ch/browse/SLSP-1985
 
 import { Component } from '@angular/core';
@@ -42,7 +43,7 @@ export class EthIdpWarningComponent {
   ){}
 
   private showWarning(group: string | null, email: string | null, profile: string | null): boolean {
-    if (profile === 'Alma') return false;
+    if (profile === 'AlmaTODO') return false;
     if (!email) return false;
     
     const ethMemberGroups = [

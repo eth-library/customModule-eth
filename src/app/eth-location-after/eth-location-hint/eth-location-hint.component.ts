@@ -1,4 +1,5 @@
-// Various libraries have special notes. We read these from the code tables (Bib code would be part of the code table code).
+// There could be special notes for libraries or locations.
+// We retrieve these from the code tables (the library code is part of the code table code).
 // https://jira.ethz.ch/browse/SLSP-1969
 
 import { Component, Input, ViewEncapsulation, Renderer2, ViewChild, ElementRef } from '@angular/core';

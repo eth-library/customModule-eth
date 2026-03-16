@@ -50,7 +50,7 @@ describe('EthGitHintComponent', () => {
   });
 
   
-  it('should provide a german hint', async () => {
+  it('language de: should provide a german hint', async () => {
     translateMock.currentLang = 'de';
     await fixture.whenStable(); 
 

@@ -58,7 +58,7 @@ describe('EthConnectedpapersComponent', () => {
   });
 
 
-  it('should provide a link to connected papers', async () => {
+  it('should provide a link to connected papers if it is an article', async () => {
     storeServiceSpy.getRecord$.and.returnValue(
       of({
         pnx: {
@@ -74,8 +74,6 @@ describe('EthConnectedpapersComponent', () => {
       id:"b9cc21d97d7fb24beec903a686b5c90c26d547f6"
     } as ConnectedPapersAPIResponse));
 
-    //fixture.detectChanges();
-
     expect(component.paperUrl$).toBeDefined();
 
     const result = await firstValueFrom(component.paperUrl$);
@@ -84,6 +82,34 @@ describe('EthConnectedpapersComponent', () => {
     expect(result).toContain('b9cc21d97d7fb24beec903a686b5c90c26d547f6');
     expect(result).toBe('https://www.connectedpapers.com/main/b9cc21d97d7fb24beec903a686b5c90c26d547f6/graph?utm_source=primonde');
     
+  });
+
+
+  it('renders the connected papers button', async () => {
+    storeServiceSpy.getRecord$.and.returnValue(
+      of({
+        pnx: {
+          addata: { doi: ['10.1093/nar/gkl986'] },
+          display: { type: ['article'] }
+        }
+      } as PnxDoc)
+    );
+
+    cpServiceSpy.getPaper.and.returnValue(of({
+      citationCount: 3,
+      referenceCount: 0,
+      id: 'b9cc21d97d7fb24beec903a686b5c90c26d547f6'
+    } as ConnectedPapersAPIResponse));
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector('a.eth-connectedpapers-link') as HTMLAnchorElement | null;
+
+    expect(button).not.toBeNull();
+    expect(button?.textContent?.trim()).toBe('Connected Papers');
+    expect(button?.getAttribute('href')).toBe('https://www.connectedpapers.com/main/b9cc21d97d7fb24beec903a686b5c90c26d547f6/graph?utm_source=primonde');
   });
 
   
@@ -102,8 +128,6 @@ describe('EthConnectedpapersComponent', () => {
       referenceCount: 0,
       id:"b9cc21d97d7fb24beec903a686b5c90c26d547f6"
     } as ConnectedPapersAPIResponse));
-
-    //fixture.detectChanges();
 
     expect(component.paperUrl$).toBeDefined();
 
@@ -129,8 +153,6 @@ describe('EthConnectedpapersComponent', () => {
       referenceCount: 5,
       id:"b9cc21d97d7fb24beec903a686b5c90c26d547f6"
     } as ConnectedPapersAPIResponse));
-
-    //fixture.detectChanges();
 
     expect(component.paperUrl$).toBeDefined();
 

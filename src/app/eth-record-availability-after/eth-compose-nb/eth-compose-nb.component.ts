@@ -1,4 +1,4 @@
-// The print and online resources of the TMA Nachlassbibliothek are linked.
+// links the print and online resources of the TMA Nachlassbibliothek.
 // https://jira.ethz.ch/browse/SLSP-2003
 
 import { Component, Input, inject } from '@angular/core';

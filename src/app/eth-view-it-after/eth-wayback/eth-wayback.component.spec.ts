@@ -176,7 +176,7 @@ describe('EthWaybackComponent', () => {
   });
 
 
-  it('detects wayback links using the snippet matcher', () => {
+  it('detects wayback links', () => {
     expect((component as any).hasWaybackLink({ delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/foo' }] } })).toBeTrue();
     expect((component as any).hasWaybackLink({ delivery: { link: [{ linkURL: 'https://example.com' }] } })).toBeFalse();
     expect((component as any).hasWaybackLink(null)).toBeFalse();

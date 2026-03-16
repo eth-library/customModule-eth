@@ -1,4 +1,4 @@
-// The location filter should be displayed initially
+// The location filter should be visible from the start
 // https://jira.ethz.ch/browse/SLSP-2355
 
 import { CommonModule } from '@angular/common';

@@ -34,7 +34,7 @@ describe('EthComposeEraraService', () => {
     });
   
 
-    it('should fetch online erara record', () => {
+    it('fetch online erara record', () => {
         const mmsid = '990042488650205503';
         const mockResponse: PrimoApiResponse = {} as PrimoApiResponse;
         service.getOnlineEraraRecord(mmsid).subscribe(response => {
@@ -57,7 +57,7 @@ describe('EthComposeEraraService', () => {
     });
 
 
-    it('fetch online erara record: should log error for non-404', () => {
+    it('fetch online erara record: should log error for non-404 error', () => {
         const mmsid = '1234';
         service.getOnlineEraraRecord(mmsid).subscribe({
         next: () => fail('should error'),

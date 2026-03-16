@@ -90,7 +90,7 @@ describe('EthComposeNbComponent', () => {
   });
 
 
-  it('builds a print link when source is online/ eth_nachlassbibliothek', async () => {
+  it('builds a print link when source is online (eth_nachlassbibliothek)', async () => {
     storeService.isFullview$.and.returnValue(of(true));
     storeService.getFullDisplayRecord$.and.returnValue(of(buildPnxDoc({
       pnx: {
@@ -111,7 +111,7 @@ describe('EthComposeNbComponent', () => {
   });
 
 
-  it('builds sorted online links when source is Alma / Print', async () => {
+  it('builds sorted online links when source is from Alma (Print)', async () => {
     storeService.isFullview$.and.returnValue(of(true));
     storeService.getFullDisplayRecord$.and.returnValue(of(buildPnxDoc({
       pnx: {
@@ -176,7 +176,7 @@ describe('EthComposeNbComponent', () => {
   });
 
 
-  it('makePrimoUrl composes expected full display url', () => {
+  it('function makePrimoUrl() composes expected full display url', () => {
     storeService.getVid.and.returnValue('41SLSP_ETH:ETH');
     storeService.getTab.and.returnValue('default_tab');
     storeService.getScope.and.returnValue('default_scope');

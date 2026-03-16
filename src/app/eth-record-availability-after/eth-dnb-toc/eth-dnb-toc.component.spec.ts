@@ -82,7 +82,7 @@ describe('EthDnbTocComponent', () => {
   });
 
 
-  it('returns alma links when wanted alma links are present', async () => {
+  it('returns alma links if alma links are present', async () => {
     storeService.isFullview$.and.returnValue(of(true));
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
       delivery: {
@@ -102,7 +102,7 @@ describe('EthDnbTocComponent', () => {
   });
 
 
-  it('returns dnb links when no wanted alma links exist', async () => {
+  it('returns dnb links if no alma links exist', async () => {
     storeService.isFullview$.and.returnValue(of(true));
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
       delivery: {

@@ -79,10 +79,12 @@ describe('EthGeoRefComponent', () => {
     component = fixture.componentInstance;
   });
 
+
   it('should create', () => {
     fixture.detectChanges();
     expect(component).toBeTruthy();
   });
+
 
   it('emits null via places$ when getRecord$ fails', async () => {
     storeServiceMock.getRecord$.and.returnValue(throwError(() => new Error('record fail')));
@@ -186,6 +188,7 @@ describe('EthGeoRefComponent', () => {
     });
   });
 
+
   it('filters lobid places without description or thumbnail', (done) => {
     geoRefServiceSpy.getPlacesFromLobid.and.returnValue(of({
       member: [
@@ -227,6 +230,7 @@ describe('EthGeoRefComponent', () => {
     });
   });
 
+
   it('logs errors when getGndPlacesFromGraph fails', (done) => {
     geoRefServiceSpy.getGndPlacesFromGraph.and.returnValue(throwError(() => new Error('graph')));
 
@@ -263,6 +267,7 @@ describe('EthGeoRefComponent', () => {
     });
   });
 
+
   it('drops ethorama cards without identifiers', (done) => {
     geoRefServiceSpy.getPlacesFromETHorama.and.returnValue(of({ items: [{ id: 'p1' }, { id: 'p2' }] } as any));
     geoRefServiceSpy.enrichPOIs.and.returnValue(of([
@@ -278,6 +283,7 @@ describe('EthGeoRefComponent', () => {
       done();
     });
   });
+
 
   it('deduplicates ethorama cards sharing keys', (done) => {
     geoRefServiceSpy.getPlacesFromETHorama.and.returnValue(of({ items: [{ id: 'p1' }, { id: 'p2' }] } as any));
@@ -295,6 +301,7 @@ describe('EthGeoRefComponent', () => {
       done();
     });
   });
+
 
   it('returns empty ethorama list when upstream fails', (done) => {
     geoRefServiceSpy.getPlacesFromETHorama.and.returnValue(throwError(() => new Error('500')));
@@ -327,6 +334,7 @@ describe('EthGeoRefComponent', () => {
       done();
     });
   });
+
 
   it('logs sync errors when getPlaces throws before creating streams', (done) => {
     const originalGetContext = (component as any).getContext;
@@ -398,6 +406,7 @@ describe('EthGeoRefComponent', () => {
     expect(merged[0].qid).toBe('Q2');
   });
 
+
   describe('mapGndPlacesLobidToVm', () => {
     it('maps lobid responses into sorted place models', () => {
       const data = {
@@ -432,6 +441,7 @@ describe('EthGeoRefComponent', () => {
     });
   });
 
+
   describe('mapGndPlacesGraphToVm', () => {
     it('maps graph responses into sorted place models', () => {
       const data = {
@@ -448,6 +458,7 @@ describe('EthGeoRefComponent', () => {
       expect(result[1].url).toContain('entityId=n456');
     });
   });
+  
 
   describe('buildLocationEntityUrl', () => {
     it('returns undefined when vid is missing', () => {

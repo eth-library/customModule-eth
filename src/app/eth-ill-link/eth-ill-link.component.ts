@@ -1,4 +1,4 @@
-// If CDI resources have the status “no_inventory”, if there is no nde-get-it-from-other and if nothing is available via Rapido, an ILL link is displayed.
+// If a CDI resource has the status “no_inventory”, if there is no nde-get-it-from-other and if nothing is available via Rapido, an ILL link is displayed.
 // https://jira.ethz.ch/browse/SLSP-1986
 
 import { CommonModule, DOCUMENT } from '@angular/common';
@@ -29,6 +29,7 @@ export class EthIllLinkComponent {
   private destroyRef = inject(DestroyRef);
 
   // do we need an ILL link? In this case: create the querystring of the ILL link.
+  // 991076219509705501
   qs$: Observable<string | null> = defer(() =>
     combineLatest([
       this.ethStoreService.getFullDisplayRecord$(),

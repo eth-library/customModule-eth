@@ -117,7 +117,7 @@ describe('EthIllLinkComponent', () => {
   });
 
 
-  it('ill link when no_inventory and rapido no-offer element exists', async () => {
+  it('ill link when availability=no_inventory and rapido no-offer element exists', async () => {
     const record = createRecord();
     const rapido = document.createElement('div');
     rapido.setAttribute('data-qa', 'rapido.tiles.noOfferTileLine1');
@@ -140,7 +140,7 @@ describe('EthIllLinkComponent', () => {
   });
 
 
-  it('url$ builds full url from translation when qs present', async () => {
+  it('url$ builds full url from translation when qs is present', async () => {
     const record = createRecord();
     const rapido = document.createElement('div');
     rapido.setAttribute('data-qa', 'rapido.tiles.noOfferTileLine1');
@@ -181,6 +181,7 @@ describe('EthIllLinkComponent', () => {
     expect(qs).toBeNull();
     expect(errorHandlingSpy.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthIllLinkComponent.qs$');
   });
+
 
   it('translations$ returns null when translation stream errors', async () => {
     const record = createRecord();
@@ -364,7 +365,7 @@ describe('EthIllLinkComponent', () => {
   });
   
 
-  it('buildQs logs sync errors when accessor throws', async () => {
+  it('buildQs logs sync errors when error is thrown', async () => {
     await setupTest();
     const record = new Proxy({}, {
       get: () => {

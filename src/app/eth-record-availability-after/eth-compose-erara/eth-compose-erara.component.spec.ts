@@ -54,7 +54,7 @@ describe('EthComposeEraraComponent', () => {
   });
 
 
-  it('returns empty links when no MMS id exists', async () => {
+  it('returns no links when no MMS ID exists', async () => {
     storeSpy.isFullview$.and.returnValue(of(true));
     storeSpy.getFullDisplayRecord$.and.returnValue(of({} as any));
 
@@ -98,7 +98,7 @@ describe('EthComposeEraraComponent', () => {
   });
 
 
-  it('builds print link for digital record with print reference', async () => {
+  it('builds print link for e-rara online record with lds09 reference', async () => {
     storeSpy.getVid.and.returnValue('VID');
     storeSpy.getTab.and.returnValue('TAB');
     storeSpy.getScope.and.returnValue('SCOPE');

@@ -1,7 +1,7 @@
 /* 
   Librarystack
-  change link text of resource link
-  add hint about usage of library stack (Password-protected access. Restricted to members of ETH Zurich only...)
+  - change link text of resource link
+  - add hint about usage of library stack (Password-protected access. Restricted to members of ETH Zurich only...)
 */
 // https://jira.ethz.ch/browse/SLSP-1999
 
