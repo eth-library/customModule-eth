@@ -35,7 +35,7 @@ export class EthIllLinkComponent {
       this.ethStoreService.getFullDisplayRecord$(),
       this.ethStoreService.getFullDisplayDeliveryEntity$()
     ]).pipe(
-      switchMap(([record, deliveryEntity]) => this.resolveQsOrNull(record, deliveryEntity)),
+      switchMap(([record, deliveryEntity]) => this.getIllQsOrNull(record, deliveryEntity)),
       catchError(err => {
         this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.qs$');
         return of(null);
@@ -97,8 +97,8 @@ export class EthIllLinkComponent {
   ) {}
 
 
-  // do we need an ILL link? If so, build querystring
-  private resolveQsOrNull(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
+  // do we need an ILL link? If so, build querystring for ILL link
+  private getIllQsOrNull(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
     try {
       if ((deliveryEntity?.delivery?.availability?.[0] ?? '') !== 'no_inventory') {
         return of(null);
@@ -116,7 +116,7 @@ export class EthIllLinkComponent {
 
       // wait for rapido to appear
       return new Observable<string>(observer => {
-        const obs = new MutationObserver((_m, obs) => {
+        const obs = new MutationObserver((_m, obs) => { 
           const rapidoNoOffer = this.document.querySelector(
             '[data-qa="rapido.tiles.noOfferTileLine1"]'
           );
@@ -127,14 +127,18 @@ export class EthIllLinkComponent {
           }
         });
 
-        obs.observe(this.document.body, { childList: true, subtree: true });
+        // Prefer a narrow shell-owned container when available; fallback avoids null target crashes.
+        const observeTarget =
+          this.document.getElementById('nde.request.title') ??
+          this.document.body;
+        obs.observe(observeTarget, { childList: true, subtree: true });
 
         this.destroyRef.onDestroy(() => obs.disconnect());
 
         return () => obs?.disconnect();
       });
     } catch (error) {
-        this.ethErrorHandlingService.logSyncError(error, 'EthIllLinkComponent.resolveQsOrNull()');
+        this.ethErrorHandlingService.logSyncError(error, 'EthIllLinkComponent.getIllQsOrNull()');
         return of(null);
     }
 

@@ -1,7 +1,7 @@
 // Person cards based on GND ID or IdRef in the right sidebar 
 // https://jira.ethz.ch/browse/SLSP-2095
 
-import { Component, ElementRef, inject, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, Input, ViewChild, DestroyRef } from '@angular/core';
 import { BehaviorSubject, catchError, combineLatest, defer, forkJoin, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { EthPersonService } from '../../services/eth-person.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -28,6 +28,8 @@ import { HostComponent, PersonCardVM, PersonVM, PersonApiResponse, PersonResult 
 
 export class EthPersonCardsComponent {
     private router = inject(SHELL_ROUTER);  
+  private destroyRef = inject(DestroyRef);
+  private pendingTimeouts = new Set<number>();
     openLicensePopover: string | null = null;
     private hostComponent$ = new BehaviorSubject<HostComponent>({});
 
@@ -44,7 +46,22 @@ export class EthPersonCardsComponent {
       public ethPersonService: EthPersonService,
       private ethErrorHandlingService: EthErrorHandlingService,
       private ethStoreService:EthStoreService,
-    ){}
+    ){
+      this.destroyRef.onDestroy(() => this.clearPendingTimeouts());
+    }
+
+    private scheduleTask(task: () => void, delay = 0): void {
+      const timeoutId = window.setTimeout(() => {
+        this.pendingTimeouts.delete(timeoutId);
+        task();
+      }, delay);
+      this.pendingTimeouts.add(timeoutId);
+    }
+
+    private clearPendingTimeouts(): void {
+      this.pendingTimeouts.forEach(timeoutId => window.clearTimeout(timeoutId));
+      this.pendingTimeouts.clear();
+    }
 
     persons$: Observable<PersonCardVM | null> = defer(() => {
       const record$ = this.hostComponent$.pipe(
@@ -178,14 +195,14 @@ export class EthPersonCardsComponent {
     
     open(key: string) {
       this.openLicensePopover = key;
-      setTimeout(() => {
+      this.scheduleTask(() => {
         this.licensePopover?.nativeElement?.focus();
       });
     }
 
     close() {
       this.openLicensePopover = null;
-      setTimeout(() => {
+      this.scheduleTask(() => {
         this.licensePopoverTrigger?.nativeElement?.focus();
       });
     }

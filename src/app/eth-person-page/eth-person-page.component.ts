@@ -1,7 +1,7 @@
 // EntityPage Person
 // https://jira.ethz.ch/browse/SLSP-1990
 
-import { Component, ElementRef, inject, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild, ViewEncapsulation, DestroyRef } from '@angular/core';
 import { catchError, defer, filter, forkJoin, map, Observable, of, startWith, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../services/eth-person.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
@@ -15,26 +15,28 @@ import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../injection-tokens";
 import { PersonVM, SearchVariantVM, PrimoApiResponse } from '../models/eth.model';
 
-@Component({ 
+@Component({
   selector: 'custom-eth-person-page',
   templateUrl: './eth-person-page.component.html',
   styleUrls: ['./eth-person-page.component.scss'],
-  encapsulation: ViewEncapsulation.None,  
-  standalone: true,   
+  encapsulation: ViewEncapsulation.None,
+  standalone: true,
   imports: [
     CommonModule,
     MatDividerModule,
     MatExpansionModule,
     MatIconModule,
     SafeTranslatePipe
-  ]   
+  ]
 })
 
-export class EthPersonPageComponent{
-  private router = inject(SHELL_ROUTER); 
-  private lang!: string;  
+export class EthPersonPageComponent {
+  private router = inject(SHELL_ROUTER);
+  private destroyRef = inject(DestroyRef);
+  private pendingTimeouts = new Set<number>();
+  private lang!: string;
   openLicensePopover: string | null = null;
-  
+
   person$: Observable<PersonVM | null> = defer(() => {
     if (!this.router.url.includes('/entity/person')) {
       return of(null);
@@ -58,14 +60,28 @@ export class EthPersonPageComponent{
   @ViewChild('licensePopover') licensePopover?: ElementRef;
   @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
 
-  
   constructor(
     private translate: TranslateService,
     public ethPersonService: EthPersonService,
-    private ethStoreService:EthStoreService,         
+    private ethStoreService: EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService,
-  ){}
-  
+  ) {
+    this.destroyRef.onDestroy(() => this.clearPendingTimeouts());
+  }
+
+  private scheduleTask(task: () => void, delay = 0): void {
+    const timeoutId = window.setTimeout(() => {
+      this.pendingTimeouts.delete(timeoutId);
+      task();
+    }, delay);
+    this.pendingTimeouts.add(timeoutId);
+  }
+
+  private clearPendingTimeouts(): void {
+    this.pendingTimeouts.forEach(timeoutId => window.clearTimeout(timeoutId));
+    this.pendingTimeouts.clear();
+  }
+
   private loadPerson(): Observable<PersonVM | null> {
     return this.ethStoreService.linkedDataEntityId$.pipe(
       filter(id => !!id),
@@ -77,23 +93,23 @@ export class EthPersonPageComponent{
             //person['qid'] = data.qid?.[0];
             person['label'] = person['entityfacts']?.preferredName || person['wiki']?.label || '';
             //person['gnd'] = data.gnd?.find((g: string) => g !== '') || '';
-            person['yearOfBirth'] = person['wiki']?.birth?.split('-')[0] 
-                                || person['entityfacts']?.birthDate?.split(' ').pop() 
+            person['yearOfBirth'] = person['wiki']?.birth?.split('-')[0]
+                                || person['entityfacts']?.birthDate?.split(' ').pop()
                                 || '';
             return person;
           }),
           switchMap(person => this.getPrecisionRecallLinks(person)),
-          tap(() => setTimeout(() => this.resetPanelIds(), 100))
+          tap(() => this.scheduleTask(() => this.resetPanelIds(), 100))
         );
       }),
       catchError(error => {
         this.ethErrorHandlingService.logSyncError(error, 'EthPersonPageComponent.loadPerson');
         return of(null);
       })
-    );    
+    );
   }
-  
-  resetPanelIds(){
+
+  resetPanelIds() {
     const allPanels = document.querySelectorAll('.eth-personpage-links mat-expansion-panel');
     const start = 50;
 
@@ -113,7 +129,7 @@ export class EthPersonPageComponent{
         content.setAttribute('aria-labelledby', headerId);
       }
     });
-  } 
+  }
 
   getPrecisionRecallLinks(person: PersonVM): Observable<PersonVM> {
     const queries = [];
@@ -143,18 +159,18 @@ export class EthPersonPageComponent{
     );
   }
 
-  getSearchLink(query: string ): Observable<SearchVariantVM | null> {
+  getSearchLink(query: string): Observable<SearchVariantVM | null> {
     const tab = this.ethStoreService.getTab() || '';
     const scope = this.ethStoreService.getScope() || '';
     const vid = this.ethStoreService.getVid() || '';
     return this.ethPersonService.searchPrimoData(query, tab, scope, this.lang).pipe(
       map((data: PrimoApiResponse) => {
         const total = data?.info?.totalResultsLocal ?? 0;
-        if(query.indexOf('lds03')===-1){
-          query = query.replace('any,contains,','');
+        if (query.indexOf('lds03') === -1) {
+          query = query.replace('any,contains,', '');
         }
         let url = `/search?query=${query}&tab=${tab}&search_scope=${scope}&vid=${vid}&lang=${this.lang}`;
-        if(query.indexOf('lds03')>-1){
+        if (query.indexOf('lds03') > -1) {
           url += '&mode=advanced';
         }
         return { url, total };
@@ -166,21 +182,21 @@ export class EthPersonPageComponent{
     );
   }
 
-  navigate(url: string, event: Event){
-    event.preventDefault();  
+  navigate(url: string, event: Event) {
+    event.preventDefault();
     this.router.navigateByUrl(url);
-  }      
+  }
 
   open(key: string) {
     this.openLicensePopover = key;
-    setTimeout(() => {
+    this.scheduleTask(() => {
       this.licensePopover?.nativeElement?.focus();
     });
   }
 
   close() {
     this.openLicensePopover = null;
-    setTimeout(() => {
+    this.scheduleTask(() => {
       this.licensePopoverTrigger?.nativeElement?.focus();
     });
   }
@@ -191,14 +207,12 @@ export class EthPersonPageComponent{
 
   isOpen(key: string): boolean {
     return this.openLicensePopover === key;
-  }        
+  }
 
   onFocusOut(event: FocusEvent) {
     const next = event.relatedTarget as HTMLElement | null;
-    console.error(next)
     if (!this.licensePopover?.nativeElement.contains(next)) {
       this.close();
     }
   }
-
 }

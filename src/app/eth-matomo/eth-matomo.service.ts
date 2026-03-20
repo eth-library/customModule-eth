@@ -6,8 +6,21 @@ import { Injectable } from '@angular/core';
 
 export class EthMatomoService {
 
+  private readonly maxInitChecks = 300;
   private initialized = false;
+  private initChecks = 0;
+  private checkTimeoutId: number | null = null;
   private queue: any[][] = [];   // Events that are fired before Matomo is fully initialized
+
+  private isDebugEnabled(): boolean {
+    return (window as any).__ETH_DEBUG_MATOMO__ === true;
+  }
+
+  private debugLog(...args: any[]): void {
+    if (this.isDebugEnabled()) {
+      console.log(...args);
+    }
+  }
 
   constructor() {
     // Ensure _paq exists (Matomo will normally create it, but we guarantee it early)
@@ -23,6 +36,12 @@ export class EthMatomoService {
    */
   private waitForMatomo() {
     const check = () => {
+      this.checkTimeoutId = null;
+
+      if (this.initialized) {
+        return;
+      }
+
       const paq = (window as any)._paq;
 
       const hasPush =
@@ -32,12 +51,18 @@ export class EthMatomoService {
         this.initialized = true;
         this.flushQueue();
       } else {
+        this.initChecks += 1;
+        if (this.initChecks >= this.maxInitChecks) {
+          return;
+        }
         // Retry until Matomo is ready (lightweight polling)
-        setTimeout(check, 200);
+        this.checkTimeoutId = window.setTimeout(check, 200);
       }
     };
 
-    check();
+    if (this.checkTimeoutId === null) {
+      check();
+    }
   }
 
   /**
@@ -95,7 +120,7 @@ export class EthMatomoService {
     value: number = 0
   ): void {
     this.push(['trackEvent', category, action, name, value]);
-    console.log('Matomo event:', name);
+    this.debugLog('Matomo event:', name);
   }
 
   /**
@@ -105,6 +130,6 @@ export class EthMatomoService {
     if (!url.startsWith('/')) url = '/' + url;
     this.push(['setCustomUrl', url]);
     this.push(['trackPageView']);
-    console.log('Matomo virtual page:', url);
+    this.debugLog('Matomo virtual page:', url);
   }
 }

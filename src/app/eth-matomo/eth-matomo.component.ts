@@ -20,6 +20,7 @@ export class EthMatomoComponent implements OnInit {
   private readonly trackerUrl = 'https://library-ethz.opsone-analytics.ch/';
   private readonly siteId = '66';
   private destroyRef = inject(DestroyRef);
+  private trackingInitialized = false;
 
   constructor(
     private ethErrorHandlingService: EthErrorHandlingService
@@ -27,12 +28,12 @@ export class EthMatomoComponent implements OnInit {
 
   ngOnInit() {
     try{
+      (window as any)._paq = (window as any)._paq || [];
+
       if ((document.querySelector('script[src="' + this.trackerUrl + 'matomo.js"]'))) {
-        // console.log('Matomo script already loaded.');
+        this.initializeTracking();
         return;
       }
-      
-      (window as any)._paq = (window as any)._paq || [];
 
       // configure matomo
       (window as any)._paq.push(['setTrackerUrl', `${this.trackerUrl}matomo.php`]);
@@ -46,7 +47,7 @@ export class EthMatomoComponent implements OnInit {
       document.head.appendChild(matomoScript);
 
       matomoScript.onload = () => {
-        //console.log('Matomo script loaded successfully');
+        console.log('Matomo script loaded successfully');
         // initialize automatic page tracking after script is ready
         this.initializeTracking();
       };
@@ -63,6 +64,11 @@ export class EthMatomoComponent implements OnInit {
   }
 
   private initializeTracking(): void {
+    if (this.trackingInitialized) {
+      return;
+    }
+    this.trackingInitialized = true;
+
     (window as any)._paq.push(['trackPageView']);
     (window as any)._paq.push(['enableLinkTracking']);
     this.router.events
@@ -79,7 +85,7 @@ export class EthMatomoComponent implements OnInit {
       .subscribe(url => {
         (window as any)._paq.push(['setCustomUrl', url]);
         (window as any)._paq.push(['trackPageView']);
-        // console.log('Tracking PageView:', url);
+        console.log('Tracking PageView:', url);
       });
   }
 

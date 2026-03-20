@@ -266,7 +266,7 @@ describe('EthIllLinkComponent', () => {
   });
 
 
-  it('logs sync errors when resolveQsOrNull throws', async () => {
+  it('logs sync errors when getIllQsOrNull throws', async () => {
     await setupTest();
 
     const originalDoc = (component as any).document;
@@ -278,11 +278,11 @@ describe('EthIllLinkComponent', () => {
     } as unknown as Document;
 
     const result = await firstValueFrom(
-      (component as any).resolveQsOrNull(createRecord(), { delivery: { availability: ['no_inventory'] } } as StoreDeliveryEntity)
+      (component as any).getIllQsOrNull(createRecord(), { delivery: { availability: ['no_inventory'] } } as StoreDeliveryEntity)
     );
 
     expect(result).toBeNull();
-    expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthIllLinkComponent.resolveQsOrNull()');
+    expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthIllLinkComponent.getIllQsOrNull()');
 
     (component as any).document = originalDoc;
   });

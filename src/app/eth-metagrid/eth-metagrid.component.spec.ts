@@ -10,12 +10,14 @@ describe('EthMetagridComponent', () => {
 	let fixture: ComponentFixture<EthMetagridComponent>;
 	let metagridServiceSpy: jasmine.SpyObj<EthMetagridService>;
 	let storeSpy: jasmine.SpyObj<Store>;
+	let originalMutationObserver: typeof MutationObserver;
 	const translateMock = {
 		currentLang: 'de',
 		stream: (key: string) => of(key)
 	} as TranslateService;
 
 	beforeEach(async () => {
+		originalMutationObserver = window.MutationObserver;
 		metagridServiceSpy = jasmine.createSpyObj<EthMetagridService>('EthMetagridService', [
 			'getResourcesForGndIds',
 			'getResourcesForIdRefs'
@@ -35,6 +37,11 @@ describe('EthMetagridComponent', () => {
 
 		fixture = TestBed.createComponent(EthMetagridComponent);
 		component = fixture.componentInstance;
+	});
+
+	afterEach(() => {
+		(window as any).MutationObserver = originalMutationObserver;
+		document.querySelectorAll('nde-full-display-details').forEach(node => node.parentNode?.removeChild(node));
 	});
 
 	it('should create', () => {
@@ -122,5 +129,88 @@ describe('EthMetagridComponent', () => {
 
 		expect(consoleSpy).toHaveBeenCalled();
 		expect(result.length).toBe(1);
+	});
+
+
+	it('starts observing full display details container when available', () => {
+		const detailsContainer = document.createElement('nde-full-display-details');
+		document.body.appendChild(detailsContainer);
+
+		const observeSpy = jasmine.createSpy('observe');
+		let constructorCalls = 0;
+		class MockMutationObserver {
+			observe = observeSpy;
+			disconnect = jasmine.createSpy('disconnect');
+			takeRecords = () => [] as MutationRecord[];
+			constructor(_cb: MutationCallback) {
+				constructorCalls += 1;
+			}
+		}
+		(window as any).MutationObserver = MockMutationObserver as any;
+
+		(component as any).observeDetailsContainer([]);
+
+		expect(constructorCalls).toBe(1);
+		expect(observeSpy).toHaveBeenCalledWith(detailsContainer, { childList: true, subtree: true });
+	});
+
+
+	it('copies metagrid links and disconnects observer when required nodes appear', () => {
+		const detailsContainer = document.createElement('nde-full-display-details');
+		const authorityContainer = document.createElement('div');
+		authorityContainer.setAttribute('data-qa', 'detail_lds03');
+		const card = document.createElement('div');
+		card.className = 'metagrid-card';
+		const link = document.createElement('a');
+		link.className = 'metagrid-link';
+		detailsContainer.appendChild(authorityContainer);
+		detailsContainer.appendChild(card);
+		detailsContainer.appendChild(link);
+		document.body.appendChild(detailsContainer);
+
+		let observerCallback: MutationCallback | undefined;
+		class MockMutationObserver {
+			observe = jasmine.createSpy('observe');
+			disconnect = jasmine.createSpy('disconnect');
+			takeRecords = () => [] as MutationRecord[];
+			constructor(cb: MutationCallback) {
+				observerCallback = cb;
+			}
+		}
+		(window as any).MutationObserver = MockMutationObserver as any;
+
+		const callbackDisconnectSpy = jasmine.createSpy('disconnect');
+		const copySpy = spyOn(component, 'copyMetagridLinks');
+
+		const persons = [{ personId: '123' }] as any;
+		(component as any).observeDetailsContainer(persons);
+		observerCallback?.([], { disconnect: callbackDisconnectSpy } as unknown as MutationObserver);
+
+		expect(copySpy).toHaveBeenCalledWith(persons, authorityContainer);
+		expect(callbackDisconnectSpy).toHaveBeenCalled();
+		expect((component as any).detailsObserver).toBeUndefined();
+	});
+
+
+	it('disconnects previous observer before registering a new one', () => {
+		const detailsContainer = document.createElement('nde-full-display-details');
+		document.body.appendChild(detailsContainer);
+
+		const observerInstances: Array<{ observe: jasmine.Spy; disconnect: jasmine.Spy; takeRecords: () => MutationRecord[] }> = [];
+		class MockMutationObserver {
+			observe = jasmine.createSpy('observe');
+			disconnect = jasmine.createSpy('disconnect');
+			takeRecords = () => [] as MutationRecord[];
+			constructor(_cb: MutationCallback) {
+				observerInstances.push(this);
+			}
+		}
+		(window as any).MutationObserver = MockMutationObserver as any;
+
+		(component as any).observeDetailsContainer([]);
+		(component as any).observeDetailsContainer([]);
+
+		expect(observerInstances.length).toBe(2);
+		expect(observerInstances[0].disconnect).toHaveBeenCalled();
 	});
 });

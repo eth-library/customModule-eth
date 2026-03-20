@@ -1,6 +1,6 @@
 // EntityPage Place
 // https://jira.ethz.ch/browse/SLSP-1991
-import { Component, ElementRef, inject, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild, ViewEncapsulation, DestroyRef } from '@angular/core';
 import { combineLatest, defer, forkJoin, map, Observable, of, startWith, switchMap, catchError, filter } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthLocationPageService } from './eth-location-page.service';
@@ -27,6 +27,8 @@ import { SHELL_ROUTER } from "../injection-tokens";
 
 export class EthLocationPageComponent {
   private router = inject(SHELL_ROUTER); 
+  private destroyRef = inject(DestroyRef);
+  private pendingTimeouts = new Set<number>();
 
   placePageData$: Observable<PlacePageViewModel | null> = defer(() => {
     if (!this.router.url.includes('/entity/location')) {
@@ -84,7 +86,22 @@ export class EthLocationPageComponent {
     private ethStoreService: EthStoreService,
     public ethLocationPageService: EthLocationPageService,
     private ethErrorHandlingService: EthErrorHandlingService,
-  ) {}
+  ) {
+    this.destroyRef.onDestroy(() => this.clearPendingTimeouts());
+  }
+
+  private scheduleTask(task: () => void, delay = 0): void {
+    const timeoutId = window.setTimeout(() => {
+      this.pendingTimeouts.delete(timeoutId);
+      task();
+    }, delay);
+    this.pendingTimeouts.add(timeoutId);
+  }
+
+  private clearPendingTimeouts(): void {
+    this.pendingTimeouts.forEach(timeoutId => window.clearTimeout(timeoutId));
+    this.pendingTimeouts.clear();
+  }
 
   // our services can use gnd and qid, but not lccn --> map lccn to qid
   // --> EthGeoRefComponent.buildLocationEntityUrl()
@@ -175,7 +192,7 @@ export class EthLocationPageComponent {
                 a.properties.title.localeCompare(b.properties.title)
               );
             }
-            setTimeout(() => this.initMap(filteredFeatures, lat, lng));                        
+            this.scheduleTask(() => this.initMap(filteredFeatures, lat, lng));                        
             return { 
               ...vm, maps: mapMaps({features: filteredFeatures})
             };            
@@ -248,14 +265,14 @@ export class EthLocationPageComponent {
 
   open(key: string) {
     this.openLicensePopover = key;
-    setTimeout(() => {
+    this.scheduleTask(() => {
       this.licensePopover?.nativeElement?.focus();
     });
   }
 
   close() {
     this.openLicensePopover = null;
-    setTimeout(() => {
+    this.scheduleTask(() => {
       this.licensePopoverTrigger?.nativeElement?.focus();
     });
   }
@@ -270,7 +287,6 @@ export class EthLocationPageComponent {
 
   onFocusOut(event: FocusEvent) {
     const next = event.relatedTarget as HTMLElement | null;
-    console.error(next)
     if (!this.licensePopover?.nativeElement.contains(next)) {
       this.close();
     }

@@ -61,15 +61,44 @@ describe('EthMatomoComponent', () => {
     const script = document.createElement('script');
     script.src = 'https://library-ethz.opsone-analytics.ch/matomo.js';
     document.head.appendChild(script);
+    (window as any)._paq = [];
 
     const appendChildSpy = spyOn(document.head, 'appendChild').and.callThrough();
 
     component.ngOnInit();
+    routerEvents$.next(new NavigationEnd(1, '/from', '/existing-script-route'));
 
     expect(appendChildSpy).not.toHaveBeenCalled();
+    expect((window as any)._paq.some((entry: any[]) => entry[0] === 'trackPageView')).toBeTrue();
 
     document.head.removeChild(script);
   });
+
+
+  it('initializes tracking only once when ngOnInit is called multiple times', fakeAsync(() => {
+    const appendChildSpy = spyOn(document.head, 'appendChild').and.callThrough();
+    (window as any)._paq = [];
+
+    component.ngOnInit();
+
+    const script = document.querySelector('script[src="https://library-ethz.opsone-analytics.ch/matomo.js"]') as HTMLScriptElement;
+    expect(script).toBeTruthy();
+    script.onload?.(new Event('load'));
+    tick();
+
+    component.ngOnInit();
+    tick();
+
+    routerEvents$.next(new NavigationEnd(1, '/from', '/once'));
+    tick();
+
+    const enableLinkTrackingCalls = (window as any)._paq.filter((entry: any[]) => entry[0] === 'enableLinkTracking').length;
+
+    expect(appendChildSpy).toHaveBeenCalledTimes(1);
+    expect(enableLinkTrackingCalls).toBe(1);
+
+    script.parentNode?.removeChild(script);
+  }));
 
 
   it('logs sync errors during init', () => {
