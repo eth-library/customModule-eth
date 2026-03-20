@@ -7,7 +7,7 @@
 
 import { Component, DestroyRef, inject, Inject, Renderer2 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { catchError, filter, map, Observable, of, take, tap } from 'rxjs';
+import { catchError, distinctUntilChanged, map, of, take, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,8 +29,9 @@ const WAYBACK_HINT_CLASS = 'eth-wayback';
 })
 export class EthWaybackComponent {
 
-  showHint$!: Observable<boolean>;
   private destroyRef = inject(DestroyRef);
+  private hasWayback = false;
+  private observer: MutationObserver | null = null;
      
   constructor(
     private ethStoreService:EthStoreService,
@@ -50,8 +51,15 @@ export class EthWaybackComponent {
   private observeWaybackLinks(): void {
     this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
       map(deliveryEntity => this.hasWaybackLink(deliveryEntity)),
-      filter(Boolean),
-      tap(() => this.initObserver()),
+      distinctUntilChanged(),
+      tap(hasWaybackLink => {
+        this.hasWayback = hasWaybackLink;
+        if (hasWaybackLink) {
+          this.initObserver();
+        } else {
+          this.removeWaybackHint();
+        }
+      }),
       takeUntilDestroyed(this.destroyRef),
       catchError(err => {
         this.ethErrorHandlingService.logError(err, 'EthWaybackComponent.observeWaybackLinks');
@@ -63,7 +71,10 @@ export class EthWaybackComponent {
   private observeLanguageChanges(): void {
     this.translate.onLangChange.pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => this.changeDom());
+    ).subscribe(() => {
+      if (!this.hasWayback) return;
+      this.changeDom(true);
+    });
   }
 
   private hasWaybackLink(deliveryEntity: any): boolean {
@@ -73,20 +84,32 @@ export class EthWaybackComponent {
   }
 
   private initObserver() {
+    if (this.observer) return;
+
     const fullDisplayContainer = this.document.querySelector('nde-full-display-container');
     if (!fullDisplayContainer) return;
 
-    const observer = new MutationObserver(() => this.changeDom());
+    this.observer = new MutationObserver(() => this.changeDom());
 
-    observer.observe(fullDisplayContainer, { childList: true, subtree: true });
+    this.observer.observe(fullDisplayContainer, { childList: true, subtree: true });
 
     // initial
     this.changeDom();
 
-    this.destroyRef.onDestroy(() => observer.disconnect());
+    this.destroyRef.onDestroy(() => {
+      this.observer?.disconnect();
+      this.observer = null;
+    });
   }
 
-  private changeDom() {
+  private removeWaybackHint(): void {
+    const waybackHint = this.document.querySelector(`#${WAYBACK_HINT_ID}`);
+    if (waybackHint) {
+      this.renderer.removeChild(waybackHint.parentNode, waybackHint);
+    }
+  }
+
+  private changeDom(forceUpdate = false) {
     const btn = this.document.querySelector('nde-view-it-card button');
     const btnH5 = btn?.querySelector('h5');
     const parent = btn?.parentNode as HTMLElement | null;
@@ -95,6 +118,7 @@ export class EthWaybackComponent {
 
     const existing = parent.querySelector(`#${WAYBACK_HINT_ID}`) as HTMLElement | null;
     if (
+      !forceUpdate &&
       existing &&
       btnH5.textContent === this.translate.instant('eth.wayback.linkText') &&
       existing.textContent === this.translate.instant('eth.wayback.text')

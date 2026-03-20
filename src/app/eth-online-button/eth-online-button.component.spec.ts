@@ -50,17 +50,69 @@ describe('EthOnlineButtonComponent', () => {
   });
 
 
-  it('renders no online button when OTB Quicklinks exists (viewModel$ has online links)', async () => {
+  it('renders no online button when OOTB Quicklinks exists (viewModel$ has online links)', async () => {
     component.hostComponent = { viewModel$: of({ onlineLinks: [{}] }) } as any;
     storeSpy.getRecord$.and.returnValue(of({} as any));
     storeSpy.getDeliveryEntity$.and.returnValue(of({} as any));
 
-    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'hideOOTBQuicklink');
     spyOn<any>(component, 'observeLibkeyAppearance');
 
     const result = await firstValueFrom(component.links$);
 
     expect(result).toEqual([]);
+  });
+
+
+  it('renders no online button for Alma-D delivery category', async () => {
+    component.hostComponent = { viewModel$: of(null) } as any;
+    storeSpy.getRecord$.and.returnValue(of({
+      pnx: {
+        control: { recordid: ['99120192274305503'] },
+        links: { linktorsrcadditional: ['$$Uhttp://example.test$$Ddesc'] }
+      }
+    } as any));
+    storeSpy.getDeliveryEntity$.and.returnValue(of({
+      delivery: {
+        deliveryCategory: ['Alma-D'],
+        electronicServices: [{ serviceUrl: 'https://service.test' }]
+      }
+    } as any));
+
+    const result = await firstValueFrom(component.links$);
+
+    expect(result).toEqual([]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.eth-quicklink-container'))).toBeNull();
+  });
+
+
+  it('renders no online button for Library Stack links', async () => {
+    component.hostComponent = { viewModel$: of(null) } as any;
+    storeSpy.getRecord$.and.returnValue(of({
+      pnx: {
+        control: { recordid: ['cdi_librarystack_primary_159090'] },
+        links: { linktorsrcadditional: ['$$Uhttp://example.test$$Ddesc'] }
+      }
+    } as any));
+    storeSpy.getDeliveryEntity$.and.returnValue(of({
+      delivery: {
+        link: [{ linkURL: 'https://www.librarystack.org/item/159090' }],
+        electronicServices: [{ serviceUrl: 'https://service.test' }]
+      }
+    } as any));
+
+    const result = await firstValueFrom(component.links$);
+
+    expect(result).toEqual([]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.eth-quicklink-container'))).toBeNull();
   });
 
 
@@ -73,7 +125,7 @@ describe('EthOnlineButtonComponent', () => {
       }
     } as any));
 
-    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'hideOOTBQuicklink');
     spyOn<any>(component, 'observeLibkeyAppearance');
 
     const result = await firstValueFrom(component.links$);
@@ -95,7 +147,7 @@ describe('EthOnlineButtonComponent', () => {
     } as any));
     storeSpy.getDeliveryEntity$.and.returnValue(of({ delivery: { electronicServices: [] } } as any));
 
-    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'hideOOTBQuicklink');
     spyOn<any>(component, 'observeLibkeyAppearance');
 
     const result = await firstValueFrom(component.links$);
@@ -111,7 +163,7 @@ describe('EthOnlineButtonComponent', () => {
       delivery: { electronicServices: [{ serviceUrl: 'https://service.test', ilsApiId: 'alma_123' }] }
     } as any));
 
-    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'hideOOTBQuicklink');
     spyOn<any>(component, 'observeLibkeyAppearance');
 
     const result = await firstValueFrom(component.links$);
@@ -138,7 +190,7 @@ describe('EthOnlineButtonComponent', () => {
       } as any)
     );
 
-    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'hideOOTBQuicklink');
     spyOn<any>(component, 'observeLibkeyAppearance');
 
     fixture.detectChanges();
@@ -186,7 +238,7 @@ describe('EthOnlineButtonComponent', () => {
     storeSpy.getRecord$.and.callFake((host: any) => (host?.id === 'A' ? recordA$ : recordB$));
     storeSpy.getDeliveryEntity$.and.callFake((host: any) => (host?.id === 'A' ? deliveryA$ : deliveryB$));
 
-    spyOn<any>(component, 'hideOTBOnlineButton');
+    spyOn<any>(component, 'hideOOTBQuicklink');
 
     const results: any[] = [];
     component.links$.pipe(take(2)).subscribe(value => {
@@ -274,7 +326,7 @@ describe('EthOnlineButtonComponent', () => {
     const hostEl = { closest: () => container } as any;
     (component as any).elementRef = { nativeElement: hostEl };
 
-    (component as any).hideOTBOnlineButton();
+    (component as any).hideOOTBQuicklink();
 
     expect(otb.style.display).toBe('none');
   });

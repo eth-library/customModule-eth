@@ -42,7 +42,7 @@ describe('EthLocationHintComponent', () => {
   });
 
 
-  it('does nothing when no location is provided', () => {
+  it('does nothing when no library/sublocation is provided', () => {
     component.hostComponent = {};
     component.ngAfterViewInit();
 
@@ -54,7 +54,7 @@ describe('EthLocationHintComponent', () => {
   });
 
 
-  it('show a sanitized hint when translation exists', fakeAsync(() => {
+  it('show a sanitized hint when library/sublocation and translation exists', fakeAsync(() => {
     component.hostComponent = {
       location: {
         libraryCode: 'E01',

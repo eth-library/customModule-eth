@@ -64,7 +64,7 @@ describe('EthComposeEraraComponent', () => {
   });
 
 
-  it('builds print and online links for e-maps record', async () => {
+  it('builds print and e-rara online links for e-maps record', async () => {
     storeSpy.getVid.and.returnValue('VID');
     storeSpy.getTab.and.returnValue('TAB');
     storeSpy.getScope.and.returnValue('SCOPE');

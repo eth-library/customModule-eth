@@ -58,8 +58,6 @@ describe('EthGitHintComponent', () => {
       of('deutscher Hinweis' as GitHintVM)
     );
 
-    //fixture.detectChanges();
-
     expect(component.hint$).toBeDefined();
 
     const result = await firstValueFrom(component.hint$);
@@ -73,8 +71,6 @@ describe('EthGitHintComponent', () => {
     await fixture.whenStable(); 
 
     gitHintServiceSpy.getHint.and.returnValue(of('english hint' as GitHintVM));
-
-    //fixture.detectChanges();
 
     const result = await firstValueFrom(component.hint$);
     expect(gitHintServiceSpy.getHint).toHaveBeenCalledWith('en');
@@ -104,8 +100,6 @@ describe('EthGitHintComponent', () => {
     translateMock.currentLang = undefined as any;
     gitHintServiceSpy.getHint.and.returnValue(of('deutscher Hinweis' as GitHintVM));
 
-    //fixture.detectChanges();
-
     const result = await firstValueFrom(component.hint$);
 
     expect(gitHintServiceSpy.getHint).toHaveBeenCalledWith('de');
@@ -116,8 +110,6 @@ describe('EthGitHintComponent', () => {
   it('sanitizes hint text', async () => {
     gitHintServiceSpy.getHint.and.returnValue(of('raw-hint' as GitHintVM));
     utilsServiceSpy.sanitizeText.and.returnValue('safe-hint');
-
-    //fixture.detectChanges();
 
     const result = await firstValueFrom(component.hint$);
 

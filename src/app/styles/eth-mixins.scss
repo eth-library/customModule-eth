@@ -13,6 +13,6 @@
     );
 
     @each $role in $color-roles {
-        --sys-#{$role}: var(--md-sys-color-#{$role}) !important;
+        --sys-#{$role}: var(--slsp-color-#{$role}) !important;
     }
 }

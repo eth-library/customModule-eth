@@ -29,6 +29,7 @@ describe('EthIdpWarningComponent', () => {
   let authenticationProfile$: BehaviorSubject<string | null>;
   let storeServiceMock: any;
 
+  
   beforeEach(async () => {
     // prepare BehaviorSubjects
     userGroup$ = new BehaviorSubject<string | null>('ETH_Student');
@@ -75,7 +76,7 @@ describe('EthIdpWarningComponent', () => {
   });
 
 
-  it('warning because of: no eth userGroup, but eth mail', async () => {
+  it('warning because of: no eth userGroup, but eth email', async () => {
     userGroup$.next('AnyOther');
     email$.next('student.bla@ethz.ch');
     authenticationProfile$.next('Other');

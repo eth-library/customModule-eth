@@ -7,7 +7,7 @@
 
 import { Component, Inject, Renderer2, DestroyRef, inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { catchError, filter, map, Observable, of, take, tap } from 'rxjs';
+import { catchError, distinctUntilChanged, map, of, take, tap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -31,8 +31,9 @@ const TEXT2_CLASS = 'eth-librarystack-text2';
 })
 export class EthLibraryStackComponent {
 
-  showHint$!: Observable<boolean>;
   private destroyRef = inject(DestroyRef);
+  private hasLibraryStack = false;
+  private observer: MutationObserver | null = null;
    
   constructor(
     private ethStoreService:EthStoreService,
@@ -51,8 +52,15 @@ export class EthLibraryStackComponent {
   private observeLibraryStackLinks(): void {
     this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
       map(deliveryEntity => this.hasLibraryStackLink(deliveryEntity)),
-      filter(Boolean),
-      tap(() => this.initObserver()),
+      distinctUntilChanged(),
+      tap(hasLibraryStackLink => {
+        this.hasLibraryStack = hasLibraryStackLink;
+        if (hasLibraryStackLink) {
+          this.initObserver();
+        } else {
+          this.removeHints();
+        }
+      }),
       takeUntilDestroyed(this.destroyRef),
       catchError(err => {
         this.ethErrorHandlingService.logError(err, 'EthLibraryStackComponent.ngAfterViewInit');
@@ -64,7 +72,10 @@ export class EthLibraryStackComponent {
   private observeLanguageChanges(): void {
     this.translate.onLangChange.pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe(() => this.changeDom());
+    ).subscribe(() => {
+      if (!this.hasLibraryStack) return;
+      this.changeDom(true);
+    });
   }
 
   private hasLibraryStackLink(deliveryEntity: any): boolean {
@@ -74,27 +85,48 @@ export class EthLibraryStackComponent {
   }
 
   initObserver() {
+    if (this.observer) return;
+
     const fullDisplayContainer = this.document.querySelector(FULL_DISPLAY_SELECTOR);
     if (!fullDisplayContainer) return;
 
-    const observer = new MutationObserver(() => this.changeDom());
-    observer.observe(fullDisplayContainer, { childList: true, subtree: true }); 
+    this.observer = new MutationObserver(() => this.changeDom());
+    this.observer.observe(fullDisplayContainer, { childList: true, subtree: true }); 
 
     // initial
     this.changeDom(); 
 
-    this.destroyRef.onDestroy(() => observer.disconnect());    
+    this.destroyRef.onDestroy(() => {
+      this.observer?.disconnect();
+      this.observer = null;
+    });
   }
 
 
-  private changeDom() {
+  private removeHints(): void {
+    const text1Elements = this.document.querySelectorAll(`.${TEXT1_CLASS}`);
+    const text2Elements = this.document.querySelectorAll(`.${TEXT2_CLASS}`);
+
+    text1Elements.forEach(element => this.renderer.removeChild(element.parentNode, element));
+    text2Elements.forEach(element => this.renderer.removeChild(element.parentNode, element));
+  }
+
+
+  private changeDom(forceUpdate = false) {
     const btn = this.document.querySelector(VIEW_IT_BUTTON_SELECTOR);
     if (!btn || !btn.parentNode) return;
 
     const parent = btn.parentNode as HTMLElement;
+    const existingText1 = parent.querySelector(`.${TEXT1_CLASS}`);
+    const existingText2 = parent.querySelector(`.${TEXT2_CLASS}`);
+
+    if (forceUpdate) {
+      if (existingText1) this.renderer.removeChild(parent, existingText1);
+      if (existingText2) this.renderer.removeChild(parent, existingText2);
+    }
 
     // guard (multiple render + prevent loop dom changes)
-    if (parent.querySelector(`.${TEXT1_CLASS}`)) return;
+    if (!forceUpdate && existingText1) return;
 
     this.translate.get([
       'eth.libraryStack.text1',

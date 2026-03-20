@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { firstValueFrom, of, throwError } from 'rxjs';
 import { EthProvenienzEraraLinkComponent } from './eth-provenienz-erara-link.component';
 import { EthStoreService } from '../../services/eth-store.service';
@@ -41,6 +42,12 @@ describe('EthProvenienzEraraLinkComponent', () => {
   let errorHandlingService: jasmine.SpyObj<EthErrorHandlingService>;
   let router: { navigateByUrl: jasmine.Spy };
 
+  const createComponent = (): void => {
+    fixture = TestBed.createComponent(EthProvenienzEraraLinkComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  };
+
   beforeEach(async () => {
     storeService = jasmine.createSpyObj<EthStoreService>('EthStoreService', [
       'getFullDisplayRecord$',
@@ -71,9 +78,7 @@ describe('EthProvenienzEraraLinkComponent', () => {
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EthProvenienzEraraLinkComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    createComponent();
   });
 
   it('should create', () => {
@@ -196,7 +201,7 @@ describe('EthProvenienzEraraLinkComponent', () => {
   });
 
 
-  it('navigates via router while preventing default', () => {
+  it('navigates via router', () => {
     const event = { preventDefault: jasmine.createSpy('preventDefault') } as unknown as Event;
 
     component.navigate('/target', event);
@@ -204,4 +209,31 @@ describe('EthProvenienzEraraLinkComponent', () => {
     expect(event.preventDefault).toHaveBeenCalled();
     expect(router.navigateByUrl).toHaveBeenCalledWith('/target');
   });
+
+
+  it('renders both links when e-rara DOI is available: link to print in swisscovery and e-rara link', async () => {
+    storeService.getFullDisplayRecord$.and.returnValue(of(buildPnxDoc({
+      pnx: {
+        display: {
+          source: ['eth_epics_provenienz'],
+          lds09: ['https://dx.doi.org/10.3931/e-rara-12345']
+        }
+      }
+    })));
+
+    createComponent();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const anchorDebugElements = fixture.debugElement.queryAll(By.css('a'));
+    expect(anchorDebugElements.length).toBe(2);
+
+    const [eraraLinkElement, swisscoveryLinkElement] = anchorDebugElements.map(de => de.nativeElement as HTMLAnchorElement);
+    expect(eraraLinkElement.getAttribute('href')).toBe('https://dx.doi.org/10.3931/e-rara-12345');
+    expect(eraraLinkElement.getAttribute('target')).toBe('_blank');
+    expect(eraraLinkElement.getAttribute('rel')).toContain('noopener');
+
+    expect(swisscoveryLinkElement.getAttribute('href')).toBe('/nde/search?query=10.3931/e-rara-12345&vid=41SLSP_ETH:ETH&tab=default_tab&search_scope=default_scope');
+  });
+
 });

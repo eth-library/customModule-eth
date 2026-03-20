@@ -82,7 +82,7 @@ describe('EthDnbTocComponent', () => {
   });
 
 
-  it('returns alma links if alma links are present', async () => {
+  it('returns alma toc links if alma toc links are present', async () => {
     storeService.isFullview$.and.returnValue(of(true));
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
       delivery: {
@@ -102,7 +102,7 @@ describe('EthDnbTocComponent', () => {
   });
 
 
-  it('returns dnb links if no alma links exist', async () => {
+  it('returns dnb links if no alma toc links exist', async () => {
     storeService.isFullview$.and.returnValue(of(true));
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
       delivery: {
@@ -163,7 +163,7 @@ describe('EthDnbTocComponent', () => {
   });
 
 
-  it('normalizes titles and clears matches to the record title', async () => {
+  it('multiple tocs: normalizes titles and clears matches to the record title', async () => {
     storeService.isFullview$.and.returnValue(of(true));
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({ delivery: { link: [] } }));
     storeService.getFullDisplayRecord$.and.returnValue(of(buildPnxDoc({

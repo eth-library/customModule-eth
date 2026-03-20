@@ -1,8 +1,6 @@
 /*************************/
 /* Fixed Design Sections */
 /*************************/
-
-
 /* screenreader only */
 .eth-visually-hidden {
     position: absolute;
@@ -69,4 +67,19 @@ nde-record-citations-indicators {
 /* login dialog: register/help */
 .login-box-links{
   display:none;
+}
+
+/*****************************************/
+/* Theme */
+/*****************************************/
+
+.custom-nde-theme{  
+  /*--slsp-color-primary: #1c667b;
+  --slsp-color-on-primary: #ffffff;
+  --slsp-color-primary-shade: #6f9cab;
+  --slsp-color-secondary: #4b626b;
+  --slsp-color-on-secondary: #ffffff;
+  --slsp-color-secondary-shade: #8fa3aa;*/
+  --slsp-color-background: #f8f9fb;
+  --slsp-color-on-background: #191c1d;
 }

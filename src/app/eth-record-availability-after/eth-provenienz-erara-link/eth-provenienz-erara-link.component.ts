@@ -1,14 +1,14 @@
 /*
-Links between e-rara prints and E-Pics images in both directions:
+Links between E-Pics images and e-rara prints:
 1. Image -> Print: E-Pics also contains images of provenance features of old prints from the ETH Library.
 These images are linked to:
 - Print in e-rara
 - Print and all its provenances in swisscovery
-2. Print -> Image:
+2. eth-provenienz.component.ts: Print -> Image:
 The provenance images are displayed in the detailed view of the respective print.
+-> eth-full-display-side-bar-after\eth-provenienz\eth-provenienz.component.ts
 */
 // https://jira.ethz.ch/browse/SLSP-2006
-// \eth-full-display-side-bar-after\eth-provenienz\eth-provenienz.component.ts
 
 import { Component, Input, inject } from '@angular/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';

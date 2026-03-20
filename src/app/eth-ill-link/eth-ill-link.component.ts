@@ -105,9 +105,9 @@ export class EthIllLinkComponent {
       }
 
       // "GetIt from Other" exists → no ILL
-      if (this.document.querySelector('nde-get-it-from-other')) {
+      /*if (this.document.querySelector('nde-get-it-from-other')) {
         return of(null);
-      }
+      }*/
 
       // Rapido already has "no offer"
       if (this.document.querySelector('[data-qa="rapido.tiles.noOfferTileLine1"]')) {

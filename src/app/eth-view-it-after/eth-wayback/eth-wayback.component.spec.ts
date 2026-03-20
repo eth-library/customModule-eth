@@ -86,7 +86,7 @@ describe('EthWaybackComponent', () => {
   });
 
 
-  it('initializes observer when a wayback link exists', () => {
+  it('When a wayback link exists: wait for viewIt content (MutationObserver)', () => {
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
       delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/123' }] }
     }));
@@ -158,12 +158,30 @@ describe('EthWaybackComponent', () => {
 
 
   it('re-renders on language change', () => {
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
+      delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/123' }] }
+    }));
     const changeDomSpy = spyOn(component as any, 'changeDom');
 
     component.ngAfterViewInit();
     onLangChange$.next({ lang: 'en' });
 
     expect(changeDomSpy).toHaveBeenCalled();
+  });
+
+
+  it('does not render wayback hints on language change when no wayback link exists', () => {
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
+      delivery: { link: [{ linkURL: 'https://example.com/other' }] }
+    }));
+    const { container, card } = buildViewItDom(documentRef);
+
+    component.ngAfterViewInit();
+    onLangChange$.next({ lang: 'de' });
+
+    expect(card.querySelector('#eth-wayback-hint')).toBeNull();
+
+    documentRef.body.removeChild(container);
   });
 
   
@@ -180,6 +198,20 @@ describe('EthWaybackComponent', () => {
     expect((component as any).hasWaybackLink({ delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/foo' }] } })).toBeTrue();
     expect((component as any).hasWaybackLink({ delivery: { link: [{ linkURL: 'https://example.com' }] } })).toBeFalse();
     expect((component as any).hasWaybackLink(null)).toBeFalse();
+  });
+
+
+  it('initializes mutation observer only once for repeated true emissions', () => {
+    const delivery$ = new Subject<any>();
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(delivery$);
+
+    const initObserverSpy = spyOn(component as any, 'initObserver').and.callThrough();
+
+    component.ngAfterViewInit();
+    delivery$.next({ delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/1' }] } });
+    delivery$.next({ delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/2' }] } });
+
+    expect(initObserverSpy).toHaveBeenCalledTimes(1);
   });
 
 

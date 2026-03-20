@@ -98,7 +98,7 @@ describe('EthIllLinkComponent', () => {
   });
 
 
-  it('no ill link when nde-get-it-from-other element exists', async () => {
+  /*it('no ill link when nde-get-it-from-other element exists', async () => {
     const blocker = document.createElement('nde-get-it-from-other');
     document.body.appendChild(blocker);
 
@@ -114,7 +114,7 @@ describe('EthIllLinkComponent', () => {
     } finally {
       blocker.remove();
     }
-  });
+  });*/
 
 
   it('ill link when availability=no_inventory and rapido no-offer element exists', async () => {

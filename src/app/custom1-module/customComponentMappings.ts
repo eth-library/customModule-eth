@@ -46,7 +46,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-requests-after', EthIllLinkComponent],
     //['nde-login-dialog-after', EthRegistrationLinkComponent],
     //['nde-search-bar-presenter-after', EthOKMComponent],
-    ['nde-app-layout-top', EthThemeComponent],
+    //['nde-app-layout-top', EthThemeComponent],
     //['nde-full-display-details-bottom', EthMetagridComponent],
 ])
 

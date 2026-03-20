@@ -42,8 +42,9 @@ export class EthIdpWarningComponent {
     private ethErrorHandlingService: EthErrorHandlingService
   ){}
 
+
   private showWarning(group: string | null, email: string | null, profile: string | null): boolean {
-    if (profile === 'AlmaTODO') return false;
+    if (profile === 'Alma') return false;
     if (!email) return false;
     
     const ethMemberGroups = [
@@ -54,6 +55,7 @@ export class EthIdpWarningComponent {
     ];
     
     const isETHMember = group ? ethMemberGroups.includes(group) : false;
+    //return true;
     return !isETHMember && email?.includes('ethz.ch');
   }
 

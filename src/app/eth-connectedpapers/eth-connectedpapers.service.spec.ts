@@ -31,7 +31,7 @@ describe('EthConnectedpapersService', () => {
   });
 
 
-  it('returns null without calling http when doi is empty', () => {
+  it('returns null without calling http when no doi exist', () => {
     service.getPaper('').subscribe(response => {
       expect(response).toBeNull();
     });

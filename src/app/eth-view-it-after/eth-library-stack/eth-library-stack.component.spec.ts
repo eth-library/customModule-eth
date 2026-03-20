@@ -57,9 +57,9 @@ describe('EthLibraryStackComponent', () => {
   });
 
   
-  it('initializes observer when a library stack link exists', () => {
+  it('When a library stack link exists: wait for viewIt content (MutationObserver)', () => {
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
-      delivery: { link: [{ linkURL: 'https://www.librarystack.org/item' }] }
+      delivery: { link: [{ linkURL: 'https://www.librarystack.org/item' }] } 
     }));
 
     const initObserverSpy = spyOn(component as any, 'initObserver');
@@ -102,7 +102,74 @@ describe('EthLibraryStackComponent', () => {
   });
   
 
-  it('re-renders on language change', () => {
+  it('updates rendered hint text on language change', () => {
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
+      delivery: { link: [{ linkURL: 'https://www.librarystack.org/item' }] }
+    }));
+    const { container, card } = buildViewItDom(documentRef);
+
+    let callCount = 0;
+    translateMock.get.and.callFake(() => {
+      callCount += 1;
+      if (callCount === 1) {
+        return of({
+          'eth.libraryStack.text1': 'Text 1',
+          'eth.libraryStack.text2': 'Text 2'
+        });
+      }
+      return of({
+        'eth.libraryStack.text1': 'Text 1 DE',
+        'eth.libraryStack.text2': 'Text 2 DE'
+      });
+    });
+
+    component.ngAfterViewInit();
+    expect(card.querySelector('.eth-librarystack-text1')?.textContent).toBe('Text 1');
+
+    onLangChange$.next({ lang: 'en' });
+    expect(card.querySelector('.eth-librarystack-text1')?.textContent).toBe('Text 1 DE');
+
+    documentRef.body.removeChild(container);
+  });
+
+
+  it('does not render hints on language change when no library stack link exists', () => {
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
+      delivery: { link: [{ linkURL: 'https://example.com/other' }] }
+    }));
+    const { container, card } = buildViewItDom(documentRef);
+
+    translateMock.get.and.returnValue(of({
+      'eth.libraryStack.text1': 'Text 1',
+      'eth.libraryStack.text2': 'Text 2'
+    }));
+
+    component.ngAfterViewInit();
+    onLangChange$.next({ lang: 'de' });
+
+    expect(card.querySelector('.eth-librarystack-text1')).toBeNull();
+    expect(card.querySelector('.eth-librarystack-text2')).toBeNull();
+
+    documentRef.body.removeChild(container);
+  });
+
+
+  it('initializes mutation observer only once for repeated true emissions', () => {
+    const delivery$ = new Subject<any>();
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(delivery$);
+
+    const initObserverSpy = spyOn(component as any, 'initObserver').and.callThrough();
+
+    component.ngAfterViewInit();
+    delivery$.next({ delivery: { link: [{ linkURL: 'https://www.librarystack.org/a' }] } });
+    delivery$.next({ delivery: { link: [{ linkURL: 'https://www.librarystack.org/b' }] } });
+
+    expect(initObserverSpy).toHaveBeenCalledTimes(1);
+  });
+
+
+  it('disconnects mutation observer on destroy', () => {
+    const { container } = buildViewItDom(documentRef);
     storeService.getFullDisplayDeliveryEntity$.and.returnValue(of({
       delivery: { link: [{ linkURL: 'https://www.librarystack.org/item' }] }
     }));
@@ -111,12 +178,23 @@ describe('EthLibraryStackComponent', () => {
       'eth.libraryStack.text2': 'Text 2'
     }));
 
-    const changeDomSpy = spyOn(component as any, 'changeDom');
+    const disconnectSpy = jasmine.createSpy('disconnect');
+    const observeSpy = jasmine.createSpy('observe');
+    const mutationObserverSpy = spyOn(window as any, 'MutationObserver').and.returnValue({
+      observe: observeSpy,
+      disconnect: disconnectSpy,
+      takeRecords: () => []
+    } as unknown as MutationObserver);
 
     component.ngAfterViewInit();
-    onLangChange$.next({ lang: 'en' });
 
-    expect(changeDomSpy).toHaveBeenCalled();
+    expect(mutationObserverSpy).toHaveBeenCalled();
+    expect(observeSpy).toHaveBeenCalled();
+
+    fixture.destroy();
+    expect(disconnectSpy).toHaveBeenCalled();
+
+    documentRef.body.removeChild(container);
   });
 
 

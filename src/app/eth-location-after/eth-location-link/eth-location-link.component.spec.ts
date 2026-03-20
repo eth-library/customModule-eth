@@ -46,7 +46,7 @@ describe('EthLocationLinkComponent', () => {
   });
 
 
-  it('show a sanitized link when translation exists for this library / sublocation', () => {
+  it('show a sanitized link when translation exists for library / sublocation', () => {
     component.hostComponent = {
       location: {
         libraryCode: 'E01',
@@ -117,7 +117,7 @@ describe('EthLocationLinkComponent', () => {
   });
 
 
-  it('falls back to slsp default when there is no sublocation and location translation in code tables', () => {
+  it('falls back to slsp registry when there is no sublocation and no location translation in code tables', () => {
     component.hostComponent = {
       location: {
         libraryCode: 'E99',

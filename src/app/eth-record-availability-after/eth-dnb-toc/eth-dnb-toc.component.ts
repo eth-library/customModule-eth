@@ -1,4 +1,5 @@
-// A DNB service is used to check whether there is a digitized table of contents and a link to it is displayed (if there is no Alma TOC link).
+// A DNB service is used to check whether there is a digitized table of contents
+// and a link to it is displayed (if there is no Alma TOC link).
 // https://jira.ethz.ch/browse/SLSP-1988
 
 import { Component , Input } from '@angular/core';

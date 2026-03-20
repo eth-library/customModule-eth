@@ -1,4 +1,15 @@
 // In the online section, an offcampus warning is displayed next to the online link when appropriate, e.g., not for open access.
+// If you are off-campus and the resource does not have an OA flag, the delivery is checked in this order:
+// - If the resource has a “Remote Search Resource” category, it is usually from an external data source, so the warning is not displayed.
+//    However, there are cases where a CDI resource has this category (and not Alma-E), e.g. cdi_arxiv_primary_2310_06557,
+//    a resource from Scopus. CDI knows, but something still needs to be loaded.
+//    That is why the “Remote Search Resource” category is checked together with if it is a CDI resource. 
+//    If the category is set and it is not a CDI resource -> no warning (external data source).
+// - publicNote === “Online access via the World Wide Web” -> no warning
+// - from the library stack -> no warning
+// - If the category “Remote Search Resource” is set and it is a CDI resource -> warning.
+// - If the category “Alma-E” is set -> warning.
+
 // https://jira.ethz.ch/browse/SLSP-1995
 
 import { CommonModule } from '@angular/common';
@@ -59,6 +70,9 @@ export class EthOffcampusWarningComponent {
       ? (services[0] as { ilsApiId?: string })?.ilsApiId ?? ''
       : '';
 
+    //console.error("category",category)
+
+    // external datasource (not in CDI)
     if (!firstIlsApiId.includes('cdi_') && category.includes('Remote Search Resource')) {
       return false;
     }
@@ -75,6 +89,9 @@ export class EthOffcampusWarningComponent {
       return false;
     }
 
+    // Alma-E: external licensed electronic resources
+    // Remote Search Resource in CDI, eg. Scopus: CDI knows ist, but mite is remotely loaded
+    // Example: cdi_arxiv_primary_2310_06557 
     return category.includes('Alma-E') || category.includes('Remote Search Resource');
   }
   

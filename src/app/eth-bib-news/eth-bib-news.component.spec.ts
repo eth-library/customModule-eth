@@ -151,7 +151,7 @@ describe('EthBibNewsComponent', () => {
   });
 
 
-  it('renders an image only when the transformed url exists', async () => {
+  it('renders an image only when the transformed url contains "library.ethz.ch" ', async () => {
     const mockNews = {
       entries: [
         {
