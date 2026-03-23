@@ -80,8 +80,6 @@ export class EthMetagridComponent {
       .pipe(switchMap(record => this.getPersons(record)))
   );
   
-  openedCards = new Set<string>();
-  
   openLinkText$: Observable<string> = this.getI18nText('metagrid.link.open', {
     de: 'Metagrid-Links zeigen',
     en: 'Show Metagrid links',
@@ -96,12 +94,14 @@ export class EthMetagridComponent {
   
   newTabText$: Observable<string> = this.translate.stream('nui.aria.newWindow');
   
+  openedCards = new Set<string>();
 
+  
   constructor(
     @Inject('MODULE_PARAMETERS') public moduleParameters: any,
+    @Inject(DOCUMENT) private document: Document,
     private metagridService: EthMetagridService,
-    private translate: TranslateService,
-    @Inject(DOCUMENT) private document: Document    
+    private translate: TranslateService
   ) {
     this.destroyRef.onDestroy(() => this.disconnectDetailsObserver());
   }
@@ -179,25 +179,36 @@ export class EthMetagridComponent {
     this.detailsObserver = undefined;
   }
 
+  private extractPersonIdFromAuthorityText(text: string | null | undefined): string | null {
+    if (!text) return null;
+
+    const normalizedText = text.replace('(DE-588)', '').trim();
+    const gndPrefixIndex = normalizedText.lastIndexOf('GND:');
+    if (gndPrefixIndex === -1) return null;
+
+    const gndValue = normalizedText.slice(gndPrefixIndex + 4).trim();
+    return gndValue || null;
+  }
+
   
   // extract GND 
   private getGndIds(record: PnxDoc | null): string[] | null {
     const lds03 = record?.pnx?.display?.['lds03'] || [];
-    const gndIds: string[] = lds03.map((l: any) => {
-      l = l.replace('(DE-588)', '');
+    const gndIds = Array.from(new Set(lds03.map(l => {
+      const normalizedEntry = l.replace('(DE-588)', '');
       // ALMA Ressources (local data): link in value
       // https://explore.gnd.network/gnd/118527908
-      if (l.includes('/gnd/')) {
-        return l.substring(l.indexOf('/gnd/') + 5, l.indexOf('">'));
+      if (normalizedEntry.includes('/gnd/')) {
+        return normalizedEntry.substring(normalizedEntry.indexOf('/gnd/') + 5, normalizedEntry.indexOf('">'));
       }
       // external data sources 
       // GND: Prelog, Vladimir (rela): 119247496
-      else if (typeof l === 'string' && l.includes('GND: ')) {
-        let value = l.slice(l.lastIndexOf(': ') + 2).trim();
+      else if (normalizedEntry.includes('GND: ')) {
+        const value = normalizedEntry.slice(normalizedEntry.lastIndexOf(': ') + 2).trim();
         return value;
       }
       return null;
-    }).filter(Boolean) as string[];
+    }).filter(Boolean) as string[]));
     return gndIds.length ? gndIds : null;
   }
 
@@ -207,10 +218,10 @@ export class EthMetagridComponent {
     const lds03 = record?.pnx?.display?.['lds03'] || [];
     return Array.from(
       new Set(
-        lds03.map((entry: any) => {
+        lds03.map(entry => {
           const match = entry.match(/idref\.fr\/([^">]+)/);
           return match?.[1] ?? null;
-        }).filter((id: any): id is string => Boolean(id))
+        }).filter((id): id is string => Boolean(id))
       )
     );
   }
@@ -222,8 +233,7 @@ export class EthMetagridComponent {
     const personIdToTargetElementMap = new Map<string, Element>();
 
     // personsIds
-    const personIds = persons
-      .map(p => p.personId!);
+    const personIds = new Set(persons.map(p => p.personId).filter((personId): personId is string => !!personId));
 
     // Alma links in dom
     const links = authorityContainer.querySelectorAll<HTMLAnchorElement>('a[href]:not(.metagrid-link)');   
@@ -249,7 +259,7 @@ export class EthMetagridComponent {
         const personIdFromHref = extractId(href);
         if (!personIdFromHref) return;
 
-        if (!personIdFromHref || !personIds.includes(personIdFromHref)) return;
+        if (!personIds.has(personIdFromHref)) return;
         const span = link.parentElement;
         if(span){
           personIdToTargetElementMap.set(personIdFromHref, span);
@@ -260,25 +270,32 @@ export class EthMetagridComponent {
     // external data in dom
     const spans = authorityContainer.querySelectorAll('span');
     spans.forEach(s => {
-      if(s.innerHTML.indexOf('<a') === -1 && s.innerHTML.indexOf('GND:') > -1 && s.innerHTML.lastIndexOf(':') > -1){
-        const personIdFromSpan = s.innerHTML.substring(s.innerHTML.lastIndexOf(':')+1).replace('(DE-588)', '').trim();
+      if (s.querySelector('a')) return;
+
+      const personIdFromSpan = this.extractPersonIdFromAuthorityText(s.textContent);
+      if (personIdFromSpan && personIds.has(personIdFromSpan)) {
         personIdToTargetElementMap.set(personIdFromSpan, s);
       }
-    })    
-    // copy link and card
-    personIds.forEach(personId => {
-      if(personId){
-          const link = this.document.getElementById('metagrid-link-' + personId);
-          const card = this.document.getElementById('metagrid-card-' + personId)
-          const target = personIdToTargetElementMap.get(personId);
-          if (link && target?.parentElement) {
-            target.parentElement.insertBefore(link, target.nextSibling);
-            if (card) {
-              target.parentElement.append(card);
-            }
-          }
-      }
     })
+
+    const personCards = new Map<string, { link: HTMLElement | null; card: HTMLElement | null }>();
+    personIds.forEach(personId => {
+      personCards.set(personId, {
+        link: this.document.getElementById('metagrid-link-' + personId),
+        card: this.document.getElementById('metagrid-card-' + personId)
+      });
+    });
+
+    // copy link and card
+    personCards.forEach(({ link, card }, personId) => {
+      const target = personIdToTargetElementMap.get(personId);
+      if (link && target?.parentElement) {
+        target.parentElement.insertBefore(link, target.nextSibling);
+        if (card) {
+          target.parentElement.append(card);
+        }
+      }
+    });
 
   }
 

@@ -218,11 +218,6 @@ describe('EthWaybackComponent', () => {
   it('observes DOM mutations and disconnects on destroy', () => {
     const { container } = buildViewItDom(documentRef);
     const changeDomSpy = spyOn(component as any, 'changeDom');
-    let destroyCallback: (() => void) | undefined;
-    spyOn(component['destroyRef'], 'onDestroy').and.callFake((cb: () => void) => {
-      destroyCallback = cb;
-      return () => {};
-    });
 
     (component as any).initObserver();
 
@@ -233,7 +228,25 @@ describe('EthWaybackComponent', () => {
     mutationCallbacks[0]?.([], mockObservers[0] as unknown as MutationObserver);
     expect(changeDomSpy).toHaveBeenCalledTimes(2);
 
-    destroyCallback?.();
+    fixture.destroy();
+    expect(mockObservers[0].disconnect).toHaveBeenCalled();
+
+    documentRef.body.removeChild(container);
+  });
+
+
+  it('disconnects observer when wayback link disappears', () => {
+    const delivery$ = new Subject<any>();
+    const { container } = buildViewItDom(documentRef);
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(delivery$);
+
+    component.ngAfterViewInit();
+    delivery$.next({ delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/1' }] } });
+
+    expect(mockObservers.length).toBe(1);
+
+    delivery$.next({ delivery: { link: [{ linkURL: 'https://example.com/other' }] } });
+
     expect(mockObservers[0].disconnect).toHaveBeenCalled();
 
     documentRef.body.removeChild(container);

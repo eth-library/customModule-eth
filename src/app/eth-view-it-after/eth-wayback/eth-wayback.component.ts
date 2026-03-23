@@ -12,6 +12,7 @@ import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from "@ngx-translate/core";
+import { StoreDeliveryEntity } from '../../models/eth.model';
 
 const WAYBACK_URL_SNIPPET = 'https://wayback.archive-It.org';
 const WAYBACK_HINT_ID = 'eth-wayback-hint';
@@ -39,7 +40,9 @@ export class EthWaybackComponent {
     private renderer: Renderer2,
     private translate: TranslateService,    
     @Inject(DOCUMENT) private document: Document    
-  ){}
+  ){
+    this.destroyRef.onDestroy(() => this.disconnectObserver());
+  }
 
 
   // 99117429500405503
@@ -57,6 +60,7 @@ export class EthWaybackComponent {
         if (hasWaybackLink) {
           this.initObserver();
         } else {
+          this.disconnectObserver();
           this.removeWaybackHint();
         }
       }),
@@ -77,8 +81,8 @@ export class EthWaybackComponent {
     });
   }
 
-  private hasWaybackLink(deliveryEntity: any): boolean {
-    return deliveryEntity?.delivery?.link?.some((entry: any) =>
+  private hasWaybackLink(deliveryEntity: StoreDeliveryEntity | null): boolean {
+    return deliveryEntity?.delivery?.link?.some(entry =>
       entry.linkURL?.includes(WAYBACK_URL_SNIPPET)
     ) ?? false;
   }
@@ -95,11 +99,11 @@ export class EthWaybackComponent {
 
     // initial
     this.changeDom();
+  }
 
-    this.destroyRef.onDestroy(() => {
-      this.observer?.disconnect();
-      this.observer = null;
-    });
+  private disconnectObserver(): void {
+    this.observer?.disconnect();
+    this.observer = null;
   }
 
   private removeWaybackHint(): void {

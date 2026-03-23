@@ -54,6 +54,17 @@ nde-record-citations-indicators {
     display: flex;
 }
 
+/* loans: hide renew buttons */
+nde-loans .loan-renew-btn {
+    display: none;
+}
+nde-loans .renew-all-button {
+    display: none;
+}
+nde-loans .loans-divider-actions {
+    display: none;
+}
+
 /*****************************************/
 /* Hide elements from slsp customizing */
 /*****************************************/

@@ -12,6 +12,7 @@ import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { StoreDeliveryEntity } from '../../models/eth.model';
 
 const LIBRARYSTACK_URL_SNIPPET = 'www.librarystack.org';
 const FULL_DISPLAY_SELECTOR = 'nde-full-display-container';
@@ -41,7 +42,9 @@ export class EthLibraryStackComponent {
     private renderer: Renderer2,
     private translate: TranslateService,
     @Inject(DOCUMENT) private document: Document    
-  ){}
+  ){
+    this.destroyRef.onDestroy(() => this.disconnectObserver());
+  }
 
   // cdi_librarystack_primary_159090
   ngAfterViewInit() {
@@ -58,6 +61,7 @@ export class EthLibraryStackComponent {
         if (hasLibraryStackLink) {
           this.initObserver();
         } else {
+          this.disconnectObserver();
           this.removeHints();
         }
       }),
@@ -78,8 +82,8 @@ export class EthLibraryStackComponent {
     });
   }
 
-  private hasLibraryStackLink(deliveryEntity: any): boolean {
-    return deliveryEntity?.delivery?.link?.some((entry: any) =>
+  private hasLibraryStackLink(deliveryEntity: StoreDeliveryEntity | null): boolean {
+    return deliveryEntity?.delivery?.link?.some(entry =>
       entry.linkURL?.includes(LIBRARYSTACK_URL_SNIPPET)
     ) ?? false;
   }
@@ -95,11 +99,11 @@ export class EthLibraryStackComponent {
 
     // initial
     this.changeDom(); 
+  }
 
-    this.destroyRef.onDestroy(() => {
-      this.observer?.disconnect();
-      this.observer = null;
-    });
+  private disconnectObserver(): void {
+    this.observer?.disconnect();
+    this.observer = null;
   }
 
 

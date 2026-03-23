@@ -6,6 +6,7 @@ import { EthLocationPageComponent } from './eth-location-page.component';
 import { EthLocationPageService } from './eth-location-page.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { SHELL_ROUTER } from '../injection-tokens';
 import { PlacePageViewModel } from '../models/eth.model';
@@ -33,6 +34,7 @@ describe('EthLocationPageComponent', () => {
   let errorHandlingService: jasmine.SpyObj<EthErrorHandlingService>;
   let translateService: { currentLang: string; onLangChange: Subject<{ lang: string }>; stream: (key: string) => Observable<string> };
   let router: { url: string; navigateByUrl: jasmine.Spy };
+  let documentRef: Document;
 
   beforeEach(async () => {
     linkedDataEntityId$ = new BehaviorSubject<string>('Q72');
@@ -85,6 +87,8 @@ describe('EthLocationPageComponent', () => {
       ]
     })
     .compileComponents();
+
+    documentRef = TestBed.inject(DOCUMENT);
   });
 
   const createComponent = () => {
@@ -363,7 +367,7 @@ describe('EthLocationPageComponent', () => {
     createComponent();
     const removeSpy = jasmine.createSpy('remove');
     (component as any).map = { remove: removeSpy };
-    spyOn(document, 'getElementById').and.returnValue(null);
+    spyOn(documentRef, 'getElementById').and.returnValue(null);
 
     (component as any).initMap([], '47.3', '8.5');
 

@@ -7,7 +7,7 @@ import { EthPersonService } from '../services/eth-person.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
@@ -33,7 +33,8 @@ import { PersonVM, SearchVariantVM, PrimoApiResponse } from '../models/eth.model
 export class EthPersonPageComponent {
   private router = inject(SHELL_ROUTER);
   private destroyRef = inject(DestroyRef);
-  private pendingTimeouts = new Set<number>();
+  private document = inject(DOCUMENT);
+  private pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
   private lang!: string;
   openLicensePopover: string | null = null;
 
@@ -51,7 +52,7 @@ export class EthPersonPageComponent {
     );
   });
 
-  otbEntityStatus: Observable<string> = defer(() =>
+  otbEntityStatus$: Observable<string> = defer(() =>
     this.ethStoreService.linkedDataEntityStatus$.pipe(
       catchError(() => of('success'))
     )
@@ -70,7 +71,7 @@ export class EthPersonPageComponent {
   }
 
   private scheduleTask(task: () => void, delay = 0): void {
-    const timeoutId = window.setTimeout(() => {
+    const timeoutId = globalThis.setTimeout(() => {
       this.pendingTimeouts.delete(timeoutId);
       task();
     }, delay);
@@ -78,7 +79,7 @@ export class EthPersonPageComponent {
   }
 
   private clearPendingTimeouts(): void {
-    this.pendingTimeouts.forEach(timeoutId => window.clearTimeout(timeoutId));
+    this.pendingTimeouts.forEach(timeoutId => globalThis.clearTimeout(timeoutId));
     this.pendingTimeouts.clear();
   }
 
@@ -110,7 +111,7 @@ export class EthPersonPageComponent {
   }
 
   resetPanelIds() {
-    const allPanels = document.querySelectorAll('.eth-personpage-links mat-expansion-panel');
+    const allPanels = this.document.querySelectorAll('.eth-personpage-links mat-expansion-panel');
     const start = 50;
 
     allPanels.forEach((panel, i) => {

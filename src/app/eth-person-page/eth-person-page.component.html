@@ -1,6 +1,6 @@
 @if (person$ | async; as person) {
   <div class="eth-personpage-links">  
-    @if ((otbEntityStatus | async) != "success"){ 
+    @if ((otbEntityStatus$ | async) != "success"){ 
       <mat-divider role="separator" class="mat-divider divider mat-divider-horizontal" aria-orientation="horizontal"></mat-divider>
 
       <mat-expansion-panel #ethPanel0 [expanded]="true" hideToggle="true" class="eth-expansion-panel">

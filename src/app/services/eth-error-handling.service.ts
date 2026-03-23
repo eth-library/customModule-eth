@@ -9,32 +9,37 @@ export class EthErrorHandlingService {
 
   // observable
   logError(error: unknown, context: string = 'Unknown Context'): void {
-    let errorMessage = `Error in ${context}: An unknown error occurred`;
-    if (error instanceof HttpErrorResponse) {
-      errorMessage = this.getHttpErrorMessage(error, context);
-    } else if (error instanceof TypeError) {
-      errorMessage = `Type Error in ${context}: ${error.message}`;
-    } else if (error instanceof Error) {
-      errorMessage = `General Error in ${context}: ${error.message}`;
-    } else if (typeof error === 'string') {
-      errorMessage = `String Error in ${context}: ${error}`;
-    }
-    console.error('**ETH** :', errorMessage);
-    console.error(error);
+    this.writeError('**ETH** :', this.buildErrorMessage(error, context, true), error);
   }
 
   // catch block
   logSyncError(error: unknown, context: string = 'Unknown Context'): void{
-    let errorMessage = `Error in ${context}: An unknown error occurred`;
-    if (error instanceof TypeError) {
-      errorMessage = `Type Error in ${context}: ${error.message}`;
-    } else if (error instanceof Error) {
-      errorMessage = `General Error in ${context}: ${error.message}`;
-    } else if (typeof error === 'string') {
-      errorMessage = `String Error in ${context}: ${error}`;
-    }
-    console.error('**ETH** ', errorMessage);
+    this.writeError('**ETH** ', this.buildErrorMessage(error, context, false), error);
+  }
+
+  private writeError(prefix: string, message: string, error: unknown): void {
+    console.error(prefix, message);
     console.error(error);
+  }
+
+  private buildErrorMessage(error: unknown, context: string, includeHttpErrorDetails: boolean): string {
+    if (includeHttpErrorDetails && error instanceof HttpErrorResponse) {
+      return this.getHttpErrorMessage(error, context);
+    }
+
+    if (error instanceof TypeError) {
+      return `Type Error in ${context}: ${error.message}`;
+    }
+
+    if (error instanceof Error) {
+      return `General Error in ${context}: ${error.message}`;
+    }
+
+    if (typeof error === 'string') {
+      return `String Error in ${context}: ${error}`;
+    }
+
+    return `Error in ${context}: An unknown error occurred`;
   }
 
   private getHttpErrorMessage(error: HttpErrorResponse, context: string): string {

@@ -330,8 +330,6 @@ describe('EthOnlineButtonComponent', () => {
 
     expect(otb.style.display).toBe('none');
   });
-
-
   it('observes libkey appearance and hides ETH online button when detected', () => {
     const container = document.createElement('div');
     const quicklink = document.createElement('div');
@@ -354,11 +352,6 @@ describe('EthOnlineButtonComponent', () => {
     }
     (window as any).MutationObserver = MutationObserverMock as any;
 
-    const destroySpy = jasmine.createSpy('onDestroy');
-    let destroyFn: (() => void) | null = null;
-    destroySpy.and.callFake((cb: () => void) => { destroyFn = cb; });
-    (component as any).destroyRef = { onDestroy: destroySpy };
-
     (component as any).observeLibkeyAppearance();
 
     expect(observeSpy).toHaveBeenCalledWith(container, { childList: true, subtree: true });
@@ -372,11 +365,22 @@ describe('EthOnlineButtonComponent', () => {
 
     expect(quicklink.style.display).toBe('none');
     expect(disconnectSpy).toHaveBeenCalled();
-    const destroy = destroyFn as (() => void) | null;
-    destroy?.();
-    expect(disconnectSpy).toHaveBeenCalledTimes(2);
 
     (window as any).MutationObserver = originalObserver;
+  });
+
+
+  it('disconnects and clears the libkey observer helper state', () => {
+    const disconnectSpy = jasmine.createSpy('disconnect');
+
+    (component as any).mutationObserver = {
+      disconnect: disconnectSpy
+    } as unknown as MutationObserver;
+
+    (component as any).disconnectLibkeyObserver();
+
+    expect(disconnectSpy).toHaveBeenCalled();
+    expect((component as any).mutationObserver).toBeUndefined();
   });
 
 

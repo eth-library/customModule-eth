@@ -111,6 +111,24 @@ describe('EthMetagridComponent', () => {
 		expect(result.every(p => !!p.personId)).toBeTrue();
 	});
 
+
+	it('deduplicates repeated gnd ids before requesting metagrid resources', async () => {
+		const record = {
+			pnx: {
+				display: {
+					lds03: ['GND: 12345', 'GND: 12345', '(DE-588)12345']
+				}
+			}
+		} as any;
+
+		metagridServiceSpy.getResourcesForGndIds.and.returnValue(of([] as any));
+		metagridServiceSpy.getResourcesForIdRefs.and.returnValue(of([] as any));
+
+		await firstValueFrom(component.getPersons(record));
+
+		expect(metagridServiceSpy.getResourcesForGndIds).toHaveBeenCalledWith(['12345'], jasmine.any(Array));
+	});
+
     
 	it('logs errors from metagrid service and continues', async () => {
 		const consoleSpy = spyOn(console, 'error');
@@ -212,5 +230,28 @@ describe('EthMetagridComponent', () => {
 
 		expect(observerInstances.length).toBe(2);
 		expect(observerInstances[0].disconnect).toHaveBeenCalled();
+	});
+
+
+	it('maps authority text spans without parsing innerHTML strings', () => {
+		const authorityContainer = document.createElement('div');
+		const targetSpan = document.createElement('span');
+		targetSpan.textContent = 'GND: 12345';
+		authorityContainer.appendChild(targetSpan);
+
+		const link = document.createElement('a');
+		link.id = 'metagrid-link-12345';
+		const card = document.createElement('div');
+		card.id = 'metagrid-card-12345';
+		document.body.appendChild(link);
+		document.body.appendChild(card);
+
+		component.copyMetagridLinks([{ personId: '12345' }] as any, authorityContainer);
+
+		expect(targetSpan.parentElement?.contains(link)).toBeTrue();
+		expect(targetSpan.parentElement?.contains(card)).toBeTrue();
+
+		link.remove();
+		card.remove();
 	});
 });

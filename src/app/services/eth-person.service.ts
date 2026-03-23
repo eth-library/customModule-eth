@@ -341,6 +341,12 @@ export class EthPersonService {
         }
     }
 
+    private hasHeadVar(resp: unknown, variable: string): boolean {
+        if (!resp || typeof resp !== 'object') return false;
+        const candidate = resp as { head?: { vars?: unknown } };
+        return Array.isArray(candidate.head?.vars) && candidate.head.vars.includes(variable);
+    }
+
 
     processPersonsResponse(resp: PersonApiResponse, lang: string): PersonVM  {
         try {
@@ -369,59 +375,59 @@ export class EthPersonService {
             // Entityfacts
             const entityfactsResult = results.filter(r => r.provider === 'hub.culturegraph.org');
             if (entityfactsResult.length > 0) {
-                person.entityfacts = this.processEntityfactsResponse(entityfactsResult[0].resp);
+                person.entityfacts = this.processEntityfactsResponse(entityfactsResult[0].resp as EntityfactsApiResponse);
             }
 
             // Metagrid
             const metagridResult = results.filter(r => r.provider === 'api.metagrid.ch');
-            if (metagridResult.length > 0 && metagridResult[0].resp.concordances?.length > 0) {
-                person.metagridLinks = this.processMetagridResponse(metagridResult[0].resp);
+            if (metagridResult.length > 0 && (metagridResult[0].resp as MetagridApiResponse)?.concordances?.length > 0) {
+                person.metagridLinks = this.processMetagridResponse(metagridResult[0].resp as MetagridApiResponse);
             }
 
             // Prometheus
             const prometheusResult = results.filter(r => r.provider === 'prometheus.lmu.de');
             if (prometheusResult.length > 0) {
-                person.prometheusLinks = this.processPrometheusResponse(prometheusResult[0].resp);
+                person.prometheusLinks = this.processPrometheusResponse(prometheusResult[0].resp as PrometheusApiResponse);
             }
 
             // Related persons (teachers)
             const wikiTeacherResult = results.filter(
-                r => r.provider === 'query.wikidata.org' && r.resp.head.vars.includes('teacherBirths')
+                r => r.provider === 'query.wikidata.org' && this.hasHeadVar(r.resp, 'teacherBirths')
             );
             if (wikiTeacherResult.length > 0) {
-                person.teachers = this.processRelatedPersonsResponse(wikiTeacherResult[0].resp);
+                person.teachers = this.processRelatedPersonsResponse(wikiTeacherResult[0].resp as WikiRelatedPersonApiResponse);
             }
 
             // Related persons (students)
             const wikiStudentResult = results.filter(
-                r => r.provider === 'query.wikidata.org' && r.resp.head.vars.includes('studentBirths')
+                r => r.provider === 'query.wikidata.org' && this.hasHeadVar(r.resp, 'studentBirths')
             );
             if (wikiStudentResult.length > 0) {
-                person.students = this.processRelatedPersonsResponse(wikiStudentResult[0].resp);
+                person.students = this.processRelatedPersonsResponse(wikiStudentResult[0].resp as WikiRelatedPersonApiResponse);
             }
 
             // Wikipedia URL
             const wikiWikipediaUrlListResult = results.filter(
-                r => r.provider === 'query.wikidata.org' && r.resp.head.vars.includes('wikipediaUrlList')
+                r => r.provider === 'query.wikidata.org' && this.hasHeadVar(r.resp, 'wikipediaUrlList')
             );
             if (wikiWikipediaUrlListResult.length > 0) {
-                person.wikipediaUrl = this.processWikipediaUrlListResponse(wikiWikipediaUrlListResult[0].resp, lang);
+                person.wikipediaUrl = this.processWikipediaUrlListResponse(wikiWikipediaUrlListResult[0].resp as WikiUrlListApiResponse, lang);
             }
 
             // Wikidata bio + links
             const wikiResult = results.filter(
-            r => r.provider === 'query.wikidata.org' && r.resp.head.vars.includes('birth')
+            r => r.provider === 'query.wikidata.org' && this.hasHeadVar(r.resp, 'birth')
             );
             if (wikiResult.length > 0) {
-                person.wiki = this.processWikiResponse(wikiResult[0].resp);
+                person.wiki = this.processWikiResponse(wikiResult[0].resp as WikiApiResponse);
             }
 
             // Wikidata archives at
             const wikiArchivesAtResult = results.filter(
-                r => r.provider === 'query.wikidata.org' && r.resp.head.vars.includes('refnode')
+                r => r.provider === 'query.wikidata.org' && this.hasHeadVar(r.resp, 'refnode')
             );
             if (wikiArchivesAtResult.length > 0) {
-                person.wikiArchivesAtLinks = this.processWikiArchivesAtResponse(wikiArchivesAtResult[0].resp);
+                person.wikiArchivesAtLinks = this.processWikiArchivesAtResponse(wikiArchivesAtResult[0].resp as WikiArchivesAtApiResponse);
             }
 
             // URL der Entity

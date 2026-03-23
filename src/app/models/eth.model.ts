@@ -40,7 +40,7 @@ export interface HostComponent {
   isOpen?: boolean;
   filtersVisible?: boolean;
   filterGroup?: HostComponentFilterGroup;
-  filterList$?: any; 
+  filterList$?: unknown; 
   _service?: HostComponentService;
   viewModel$?: Observable<HostComponentViewModel>;
 }
@@ -67,7 +67,7 @@ export interface PrimoApiResponse  {
     totalResultsLocal?: number;
   };
   docs?: PnxDoc[];
-  records?: any[]; // todo
+  records?: unknown[]; // todo
 }
 export interface PnxDoc  {
   pnx?: {
@@ -305,7 +305,7 @@ export interface EthoramaPoi {
 }
 export interface EthoramaContentItem {
   docId: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 
@@ -526,7 +526,7 @@ export interface PersonApiResponse {
 }
 export interface PersonResult {
   provider: string;
-  resp: any;  // provider specific
+  resp: unknown;  // provider specific
   gnd?: string;
 }
 export interface GndByIdRefApiResponse {

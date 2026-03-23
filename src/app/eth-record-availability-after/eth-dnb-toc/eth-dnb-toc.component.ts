@@ -10,7 +10,7 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { CommonModule } from '@angular/common';
 import { TranslateService } from "@ngx-translate/core";
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
-import { HostComponent, PnxDoc, DnbTocApiResponse, DnbTocLinksVM, DnbTocDnbLinkVM } from '../../models/eth.model';
+import { HostComponent, PnxDoc, DnbTocApiResponse, DnbTocLinksVM, DnbTocDnbLinkVM, StoreDeliveryEntity } from '../../models/eth.model';
 
 const EXCLUDED_ALMA_LINK_PREFIXES = [
   'http://doi.org/10.3932/',
@@ -71,18 +71,27 @@ export class EthDnbTocComponent {
   ){}
 
 
-  private mapAlmaLinks(deliveryEntity: any): DnbTocLinksVM['almaLinks'] {
-    const almaLinks = deliveryEntity?.delivery?.link?.filter((link: any) =>
-      ['linktorsrc', 'addlink'].includes(link.linkType) &&
-      link.displayLabel !== '$$Elinktorsrc' &&
-      !EXCLUDED_ALMA_LINK_PREFIXES.some(excludeStr => link.linkURL?.includes(excludeStr))
-    ) ?? [];
+  private mapAlmaLinks(deliveryEntity: StoreDeliveryEntity | null): DnbTocLinksVM['almaLinks'] {
+    const almaLinks = (deliveryEntity?.delivery?.link ?? []).filter(
+      (link): link is { linkType: string; linkURL: string; displayLabel?: string } => {
+        const linkType = link.linkType;
+        const linkUrl = link.linkURL;
+        if (!linkType || !linkUrl) {
+          return false;
+        }
+        return (
+          ['linktorsrc', 'addlink'].includes(linkType) &&
+          link.displayLabel !== '$$Elinktorsrc' &&
+          !EXCLUDED_ALMA_LINK_PREFIXES.some(excludeStr => linkUrl.includes(excludeStr))
+        );
+      }
+    );
 
-    return almaLinks.map((link: any) => ({
+    return almaLinks.map(link => ({
       identifier: null,
       uri: link.linkURL,
       type: 'alma',
-      label: link.displayLabel
+      label: link.displayLabel ?? ''
     }));
   }
 

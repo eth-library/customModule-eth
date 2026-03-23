@@ -123,10 +123,10 @@ export class EthGeoRefComponent {
               map((entities) => {
                 const entityIds = new Set(
                   (entities ?? [])
-                    .map((e: any) => e.id)
+                    .map((e: { id?: string } | null | undefined) => e?.id)
                     .filter((id: string | null | undefined): id is string => Boolean(id))
                 );              
-                const filteredPlaces = allPlaces.filter((p: any) => {
+                const filteredPlaces = allPlaces.filter(p => {
                   const lccn = p.lccn;
                   if (!lccn) {
                     return true;
@@ -218,10 +218,10 @@ export class EthGeoRefComponent {
     for (const p of data.member) {
       const gnd = p.gndIdentifier;
       const qid = p.sameAs?.find(
-        (s: any) => s.id?.includes('wikidata.org/entity/')
+        s => s.id?.includes('wikidata.org/entity/')
       )?.id?.split('/').pop();
       const lccn = p.sameAs?.find(
-        (s: any) => s.id?.includes('id.loc.gov')
+        s => s.id?.includes('id.loc.gov')
       )?.id?.split('/').pop();      
       const key = gnd;
       if (!key || map.has(key)) continue;

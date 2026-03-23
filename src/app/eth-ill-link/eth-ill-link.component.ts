@@ -30,21 +30,19 @@ export class EthIllLinkComponent {
 
   // do we need an ILL link? In this case: create the querystring of the ILL link.
   // 991076219509705501
-  qs$: Observable<string | null> = defer(() =>
-    combineLatest([
-      this.ethStoreService.getFullDisplayRecord$(),
-      this.ethStoreService.getFullDisplayDeliveryEntity$()
-    ]).pipe(
-      switchMap(([record, deliveryEntity]) => this.getIllQsOrNull(record, deliveryEntity)),
-      catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.qs$');
-        return of(null);
-      }),
-      shareReplay({
-        bufferSize: 1,
-        refCount: true
-      })
-    )
+  qs$: Observable<string | null> = combineLatest([
+    this.ethStoreService.getFullDisplayRecord$(),
+    this.ethStoreService.getFullDisplayDeliveryEntity$()
+  ]).pipe(
+    switchMap(([record, deliveryEntity]) => this.getIllQsOrNull(record, deliveryEntity)),
+    catchError(err => {
+      this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.qs$');
+      return of(null);
+    }),
+    shareReplay({
+      bufferSize: 1,
+      refCount: true
+    })
   );
 
   // get translations, if needed

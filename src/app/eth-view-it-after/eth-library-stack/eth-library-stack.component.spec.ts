@@ -14,8 +14,25 @@ describe('EthLibraryStackComponent', () => {
   let translateMock: jasmine.SpyObj<TranslateService>;
   let onLangChange$: Subject<any>;
   let documentRef: Document;
+  let mutationCallbacks: MutationCallback[];
+  let mockObservers: MockMutationObserver[];
+  let originalMutationObserver: typeof MutationObserver;
+
+  class MockMutationObserver {
+    observe = jasmine.createSpy('observe');
+    disconnect = jasmine.createSpy('disconnect');
+    constructor(public callback: MutationCallback) {
+      mutationCallbacks.push(callback);
+      mockObservers.push(this);
+    }
+  }
 
   beforeEach(async () => {
+    mutationCallbacks = [];
+    mockObservers = [];
+    originalMutationObserver = window.MutationObserver;
+    (window as unknown as { MutationObserver: typeof MutationObserver }).MutationObserver = MockMutationObserver as unknown as typeof MutationObserver;
+
     storeService = jasmine.createSpyObj<EthStoreService>('EthStoreService', [
       'getFullDisplayDeliveryEntity$'
     ]);
@@ -40,6 +57,11 @@ describe('EthLibraryStackComponent', () => {
     component = fixture.componentInstance;
     documentRef = TestBed.inject(DOCUMENT);
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    (window as unknown as { MutationObserver: typeof MutationObserver }).MutationObserver = originalMutationObserver;
+    documentRef?.querySelectorAll('nde-full-display-container').forEach(node => node.parentNode?.removeChild(node));
   });
 
   const buildViewItDom = (doc: Document) => {
@@ -178,21 +200,35 @@ describe('EthLibraryStackComponent', () => {
       'eth.libraryStack.text2': 'Text 2'
     }));
 
-    const disconnectSpy = jasmine.createSpy('disconnect');
-    const observeSpy = jasmine.createSpy('observe');
-    const mutationObserverSpy = spyOn(window as any, 'MutationObserver').and.returnValue({
-      observe: observeSpy,
-      disconnect: disconnectSpy,
-      takeRecords: () => []
-    } as unknown as MutationObserver);
-
     component.ngAfterViewInit();
 
-    expect(mutationObserverSpy).toHaveBeenCalled();
-    expect(observeSpy).toHaveBeenCalled();
+    expect(mockObservers.length).toBe(1);
+    expect(mockObservers[0].observe).toHaveBeenCalled();
 
     fixture.destroy();
-    expect(disconnectSpy).toHaveBeenCalled();
+    expect(mockObservers[0].disconnect).toHaveBeenCalled();
+
+    documentRef.body.removeChild(container);
+  });
+
+
+  it('disconnects observer when library stack link disappears', () => {
+    const delivery$ = new Subject<any>();
+    const { container } = buildViewItDom(documentRef);
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(delivery$);
+    translateMock.get.and.returnValue(of({
+      'eth.libraryStack.text1': 'Text 1',
+      'eth.libraryStack.text2': 'Text 2'
+    }));
+
+    component.ngAfterViewInit();
+    delivery$.next({ delivery: { link: [{ linkURL: 'https://www.librarystack.org/item' }] } });
+
+    expect(mockObservers.length).toBe(1);
+
+    delivery$.next({ delivery: { link: [{ linkURL: 'https://example.com/other' }] } });
+
+    expect(mockObservers[0].disconnect).toHaveBeenCalled();
 
     documentRef.body.removeChild(container);
   });

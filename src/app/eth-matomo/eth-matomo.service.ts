@@ -1,5 +1,13 @@
 import { Injectable } from '@angular/core';
 
+type MatomoCommand = [string, ...unknown[]];
+type MatomoWindow = Window & {
+  _paq?: MatomoCommand[];
+  __ETH_DEBUG_MATOMO__?: boolean;
+  Piwik?: unknown;
+  Matomo?: unknown;
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -10,13 +18,17 @@ export class EthMatomoService {
   private initialized = false;
   private initChecks = 0;
   private checkTimeoutId: number | null = null;
-  private queue: any[][] = [];   // Events that are fired before Matomo is fully initialized
+  private queue: MatomoCommand[] = [];   // Events that are fired before Matomo is fully initialized
 
-  private isDebugEnabled(): boolean {
-    return (window as any).__ETH_DEBUG_MATOMO__ === true;
+  private getWindow(): MatomoWindow {
+    return window as MatomoWindow;
   }
 
-  private debugLog(...args: any[]): void {
+  private isDebugEnabled(): boolean {
+    return this.getWindow().__ETH_DEBUG_MATOMO__ === true;
+  }
+
+  private debugLog(...args: unknown[]): void {
     if (this.isDebugEnabled()) {
       console.log(...args);
     }
@@ -24,7 +36,8 @@ export class EthMatomoService {
 
   constructor() {
     // Ensure _paq exists (Matomo will normally create it, but we guarantee it early)
-    (window as any)._paq = (window as any)._paq || [];
+    const w = this.getWindow();
+    w._paq = w._paq || [];
 
     // Detect when Matomo is fully initialized
     this.waitForMatomo();
@@ -42,10 +55,9 @@ export class EthMatomoService {
         return;
       }
 
-      const paq = (window as any)._paq;
+      const paq = this.getWindow()._paq;
 
-      const hasPush =
-        Array.isArray(paq) || typeof paq.push === 'function';
+      const hasPush = Array.isArray(paq);
 
       if (hasPush && this.matomoIsInitialized()) {
         this.initialized = true;
@@ -70,7 +82,7 @@ export class EthMatomoService {
    * This provides more certainty than just checking _paq.
    */
   private matomoIsInitialized(): boolean {
-    const w = (window as any);
+    const w = this.getWindow();
     return !!(w.Piwik || w.Matomo);
   }
 
@@ -78,7 +90,9 @@ export class EthMatomoService {
    * Flushes all queued events to the real Matomo tracker once it becomes ready.
    */
   private flushQueue() {
-    const paq = (window as any)._paq;
+    const w = this.getWindow();
+    w._paq = w._paq || [];
+    const paq = w._paq;
     for (const entry of this.queue) {
       paq.push(entry);
     }
@@ -89,12 +103,13 @@ export class EthMatomoService {
    * Pushes a tracking event into Matomo.
    * If Matomo is not ready yet, events are queued.
    */
-  private push(event: any[]) {
+  private push(event: MatomoCommand) {
     // Always ensure _paq exists
-    (window as any)._paq = (window as any)._paq || [];
+    const w = this.getWindow();
+    w._paq = w._paq || [];
 
     if (this.initialized) {
-      (window as any)._paq.push(event);
+      w._paq.push(event);
     } else {
       // Queue event until Matomo is ready
       this.queue.push(event);

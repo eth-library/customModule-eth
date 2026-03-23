@@ -1,4 +1,3 @@
-// todo: Alma D, Library Stack tests
 /*
 
 https://jira.ethz.ch/browse/SLSP-2354
@@ -8,8 +7,8 @@ Creates a button for direct online access if
 - not Library Stack (cdi_librarystack_primary_159090)
 
 The button is based on:
-- deliveryEntity.delivery.electronicServices:  external data + uresolver.do
-- record.pnx.links.linktorsrcadditional: direct link from CDI (https://knowledge.exlibrisgroup.com/Primo/Content_Corner/Central_Discovery_Index/Documentation_and_Training/Documentation_and_Training_(English)/CDI_-_The_Central_Discovery_Index/050CDI_and_Linking_to_Electronic_Full_Text)
+- deliveryEntity.delivery.electronicServices:  external data + link resolver (uresolver.do)
+- record.pnx.links.linktorsrcadditional: additional direct link from CDI (https://knowledge.exlibrisgroup.com/Primo/Content_Corner/Central_Discovery_Index/Documentation_and_Training/Documentation_and_Training_(English)/CDI_-_The_Central_Discovery_Index/050CDI_and_Linking_to_Electronic_Full_Text)
 
 Sometimes online button only appears in the full view (not result list).
 Example: cdi_oup_oro_10_1093_acref_9780199674985_013_0355
@@ -38,7 +37,7 @@ This typically occurs with:
 * multiple possible services
 * unclear coverage
 * records without an Alma portfolio
-The resolver then decides which services are suitable when the full view is called
+The resolver then decides which services are suitable when the full view is called.
 
 */
 
@@ -138,7 +137,9 @@ export class EthOnlineButtonComponent  {
     private ethStoreService: EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService,
     private elementRef: ElementRef<HTMLElement>
-  ) {}
+  ) {
+    //this.destroyRef.onDestroy(() => this.disconnectLibkeyObserver());
+  }
 
 
   private buildButtonIfNecessary(
@@ -227,13 +228,13 @@ export class EthOnlineButtonComponent  {
       event.preventDefault();
       this.router.navigateByUrl(url);
     } else {
-      window.open(url, '_blank', 'noopener,noreferrer');
+      globalThis.open?.(url, '_blank', 'noopener,noreferrer');
     }
   }
 
 
-  private hasLibraryStackLink(deliveryEntity: any): boolean {
-    return deliveryEntity?.delivery?.link?.some((entry: any) =>
+  private hasLibraryStackLink(deliveryEntity: StoreDeliveryEntity | null): boolean {
+    return deliveryEntity?.delivery?.link?.some(entry =>
       entry.linkURL?.includes('www.librarystack.org')
     ) ?? false;
   }
@@ -249,28 +250,35 @@ export class EthOnlineButtonComponent  {
     if (!container) return;
 
     const otb = container.querySelector('nde-online-availability');
-    if (otb instanceof HTMLElement) {
-      otb.style.display = 'none';
+    this.setElementDisplay(otb, 'none');
+  }
+
+  private setElementDisplay(element: Element | null, display: string): void {
+    if (element instanceof HTMLElement) {
+      element.style.display = display;
     }
+  }
+
+  private disconnectLibkeyObserver(): void {
+    this.mutationObserver?.disconnect();
+    this.mutationObserver = undefined;
   }
 
   private observeLibkeyAppearance(): void {
     const container = this.getOnlineAvailabilityContainer();
     if (!container) return;
 
-    this.mutationObserver?.disconnect();
+    if (this.mutationObserver) return;
 
     this.mutationObserver = new MutationObserver((_m, obs) => {
       const libkey = container.querySelector('.ti-stack-options-container');
 
       if (libkey) {
         obs.disconnect();
+        this.mutationObserver = undefined;
 
         const ethButton = container.querySelector('.eth-quicklink-container');
-
-        if (ethButton instanceof HTMLElement) {
-          ethButton.style.display = 'none';
-        }
+        this.setElementDisplay(ethButton, 'none');
       }
     });
 
@@ -278,7 +286,5 @@ export class EthOnlineButtonComponent  {
       childList: true,
       subtree: true
     });
-
-    this.destroyRef.onDestroy(() => this.mutationObserver?.disconnect());
   }
 }

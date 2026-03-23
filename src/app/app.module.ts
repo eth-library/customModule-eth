@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { AutoAssetSrcDirective } from './services/auto-asset-src.directive';
 import { SHELL_ROUTER } from "./injection-tokens";
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ethHttpInterceptor } from './interceptors/eth-http.interceptor';
+//import { ethHttpInterceptor } from '../interceptors/eth-http.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 //provideHttpClient()
@@ -29,9 +29,10 @@ export const AppModule = ({providers, shellRouter}: {providers:any, shellRouter:
     providers: [
       ...providers, 
       {provide: SHELL_ROUTER, useValue: shellRouter},
-      provideHttpClient(
+      provideHttpClient(),
+      /*provideHttpClient(
         withInterceptors([ethHttpInterceptor])
-      )      
+      ) */     
     ],
     bootstrap: [],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]    

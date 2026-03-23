@@ -11,18 +11,15 @@ import { EthIdpWarningComponent } from '../eth-idp-warning/eth-idp-warning.compo
 import { EthRecordAvailabilityAfterComponent } from '../eth-record-availability-after/eth-record-availability-after.component';
 import { EthLocationPageComponent } from '../eth-location-page/eth-location-page.component';
 import { EthPersonPageComponent } from '../eth-person-page/eth-person-page.component';
-//import { EthOKMComponent } from '../eth-okm/eth-okm.component';
-//import { EthProvenienzEraraLinkComponent } from '../eth-provenienz-erara-link/eth-provenienz-erara-link.component';
 import { EthGetitLocationsfilterComponent } from '../eth-getit-locationsfilter/eth-getit-locationsfilter.component';
 import { EthViewItAfterComponent } from '../eth-view-it-after/eth-view-it-after.component';
-//import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
 import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offcampus-warning.component';
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
 import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
+//import { EthThemeComponent } from '../eth-theme/eth-theme.component';
+//import { EthOKMComponent } from '../eth-okm/eth-okm.component';
+//import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
 //import { EthFullDisplayServiceContainerAfterComponent } from '../eth-full-display-service-container-after/eth-full-display-service-container-after.component';
-import { EthThemeComponent } from '../eth-theme/eth-theme.component';
-
-
 
 // Define the map
 export const selectorComponentMap = new Map<string, any>([

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { DOCUMENT } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { EthMatomoComponent } from './eth-matomo.component';
@@ -11,6 +12,7 @@ describe('EthMatomoComponent', () => {
   let routerEvents$: Subject<any>;
   let routerMock: Partial<Router>;
   let errorHandlingSpy: jasmine.SpyObj<EthErrorHandlingService>;
+  let documentRef: Document;
 
   beforeEach(() => {
     routerEvents$ = new Subject<any>();
@@ -29,6 +31,12 @@ describe('EthMatomoComponent', () => {
     });
     fixture = TestBed.createComponent(EthMatomoComponent);
     component = fixture.componentInstance;
+    documentRef = TestBed.inject(DOCUMENT);
+  });
+
+  afterEach(() => {
+    documentRef.querySelectorAll('script[src="https://library-ethz.opsone-analytics.ch/matomo.js"]').forEach(script => script.parentNode?.removeChild(script));
+    (globalThis as any)._paq = [];
   });
 
   it('should create', () => {
@@ -37,13 +45,13 @@ describe('EthMatomoComponent', () => {
 
 
   it('initializes matomo and tracks page views on navigation', fakeAsync(() => {
-    const appendChildSpy = spyOn(document.head, 'appendChild').and.callFake(<T extends Node>(node: T): T => {
+    const appendChildSpy = spyOn(documentRef.head, 'appendChild').and.callFake(<T extends Node>(node: T): T => {
       if (node instanceof HTMLScriptElement) {
         setTimeout(() => node.onload && node.onload(new Event('load')));
       }
       return node;
     });
-    (window as any)._paq = [];
+    (globalThis as any)._paq = [];
 
     component.ngOnInit();
     tick();
@@ -52,36 +60,34 @@ describe('EthMatomoComponent', () => {
     tick();
 
     expect(appendChildSpy).toHaveBeenCalled();
-    expect((window as any)._paq.some((entry: any[]) => entry[0] === 'setTrackerUrl')).toBeTrue();
-    expect((window as any)._paq.some((entry: any[]) => entry[0] === 'trackPageView')).toBeTrue();
+    expect((globalThis as any)._paq.some((entry: any[]) => entry[0] === 'setTrackerUrl')).toBeTrue();
+    expect((globalThis as any)._paq.some((entry: any[]) => entry[0] === 'trackPageView')).toBeTrue();
   }));
 
 
   it('skips script injection when matomo script already exists', () => {
-    const script = document.createElement('script');
+    const script = documentRef.createElement('script');
     script.src = 'https://library-ethz.opsone-analytics.ch/matomo.js';
-    document.head.appendChild(script);
-    (window as any)._paq = [];
+    documentRef.head.appendChild(script);
+    (globalThis as any)._paq = [];
 
-    const appendChildSpy = spyOn(document.head, 'appendChild').and.callThrough();
+    const appendChildSpy = spyOn(documentRef.head, 'appendChild').and.callThrough();
 
     component.ngOnInit();
     routerEvents$.next(new NavigationEnd(1, '/from', '/existing-script-route'));
 
     expect(appendChildSpy).not.toHaveBeenCalled();
-    expect((window as any)._paq.some((entry: any[]) => entry[0] === 'trackPageView')).toBeTrue();
-
-    document.head.removeChild(script);
+    expect((globalThis as any)._paq.some((entry: any[]) => entry[0] === 'trackPageView')).toBeTrue();
   });
 
 
   it('initializes tracking only once when ngOnInit is called multiple times', fakeAsync(() => {
-    const appendChildSpy = spyOn(document.head, 'appendChild').and.callThrough();
-    (window as any)._paq = [];
+    const appendChildSpy = spyOn(documentRef.head, 'appendChild').and.callThrough();
+    (globalThis as any)._paq = [];
 
     component.ngOnInit();
 
-    const script = document.querySelector('script[src="https://library-ethz.opsone-analytics.ch/matomo.js"]') as HTMLScriptElement;
+    const script = documentRef.querySelector('script[src="https://library-ethz.opsone-analytics.ch/matomo.js"]') as HTMLScriptElement;
     expect(script).toBeTruthy();
     script.onload?.(new Event('load'));
     tick();
@@ -92,17 +98,15 @@ describe('EthMatomoComponent', () => {
     routerEvents$.next(new NavigationEnd(1, '/from', '/once'));
     tick();
 
-    const enableLinkTrackingCalls = (window as any)._paq.filter((entry: any[]) => entry[0] === 'enableLinkTracking').length;
+    const enableLinkTrackingCalls = (globalThis as any)._paq.filter((entry: any[]) => entry[0] === 'enableLinkTracking').length;
 
     expect(appendChildSpy).toHaveBeenCalledTimes(1);
     expect(enableLinkTrackingCalls).toBe(1);
-
-    script.parentNode?.removeChild(script);
   }));
 
 
   it('logs sync errors during init', () => {
-    spyOn(document, 'querySelector').and.throwError('boom');
+    spyOn(documentRef, 'querySelector').and.throwError('boom');
 
     component.ngOnInit();
 

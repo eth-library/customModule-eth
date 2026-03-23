@@ -6,15 +6,22 @@ import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthLocationPageService } from './eth-location-page.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import * as L from 'leaflet';
-import { PlacePageViewModel, PlacePageRawData, PlacePageContext} from '../models/eth.model';
+import type { GeoJsonObject } from 'geojson';
+import { PlacePageViewModel, PlacePageRawData, PlacePageContext, GeoJSONFeature, GraphGeoInfo } from '../models/eth.model';
 import { mapETHorama, mapGeoTopics, mapGeoPoi, mapWikidata, mapMaps, mapIdentifierResponseToQid } from './eth-location-page.mapper';
 import { SHELL_ROUTER } from "../injection-tokens";
+
+type MapFeature = GeoJSONFeature<GraphGeoInfo>;
+type StyledBoundsLayer = L.Layer & {
+  getBounds: () => L.LatLngBounds;
+  setStyle: (style: { weight: number }) => void;
+};
 
 @Component({
   selector: 'custom-eth-location-page',
@@ -28,7 +35,8 @@ import { SHELL_ROUTER } from "../injection-tokens";
 export class EthLocationPageComponent {
   private router = inject(SHELL_ROUTER); 
   private destroyRef = inject(DestroyRef);
-  private pendingTimeouts = new Set<number>();
+  private document = inject(DOCUMENT);
+  private pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
   placePageData$: Observable<PlacePageViewModel | null> = defer(() => {
     if (!this.router.url.includes('/entity/location')) {
@@ -65,8 +73,8 @@ export class EthLocationPageComponent {
   tab!: string | null;
   scope!: string | null;
   lang!: string;
-  map!: any;
-  polygonsWithCenters!: any;
+  map!: L.Map;
+  polygonsWithCenters!: L.LayerGroup;
   openWeight!: number;
 
   otbEntityStatus: Observable<string> = defer(() =>
@@ -91,7 +99,7 @@ export class EthLocationPageComponent {
   }
 
   private scheduleTask(task: () => void, delay = 0): void {
-    const timeoutId = window.setTimeout(() => {
+    const timeoutId = globalThis.setTimeout(() => {
       this.pendingTimeouts.delete(timeoutId);
       task();
     }, delay);
@@ -99,7 +107,7 @@ export class EthLocationPageComponent {
   }
 
   private clearPendingTimeouts(): void {
-    this.pendingTimeouts.forEach(timeoutId => window.clearTimeout(timeoutId));
+    this.pendingTimeouts.forEach(timeoutId => globalThis.clearTimeout(timeoutId));
     this.pendingTimeouts.clear();
   }
 
@@ -178,18 +186,18 @@ export class EthLocationPageComponent {
                 ...vm, maps: [] 
               };
             }
-            let filteredFeatures = (mapsData.features ?? []).filter(f => {
+            let filteredFeatures = ((mapsData.features ?? []) as MapFeature[]).filter(f => {
               const scale = f.properties?.scale;
               return scale && parseInt(scale, 10) <= 50000;
             });
             //console.error("filteredFeatures",filteredFeatures)
             try {
-              filteredFeatures = filteredFeatures.sort((a:any, b:any) =>
-                a.properties.title.localeCompare(b.properties.title, 'de', { ignorePunctuation: true })
+              filteredFeatures = filteredFeatures.sort((a: MapFeature, b: MapFeature) =>
+                (a.properties?.title ?? '').localeCompare(b.properties?.title ?? '', 'de', { ignorePunctuation: true })
               );
-            } catch (e) {
-              filteredFeatures = filteredFeatures.sort((a:any, b:any) =>
-                a.properties.title.localeCompare(b.properties.title)
+            } catch {
+              filteredFeatures = filteredFeatures.sort((a: MapFeature, b: MapFeature) =>
+                (a.properties?.title ?? '').localeCompare(b.properties?.title ?? '')
               );
             }
             this.scheduleTask(() => this.initMap(filteredFeatures, lat, lng));                        
@@ -202,12 +210,12 @@ export class EthLocationPageComponent {
     );
   }
 
-  private initMap(features: any[], lat: string, lng: string) {
+  private initMap(features: MapFeature[], lat: string, lng: string) {
     let opacity = features.length > 10 ? 0 : 0.03;
     this.openWeight = features.length > 10 ? 6 : 4;
 
     if (this.map) this.map.remove();
-    if (!document.getElementById('mapid')) return;
+    if (!this.document.getElementById('mapid')) return;
 
     const latNum = Number(lat);
     const lngNum = Number(lng);    
@@ -232,7 +240,7 @@ export class EthLocationPageComponent {
 
     this.polygonsWithCenters = L.layerGroup();
 
-    const geoJsonLayer = L.geoJSON(features, {
+    const geoJsonLayer = L.geoJSON(features as unknown as GeoJsonObject[], {
       onEachFeature: (feature, layer) => this.onEachFeature(feature, layer),
       style: { color: '#356947', weight: 1, fillOpacity: opacity }
     });
@@ -241,20 +249,27 @@ export class EthLocationPageComponent {
   }
 
 
-  private onEachFeature(feature: any, layer: any) {
-    const center = layer.getBounds().getCenter();
+  private onEachFeature(feature: MapFeature, layer: L.Layer) {
+    const styledLayer = layer as StyledBoundsLayer;
+    const center = styledLayer.getBounds().getCenter();
     const icon = L.icon({
       iconUrl: `custom/${this.vid?.replace(':', '-')}/assets/images/map.png`,
       iconSize: [25, 25]
     });
-    const marker = L.marker(center, { icon, alt: feature.properties.title });
-    marker.bindPopup(`<div>${feature.properties.title}</div>`);
+    const title = feature.properties?.title ?? '';
+    const marker = L.marker(center, { icon, alt: title });
+    marker.bindPopup(`<div>${title}</div>`);
 
-    marker.on('mouseover', () => { marker.openPopup(); layer.setStyle({ weight: this.openWeight }); });
-    marker.on('mouseout', () => { marker.closePopup(); layer.setStyle({ weight: 1 }); });
-    marker.on('click', () => window.open(feature.properties.url, '_blank'));
+    marker.on('mouseover', () => { marker.openPopup(); styledLayer.setStyle({ weight: this.openWeight }); });
+    marker.on('mouseout', () => { marker.closePopup(); styledLayer.setStyle({ weight: 1 }); });
+    marker.on('click', () => {
+      const url = feature.properties?.url;
+      if (url) {
+        globalThis.open?.(url, '_blank');
+      }
+    });
 
-    L.layerGroup([layer, marker]).addTo(this.polygonsWithCenters);
+    L.layerGroup([styledLayer, marker]).addTo(this.polygonsWithCenters);
   }
 
   

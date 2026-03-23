@@ -6,6 +6,7 @@ import { EthPersonPageComponent } from './eth-person-page.component';
 import { EthPersonService } from '../services/eth-person.service';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { SHELL_ROUTER } from '../injection-tokens';
 
@@ -26,6 +27,7 @@ describe('EthPersonPageComponent', () => {
   let errorHandlingService: jasmine.SpyObj<EthErrorHandlingService>;
   let translateService: { currentLang: string; onLangChange: Subject<{ lang: string }>; stream: (key: string) => Observable<string> };
   let router: { url: string; navigateByUrl: jasmine.Spy };
+  let documentRef: Document;
 
   beforeEach(async () => {
     linkedDataEntityId$ = new BehaviorSubject<string>('ID1');
@@ -71,6 +73,8 @@ describe('EthPersonPageComponent', () => {
       ]
     })
     .compileComponents();
+
+    documentRef = TestBed.inject(DOCUMENT);
   });
 
   const createComponent = (options?: { detectChanges?: boolean }) => {
@@ -228,10 +232,10 @@ describe('EthPersonPageComponent', () => {
   });
 
 
-  it('emits success when otbEntityStatus stream errors', (done) => {
+  it('emits success when otbEntityStatus$ stream errors', (done) => {
     createComponent();
 
-    component.otbEntityStatus.subscribe(value => {
+    component.otbEntityStatus$.subscribe(value => {
       expect(value).toBe('success');
       done();
     });
@@ -386,16 +390,16 @@ describe('EthPersonPageComponent', () => {
 
   it('reassigns panel ids for accessibility', () => {
     createComponent();
-    const wrapper = document.createElement('div');
+    const wrapper = documentRef.createElement('div');
     wrapper.classList.add('eth-personpage-links');
-    const panel = document.createElement('mat-expansion-panel');
-    const header = document.createElement('mat-expansion-panel-header');
-    const content = document.createElement('div');
+    const panel = documentRef.createElement('mat-expansion-panel');
+    const header = documentRef.createElement('mat-expansion-panel-header');
+    const content = documentRef.createElement('div');
     content.classList.add('mat-expansion-panel-content');
     panel.appendChild(header);
     panel.appendChild(content);
     wrapper.appendChild(panel);
-    document.body.appendChild(wrapper);
+    documentRef.body.appendChild(wrapper);
 
     component.resetPanelIds();
 
@@ -404,6 +408,6 @@ describe('EthPersonPageComponent', () => {
     expect(content.id).toContain('cdk-accordion-child-');
     expect(content.getAttribute('aria-labelledby')).toBe(header.id);
 
-    document.body.removeChild(wrapper);
+    documentRef.body.removeChild(wrapper);
   });
 });
