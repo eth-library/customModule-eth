@@ -7,7 +7,7 @@ body.design-red .top-bar-background-image {
 /* Override background overlay opacity and color */
 body.design-red .custom-search-bar-container .background-overlay {
     opacity: 1.0 !important;
-    background-color: #B7352D !important;
+    background-color: #215CAF !important;
     /* Example: Red. Change to your desired color */
 }
 
