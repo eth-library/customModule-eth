@@ -164,6 +164,44 @@ describe('EthStoreService', () => {
   });
 
 
+  it('isEthMember returns true for ETH member group', async () => {
+    mockStore.setState(makeState({
+      user: {
+        isLoggedIn: true,
+        decodedJwt: {
+          onCampus: 'true',
+          userName: 'u',
+          userGroup: 'ETH_Member',
+          authenticationProfile: 'a',
+          language: 'de'
+        }
+      }
+    }));
+
+    const value = await firstValueFrom(service.isEthMember());
+    expect(value).toBeTrue();
+  });
+
+
+  it('isEthMember returns false for non ETH member group', async () => {
+    mockStore.setState(makeState({
+      user: {
+        isLoggedIn: true,
+        decodedJwt: {
+          onCampus: 'true',
+          userName: 'u',
+          userGroup: 'External_User',
+          authenticationProfile: 'a',
+          language: 'de'
+        }
+      }
+    }));
+
+    const value = await firstValueFrom(service.isEthMember());
+    expect(value).toBeFalse();
+  });
+
+
   it('returns pnx record based on selectedRecordId from store (fullview)', async () => {
     const fullRecord = { pnx: { } } as PnxDoc;
 

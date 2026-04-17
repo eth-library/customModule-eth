@@ -6,7 +6,7 @@ import { Component, DestroyRef, inject, Inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, of, combineLatest, defer } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { PnxDoc, StoreDeliveryEntity } from '../models/eth.model';
 

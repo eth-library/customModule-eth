@@ -1,5 +1,5 @@
 import { Component, DestroyRef, inject, Inject, Input } from '@angular/core';
-import { of, Observable, catchError, map, forkJoin, tap, switchMap, defer } from 'rxjs';
+import { of, Observable, catchError, map, forkJoin, tap, switchMap, defer, distinctUntilChanged } from 'rxjs';
 import { EthMetagridService, Person } from './eth-metagrid.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -76,8 +76,16 @@ export class EthMetagridComponent {
     
   persons$: Observable<Person[]> = defer(() =>
     this.store
-      .select(selectFullDisplayRecord)
-      .pipe(switchMap(record => this.getPersons(record)))
+      .select(selectFullDisplayRecordId)
+      .pipe(
+        distinctUntilChanged(),
+        switchMap(recordId =>
+          this.store.select(selectSearchEntities).pipe(
+            map(entities => (recordId ? entities[recordId] : null))
+          )
+        ),
+        switchMap(record => this.getPersons(record))
+      )
   );
   
   openLinkText$: Observable<string> = this.getI18nText('metagrid.link.open', {
@@ -199,7 +207,8 @@ export class EthMetagridComponent {
       // ALMA Ressources (local data): link in value
       // https://explore.gnd.network/gnd/118527908
       if (normalizedEntry.includes('/gnd/')) {
-        return normalizedEntry.substring(normalizedEntry.indexOf('/gnd/') + 5, normalizedEntry.indexOf('">'));
+        const match = normalizedEntry.match(/\/gnd\/([^"'?>\s]+)/);
+        return match?.[1] ?? null;
       }
       // external data sources 
       // GND: Prelog, Vladimir (rela): 119247496

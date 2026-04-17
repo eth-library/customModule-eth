@@ -24,23 +24,28 @@ describe('EthIdpWarningComponent', () => {
   };
 
   // BehaviorSubjects for StoreService
-  let userGroup$: BehaviorSubject<string | null>;
   let email$: BehaviorSubject<string | null>;
   let authenticationProfile$: BehaviorSubject<string | null>;
+  let isLoggedIn$: BehaviorSubject<boolean>;
+  let isEthMember$: BehaviorSubject<boolean>;
   let storeServiceMock: any;
+  let isEthMemberSpy: jasmine.Spy;
 
   
   beforeEach(async () => {
     // prepare BehaviorSubjects
-    userGroup$ = new BehaviorSubject<string | null>('ETH_Student');
     email$ = new BehaviorSubject<string | null>('student.bla@ethz.ch');
     authenticationProfile$ = new BehaviorSubject<string | null>('Alma');
+    isLoggedIn$ = new BehaviorSubject<boolean>(true);
+    isEthMember$ = new BehaviorSubject<boolean>(true);
+    isEthMemberSpy = jasmine.createSpy('isEthMember').and.returnValue(isEthMember$.asObservable());
 
     // StoreService Mock
     storeServiceMock = {
-      userGroup$: userGroup$.asObservable(),
       email$: email$.asObservable(),
-      authenticationProfile$: authenticationProfile$.asObservable()
+      authenticationProfile$: authenticationProfile$.asObservable(),
+      isLoggedIn$: isLoggedIn$.asObservable(),
+      isEthMember: isEthMemberSpy
     };
 
     // TestBed Setup
@@ -67,7 +72,7 @@ describe('EthIdpWarningComponent', () => {
 
 
   it('no warning because of Profile "Alma" (institutional account)', async () => {
-    userGroup$.next('ETH_Student');
+    isEthMember$.next(true);
     email$.next('student.bla@ethz.ch');
     authenticationProfile$.next('Alma');
 
@@ -77,17 +82,28 @@ describe('EthIdpWarningComponent', () => {
 
 
   it('warning because of: no eth userGroup, but eth email', async () => {
-    userGroup$.next('AnyOther');
+    isEthMember$.next(false);
     email$.next('student.bla@ethz.ch');
     authenticationProfile$.next('Other');
 
     const result = await firstValueFrom(component.showWarning$);
     expect(result).toBeTrue();
   });
+
+
+  it('no warning when user is not logged in', async () => {
+    isEthMember$.next(false);
+    email$.next('student.bla@ethz.ch');
+    authenticationProfile$.next('Other');
+    isLoggedIn$.next(false);
+
+    const result = await firstValueFrom(component.showWarning$);
+    expect(result).toBeFalse();
+  });
   
 
   it('no warning because of: no eth userGroup, no eth email', async () => {
-    userGroup$.next('AnyOther');
+    isEthMember$.next(false);
     email$.next('bla@gmx.ch');
     authenticationProfile$.next('Other');
 
@@ -97,20 +113,23 @@ describe('EthIdpWarningComponent', () => {
 
 
   it('should render warning', async () => {
-    userGroup$.next('AnyOther');
+    isEthMember$.next(false);
     email$.next('student.bla@ethz.ch');
     authenticationProfile$.next('Other');
 
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled).toBeTruthy();
 
-    const firstLink = compiled.querySelector('a[aria-label*="eth.idpWarning.linkText1"]');
-    expect(firstLink?.textContent).toContain('eth.idpWarning.linkText1');
+    const warning = compiled.querySelector('.eth-idp-warning');
+    expect(warning).toBeTruthy();
 
-    const secLink = compiled.querySelector('a[aria-label^="eth.idpWarning.linkText2"]');
-    expect(secLink?.textContent).toContain('eth.idpWarning.linkText2');
+    const links = warning?.querySelectorAll('a');
+    expect(links?.length).toBe(2);
+    expect(links?.[0].textContent).toContain('eth.idpWarning.linkText1');
+    expect(links?.[1].textContent).toContain('eth.idpWarning.linkText2');
   });
 });

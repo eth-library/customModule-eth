@@ -16,6 +16,8 @@ import { EthViewItAfterComponent } from '../eth-view-it-after/eth-view-it-after.
 import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offcampus-warning.component';
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
 import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
+import { EthRapidoEthmemberHintComponent } from '../eth-rapido-ethmember-hint/eth-rapido-ethmember-hint.component';
+import { EthRequestHintsComponent } from '../eth-request-hints/eth-request-hints.component';
 //import { EthThemeComponent } from '../eth-theme/eth-theme.component';
 //import { EthOKMComponent } from '../eth-okm/eth-okm.component';
 //import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
@@ -30,7 +32,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-view-it-before', EthOffcampusWarningComponent],
     ['nde-view-it-after', EthViewItAfterComponent],
     ['nde-record-citations-indicators-top',EthConnectedpapersComponent],
-    ['nde-record-availability-after', EthRecordAvailabilityAfterComponent],
+    ['nde-record-availability-bottom', EthRecordAvailabilityAfterComponent],
     ['nde-online-availability-before', EthOnlineButtonComponent],
     ['nde-entity-layout-bottom', EthPersonPageComponent],
     ['nde-entity-layout-after', EthLocationPageComponent],
@@ -40,7 +42,10 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-full-display-side-bar-bottom', EthFullDisplaySideBarAfterComponent],
     ['nde-personal-details-info-after', EthChangeAddressComponent],
     ['nde-personal-settings-before', EthIdpWarningComponent],
+    ['nde-requests-top', EthIdpWarningComponent],
     ['nde-requests-after', EthIllLinkComponent],
+    ['nde-ngrs-offer-drawer-before', EthRapidoEthmemberHintComponent],
+    ['nde-base-request-form-top', EthRequestHintsComponent]
     //['nde-login-dialog-after', EthRegistrationLinkComponent],
     //['nde-search-bar-presenter-after', EthOKMComponent],
     //['nde-app-layout-top', EthThemeComponent],

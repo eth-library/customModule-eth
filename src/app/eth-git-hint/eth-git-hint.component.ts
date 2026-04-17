@@ -18,7 +18,6 @@ import { SafeHtml } from '@angular/platform-browser';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { EthUtilsService } from '../services/eth-utils.service';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
-import { GitHintVM } from '../models/eth.model';
 
 type Language = 'de' | 'en'; 
 

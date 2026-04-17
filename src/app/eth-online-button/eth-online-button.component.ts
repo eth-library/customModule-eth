@@ -2,7 +2,7 @@
 
 https://jira.ethz.ch/browse/SLSP-2354
 Creates a button for direct online access if
-- no OOTB quick link is available (= no viewModel.onlineLinks).
+- no OOTB quick link is available (= no viewModel.onlineLinks in HostComponent).
 - not Alma-D (99120192274305503)
 - not Library Stack (cdi_librarystack_primary_159090)
 
@@ -22,7 +22,7 @@ Alma has a portfolio for the book, not for the chapter, so Primo cannot map dire
 Or missing: ISBN, ISSN, DOI.
 
 Distinction between uresolver.do (online button also in result list) and uresolver:
-If Primo already knows exactly which electronic portfolio matches during indexing or hit matching,
+If Primo already knows exactly which electronic portfolio matches during hit matching,
 you get the following directly: /view/action/uresolver.do?operation=resolveService&package_service_id=12345
 This typically happens when:
 * the hit originates from Alma itself
@@ -51,7 +51,7 @@ import { Component,
 import { Router } from '@angular/router';
 import {
   Observable,
-  ReplaySubject,
+  BehaviorSubject,
   combineLatest,
   map,
   distinctUntilChanged,
@@ -92,14 +92,12 @@ import { SHELL_ROUTER } from '../injection-tokens';
 })
 export class EthOnlineButtonComponent  {
 
-  private hostComponent$ = new ReplaySubject<HostComponent>(1);
+  private hostComponent$ = new BehaviorSubject<HostComponent>({});
   private mutationObserver?: MutationObserver;
   private destroyRef = inject(DestroyRef);
 
   @Input() set hostComponent(value: HostComponent) {
-    if (value) {
-      this.hostComponent$.next(value);
-    }
+    this.hostComponent$.next(value);
   }
 
   links$: Observable<OnlineButtonVM[]> = this.hostComponent$.pipe(
@@ -119,7 +117,7 @@ export class EthOnlineButtonComponent  {
     ),
     tap(links => {
       if (links.length > 1) {
-        this.hideOOTBQuicklink();
+        this.hideOOTBOnlineButton();
         //this.observeLibkeyAppearance();
       }
     }),
@@ -245,7 +243,7 @@ export class EthOnlineButtonComponent  {
     return this.elementRef.nativeElement.closest('nde-record-availability') as HTMLElement | null;
   }
 
-  private hideOOTBQuicklink(): void {
+  private hideOOTBOnlineButton(): void {
     const container = this.getOnlineAvailabilityContainer();
     if (!container) return;
 

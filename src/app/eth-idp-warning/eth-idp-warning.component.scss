@@ -1,20 +1,25 @@
-    .eth-idp-warning{
+.eth-idp-warning {
     color: var(--slsp-color-on-background);    
     background-color: var(--slsp-color-background);  
     font-size: var(--mat-expansion-container-text-size, var(--mat-sys-body-large-size));        
     padding: 1rem;
     border-radius: .5rem;
     max-width: 100%;
+    margin-bottom: 1rem;
  }
-.eth-idp-warning a{
+.eth-idp-warning p { 
+    margin-bottom: 0;
+}
+
+.eth-idp-warning a {
     text-decoration: none;
     color: var(--sys-primary);
     display: inline-flex;
 }
-.eth-idp-warning a:hover, .eth-idp-warning a:focus{
+.eth-idp-warning a:hover, .eth-idp-warning a:focus {
     text-decoration: underline;
 }
-.eth-idp-warning svg{
+.eth-idp-warning svg {
     height: 1.1rem;
     width: 1.1rem;
     align-self: center;    

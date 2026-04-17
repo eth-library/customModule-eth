@@ -121,8 +121,8 @@ The library Chair for Literature and Cultural Studies is <strong>not</strong> lo
                     
 
 eth.locationHint.E06.E06EQ      
-Die Bibliothek Professur für Literatur- und Kulturwissenschaft befindet sich <strong>nicht</strong> in der GESS-Bibliothek.<br> <strong>Benutzung nur vor Ort</strong> nach bestätigter Voranmeldung bei <a href="mailto:diversity@ethz.ch?subject=Voranmeldung für Benutzung vor Ort von MMS ID {{id}}">diversity@ethz.ch</a> möglich.
-The library Chair for Literature and Cultural Studies is <strong>not</strong> located at GESS Library.<br><strong>On-site use</strong> only after confirmed appointment with <a href="mailto:diversity@ethz.ch?subject=Appointment for on-site use of MMS ID {{id}}">diversity@ethz.ch</a> possible.
+The library of ETH Diversity is <strong>not</strong> located at GESS Library.<br><strong>On-site use</strong> only after confirmed appointment with <a href="mailto:diversity@ethz.ch?subject=Appointment for on-site use of MMS ID {{id}}">diversity@ethz.ch</a> possible.
+The library of ETH Diversity is <strong>not</strong> located at GESS Library.<br><strong>On-site use</strong> only after confirmed appointment with <a href="mailto:diversity@ethz.ch?subject=Appointment for on-site use of MMS ID {{id}}">diversity@ethz.ch</a> possible.
 
 eth.locationHint.E33
 Möchten Sie einen Scan eines Artikels oder Kapitels aus diesem Dokument bestellen? <a href="mailto:infodesk@chem.ethz.ch?subject=Scan request: MMS ID {{id}}">Schreiben Sie uns!</a>
@@ -132,14 +132,6 @@ Would you like to order a scan of an article or a chapter from this document? <a
 eth.locationHint.E01.AETH
 <strong>Benutzung nur vor Ort</strong> nach Voranmeldung bei <a href="mailto:archiv@library.ethz.ch?subject=Voranmeldung für Benutzung vor Ort von MMS ID {{id}}">archiv@library.ethz.ch</a>
 <strong>On-site use</strong> only after appointment with <a href="mailto:archiv@library.ethz.ch?subject=Appointment for on-site use of MMS ID {{id}}">archiv@library.ethz.ch</a>
-
-
-eth.archiveHint.ETH_ThomasMannArchiv    Informationen zum <a target="_blank" rel="noopener" href="https://vls.tma.ethz.ch/client/#/de/informationen/bestellen-und-konsultieren">Bestellen und Konsultieren</a> von Unterlagen
-
-
-eth.locationHint.E73.E73MF
-Benutzung nur vor Ort. Auskunft erhalten Sie per E-Mail an: <a href="mailto:mfa@library.ethz.ch?subject=Voranmeldung für Benutzung vor Ort von MMS ID {{id}}">mfa@library.ethz.ch</a> 
-Use only on site. Information can be obtained by e-mail to:  <a href="mailto:mfa@library.ethz.ch?subject=Appointment for on-site use of MMS ID {{id}}">mfa@library.ethz.ch</a> 
 
 
 eth.locationHint.E73.E73BI

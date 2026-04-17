@@ -3,7 +3,7 @@
 // https://jira.ethz.ch/browse/SLSP-1985
 
 import { Component } from '@angular/core';
-import { catchError, combineLatest, defer, map, Observable, of } from 'rxjs';
+import { catchError, combineLatest, defer, map, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from 'src/app/services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
@@ -24,12 +24,20 @@ import { TranslateModule } from "@ngx-translate/core";
 export class EthIdpWarningComponent {
   
   showWarning$: Observable<boolean> = defer(() =>
-    combineLatest([
-      this.ethStoreService.userGroup$,
-      this.ethStoreService.email$,
-      this.ethStoreService.authenticationProfile$
-    ]).pipe(
-      map(([group, email, profile]) => this.showWarning(group, email, profile)),
+    this.ethStoreService.isLoggedIn$.pipe(
+      switchMap(isLoggedIn => {
+        if (!isLoggedIn) {
+          return of(false);
+        }
+
+        return combineLatest([
+          this.ethStoreService.email$,
+          this.ethStoreService.authenticationProfile$,
+          this.ethStoreService.isEthMember()
+        ]).pipe(
+          map(([email, profile, isETHMember]) => this.showWarning(email, profile, isETHMember))
+        );
+      }),
       catchError(error => {
         this.ethErrorHandlingService.logError(error, 'EthIdpWarningComponent.showWarning$');
         return of(false);
@@ -43,19 +51,9 @@ export class EthIdpWarningComponent {
   ){}
 
 
-  private showWarning(group: string | null, email: string | null, profile: string | null): boolean {
+  private showWarning(email: string | null, profile: string | null, isETHMember: boolean): boolean {
     if (profile === 'Alma') return false;
     if (!email) return false;
-    
-    const ethMemberGroups = [
-      'ETH_Member',
-      'ETH_E06_GESS-Member',
-      'ETH_E64_MATH-Member',
-      'ETH_Student'
-    ];
-    
-    const isETHMember = group ? ethMemberGroups.includes(group) : false;
-    //return true;
     return !isETHMember && email?.includes('ethz.ch');
   }
 

@@ -223,6 +223,20 @@ export class EthStoreService {
         return vc['primo-view']?.scopes[0]?.tab;
     }
 
+    isEthMember(): Observable<boolean> {
+        return this.userGroup$.pipe(
+            map(group => {
+                const ethMemberGroups = [
+                'ETH_Member',
+                'ETH_E06_GESS-Member',
+                'ETH_E64_MATH-Member',
+                'ETH_Student'
+                ];
+                return group ? ethMemberGroups.includes(group) : false;
+            })
+        )
+    }
+
     getRouter$(): Observable<RouterRootState> {
         return this.store.select(selectRouter);
     }

@@ -40,9 +40,12 @@ export interface HostComponent {
   isOpen?: boolean;
   filtersVisible?: boolean;
   filterGroup?: HostComponentFilterGroup;
-  filterList$?: unknown; 
+  filterList$?: Observable<HostComponentFilterItem[]>;
   _service?: HostComponentService;
   viewModel$?: Observable<HostComponentViewModel>;
+  tileType?: string;
+  formType?: string;
+  physicalTile?: boolean;
 }
 export interface HostComponentService {
   type?: string;
@@ -58,6 +61,14 @@ export interface HostComponentLocation {
 }
 export interface HostComponentFilterGroup {
   id?: string;
+}
+
+export interface HostComponentFilterValue {
+  value?: string;
+}
+
+export interface HostComponentFilterItem {
+  values?: HostComponentFilterValue[];
 }
 
 

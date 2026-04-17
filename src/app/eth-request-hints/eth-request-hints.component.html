@@ -1,0 +1,6 @@
+
+@if (vm$ | async; as vm) {
+    {{vm.userGroup}}
+    {{vm.formType}}
+    <p>{{ vm.hint | async}}</p>
+}
