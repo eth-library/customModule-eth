@@ -46,6 +46,7 @@ export interface HostComponent {
   tileType?: string;
   formType?: string;
   physicalTile?: boolean;
+  data?: any;
 }
 export interface HostComponentService {
   type?: string;

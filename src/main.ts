@@ -1,2 +1,2 @@
-import('./bootstrapETH_CUSTOMIZING')
+import('./bootstrap')
 	.catch(err => console.error(err));

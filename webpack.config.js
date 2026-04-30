@@ -75,7 +75,6 @@ module.exports = {
         },          
          */
         // For remotes (please adjust)
-
         name: "customModule",
         filename: "remoteEntry.js",
         exposes: {

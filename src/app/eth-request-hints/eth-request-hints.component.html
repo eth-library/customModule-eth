@@ -1,6 +1,3 @@
-
-@if (vm$ | async; as vm) {
-    {{vm.userGroup}}
-    {{vm.formType}}
-    <p>{{ vm.hint | async}}</p>
+@if (hint$ | async; as hint) {
+    <p class="eth-request-hint-container" [innerHTML]="hint"></p>
 }

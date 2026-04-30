@@ -12,21 +12,49 @@ export class EthUtilsService {
   ){} 
 
 
-  // sanitize text. Only a few html tags are valid.
+  // sanitize text. Only a few html tags and attributes are allowed.
   sanitizeText(text: string | null): string | null {
-    try{
+    try {
       if (!text) return null;
       const allowedTags = ['a', 'strong', 'em', 'p', 'br'];
+      const allowedAttributes: Record<string, string[]> = {
+        a: ['href', 'target', 'rel'],
+      };
+      const safeProtocols = ['http:', 'https:', 'mailto:'];
+
       const div = document.createElement('div');
       div.innerHTML = text;
       div.querySelectorAll('*').forEach(el => {
-        if (!allowedTags.includes(el.tagName.toLowerCase())) {
+        const tag = el.tagName.toLowerCase();
+        if (!allowedTags.includes(tag)) {
           el.replaceWith(...Array.from(el.childNodes));
+          return;
+        }
+        // Remove disallowed attributes (incl. event handlers)
+        Array.from(el.attributes).forEach(attr => {
+          const allowed = allowedAttributes[tag] ?? [];
+          if (!allowed.includes(attr.name)) {
+            el.removeAttribute(attr.name);
+          }
+        });
+        // Validate href protocol
+        if (tag === 'a') {
+          const href = el.getAttribute('href');
+          if (href) {
+            try {
+              const url = new URL(href, window.location.href);
+              if (!safeProtocols.includes(url.protocol)) {
+                el.removeAttribute('href');
+              }
+            } catch {
+              el.removeAttribute('href');
+            }
+          }
         }
       });
       return div.innerHTML;
     }
-    catch (error:unknown) {
+    catch (error: unknown) {
       this.ethErrorHandlingService.logSyncError(error, 'EthUtilsService.sanitizeText()');
       return null;
     }

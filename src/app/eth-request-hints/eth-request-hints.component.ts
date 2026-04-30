@@ -3,12 +3,14 @@
 //
 // https://jira.ethz.ch/browse/SLSP-2013
 
-import { Component, Input } from '@angular/core';
-import { BehaviorSubject, combineLatest, defer, map, Observable, of, switchMap } from 'rxjs';
+import { Component, inject, Input } from '@angular/core';
+import { BehaviorSubject, catchError, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { EthStoreService } from '../services/eth-store.service';
+// import { EthStoreService } from '../services/eth-store.service';
 import { HostComponent } from '../models/eth.model';
+import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { EthUtilsService } from '../services/eth-utils.service';
 
 @Component({
   selector: 'custom-eth-request-hints',
@@ -20,6 +22,11 @@ import { HostComponent } from '../models/eth.model';
   styleUrl: './eth-request-hints.component.scss'
 })
 export class EthRequestHintsComponent {
+  // private ethStoreService = inject(EthStoreService);
+  private translate = inject(TranslateService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private ethUtilsService = inject(EthUtilsService);
+
   private hostComponent$ = new BehaviorSubject<HostComponent>({});
 
   @Input() 
@@ -27,52 +34,86 @@ export class EthRequestHintsComponent {
     this.hostComponent$.next(value);
   }
 
-  formType$: Observable<string | null> = defer(() => 
-    this.hostComponent$.pipe(
-      map(hostComponent => {
-          return hostComponent?.formType ?? null;
-        }
-      )
-    )
-  )
+  // User Group for future use
+  // userGroup$: Observable<string | null> = this.ethStoreService.userGroup$;
 
-  userGroup$: Observable<string | null> = defer(() => this.ethStoreService.userGroup$ );
-
-
-  readonly vm$ = combineLatest({
-    formType: this.formType$,
-    userGroup: this.userGroup$,
-  }).pipe(
-    map(({ formType, userGroup }) => ({
-      formType,
-      userGroup,
-      hint: this.getHint(formType, userGroup),
+  readonly state$: Observable<{ formType: string | null; pickupAtETH: boolean }> = this.hostComponent$.pipe(
+    map(hc => ({
+      formType: hc?.formType ?? null,
+      pickupAtETH: hc?.data?.request['link-to-service']?.includes('institution=41SLSP_ETH') ?? false,
     }))
   );
 
+  readonly hint$ = this.state$.pipe(
+    switchMap(({ formType, pickupAtETH }) =>
+      this.getHint(formType, pickupAtETH).pipe(
+        map(hint => this.ethUtilsService.sanitizeText(hint)),
+        catchError(err => {
+          this.ethErrorHandlingService.logError(err, 'EthRequestHintsComponent');
+          return of(null);
+        })
+      )
+    )
+  );      
+  
 
-  private getHint(formType: string | null, userGroup: string | null): Observable<any> | null {
-    /* userGroup
-    - 'ETH_Member', 'ETH_E06_GESS-Member', 'ETH_E64_MATH-Member',
-    - 'ETH_Student'    
-    - other
-    */
-    /* formType:
-      AlmaDigitization, AlmaRequest, AlmaRequestOther
-    */   
-    if (formType === 'AlmaDigitization' && userGroup === 'ETH_Member') 
-      return this.translate.get('hint.digitization.member');
-    else if (formType === 'AlmaRequest') 
-      return this.translate.get('eth.illLink.text1');
-    else if (formType === 'AlmaRequestOther') 
-      return this.translate.get('eth.illLink.text1');
-    return null;
+
+  private getHint(formType: string | null, pickupAtETH: boolean): Observable<string | null> {
+    if (pickupAtETH && (formType === 'AlmaRequest' || formType === 'AlmaRequestOther' || formType === 'AlmaItemRequest')) {
+      return this.translate.stream('eth.requestHint.request');
+    }
+    else if (pickupAtETH && (formType === 'AlmaDigitization' || formType === 'AlmaDigitizationOther' || formType === 'AlmaItemDigitization')) {
+      return this.translate.stream('eth.requestHint.digitization');
+    }
+    else if (!pickupAtETH && (formType === 'AlmaRequest' || formType === 'AlmaRequestOther' || formType === 'AlmaItemRequest')) {
+      return this.translate.stream('eth.requestHint.requestOtherLibrary');
+    }
+    else if (!pickupAtETH && (formType === 'AlmaDigitization' || formType === 'AlmaDigitizationOther' || formType === 'AlmaItemDigitization')) {
+      return this.translate.stream('eth.requestHint.digitizationOtherLibrary');
+    }
+    else{
+      return of(null);
+    }
   }
 
 
-  constructor(
-    private ethStoreService: EthStoreService,
-    private translate: TranslateService,
-  ) {}
+
 
 }
+
+/*
+AlmaRequest   
+Deutsch
+Abholung vor Ort: kostenlos<br>Postversand: CHF 12.00 (kostenlos an ETH-Institutsadresse)
+
+Englisch
+Pickup on site: free of charge<br>Postal delivery: CHF 12.00 (free of charge to ETH institutional address)
+
+
+
+AlmaRequestOther
+Deutsch
+Abholung vor Ort: kostenlos<br>Postversand: CHF 12.00
+
+Englisch
+Pickup on site: free of charge<br>Postal delivery: CHF 12.00
+
+
+
+AlmaDigitization
+Deutsch
+Normale Gebühr: CHF 5.00<br>ETH-Mitarbeitende: kostenlos<br>Alle Studierende: CHF 2.50<br>Kommerzielle Unternehmen: CHF 25.00
+
+Englisch
+Normal fee: CHF 5.00<br>ETH employees: free of charge<br>All students: CHF 2.50<br>Commercial clients: CHF 25.00
+
+
+
+AlmaDigitizationOther
+Deutsch
+Normale Gebühr: CHF 5.00<br>Kommerzielle Unternehmen: CHF 25.00
+
+Englisch
+Normal fee: CHF 5.00<br>Commercial clients: CHF 25.00
+
+*/
