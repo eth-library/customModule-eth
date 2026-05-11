@@ -58,7 +58,7 @@ export class EthMatomoComponent implements OnInit {
 
     }
     catch (error) {
-      this.ethErrorHandlingService.logSyncError(error, 'EthMatomoComponent.onInit()');
+      this.ethErrorHandlingService.logError(error, 'EthMatomoComponent.onInit()');
     }
 
   }

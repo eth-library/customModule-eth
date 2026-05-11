@@ -18,7 +18,7 @@ describe('EthLocationHintComponent', () => {
   beforeEach(async () => {
     translateMock = jasmine.createSpyObj<TranslateService>('TranslateService', ['stream']);
     errorHandlingMock = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError']);
-    utilsMock = jasmine.createSpyObj<EthUtilsService>('EthUtilsService', ['sanitizeText']);
+    utilsMock = jasmine.createSpyObj<EthUtilsService>('EthUtilsService', ['sanitizeHtml']);
     rendererMock = jasmine.createSpyObj<Renderer2>('Renderer2', ['appendChild']);
 
     await TestBed.configureTestingModule({
@@ -64,7 +64,7 @@ describe('EthLocationHintComponent', () => {
     };
 
     translateMock.stream.and.returnValue(of('raw-hint'));
-    utilsMock.sanitizeText.and.returnValue('safe-hint');
+    utilsMock.sanitizeHtml.and.returnValue('safe-hint');
 
     component.ngAfterViewInit();
 
@@ -95,7 +95,7 @@ describe('EthLocationHintComponent', () => {
       }
       return of(null);
     });
-    utilsMock.sanitizeText.and.returnValue('fallback-hint');
+    utilsMock.sanitizeHtml.and.returnValue('fallback-hint');
 
     component.ngAfterViewInit();
 
@@ -141,7 +141,7 @@ describe('EthLocationHintComponent', () => {
     };
 
     translateMock.stream.and.returnValue(throwError(() => new Error('boom')));
-    utilsMock.sanitizeText.and.callFake(value => (value ? value : null));
+    utilsMock.sanitizeHtml.and.callFake(value => (value ? value : null));
 
     component.ngAfterViewInit();
     component.hint$.subscribe();

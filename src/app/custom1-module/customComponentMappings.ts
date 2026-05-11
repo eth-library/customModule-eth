@@ -19,7 +19,7 @@ import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button
 import { EthRapidoEthmemberHintComponent } from '../eth-rapido-ethmember-hint/eth-rapido-ethmember-hint.component';
 import { EthRequestHintsComponent } from '../eth-request-hints/eth-request-hints.component';
 //import { EthThemeComponent } from '../eth-theme/eth-theme.component';
-//import { EthOKMComponent } from '../eth-okm/eth-okm.component';
+import { EthOKMComponent } from '../eth-okm/eth-okm.component';
 //import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
 //import { EthFullDisplayServiceContainerAfterComponent } from '../eth-full-display-service-container-after/eth-full-display-service-container-after.component';
 
@@ -45,9 +45,9 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-requests-top', EthIdpWarningComponent],
     ['nde-requests-after', EthIllLinkComponent],
     ['nde-ngrs-offer-drawer-before', EthRapidoEthmemberHintComponent],
-    ['nde-base-request-form-top', EthRequestHintsComponent]
+    ['nde-base-request-form-top', EthRequestHintsComponent],
     //['nde-login-dialog-after', EthRegistrationLinkComponent],
-    //['nde-search-bar-presenter-after', EthOKMComponent],
+    ['nde-search-bar-presenter-after', EthOKMComponent],
     //['nde-app-layout-top', EthThemeComponent],
     //['nde-full-display-details-bottom', EthMetagridComponent],
 ])

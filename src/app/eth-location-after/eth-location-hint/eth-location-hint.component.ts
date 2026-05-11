@@ -8,8 +8,14 @@ import { catchError, defer, filter, map, Observable, of, switchMap, take, tap } 
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthUtilsService } from '../../services/eth-utils.service';
 import { CommonModule } from '@angular/common';
-import { SafeHtml } from '@angular/platform-browser';
-import { HostComponent } from '../../models/eth.model';
+
+interface LocationHostComponent {
+  location?: {
+    libraryCode?: string;
+    subLocationCode?: string;
+    ilsApiId?: string;
+  };
+}
 
 @Component({
   selector: 'custom-eth-location-hint',
@@ -23,14 +29,14 @@ import { HostComponent } from '../../models/eth.model';
 })
 export class EthLocationHintComponent {
 
-  hint$!: Observable<SafeHtml | null>;
+  hint$!: Observable<string | null>;
   libraryCode!: string; 
   subLocationCode!: string;
   id!: string;
   private locationHintRef?: ElementRef<HTMLDivElement>;
   private shouldMoveHint = false;
 
-  @Input() hostComponent: HostComponent = {};
+  @Input() hostComponent: LocationHostComponent = {};
   
   @ViewChild('locationHint', { static: false })
   set locationHint(value: ElementRef<HTMLDivElement> | undefined) {
@@ -57,7 +63,7 @@ export class EthLocationHintComponent {
       if (!this.libraryCode.startsWith('E')) return of(null);
 
       return this.getLocationHint().pipe(
-        map(hint => this.ethUtilsService.sanitizeText(hint)),
+        map(hint => this.ethUtilsService.sanitizeHtml(hint)),
         filter((hint): hint is string => !!hint),
         take(1),
         tap(() => {

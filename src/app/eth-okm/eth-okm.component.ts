@@ -4,8 +4,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { catchError, defer, Observable, of, switchMap } from 'rxjs';
-import { EthStoreService } from 'src/app/services/eth-store.service';
-import {TranslateModule} from '@ngx-translate/core';
+import { EthStoreService } from '../services/eth-store.service';
+import { TranslateModule } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 
 @Component({

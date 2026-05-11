@@ -7,23 +7,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class EthErrorHandlingService {
 
-  // observable
   logError(error: unknown, context: string = 'Unknown Context'): void {
-    this.writeError('**ETH** :', this.buildErrorMessage(error, context, true), error);
-  }
-
-  // catch block
-  logSyncError(error: unknown, context: string = 'Unknown Context'): void{
-    this.writeError('**ETH** ', this.buildErrorMessage(error, context, false), error);
-  }
-
-  private writeError(prefix: string, message: string, error: unknown): void {
-    console.error(prefix, message);
+    console.error('**ETH** :', this.buildErrorMessage(error, context));
     console.error(error);
   }
 
-  private buildErrorMessage(error: unknown, context: string, includeHttpErrorDetails: boolean): string {
-    if (includeHttpErrorDetails && error instanceof HttpErrorResponse) {
+  private buildErrorMessage(error: unknown, context: string): string {
+    if (error instanceof HttpErrorResponse) {
       return this.getHttpErrorMessage(error, context);
     }
 

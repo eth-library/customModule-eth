@@ -70,7 +70,7 @@ export class EthProvenienzEraraLinkComponent {
         swisscovery: swisscoveryUrl
       });
     } catch(error: unknown){
-        this.ethErrorHandlingService.logSyncError(error, 'EthProvenienzEraraLinkComponent.getLinks');  
+        this.ethErrorHandlingService.logError(error, 'EthProvenienzEraraLinkComponent.getLinks');  
         return of({ erara: null, swisscovery: null });
     }
   }

@@ -42,13 +42,10 @@ The resolver then decides which services are suitable when the full view is call
 */
 
 import { Component,
-  DestroyRef,
   ElementRef,
   inject,
-  Inject,
   Input
 } from '@angular/core';
-import { Router } from '@angular/router';
 import {
   Observable,
   BehaviorSubject,
@@ -65,7 +62,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import {
@@ -94,7 +91,10 @@ export class EthOnlineButtonComponent  {
 
   private hostComponent$ = new BehaviorSubject<HostComponent>({});
   private mutationObserver?: MutationObserver;
-  private destroyRef = inject(DestroyRef);
+  private router = inject(SHELL_ROUTER);
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private elementRef = inject(ElementRef<HTMLElement>);
 
   @Input() set hostComponent(value: HostComponent) {
     this.hostComponent$.next(value);
@@ -122,23 +122,13 @@ export class EthOnlineButtonComponent  {
       }
     }),
     catchError(err => {
-      this.ethErrorHandlingService.logSyncError(
+      this.ethErrorHandlingService.logError(
         err,
         'EthOnlineButtonComponent.links$'
       );
       return of([]);
     })
   );
-
-  constructor(
-    @Inject(SHELL_ROUTER) private router: Router,
-    private ethStoreService: EthStoreService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private elementRef: ElementRef<HTMLElement>
-  ) {
-    //this.destroyRef.onDestroy(() => this.disconnectLibkeyObserver());
-  }
-
 
   private buildButtonIfNecessary(
     record: PnxDoc,

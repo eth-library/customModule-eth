@@ -25,8 +25,8 @@ describe('EthGitHintComponent', () => {
 
   beforeEach(async () => {
     gitHintServiceSpy = jasmine.createSpyObj('EthGitHintService', ['getHint']);
-    utilsServiceSpy = jasmine.createSpyObj('EthUtilsService', ['sanitizeText']);
-    utilsServiceSpy.sanitizeText.and.callFake((x: any) => x);
+    utilsServiceSpy = jasmine.createSpyObj('EthUtilsService', ['sanitizeHtml']);
+    utilsServiceSpy.sanitizeHtml.and.callFake((x: any) => x);
     errorHandlingSpy = jasmine.createSpyObj('EthErrorHandlingService', ['logError']);
 
     await TestBed.configureTestingModule({
@@ -109,11 +109,11 @@ describe('EthGitHintComponent', () => {
 
   it('sanitizes hint text', async () => {
     gitHintServiceSpy.getHint.and.returnValue(of('raw-hint' as GitHintVM));
-    utilsServiceSpy.sanitizeText.and.returnValue('safe-hint');
+    utilsServiceSpy.sanitizeHtml.and.returnValue('safe-hint');
 
     const result = await firstValueFrom(component.hint$);
 
-    expect(utilsServiceSpy.sanitizeText).toHaveBeenCalledWith('raw-hint');
+    expect(utilsServiceSpy.sanitizeHtml).toHaveBeenCalledWith('raw-hint');
     expect(result).toBe('safe-hint');
   });
 

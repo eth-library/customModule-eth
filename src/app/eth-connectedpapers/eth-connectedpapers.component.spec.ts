@@ -24,7 +24,7 @@ describe('EthConnectedpapersComponent', () => {
   beforeEach(async () => {
     cpServiceSpy = jasmine.createSpyObj('EthConnectedpapersService', ['getPaper']);
     storeServiceSpy = jasmine.createSpyObj('EthStoreService', ['getRecord$']);
-    errorHandlingSpy = jasmine.createSpyObj('EthErrorHandlingService', ['logError', 'logSyncError']);
+    errorHandlingSpy = jasmine.createSpyObj('EthErrorHandlingService', ['logError', 'logError']);
 
     await TestBed.configureTestingModule({
       imports: [EthConnectedpapersComponent],

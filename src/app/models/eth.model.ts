@@ -19,8 +19,15 @@ export interface StoreDeliveryEntity {
     almaOpenurl?: string;
     link?: DeliveryLink[];
     deliveryCategory?: string[];    
+    holding?:{
+      libraryCode?: string;
+      subLocation?: string;
+      subLocationCode?: string;
+      callNumber?: string;
+    }[];
   };
 }
+
 export interface StoreElectronicService {
   serviceUrl: string;
   ilsApiId: string;
@@ -93,6 +100,7 @@ export interface PnxDoc  {
       lds02?: string[];      
       lds03?: string[];
       lds09?: string[];
+      lds10?: string[];
       source?: string[];
       lds50?: string[];
       lds90?: string[];

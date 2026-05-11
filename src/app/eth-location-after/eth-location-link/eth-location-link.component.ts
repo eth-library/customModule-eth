@@ -8,8 +8,15 @@ import { catchError, defer, filter, map, Observable, of, switchMap } from 'rxjs'
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthUtilsService } from '../../services/eth-utils.service';
 import { CommonModule } from '@angular/common';
-import { SafeHtml } from '@angular/platform-browser';
-import { HostComponent } from '../../models/eth.model';
+
+interface LocationHostComponent {
+  location?: {
+    libraryCode?: string;
+    subLocationCode?: string;
+    mainLocation?: string;
+  };
+  expanded?: boolean;
+}
 
 @Component({
   selector: 'custom-eth-location-link',
@@ -24,7 +31,7 @@ import { HostComponent } from '../../models/eth.model';
 })
 export class EthLocationLinkComponent {
 
-  link$: Observable<SafeHtml | null> = defer(() => {
+  link$: Observable<string | null> = defer(() => {
     if (!this.hostComponent?.location) return of(null);
 
     // expand location container
@@ -35,7 +42,7 @@ export class EthLocationLinkComponent {
     this.mainLocation = this.hostComponent.location.mainLocation ?? '';
     return this.getLink()
     .pipe(
-      map(text => this.ethUtilsService.sanitizeText(text)),
+      map(text => this.ethUtilsService.sanitizeHtml(text)),
       filter((text): text is string => !!text),
       switchMap(text =>
         this.translate.get('nui.aria.newWindow').pipe(
@@ -48,7 +55,7 @@ export class EthLocationLinkComponent {
   libraryCode = '';
   subLocationCode = '';
   mainLocation = '';
-  @Input() hostComponent: HostComponent = {};
+  @Input() hostComponent: LocationHostComponent = {};
   
   constructor(
     private translate: TranslateService,
@@ -69,7 +76,6 @@ export class EthLocationLinkComponent {
             if (translation2 !== `eth.locationLink.${this.libraryCode}`) {
               return of(translation2); 
             }
-  
             return this.translate.stream('eth.locationLink.default', {
               code: this.libraryCode,
               libraryName: this.mainLocation,
@@ -102,7 +108,7 @@ export class EthLocationLinkComponent {
       return wrapper.innerHTML;
     }
     catch (error: unknown) {
-      this.ethErrorHandlingService.logSyncError(error, 'EthLocationLinkComponent.extendAnchorAriaLabel()');
+      this.ethErrorHandlingService.logError(error, 'EthLocationLinkComponent.extendAnchorAriaLabel()');
       return text;
     }
   }

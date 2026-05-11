@@ -19,7 +19,7 @@ describe('EthMatomoComponent', () => {
     routerMock = { events: routerEvents$.asObservable() };
     errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', [
       'logError',
-      'logSyncError'
+      'logError'
     ]);
 
     TestBed.configureTestingModule({
@@ -110,6 +110,6 @@ describe('EthMatomoComponent', () => {
 
     component.ngOnInit();
 
-    expect(errorHandlingSpy.logSyncError).toHaveBeenCalled();
+    expect(errorHandlingSpy.logError).toHaveBeenCalled();
   });
 });

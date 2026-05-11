@@ -104,7 +104,7 @@ export class EthPersonPageComponent {
         );
       }),
       catchError(error => {
-        this.ethErrorHandlingService.logSyncError(error, 'EthPersonPageComponent.loadPerson');
+        this.ethErrorHandlingService.logError(error, 'EthPersonPageComponent.loadPerson');
         return of(null);
       })
     );

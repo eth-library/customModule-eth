@@ -80,7 +80,7 @@ export class EthPersonCardsComponent {
           )
         ),
         catchError(err => {
-          this.ethErrorHandlingService.logSyncError( err, 'EthPersonCardsComponent persons$');
+          this.ethErrorHandlingService.logError( err, 'EthPersonCardsComponent persons$');
           return of({'otbPersons': [],'filteredPersons': []});      
         })
       );

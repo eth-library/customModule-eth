@@ -24,7 +24,7 @@ describe('EthOnlineButtonComponent', () => {
       'getRecord$',
       'getDeliveryEntity$'
     ]);
-    errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logSyncError']);
+    errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError']);
     routerSpy = jasmine.createSpyObj<Router>('Router', ['parseUrl', 'navigateByUrl'], {
       url: '/search?foo=bar'
     });
@@ -297,13 +297,13 @@ describe('EthOnlineButtonComponent', () => {
   it('logs sync errors and returns empty list when stream fails', (done) => {
     storeSpy.getRecord$.and.returnValue(throwError(() => new Error('boom')));
     storeSpy.getDeliveryEntity$.and.returnValue(of({} as any));
-    errorHandlingSpy.logSyncError.calls.reset();
+    errorHandlingSpy.logError.calls.reset();
 
     component.hostComponent = { viewModel$: of(null) } as any;
 
     component.links$.pipe(take(1)).subscribe(value => {
       expect(value).toEqual([]);
-      expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthOnlineButtonComponent.links$');
+      expect(errorHandlingSpy.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthOnlineButtonComponent.links$');
       done();
     });
   });

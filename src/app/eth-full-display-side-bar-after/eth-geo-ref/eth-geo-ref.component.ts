@@ -150,7 +150,7 @@ export class EthGeoRefComponent {
         );
     }
     catch (error) {
-      this.ethErrorHandlingService.logSyncError(error, 'EthGeoRefComponent.getPlaces');
+      this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getPlaces');
       return of({ gndPlacesLobid: [], gndPlacesGraph: [], ethorama: [], allPlaces: []});      
     }
   }

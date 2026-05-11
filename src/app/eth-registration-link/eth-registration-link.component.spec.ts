@@ -14,7 +14,7 @@ describe('EthRegistrationLinkComponent', () => {
 
   beforeEach(async () => {
     translateMock = jasmine.createSpyObj<TranslateService>('TranslateService', ['get']);
-    errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logSyncError']);
+    errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logError']);
 
     await TestBed.configureTestingModule({
       imports: [EthRegistrationLinkComponent],

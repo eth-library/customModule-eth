@@ -48,7 +48,7 @@ describe('EthPersonPageComponent', () => {
       linkedDataEntityStatus$: linkedDataEntityStatus$.asObservable()
     });
     errorHandlingService = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', [
-      'logSyncError',
+      'logError',
       'logError'
     ]);
     translateService = {
@@ -208,7 +208,7 @@ describe('EthPersonPageComponent', () => {
 
     component.person$.pipe(take(1)).subscribe(person => {
       expect(person).toBeNull();
-      expect(errorHandlingService.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthPersonPageComponent.loadPerson');
+      expect(errorHandlingService.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthPersonPageComponent.loadPerson');
       done();
     });
   });

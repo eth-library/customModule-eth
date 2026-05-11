@@ -18,11 +18,11 @@ describe('EthRequestHintsComponent', () => {
   let component: EthRequestHintsComponent;
   let fixture: ComponentFixture<EthRequestHintsComponent>;
   let ethErrorHandlingServiceMock: { logError: jasmine.Spy };
-  let ethUtilsServiceMock: { sanitizeText: (text: string | null) => string | null };
+  let ethUtilsServiceMock: { sanitizeHtml: (text: string | null) => string | null };
 
   beforeEach(async () => {
     ethErrorHandlingServiceMock = { logError: jasmine.createSpy('logError') };
-    ethUtilsServiceMock = { sanitizeText: (text) => text };
+    ethUtilsServiceMock = { sanitizeHtml: (text) => text };
 
     await TestBed.configureTestingModule({
       imports: [EthRequestHintsComponent],
@@ -156,8 +156,8 @@ describe('EthRequestHintsComponent', () => {
       expect(result).toBeNull();
     });
 
-    it('should pass hint through sanitizeText', () => {
-      const spy = spyOn(ethUtilsServiceMock, 'sanitizeText').and.callFake(t => `sanitized:${t}`);
+    it('should pass hint through sanitizeHtml', () => {
+      const spy = spyOn(ethUtilsServiceMock, 'sanitizeHtml').and.callFake(t => `sanitized:${t}`);
       component.hostComponent = ethHostComponent('AlmaRequest');
       let result: string | null | undefined;
       component.hint$.subscribe(v => (result = v));
@@ -169,8 +169,8 @@ describe('EthRequestHintsComponent', () => {
   // ─── error handling ───────────────────────────────────────────────────────────
 
   describe('error handling', () => {
-    it('should emit null and log error when sanitizeText throws', () => {
-      spyOn(ethUtilsServiceMock, 'sanitizeText').and.throwError('sanitize error');
+    it('should emit null and log error when sanitizeHtml throws', () => {
+      spyOn(ethUtilsServiceMock, 'sanitizeHtml').and.throwError('sanitize error');
       component.hostComponent = ethHostComponent('AlmaRequest');
       let result: string | null | undefined;
       component.hint$.subscribe(v => (result = v));
@@ -179,7 +179,7 @@ describe('EthRequestHintsComponent', () => {
     });
 
     it('should keep stream alive after error and emit subsequent values', () => {
-      const sanitizeSpy = spyOn(ethUtilsServiceMock, 'sanitizeText').and.throwError('error');
+      const sanitizeSpy = spyOn(ethUtilsServiceMock, 'sanitizeHtml').and.throwError('error');
       const results: (string | null)[] = [];
       component.hint$.subscribe(v => results.push(v));
 

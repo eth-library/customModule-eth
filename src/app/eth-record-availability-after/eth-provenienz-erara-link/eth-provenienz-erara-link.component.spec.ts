@@ -55,7 +55,7 @@ describe('EthProvenienzEraraLinkComponent', () => {
       'getScope',
       'getVid'
     ]);
-    errorHandlingService = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logSyncError']);
+    errorHandlingService = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logError']);
     router = { navigateByUrl: jasmine.createSpy('navigateByUrl') };
 
     storeService.getTab.and.returnValue('default_tab');
@@ -170,7 +170,7 @@ describe('EthProvenienzEraraLinkComponent', () => {
         }
       }
     });
-    errorHandlingService.logSyncError.calls.reset();
+    errorHandlingService.logError.calls.reset();
     spyOn<any>(component, 'getEraraLink').and.callFake(() => {
       throw new Error('explode');
     });
@@ -179,7 +179,7 @@ describe('EthProvenienzEraraLinkComponent', () => {
 
     expect(links.erara).toBeNull();
     expect(links.swisscovery).toBeNull();
-    expect(errorHandlingService.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthProvenienzEraraLinkComponent.getLinks');
+    expect(errorHandlingService.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthProvenienzEraraLinkComponent.getLinks');
   });
 
 

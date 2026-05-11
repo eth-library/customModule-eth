@@ -15,8 +15,8 @@ describe('EthLocationLinkComponent', () => {
 
   beforeEach(async () => {
     translateMock = jasmine.createSpyObj<TranslateService>('TranslateService', ['stream', 'get']);
-    errorHandlingMock = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logSyncError']);
-    utilsMock = jasmine.createSpyObj<EthUtilsService>('EthUtilsService', ['sanitizeText']);
+    errorHandlingMock = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logError']);
+    utilsMock = jasmine.createSpyObj<EthUtilsService>('EthUtilsService', ['sanitizeHtml']);
 
     translateMock.get.and.returnValue(of('(opens in a new window)'));
 
@@ -56,7 +56,7 @@ describe('EthLocationLinkComponent', () => {
     };
 
     translateMock.stream.and.returnValue(of('raw-link'));
-    utilsMock.sanitizeText.and.returnValue('safe-link');
+    utilsMock.sanitizeHtml.and.returnValue('safe-link');
 
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
@@ -79,7 +79,7 @@ describe('EthLocationLinkComponent', () => {
 
     translateMock.stream.and.returnValue(of('<a href="https://example.org" target="_blank">Library</a>'));
     translateMock.get.and.returnValue(of('(opens in a new window)'));
-    utilsMock.sanitizeText.and.callFake(value => value as string);
+    utilsMock.sanitizeHtml.and.callFake(value => value as string);
 
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
@@ -106,7 +106,7 @@ describe('EthLocationLinkComponent', () => {
       }
       return of(null);
     });
-    utilsMock.sanitizeText.and.returnValue('E33-link');
+    utilsMock.sanitizeHtml.and.returnValue('E33-link');
 
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
@@ -138,7 +138,7 @@ describe('EthLocationLinkComponent', () => {
       }
       return of(null);
     });
-    utilsMock.sanitizeText.and.callFake(value => value as string);
+    utilsMock.sanitizeHtml.and.callFake(value => value as string);
 
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
@@ -161,7 +161,7 @@ describe('EthLocationLinkComponent', () => {
     };
 
     translateMock.stream.and.returnValue(throwError(() => new Error('boom')));
-    utilsMock.sanitizeText.and.callFake(value => value as string);
+    utilsMock.sanitizeHtml.and.callFake(value => value as string);
 
     component.link$.subscribe();
 

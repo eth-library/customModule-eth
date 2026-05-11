@@ -136,7 +136,7 @@ export class EthIllLinkComponent {
         return () => obs?.disconnect();
       });
     } catch (error) {
-        this.ethErrorHandlingService.logSyncError(error, 'EthIllLinkComponent.getIllQsOrNull()');
+        this.ethErrorHandlingService.logError(error, 'EthIllLinkComponent.getIllQsOrNull()');
         return of(null);
     }
 
@@ -191,7 +191,7 @@ export class EthIllLinkComponent {
       }
       return qsParts.join('&');
     } catch (error) {
-        this.ethErrorHandlingService.logSyncError(error, 'EthIllLinkComponent.buildQs()');
+        this.ethErrorHandlingService.logError(error, 'EthIllLinkComponent.buildQs()');
         return '';
     }
   }

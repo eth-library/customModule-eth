@@ -44,7 +44,7 @@ describe('EthPersonCardsComponent', () => {
 
     ethErrorHandlingService = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', [
       'logError',
-      'logSyncError'
+      'logError'
     ]);
 
     routerMock = { navigateByUrl: jasmine.createSpy('navigateByUrl') };
@@ -187,7 +187,7 @@ describe('EthPersonCardsComponent', () => {
 
     component.persons$.pipe(take(1)).subscribe(result => {
       expect(result).toEqual({ otbPersons: [], filteredPersons: [] });
-      expect(ethErrorHandlingService.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthPersonCardsComponent persons$');
+      expect(ethErrorHandlingService.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthPersonCardsComponent persons$');
       done();
     });
   });

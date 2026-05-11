@@ -129,7 +129,7 @@ export class EthPersonService {
             });
             return links;
         } catch (error) {
-            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processPrometheusResponse');
+            this.ethErrorHandlingService.logError(error, 'EthPersonService.processPrometheusResponse');
             return [];
         }
     }
@@ -182,7 +182,7 @@ export class EthPersonService {
             }
             return ef;
         } catch (error: unknown) {
-            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processEntityfactsResponse');
+            this.ethErrorHandlingService.logError(error, 'EthPersonService.processEntityfactsResponse');
             return {relatedPersons:[]};
         }
     }
@@ -229,7 +229,7 @@ export class EthPersonService {
 
             return wiki;
         } catch (error: unknown) {
-            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processWikiResponse');
+            this.ethErrorHandlingService.logError(error, 'EthPersonService.processWikiResponse');
             return undefined;
         }
     }
@@ -263,7 +263,7 @@ export class EthPersonService {
             }
             return undefined;
         } catch (error: unknown) {
-            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processWikipediaUrlListResponse');
+            this.ethErrorHandlingService.logError(error, 'EthPersonService.processWikipediaUrlListResponse');
             return undefined;
         }
     }
@@ -295,7 +295,7 @@ export class EthPersonService {
                     };
                 });
         } catch (error: unknown) {
-            this.ethErrorHandlingService.logSyncError(error,'EthPersonService.processRelatedPersonsResponse');
+            this.ethErrorHandlingService.logError(error,'EthPersonService.processRelatedPersonsResponse');
             return [];
         }
     }
@@ -311,7 +311,7 @@ export class EthPersonService {
                     inventoryno: b.inventoryno?.value
                 }));
         } catch (error: unknown) {
-            this.ethErrorHandlingService.logSyncError(error,'EthPersonService.processWikiArchivesAtResponse');
+            this.ethErrorHandlingService.logError(error,'EthPersonService.processWikiArchivesAtResponse');
             return [];
         }
     }
@@ -336,7 +336,7 @@ export class EthPersonService {
             ];
             return sorted;
         } catch (error: unknown) {
-            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processMetagridResponse');
+            this.ethErrorHandlingService.logError(error, 'EthPersonService.processMetagridResponse');
             return [];
         }
     }
@@ -447,7 +447,7 @@ export class EthPersonService {
             
             return person;
         } catch (error: unknown) {
-            this.ethErrorHandlingService.logSyncError(error, 'EthPersonService.processPersonsResponse');
+            this.ethErrorHandlingService.logError(error, 'EthPersonService.processPersonsResponse');
             return {gnd: '', url: ''}
         }
     }

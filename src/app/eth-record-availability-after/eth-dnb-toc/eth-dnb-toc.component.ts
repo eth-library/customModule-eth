@@ -5,7 +5,7 @@
 import { Component , Input } from '@angular/core';
 import { Observable, catchError, combineLatest, defer, distinctUntilChanged, filter, forkJoin, map, of, switchMap } from 'rxjs';
 import { EthDnbTocService } from './eth-dnb-toc.service'
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from "@ngx-translate/core";

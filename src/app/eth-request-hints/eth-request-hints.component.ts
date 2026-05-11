@@ -1,7 +1,8 @@
-//
-//
-//
+// The order form displays information on fees (for different user groups),
+// depending on whether the request is made via ETH-GetIt or ‘Collection from other institutions’, 
+// and varies for requests and digitisation.
 // https://jira.ethz.ch/browse/SLSP-2013
+// 990061118830205503 
 
 import { Component, inject, Input } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, of, switchMap } from 'rxjs';
@@ -36,7 +37,6 @@ export class EthRequestHintsComponent {
 
   // User Group for future use
   // userGroup$: Observable<string | null> = this.ethStoreService.userGroup$;
-
   readonly state$: Observable<{ formType: string | null; pickupAtETH: boolean }> = this.hostComponent$.pipe(
     map(hc => ({
       formType: hc?.formType ?? null,
@@ -47,7 +47,7 @@ export class EthRequestHintsComponent {
   readonly hint$ = this.state$.pipe(
     switchMap(({ formType, pickupAtETH }) =>
       this.getHint(formType, pickupAtETH).pipe(
-        map(hint => this.ethUtilsService.sanitizeText(hint)),
+        map(hint => this.ethUtilsService.sanitizeHtml(hint)),
         catchError(err => {
           this.ethErrorHandlingService.logError(err, 'EthRequestHintsComponent');
           return of(null);

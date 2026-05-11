@@ -1,10 +1,13 @@
 // If a user with an ETH email address does not belong to an ETH user group,
-// a message is displayed (on the /nde/account/settings page) stating that the user must link their edu-id account to their ETH account.
+// a message will appear stating that the user must link their edu-id account to their ETH account.
+// This message appears in two places:
+//    - Start of the Request section
+//    - Account - Settings
 // https://jira.ethz.ch/browse/SLSP-1985
 
 import { Component } from '@angular/core';
 import { catchError, combineLatest, defer, map, Observable, of, switchMap } from 'rxjs';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from "@ngx-translate/core";

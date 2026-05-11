@@ -12,11 +12,11 @@ export class EthUtilsService {
   ){} 
 
 
-  // sanitize text. Only a few html tags and attributes are allowed.
-  sanitizeText(text: string | null): string | null {
+  // sanitize html: Only a few html tags and attributes are allowed.
+  sanitizeHtml(text: string | null): string | null {
     try {
       if (!text) return null;
-      const allowedTags = ['a', 'strong', 'em', 'p', 'br'];
+      const allowedTags = ['a', 'strong', 'em', 'p', 'br','div'];
       const allowedAttributes: Record<string, string[]> = {
         a: ['href', 'target', 'rel'],
       };
@@ -55,7 +55,7 @@ export class EthUtilsService {
       return div.innerHTML;
     }
     catch (error: unknown) {
-      this.ethErrorHandlingService.logSyncError(error, 'EthUtilsService.sanitizeText()');
+      this.ethErrorHandlingService.logError(error, 'EthUtilsService.sanitizeHtml()');
       return null;
     }
   }
@@ -110,7 +110,7 @@ export class EthUtilsService {
       return listener;
     }
     catch (error:unknown) {
-      this.ethErrorHandlingService.logSyncError(error, 'EthUtilsService.positionCard()');
+      this.ethErrorHandlingService.logError(error, 'EthUtilsService.positionCard()');
       return undefined;
     }
   }

@@ -17,7 +17,7 @@ describe('EthLogoSublineComponent', () => {
   beforeEach(async () => {
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigateByUrl']);
     storeSpy = jasmine.createSpyObj<EthStoreService>('EthStoreService', ['getVid']);
-    errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logSyncError']);
+    errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError']);
 
     await TestBed.configureTestingModule({
       imports: [EthLogoSublineComponent],
@@ -64,7 +64,7 @@ describe('EthLogoSublineComponent', () => {
 
     component.ngOnInit();
 
-    expect(errorHandlingSpy.logSyncError).toHaveBeenCalled();
+    expect(errorHandlingSpy.logError).toHaveBeenCalled();
     expect(component.url).toBe('');
   });
 

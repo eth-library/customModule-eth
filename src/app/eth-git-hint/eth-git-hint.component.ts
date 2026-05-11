@@ -39,7 +39,7 @@ export class EthGitHintComponent {
     this.ethGitHintService
       .getHint((this.translate.currentLang as Language) ?? 'de')
       .pipe(
-        map(hint => this.ethUtilsService.sanitizeText(hint)),
+        map(hint => this.ethUtilsService.sanitizeHtml(hint)),
         catchError(error => {
           this.ethErrorHandlingService.logError(error, 'EthGitHintComponent');
           return of(null);

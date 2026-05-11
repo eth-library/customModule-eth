@@ -68,7 +68,7 @@ describe('EthIllLinkComponent', () => {
     const translateServiceMock = options.translate ?? defaultTranslate;
     const documentRef = options.documentRef ?? document;
 
-    errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logSyncError']);
+    errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logError']);
 
     await TestBed.configureTestingModule({
       imports: [EthIllLinkComponent],
@@ -282,7 +282,7 @@ describe('EthIllLinkComponent', () => {
     );
 
     expect(result).toBeNull();
-    expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthIllLinkComponent.getIllQsOrNull()');
+    expect(errorHandlingSpy.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthIllLinkComponent.getIllQsOrNull()');
 
     (component as any).document = originalDoc;
   });
@@ -375,6 +375,6 @@ describe('EthIllLinkComponent', () => {
 
     const qs = (component as any).buildQs(record);
     expect(qs).toBe('');
-    expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthIllLinkComponent.buildQs()');
+    expect(errorHandlingSpy.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthIllLinkComponent.buildQs()');
   });
 });

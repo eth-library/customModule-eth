@@ -15,7 +15,7 @@ describe('EthPersonService', () => {
   beforeEach(() => {
     errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', [
       'logError',
-      'logSyncError'
+      'logError'
     ]);
 
     TestBed.configureTestingModule({
@@ -332,7 +332,7 @@ describe('EthPersonService', () => {
 
 
   it('processWikiArchivesAtResponse maps entries and logs errors', () => {
-    errorHandlingSpy.logSyncError.calls.reset();
+    errorHandlingSpy.logError.calls.reset();
     const resp: any = {
       results: {
         bindings: [{
@@ -348,7 +348,7 @@ describe('EthPersonService', () => {
 
     const fallback = (service as any).processWikiArchivesAtResponse(null);
     expect(fallback).toEqual([]);
-    expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.anything(), 'EthPersonService.processWikiArchivesAtResponse');
+    expect(errorHandlingSpy.logError).toHaveBeenCalledWith(jasmine.anything(), 'EthPersonService.processWikiArchivesAtResponse');
   });
 
 
@@ -466,12 +466,12 @@ describe('EthPersonService', () => {
 
 
   it('processPersonsResponse logs failures and returns fallback object', () => {
-    errorHandlingSpy.logSyncError.calls.reset();
+    errorHandlingSpy.logError.calls.reset();
 
     const person = service.processPersonsResponse({} as any, 'de');
 
     expect(person).toEqual({ gnd: '', url: '' });
-    expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.anything(), 'EthPersonService.processPersonsResponse');
+    expect(errorHandlingSpy.logError).toHaveBeenCalledWith(jasmine.anything(), 'EthPersonService.processPersonsResponse');
   });
 
 });

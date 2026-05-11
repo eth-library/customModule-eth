@@ -9,7 +9,7 @@ describe('EthUtilsService', () => {
 
   beforeEach(() => {
     errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', [
-      'logSyncError'
+      'logError'
     ]);
 
     TestBed.configureTestingModule({
@@ -25,23 +25,23 @@ describe('EthUtilsService', () => {
 
   it('sanitizes disallowed tags', () => {
     const input = '<p>Ok</p><script>alert(1)</script><strong>Bold</strong>';
-    const result = service.sanitizeText(input);
+    const result = service.sanitizeHtml(input);
     expect(result).toBe('<p>Ok</p>alert(1)<strong>Bold</strong>');
   });
 
 
   it('returns null for empty input', () => {
-    expect(service.sanitizeText(null)).toBeNull();
+    expect(service.sanitizeHtml(null)).toBeNull();
   });
 
 
-  it('logs errors in sanitizeText()', () => {
+  it('logs errors in sanitizeHtml()', () => {
     spyOn(document, 'createElement').and.throwError('boom');
 
-    const result = service.sanitizeText('<p>x</p>');
+    const result = service.sanitizeHtml('<p>x</p>');
 
     expect(result).toBeNull();
-    expect(errorHandlingSpy.logSyncError).toHaveBeenCalled();
+    expect(errorHandlingSpy.logError).toHaveBeenCalled();
   });
 
   /*

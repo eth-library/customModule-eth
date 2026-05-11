@@ -61,7 +61,7 @@ describe('EthGeoRefComponent', () => {
     geoRefServiceSpy.getPlacesFromETHorama.and.returnValue(of({ items: [] } as any));
     geoRefServiceSpy.enrichPOIs.and.returnValue(of([]));
 
-    errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logSyncError']);
+    errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logError']);
 
     await TestBed.configureTestingModule({
       imports: [EthGeoRefComponent],
@@ -347,7 +347,7 @@ describe('EthGeoRefComponent', () => {
     component.getPlaces(record).subscribe({
       next: result => {
         expect(result).toEqual({ gndPlacesLobid: [], gndPlacesGraph: [], ethorama: [], allPlaces: [] });
-        expect(errorHandlingSpy.logSyncError).toHaveBeenCalledWith(jasmine.any(Error), 'EthGeoRefComponent.getPlaces');
+        expect(errorHandlingSpy.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthGeoRefComponent.getPlaces');
         (component as any).getContext = originalGetContext;
         done();
       },
