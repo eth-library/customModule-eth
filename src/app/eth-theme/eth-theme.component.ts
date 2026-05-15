@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit, OnDestroy, Renderer2, Inject } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, Renderer2, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 
 @Component({
@@ -12,8 +12,9 @@ import { DOCUMENT } from '@angular/common';
 export class EthThemeComponent implements OnInit, OnDestroy {
   private linkEl?: HTMLLinkElement;
   private linkEl2?: HTMLLinkElement;
+  private document = inject(DOCUMENT);
 
-  constructor(private renderer: Renderer2, @Inject(DOCUMENT) private document: Document) {}
+  constructor(private renderer: Renderer2) {}
 
   ngOnInit(): void {
     try {

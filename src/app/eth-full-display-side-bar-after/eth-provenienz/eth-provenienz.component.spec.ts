@@ -3,7 +3,7 @@ import { By } from '@angular/platform-browser';
 import { BehaviorSubject, Observable, of, skip, take, throwError } from 'rxjs';
 import { EthProvenienzComponent } from './eth-provenienz.component';
 import { EthProvenienzService } from './eth-provenienz.service';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
 import { SHELL_ROUTER } from '../../injection-tokens';

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { of, firstValueFrom } from 'rxjs';
 import { EthComposeEraraComponent } from './eth-compose-erara.component';
 import { EthComposeEraraService } from './eth-compose-erara.service';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { SHELL_ROUTER } from '../../injection-tokens';
 

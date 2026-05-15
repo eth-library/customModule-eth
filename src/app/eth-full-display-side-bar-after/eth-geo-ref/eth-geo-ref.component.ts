@@ -6,7 +6,7 @@ import { EthGeoRefService } from './eth-geo-ref.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, defer, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { SHELL_ROUTER } from "../../injection-tokens";

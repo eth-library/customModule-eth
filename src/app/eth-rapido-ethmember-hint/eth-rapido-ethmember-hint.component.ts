@@ -6,7 +6,7 @@ import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { BehaviorSubject, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../services/eth-store.service';
 import { HostComponent } from '../models/eth.model';
 
 

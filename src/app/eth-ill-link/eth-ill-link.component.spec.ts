@@ -3,7 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, Observable, of, throwError } from 'rxjs';
 import { EthIllLinkComponent } from './eth-ill-link.component';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { PnxDoc, StoreDeliveryEntity } from '../models/eth.model';
 

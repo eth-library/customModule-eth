@@ -4,7 +4,7 @@
 import { Component, ElementRef, inject, ViewChild, ViewEncapsulation, DestroyRef } from '@angular/core';
 import { catchError, defer, filter, forkJoin, map, Observable, of, startWith, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../services/eth-person.service';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../services/eth-store.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule, DOCUMENT } from '@angular/common';

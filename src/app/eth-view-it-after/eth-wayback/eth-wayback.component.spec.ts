@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject, of, throwError } from 'rxjs';
 import { EthWaybackComponent } from './eth-wayback.component';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
 import { DOCUMENT } from '@angular/common';
@@ -73,7 +73,7 @@ describe('EthWaybackComponent', () => {
     const container = doc.createElement('nde-full-display-container');
     const card = doc.createElement('nde-view-it-card');
     const button = doc.createElement('button');
-    const header = doc.createElement('h5');
+    const header = doc.createElement('h3');
     button.appendChild(header);
     card.appendChild(button);
     container.appendChild(card);

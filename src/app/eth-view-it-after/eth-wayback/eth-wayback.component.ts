@@ -5,10 +5,10 @@
 */
 // https://jira.ethz.ch/browse/SLSP-2014
 
-import { Component, DestroyRef, inject, Inject, Renderer2 } from '@angular/core';
+import { Component, DestroyRef, inject, Renderer2 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { catchError, distinctUntilChanged, map, of, take, tap } from 'rxjs';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateService } from "@ngx-translate/core";
@@ -31,6 +31,7 @@ const WAYBACK_HINT_CLASS = 'eth-wayback';
 export class EthWaybackComponent {
 
   private destroyRef = inject(DestroyRef);
+  private document = inject(DOCUMENT);
   private hasWayback = false;
   private observer: MutationObserver | null = null;
      
@@ -39,7 +40,6 @@ export class EthWaybackComponent {
     private ethErrorHandlingService: EthErrorHandlingService,
     private renderer: Renderer2,
     private translate: TranslateService,    
-    @Inject(DOCUMENT) private document: Document    
   ){
     this.destroyRef.onDestroy(() => this.disconnectObserver());
   }
@@ -89,7 +89,6 @@ export class EthWaybackComponent {
 
   private initObserver() {
     if (this.observer) return;
-
     const fullDisplayContainer = this.document.querySelector('nde-full-display-container');
     if (!fullDisplayContainer) return;
 
@@ -115,16 +114,14 @@ export class EthWaybackComponent {
 
   private changeDom(forceUpdate = false) {
     const btn = this.document.querySelector('nde-view-it-card button');
-    const btnH5 = btn?.querySelector('h5');
+    const btnHeading = btn?.querySelector('h5') || btn?.querySelector('h3');
     const parent = btn?.parentNode as HTMLElement | null;
-
-    if (!btn || !btnH5 || !parent) return;
-
+    if (!btn || !btnHeading || !parent) return;
     const existing = parent.querySelector(`#${WAYBACK_HINT_ID}`) as HTMLElement | null;
     if (
       !forceUpdate &&
       existing &&
-      btnH5.textContent === this.translate.instant('eth.wayback.linkText') &&
+      btnHeading.textContent === this.translate.instant('eth.wayback.linkText') &&
       existing.textContent === this.translate.instant('eth.wayback.text')
     ) {
       return;
@@ -141,8 +138,8 @@ export class EthWaybackComponent {
       const labelText = t['eth.wayback.text'];
       const labelLinkText = t['eth.wayback.linkText'];
 
-      this.renderer.setProperty(btnH5, 'textContent', labelLinkText);
-      this.renderer.setAttribute(btnH5, 'aria-label', labelLinkText);
+      this.renderer.setProperty(btnHeading, 'textContent', labelLinkText);
+      this.renderer.setAttribute(btnHeading, 'aria-label', labelLinkText);
 
       let hintDiv = parent.querySelector('#eth-wayback-hint') as HTMLElement | null;
 

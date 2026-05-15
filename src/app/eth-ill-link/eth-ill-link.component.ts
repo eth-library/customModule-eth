@@ -2,7 +2,7 @@
 // https://jira.ethz.ch/browse/SLSP-1986
 
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, inject, Inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, of, combineLatest, defer } from 'rxjs';
 import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
@@ -27,6 +27,7 @@ interface TranslationBundle {
 })
 export class EthIllLinkComponent {
   private destroyRef = inject(DestroyRef);
+  private document = inject(DOCUMENT);
 
   // do we need an ILL link? In this case: create the querystring of the ILL link.
   // 991076219509705501
@@ -90,8 +91,7 @@ export class EthIllLinkComponent {
   constructor(
     private ethStoreService: EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService,
-    private translate: TranslateService,
-    @Inject(DOCUMENT) private document: Document
+    private translate: TranslateService
   ) {}
 
 

@@ -5,7 +5,7 @@ import { EthPersonCardsComponent } from './eth-person-cards.component';
 import { EthPersonService } from '../../services/eth-person.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { SHELL_ROUTER } from '../../injection-tokens';
 import { PnxDoc, PersonVM } from '../../models/eth.model';
 

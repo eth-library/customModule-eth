@@ -1,7 +1,7 @@
 // In the login box, there is a link that says “Not registered yet?”
 // https://jira.ethz.ch/browse/SLSP-1984
 
-import { Component, inject, Renderer2, DestroyRef, Inject } from '@angular/core';
+import { Component, inject, Renderer2, DestroyRef } from '@angular/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -24,12 +24,12 @@ const CONTENT_SELECTOR = 'nde-login-dialog .mat-mdc-dialog-content';
 export class EthRegistrationLinkComponent {
   
   private destroyRef = inject(DestroyRef);
-  
+  private document = inject(DOCUMENT);
+
   constructor(
        private renderer: Renderer2,
        private translate: TranslateService,
-       private ethErrorHandlingService: EthErrorHandlingService,
-       @Inject(DOCUMENT) private document: Document    
+       private ethErrorHandlingService: EthErrorHandlingService
     ){}
 
     ngAfterViewInit(): void {

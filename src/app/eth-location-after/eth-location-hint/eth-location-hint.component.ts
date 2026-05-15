@@ -15,6 +15,7 @@ interface LocationHostComponent {
     subLocationCode?: string;
     ilsApiId?: string;
   };
+  expanded?: boolean;    
 }
 
 @Component({
@@ -52,6 +53,9 @@ export class EthLocationHintComponent {
   ){} 
 
   ngAfterViewInit(): void {
+    // Expand location container once.
+    this.hostComponent.expanded = true;
+
     // 990010808770205503
     this.hint$ = defer(() => {
       if (!this.hostComponent?.location) return of(null);

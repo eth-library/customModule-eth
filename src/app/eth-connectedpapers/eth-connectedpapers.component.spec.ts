@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EthConnectedpapersComponent } from './eth-connectedpapers.component';
 import { EthConnectedpapersService } from './eth-connectedpapers.service';
 import { ConnectedPapersAPIResponse, PnxDoc, HostComponent } from '../models/eth.model';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../services/eth-store.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { firstValueFrom, of, throwError } from 'rxjs';

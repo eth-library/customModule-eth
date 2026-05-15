@@ -13,7 +13,7 @@ The provenance images are displayed in the detailed view of the respective print
 import { Component, Input, inject } from '@angular/core';
 import { Observable, catchError, defer, map, of, filter, switchMap, startWith } from 'rxjs';
 import { EthProvenienzService } from './eth-provenienz.service'
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';

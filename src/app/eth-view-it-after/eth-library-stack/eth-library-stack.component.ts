@@ -5,10 +5,10 @@
 */
 // https://jira.ethz.ch/browse/SLSP-1999
 
-import { Component, Inject, Renderer2, DestroyRef, inject } from '@angular/core';
+import { Component, Renderer2, DestroyRef, inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { catchError, distinctUntilChanged, map, of, take, tap } from 'rxjs';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -35,13 +35,13 @@ export class EthLibraryStackComponent {
   private destroyRef = inject(DestroyRef);
   private hasLibraryStack = false;
   private observer: MutationObserver | null = null;
-   
+  private document = inject(DOCUMENT);
+
   constructor(
     private ethStoreService:EthStoreService,
     private ethErrorHandlingService: EthErrorHandlingService,
     private renderer: Renderer2,
-    private translate: TranslateService,
-    @Inject(DOCUMENT) private document: Document    
+    private translate: TranslateService
   ){
     this.destroyRef.onDestroy(() => this.disconnectObserver());
   }

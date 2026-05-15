@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { EthOnlineProblemComponent } from './eth-online-problem.component';
-import { EthStoreService } from 'src/app/services/eth-store.service';
-import { EthErrorHandlingService } from 'src/app/services/eth-error-handling.service';
+import { EthStoreService } from '../../services/eth-store.service';
+import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { PnxDoc, Sourcesystem } from '../../models/eth.model';
 
 describe('EthOnlineProblemComponent', () => {

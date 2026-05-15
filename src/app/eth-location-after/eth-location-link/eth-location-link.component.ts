@@ -15,7 +15,6 @@ interface LocationHostComponent {
     subLocationCode?: string;
     mainLocation?: string;
   };
-  expanded?: boolean;
 }
 
 @Component({
@@ -31,11 +30,13 @@ interface LocationHostComponent {
 })
 export class EthLocationLinkComponent {
 
+  libraryCode = '';
+  subLocationCode = '';
+  mainLocation = '';
+  @Input() hostComponent: LocationHostComponent = {};
+
   link$: Observable<string | null> = defer(() => {
     if (!this.hostComponent?.location) return of(null);
-
-    // expand location container
-    this.hostComponent.expanded = true;
 
     this.subLocationCode = this.hostComponent.location.subLocationCode ?? '';
     this.libraryCode = this.hostComponent.location.libraryCode ?? '';
@@ -46,16 +47,12 @@ export class EthLocationLinkComponent {
       filter((text): text is string => !!text),
       switchMap(text =>
         this.translate.get('nui.aria.newWindow').pipe(
-          map(newWindowText => this.extendAnchorAriaLabel(text, newWindowText))
+          map(newWindowText => this.addAriaLabel(text, newWindowText))
         )
       )
     )
   });
   
-  libraryCode = '';
-  subLocationCode = '';
-  mainLocation = '';
-  @Input() hostComponent: LocationHostComponent = {};
   
   constructor(
     private translate: TranslateService,
@@ -90,24 +87,22 @@ export class EthLocationLinkComponent {
     )
   }
 
-  private extendAnchorAriaLabel(text: string, newWindowText: string): string {
+  // adds aria-label attribute to link from codetable, if it opens in a new window.
+  // parts of aria-label are textvalue and "opens in new window" (from translation file)
+  private addAriaLabel(text: string, newWindowText: string): string {
     try {
-      const hint = (newWindowText ?? '').trim();
-      if (!hint) return text;
+      if (!newWindowText) return text;
 
       const wrapper = document.createElement('div');
       wrapper.innerHTML = text;
 
       wrapper.querySelectorAll('a[target="_blank"]').forEach(anchor => {
-        const currentAria = (anchor.getAttribute('aria-label') ?? '').trim();
-        const fallbackLabel = (anchor.textContent ?? '').trim();
-        const baseLabel = currentAria || fallbackLabel;
-
-        anchor.setAttribute('aria-label', baseLabel ? `${baseLabel} ${hint}` : hint);
+        const label = (anchor.getAttribute('aria-label') || anchor.textContent)?.trim();
+        anchor.setAttribute('aria-label', label ? `${label} ${newWindowText}` : newWindowText);
       });
+     
       return wrapper.innerHTML;
-    }
-    catch (error: unknown) {
+    } catch (error: unknown) {
       this.ethErrorHandlingService.logError(error, 'EthLocationLinkComponent.extendAnchorAriaLabel()');
       return text;
     }

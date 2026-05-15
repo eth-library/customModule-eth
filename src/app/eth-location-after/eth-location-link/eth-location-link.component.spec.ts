@@ -61,7 +61,6 @@ describe('EthLocationLinkComponent', () => {
     let emitted: SafeHtml | null | undefined;
     component.link$.subscribe(value => (emitted = value));
 
-    expect(component.hostComponent.expanded).toBeTrue();
     expect(emitted).toBe('safe-link');
     expect(translateMock.stream).toHaveBeenCalledWith('eth.locationLink.E01.AETH');
     expect(translateMock.get).toHaveBeenCalledWith('nui.aria.newWindow');

@@ -3,7 +3,7 @@ import { BehaviorSubject, firstValueFrom, of, throwError } from 'rxjs';
 import { EthGeoRefComponent } from './eth-geo-ref.component';
 import { EthGeoRefService } from './eth-geo-ref.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { TranslateService } from '@ngx-translate/core';
 import { SHELL_ROUTER } from '../../injection-tokens';
 import { PnxDoc, PlaceGeoRefVM, PlacesGeoRefVM } from '../../models/eth.model';

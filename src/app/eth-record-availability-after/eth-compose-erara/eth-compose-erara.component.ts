@@ -4,7 +4,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, of, forkJoin, catchError, filter, map, switchMap, defer } from 'rxjs';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthComposeEraraService } from './eth-compose-erara.service';
 import { TranslateService } from "@ngx-translate/core";

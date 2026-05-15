@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import { ConnectedPapersAPIResponse, PnxDoc } from '../models/eth.model';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../services/eth-store.service';
 import { HostComponent } from '../models/eth.model';
 
 @Component({

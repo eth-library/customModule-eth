@@ -4,10 +4,10 @@
 // id attribute is used for router.navigateByUrl() -> go to the top of the page  
 
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { EthStoreService } from 'src/app/services/eth-store.service';
-import { EthErrorHandlingService } from 'src/app/services/eth-error-handling.service';
+import { EthStoreService } from '../services/eth-store.service';
+import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SHELL_ROUTER } from "../injection-tokens";
 
@@ -23,9 +23,9 @@ import { SHELL_ROUTER } from "../injection-tokens";
 })
 export class EthLogoSublineComponent implements OnInit {
   url: string  = '';
+  private router = inject(SHELL_ROUTER);
 
   constructor(
-    @Inject(SHELL_ROUTER) private router: Router,
     private ethErrorHandlingService: EthErrorHandlingService,
     private ethStoreService:EthStoreService,     
     private translate: TranslateService    

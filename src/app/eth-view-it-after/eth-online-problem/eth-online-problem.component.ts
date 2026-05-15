@@ -4,8 +4,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { catchError, defer, filter, map, Observable, of, tap } from 'rxjs';
-import { EthStoreService } from 'src/app/services/eth-store.service';
-import { EthErrorHandlingService } from 'src/app/services/eth-error-handling.service';
+import { EthStoreService } from '../../services/eth-store.service';
+import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import {TranslateModule} from "@ngx-translate/core";
 import { PnxDoc } from '../../models/eth.model';
 

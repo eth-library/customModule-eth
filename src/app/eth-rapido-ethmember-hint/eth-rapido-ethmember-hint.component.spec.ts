@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { firstValueFrom, of } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 
 import { EthRapidoEthmemberHintComponent } from './eth-rapido-ethmember-hint.component';

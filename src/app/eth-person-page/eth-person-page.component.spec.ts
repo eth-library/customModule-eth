@@ -4,7 +4,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { BehaviorSubject, Observable, Subject, of, take, throwError, firstValueFrom } from 'rxjs';
 import { EthPersonPageComponent } from './eth-person-page.component';
 import { EthPersonService } from '../services/eth-person.service';
-import { EthStoreService } from 'src/app/services/eth-store.service';
+import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';

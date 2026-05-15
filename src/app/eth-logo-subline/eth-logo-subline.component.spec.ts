@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { EthLogoSublineComponent } from './eth-logo-subline.component';
 import { SHELL_ROUTER } from '../injection-tokens';
-import { EthStoreService } from 'src/app/services/eth-store.service';
-import { EthErrorHandlingService } from 'src/app/services/eth-error-handling.service';
+import { EthStoreService } from '../services/eth-store.service';
+import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 
 describe('EthLogoSublineComponent', () => {
   let component: EthLogoSublineComponent;
