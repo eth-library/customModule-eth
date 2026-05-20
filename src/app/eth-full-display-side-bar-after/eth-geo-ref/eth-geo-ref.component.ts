@@ -26,6 +26,10 @@ import { HostComponent, PnxDoc, PlacesGeoRefVM, PlaceGeoRefVM, LobidAPIResponse,
 })
 export class EthGeoRefComponent {
   private router = inject(SHELL_ROUTER);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private ethGeoRefService = inject(EthGeoRefService);
+  private ethStoreService = inject(EthStoreService);
+  private translate = inject(TranslateService);
   @Input() hostComponent: HostComponent = {};
   
   places$: Observable<PlacesGeoRefVM | null> = defer(() =>
@@ -38,14 +42,6 @@ export class EthGeoRefComponent {
     )
   );
   
-
-  constructor(
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private ethGeoRefService: EthGeoRefService,
-    private ethStoreService:EthStoreService,     
-    private translate: TranslateService,
-  ) {}
-
 
   getPlaces(record: PnxDoc): Observable<PlacesGeoRefVM> { 
     try {

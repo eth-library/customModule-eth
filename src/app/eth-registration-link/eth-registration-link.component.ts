@@ -25,12 +25,9 @@ export class EthRegistrationLinkComponent {
   
   private destroyRef = inject(DestroyRef);
   private document = inject(DOCUMENT);
-
-  constructor(
-       private renderer: Renderer2,
-       private translate: TranslateService,
-       private ethErrorHandlingService: EthErrorHandlingService
-    ){}
+  private renderer = inject(Renderer2);
+  private translate = inject(TranslateService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
 
     ngAfterViewInit(): void {
       const loginFormContent = this.document.querySelector('nde-login-form-content') as HTMLElement | null;

@@ -61,7 +61,7 @@ describe('EthBibNewsComponent', () => {
     newsServiceSpy.getNews.and.returnValue(of(mockNews as any));
     fixture.detectChanges();
 
-    const result = await firstValueFrom(component.news$);
+    const result = await firstValueFrom(component.news$!);
     expect(result?.entries[0].image).toContain('aem-newsimage-redirector.replit.app');
   });
 
@@ -73,7 +73,7 @@ describe('EthBibNewsComponent', () => {
     newsServiceSpy.getNews.and.returnValue(of(mockNews as any));
     fixture.detectChanges();
 
-    const result = await firstValueFrom(component.news$);
+    const result = await firstValueFrom(component.news$!);
     expect(result?.entries[0].image).toBeUndefined();
   });
 
@@ -82,7 +82,7 @@ describe('EthBibNewsComponent', () => {
     newsServiceSpy.getNews.and.returnValue(of(null as any));
     fixture.detectChanges();
 
-    const result = await firstValueFrom(component.news$);
+    const result = await firstValueFrom(component.news$!);
     expect(result).toBeNull();
   });
 
@@ -94,7 +94,7 @@ describe('EthBibNewsComponent', () => {
 
     fixture.detectChanges();
 
-    const result = await firstValueFrom(component.news$);
+    const result = await firstValueFrom(component.news$!);
     expect(component['ethErrorHandlingService'].logError).toHaveBeenCalledWith(
       testError,
       'EthBibNewsComponent.news$'
@@ -194,4 +194,11 @@ describe('EthBibNewsComponent', () => {
     expect(firstImage.getAttribute('src')).toContain('aem-newsimage-redirector.replit.app');
   });
 
+  it('should handle news$ observable', async () => {
+    newsServiceSpy.getNews.and.returnValue(of(null as any));
+    fixture.detectChanges();
+
+    const result = await firstValueFrom(component.news$!);
+    expect(result).toBeNull();
+  });
 });

@@ -1,7 +1,7 @@
 // For articles and book_chapters, a link to Connected Papers is provided via the DOI.
 // https://jira.ethz.ch/browse/SLSP-1981
 
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { EthConnectedpapersService } from './eth-connectedpapers.service'
 import { catchError, defer, filter, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -22,9 +22,13 @@ import { HostComponent } from '../models/eth.model';
   ]    
 })
 
+
 export class EthConnectedpapersComponent{
   @Input() hostComponent: HostComponent = {};
-  
+  private ethConnectedpapersService = inject(EthConnectedpapersService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private ethStoreService = inject(EthStoreService);
+
   paperUrl$: Observable<string | null> = defer(() => {
     if (!this.hostComponent?.searchResult) {
       return of(null);
@@ -37,12 +41,6 @@ export class EthConnectedpapersComponent{
       })
     );
   });
-
-  constructor(
-    private ethConnectedpapersService: EthConnectedpapersService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private ethStoreService:EthStoreService
-  ){}
 
 
   private getPaper(record: PnxDoc): Observable<string  | null> {    

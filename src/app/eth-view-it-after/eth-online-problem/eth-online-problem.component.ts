@@ -1,7 +1,7 @@
 // For online resources, an email link is generated that can be used to report access problems.
 // https://jira.ethz.ch/browse/SLSP-1997
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { catchError, defer, filter, map, Observable, of, tap } from 'rxjs';
 import { EthStoreService } from '../../services/eth-store.service';
@@ -24,11 +24,8 @@ const ACCESS_PROBLEM_EMAIL = 'almakb@library.ethz.ch';
 
 export class EthOnlineProblemComponent {
   mailLink = '';
-
-  constructor(
-    private ethStoreService:EthStoreService,
-    private ethErrorHandlingService: EthErrorHandlingService
-  ){}
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
 
   readonly showLink$: Observable<boolean> = defer(() =>
     this.ethStoreService.getFullDisplayRecord$().pipe(

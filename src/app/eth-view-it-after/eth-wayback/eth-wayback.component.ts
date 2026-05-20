@@ -34,13 +34,12 @@ export class EthWaybackComponent {
   private document = inject(DOCUMENT);
   private hasWayback = false;
   private observer: MutationObserver | null = null;
-     
-  constructor(
-    private ethStoreService:EthStoreService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private renderer: Renderer2,
-    private translate: TranslateService,    
-  ){
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private renderer = inject(Renderer2);
+  private translate = inject(TranslateService);
+
+  constructor() {
     this.destroyRef.onDestroy(() => this.disconnectObserver());
   }
 

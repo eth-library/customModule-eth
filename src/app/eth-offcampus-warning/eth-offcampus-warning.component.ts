@@ -13,7 +13,7 @@
 // https://jira.ethz.ch/browse/SLSP-1995
 
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { catchError, defer, map, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
@@ -30,6 +30,8 @@ import { TranslateModule } from "@ngx-translate/core";
   ]     
 })
 export class EthOffcampusWarningComponent {
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
   isOnCampus$: Observable<boolean> = defer(() => this.ethStoreService.isOnCampus$);
   
   showWarning$: Observable<boolean> = this.isOnCampus$.pipe(
@@ -57,12 +59,6 @@ export class EthOffcampusWarningComponent {
       return of(false);
     })
   );
-   
-  constructor(
-    private ethStoreService:EthStoreService,
-    private ethErrorHandlingService: EthErrorHandlingService
-  ){}
-
   private shouldShowWarningBasedOnDelivery(deliveryEntity: unknown): boolean {
     const category = (deliveryEntity as { delivery?: { deliveryCategory?: string } })?.delivery?.deliveryCategory ?? '';
     const services = (deliveryEntity as { delivery?: { electronicServices?: unknown[] } })?.delivery?.electronicServices;

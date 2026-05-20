@@ -2,7 +2,7 @@
 // We retrieve these from the code tables (the library code is part of the code table code).
 // https://jira.ethz.ch/browse/SLSP-1969
 
-import { Component, Input, ViewEncapsulation, Renderer2, ViewChild, ElementRef } from '@angular/core';
+import { Component, ElementRef, inject, Input, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, defer, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
@@ -36,6 +36,10 @@ export class EthLocationHintComponent {
   id!: string;
   private locationHintRef?: ElementRef<HTMLDivElement>;
   private shouldMoveHint = false;
+  private translate = inject(TranslateService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private ethUtilsService = inject(EthUtilsService);
+  private renderer = inject(Renderer2);
 
   @Input() hostComponent: LocationHostComponent = {};
   
@@ -45,13 +49,6 @@ export class EthLocationHintComponent {
     this.moveHintIfReady();
   }
   
-  constructor(
-    private translate: TranslateService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private ethUtilsService: EthUtilsService,
-    private renderer: Renderer2,
-  ){} 
-
   ngAfterViewInit(): void {
     // Expand location container once.
     this.hostComponent.expanded = true;

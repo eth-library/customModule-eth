@@ -28,6 +28,9 @@ interface TranslationBundle {
 export class EthIllLinkComponent {
   private destroyRef = inject(DestroyRef);
   private document = inject(DOCUMENT);
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private translate = inject(TranslateService);
 
   // do we need an ILL link? In this case: create the querystring of the ILL link.
   // 991076219509705501
@@ -87,14 +90,6 @@ export class EthIllLinkComponent {
       return of(null);
     })
   );
-
-  constructor(
-    private ethStoreService: EthStoreService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private translate: TranslateService
-  ) {}
-
-
   // do we need an ILL link? If so, build querystring for ILL link
   private getIllQsOrNull(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
     try {

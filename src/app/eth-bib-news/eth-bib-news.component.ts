@@ -1,6 +1,6 @@
 // News feed on the home page
 // https://jira.ethz.ch/browse/SLSP-2128
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { EthBibNewsService } from './eth-bib-news.service';
 import { catchError, map, Observable, of, startWith, switchMap } from 'rxjs';
@@ -16,26 +16,27 @@ import { NewsFeedVM } from '../models/eth.model';
   standalone: true,   
   imports: [CommonModule, SafeTranslatePipe]      
 })
-export class EthBibNewsComponent {
+export class EthBibNewsComponent implements OnInit {
   private readonly LIBRARY_ETHZ_HOST = 'library.ethz.ch';
   private readonly REDIRECTOR_HOST = 'aem-newsimage-redirector.replit.app';
+  private translate = inject(TranslateService);
+  private ethBibNewsService = inject(EthBibNewsService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
 
-  news$: Observable<NewsFeedVM | null> = this.translate.onLangChange.pipe(
-    map(event => event.lang),
-    startWith(this.translate.currentLang),
-    switchMap(lang => this.ethBibNewsService.getNews(lang)),
-    map(feed => this.transformFeed(feed)),
-    catchError((e) => {
-      this.ethErrorHandlingService.logError(e, 'EthBibNewsComponent.news$');
-      return of(null);
-    })
-  );
+  news$: Observable<NewsFeedVM | null> | undefined;
 
-  constructor(
-    private translate: TranslateService,
-    private ethBibNewsService: EthBibNewsService,
-    private ethErrorHandlingService: EthErrorHandlingService
-  ) {}
+  ngOnInit(): void {
+    this.news$ = this.translate.onLangChange.pipe(
+      map(event => event.lang),
+      startWith(this.translate.currentLang),
+      switchMap(lang => this.ethBibNewsService.getNews(lang)),
+      map(feed => this.transformFeed(feed)),
+      catchError((e) => {
+        this.ethErrorHandlingService.logError(e, 'EthBibNewsComponent.news$');
+        return of(null);
+      })
+    );
+  }
 
   private transformFeed(feed: NewsFeedVM | null): NewsFeedVM | null {
     if (!feed?.entries) return null;

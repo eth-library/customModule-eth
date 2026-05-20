@@ -34,6 +34,10 @@ export class EthPersonPageComponent {
   private router = inject(SHELL_ROUTER);
   private destroyRef = inject(DestroyRef);
   private document = inject(DOCUMENT);
+  private translate = inject(TranslateService);
+  public ethPersonService = inject(EthPersonService);
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
   private pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
   private lang!: string;
   openLicensePopover: string | null = null;
@@ -60,13 +64,7 @@ export class EthPersonPageComponent {
 
   @ViewChild('licensePopover') licensePopover?: ElementRef;
   @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
-
-  constructor(
-    private translate: TranslateService,
-    public ethPersonService: EthPersonService,
-    private ethStoreService: EthStoreService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-  ) {
+  constructor() {
     this.destroyRef.onDestroy(() => this.clearPendingTimeouts());
   }
 

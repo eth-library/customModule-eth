@@ -2,7 +2,7 @@
 // If there are no corresponding pages in the codetable, the SLSP Registry is used.
 // https://jira.ethz.ch/browse/SLSP-1971
 
-import { Component, Input, ViewEncapsulation } from '@angular/core';
+import { Component, inject, Input, ViewEncapsulation } from '@angular/core';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { catchError, defer, filter, map, Observable, of, switchMap } from 'rxjs';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
@@ -33,6 +33,9 @@ export class EthLocationLinkComponent {
   libraryCode = '';
   subLocationCode = '';
   mainLocation = '';
+  private translate = inject(TranslateService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private ethUtilsService = inject(EthUtilsService);
   @Input() hostComponent: LocationHostComponent = {};
 
   link$: Observable<string | null> = defer(() => {
@@ -52,14 +55,6 @@ export class EthLocationLinkComponent {
       )
     )
   });
-  
-  
-  constructor(
-    private translate: TranslateService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private ethUtilsService: EthUtilsService
-  ){} 
-
   // 990010808770205503 
   private getLink(): Observable<string | null> {    
     return this.translate.stream(`eth.locationLink.${this.libraryCode}.${this.subLocationCode}`).pipe(

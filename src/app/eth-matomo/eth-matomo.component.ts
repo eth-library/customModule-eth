@@ -14,17 +14,14 @@ import { Router } from '@angular/router';
   standalone: true,   
 })
 
+
 export class EthMatomoComponent implements OnInit {
   private router = inject(SHELL_ROUTER) as Router;
-
   private readonly trackerUrl = 'https://library-ethz.opsone-analytics.ch/';
   private readonly siteId = '66';
   private destroyRef = inject(DestroyRef);
   private trackingInitialized = false;
-
-  constructor(
-    private ethErrorHandlingService: EthErrorHandlingService
-  ) {}
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
 
   ngOnInit() {
     try{

@@ -27,28 +27,26 @@ import { HostComponent, PersonCardVM, PersonVM, PersonApiResponse, PersonResult 
 })
 
 export class EthPersonCardsComponent {
-    private router = inject(SHELL_ROUTER);  
+  private router = inject(SHELL_ROUTER);
   private destroyRef = inject(DestroyRef);
   private pendingTimeouts = new Set<number>();
-    openLicensePopover: string | null = null;
-    private hostComponent$ = new BehaviorSubject<HostComponent>({});
+  private translate = inject(TranslateService);
+  public ethPersonService = inject(EthPersonService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private ethStoreService = inject(EthStoreService);
+  openLicensePopover: string | null = null;
+  private hostComponent$ = new BehaviorSubject<HostComponent>({});
 
-    @Input() set hostComponent(value: HostComponent) {
-      this.hostComponent$.next(value ?? {});
-    }
+  @Input() set hostComponent(value: HostComponent) {
+    this.hostComponent$.next(value ?? {});
+  }
 
-    @ViewChild('licensePopover') licensePopover?: ElementRef;
-    @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;    
-    
+  @ViewChild('licensePopover') licensePopover?: ElementRef;
+  @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
 
-    constructor(
-      private translate: TranslateService,
-      public ethPersonService: EthPersonService,
-      private ethErrorHandlingService: EthErrorHandlingService,
-      private ethStoreService:EthStoreService,
-    ){
-      this.destroyRef.onDestroy(() => this.clearPendingTimeouts());
-    }
+  constructor() {
+    this.destroyRef.onDestroy(() => this.clearPendingTimeouts());
+  }
 
     private scheduleTask(task: () => void, delay = 0): void {
       const timeoutId = window.setTimeout(() => {

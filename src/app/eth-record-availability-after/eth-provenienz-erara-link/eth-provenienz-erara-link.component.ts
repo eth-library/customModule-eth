@@ -31,7 +31,9 @@ import { HostComponent, PnxDoc, ProvenanceEraraLinksVM } from '../../models/eth.
 })
 export class EthProvenienzEraraLinkComponent {
   @Input() hostComponent: HostComponent = {};
-  private router = inject(SHELL_ROUTER);   
+  private router = inject(SHELL_ROUTER);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private ethStoreService = inject(EthStoreService);
 
   readonly links$: Observable<ProvenanceEraraLinksVM> = defer(() =>
     this.ethStoreService.getFullDisplayRecord$().pipe(
@@ -42,12 +44,6 @@ export class EthProvenienzEraraLinkComponent {
       })
     )
   );
-
-  constructor(
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private ethStoreService:EthStoreService    
-  ) {}
-
   // provenience cards: 99117339955005503
   // e-rara links: 99117362226905503
   private getLinks(record: PnxDoc | null): Observable<ProvenanceEraraLinksVM> {

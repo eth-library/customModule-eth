@@ -9,7 +9,7 @@ Angular's own sanitizer then automatically runs over it again.
  */
 // https://jira.ethz.ch/browse/SLSP-1958
 
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { catchError, defer, map, Observable, of } from 'rxjs';
 import { EthGitHintService } from './eth-git-hint.service'
 import { TranslateService } from '@ngx-translate/core';
@@ -35,6 +35,11 @@ type Language = 'de' | 'en';
   ]    
 })
 export class EthGitHintComponent {
+  private translate = inject(TranslateService);
+  private ethGitHintService = inject(EthGitHintService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private ethUtilsService = inject(EthUtilsService);
+
   hint$: Observable<SafeHtml | null> = defer(() =>
     this.ethGitHintService
       .getHint((this.translate.currentLang as Language) ?? 'de')
@@ -46,12 +51,5 @@ export class EthGitHintComponent {
         })
       )
   );
-
-  constructor( 
-    private translate: TranslateService,
-    private ethGitHintService: EthGitHintService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private ethUtilsService: EthUtilsService
-  ) {}
 
 }

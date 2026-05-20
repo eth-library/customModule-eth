@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, Inject, Input } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { of, Observable, catchError, map, forkJoin, tap, switchMap, defer, distinctUntilChanged } from 'rxjs';
 import { EthMetagridService, Person } from './eth-metagrid.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
@@ -72,6 +72,10 @@ interface PnxDoc  {
 export class EthMetagridComponent {
   private store = inject(Store);
   private destroyRef = inject(DestroyRef);
+  public moduleParameters: any = inject('MODULE_PARAMETERS' as any);
+  private document = inject(DOCUMENT);
+  private metagridService = inject(EthMetagridService);
+  private translate = inject(TranslateService);
   private detailsObserver?: MutationObserver;
     
   persons$: Observable<Person[]> = defer(() =>
@@ -104,13 +108,8 @@ export class EthMetagridComponent {
   
   openedCards = new Set<string>();
 
-  
-  constructor(
-    @Inject('MODULE_PARAMETERS') public moduleParameters: any,
-    @Inject(DOCUMENT) private document: Document,
-    private metagridService: EthMetagridService,
-    private translate: TranslateService
-  ) {
+
+    constructor() {
     this.destroyRef.onDestroy(() => this.disconnectDetailsObserver());
   }
 

@@ -2,7 +2,7 @@
 // https://jira.ethz.ch/browse/SLSP-1989
 
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { catchError, defer, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from '../services/eth-store.service';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,6 +19,8 @@ import { EthErrorHandlingService } from '../services/eth-error-handling.service'
   ]    
 })
 export class EthOKMComponent {
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
   searchValue$: Observable<string | null> = defer(() =>
     this.ethStoreService.isFullview$().pipe(
       switchMap(isFullview =>
@@ -32,12 +34,6 @@ export class EthOKMComponent {
       })
     )
   );
-
-  constructor(
-    private ethStoreService: EthStoreService,
-    private ethErrorHandlingService: EthErrorHandlingService
-  ) {}
-
   encode(value: string | null): string {
     return value ? encodeURIComponent(value) : '';
   }

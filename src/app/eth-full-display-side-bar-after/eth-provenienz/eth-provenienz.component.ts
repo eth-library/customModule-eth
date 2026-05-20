@@ -10,7 +10,7 @@ The provenance images are displayed in the detailed view of the respective print
 // https://jira.ethz.ch/browse/SLSP-2006
 // \eth-record-availability-after\eth-provenienz-erara-link\eth-provenienz-erara-link.component.ts
 
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Observable, catchError, defer, map, of, filter, switchMap, startWith } from 'rxjs';
 import { EthProvenienzService } from './eth-provenienz.service'
 import { EthStoreService } from '../../services/eth-store.service';
@@ -34,6 +34,9 @@ import { EthProvenienzAPIItem } from '../../models/eth.model';
 })
 export class EthProvenienzComponent{
     private router = inject(SHELL_ROUTER);    
+  private ethProvenienzService = inject(EthProvenienzService);
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
     
     items$: Observable<EthProvenienzAPIItem[]> = defer(() => {
       const vid = this.ethStoreService.getVid();
@@ -74,15 +77,6 @@ export class EthProvenienzComponent{
         })
       );
     });
-
-   
-    constructor(
-      private ethProvenienzService: EthProvenienzService,
-      private ethStoreService:EthStoreService,     
-      private ethErrorHandlingService: EthErrorHandlingService,
-    ){}
-
-
     navigate(url: string, event: Event){
       event.preventDefault();  
       this.router.navigateByUrl(url);

@@ -20,7 +20,11 @@ import { HostComponent, ComposeEraraLinkVM, PnxDoc } from '../../models/eth.mode
 })
 export class EthComposeEraraComponent {
   @Input() hostComponent: HostComponent = {};
-  private router = inject(SHELL_ROUTER);   
+  private router = inject(SHELL_ROUTER);
+  private ethComposeEraraService = inject(EthComposeEraraService);
+  private ethStoreService = inject(EthStoreService);
+  private translate = inject(TranslateService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
   
   labelPrint$: Observable<string> = this.translate.stream('eth.composeErara.print');
   labelOnline$: Observable<string> = this.translate.stream('eth.composeErara.online');
@@ -39,14 +43,6 @@ export class EthComposeEraraComponent {
       })
     )
   );
-
-
-  constructor(
-    private ethComposeEraraService: EthComposeEraraService,
-    private ethStoreService: EthStoreService,
-    private translate: TranslateService,
-    private ethErrorHandlingService: EthErrorHandlingService
-  ) {}
 
   // Online: 99117338116605503
   // Print: 990042488650205503

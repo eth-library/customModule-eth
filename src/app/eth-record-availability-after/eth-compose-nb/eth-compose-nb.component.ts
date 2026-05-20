@@ -21,10 +21,15 @@ import { HostComponent, ComposeNbLinkVM, PnxDoc } from '../../models/eth.model';
   templateUrl: './eth-compose-nb.component.html',
   styleUrls: ['./eth-compose-nb.component.scss']
 })
+
 export class EthComposeNbComponent {
   @Input() hostComponent: HostComponent = {};
-  private router = inject(SHELL_ROUTER);   
-  
+  private router = inject(SHELL_ROUTER);
+  private ethComposeNbService = inject(EthComposeNbService);
+  private ethStoreService = inject(EthStoreService);
+  private translate = inject(TranslateService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+
   readonly links$: Observable<ComposeNbLinkVM[]> = defer(() =>
     this.ethStoreService.isFullview$().pipe(
       filter(Boolean),
@@ -37,13 +42,6 @@ export class EthComposeNbComponent {
       })
     )
   );
-
-  constructor(
-    private ethComposeNbService: EthComposeNbService,
-    private ethStoreService: EthStoreService,
-    private translate: TranslateService,
-    private ethErrorHandlingService: EthErrorHandlingService
-  ) {}
 
   
   private getLinks(record: PnxDoc | null): Observable<ComposeNbLinkVM[]> {

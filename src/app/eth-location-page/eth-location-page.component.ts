@@ -36,6 +36,10 @@ export class EthLocationPageComponent {
   private router = inject(SHELL_ROUTER); 
   private destroyRef = inject(DestroyRef);
   private document = inject(DOCUMENT);
+  private translate = inject(TranslateService);
+  private ethStoreService = inject(EthStoreService);
+  public ethLocationPageService = inject(EthLocationPageService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
   private pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
   placePageData$: Observable<PlacePageViewModel | null> = defer(() => {
@@ -87,14 +91,7 @@ export class EthLocationPageComponent {
   
   @ViewChild('licensePopover') licensePopover?: ElementRef;
   @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
-
-
-  constructor(
-    private translate: TranslateService,
-    private ethStoreService: EthStoreService,
-    public ethLocationPageService: EthLocationPageService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-  ) {
+  constructor() {
     this.destroyRef.onDestroy(() => this.clearPendingTimeouts());
   }
 

@@ -2,7 +2,7 @@
 // and a link to it is displayed (if there is no Alma TOC link).
 // https://jira.ethz.ch/browse/SLSP-1988
 
-import { Component , Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Observable, catchError, combineLatest, defer, distinctUntilChanged, filter, forkJoin, map, of, switchMap } from 'rxjs';
 import { EthDnbTocService } from './eth-dnb-toc.service'
 import { EthStoreService } from '../../services/eth-store.service';
@@ -39,6 +39,10 @@ const EXCLUDED_ALMA_LINK_PREFIXES = [
 })
 export class EthDnbTocComponent {
   @Input() hostComponent: HostComponent = {};
+  private ethDnbTocService = inject(EthDnbTocService);
+  private translate = inject(TranslateService);
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
 
   readonly contentLinks$: Observable<DnbTocLinksVM | null> = defer(() =>
     this.ethStoreService.isFullview$().pipe(
@@ -62,15 +66,6 @@ export class EthDnbTocComponent {
       })
     )
   );
-  
-  constructor(
-    private ethDnbTocService: EthDnbTocService,
-    private translate: TranslateService,
-    private ethStoreService:EthStoreService,     
-    private ethErrorHandlingService: EthErrorHandlingService
-  ){}
-
-
   private mapAlmaLinks(deliveryEntity: StoreDeliveryEntity | null): DnbTocLinksVM['almaLinks'] {
     const almaLinks = (deliveryEntity?.delivery?.link ?? []).filter(
       (link): link is { linkType: string; linkURL: string; displayLabel?: string } => {

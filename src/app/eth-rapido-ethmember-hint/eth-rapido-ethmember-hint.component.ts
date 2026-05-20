@@ -2,7 +2,7 @@
 // Please check in the top section of the order form whether an ETH Zurich library offers a ‘Digitisation’ service (free of charge).
 // https://jira.ethz.ch/browse/SLSP-2012
 
-import { Component, Input, ViewEncapsulation } from '@angular/core';
+import { Component, inject, Input, ViewEncapsulation } from '@angular/core';
 import { BehaviorSubject, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
@@ -25,6 +25,7 @@ import { HostComponent } from '../models/eth.model';
 export class EthRapidoEthmemberHintComponent {
   
   private hostComponent$ = new BehaviorSubject<HostComponent>({});
+  private ethStoreService = inject(EthStoreService);
 
   @Input() 
   set hostComponent(value: HostComponent) {
@@ -38,8 +39,4 @@ export class EthRapidoEthmemberHintComponent {
     )
   );
   
-  constructor(
-    private ethStoreService: EthStoreService,
-  ) {}
- 
 }

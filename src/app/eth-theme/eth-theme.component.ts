@@ -13,8 +13,7 @@ export class EthThemeComponent implements OnInit, OnDestroy {
   private linkEl?: HTMLLinkElement;
   private linkEl2?: HTMLLinkElement;
   private document = inject(DOCUMENT);
-
-  constructor(private renderer: Renderer2) {}
+  private renderer = inject(Renderer2);
 
   ngOnInit(): void {
     try {

@@ -5,7 +5,7 @@
 //    - Account - Settings
 // https://jira.ethz.ch/browse/SLSP-1985
 
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { catchError, combineLatest, defer, map, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
@@ -25,6 +25,8 @@ import { TranslateModule } from "@ngx-translate/core";
 })
 
 export class EthIdpWarningComponent {
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
   
   showWarning$: Observable<boolean> = defer(() =>
     this.ethStoreService.isLoggedIn$.pipe(
@@ -47,13 +49,6 @@ export class EthIdpWarningComponent {
       })
     )
   );
-
-  constructor(
-    private ethStoreService:EthStoreService,
-    private ethErrorHandlingService: EthErrorHandlingService
-  ){}
-
-
   private showWarning(email: string | null, profile: string | null, isETHMember: boolean): boolean {
     if (profile === 'Alma') return false;
     if (!email) return false;

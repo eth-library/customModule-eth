@@ -36,13 +36,12 @@ export class EthLibraryStackComponent {
   private hasLibraryStack = false;
   private observer: MutationObserver | null = null;
   private document = inject(DOCUMENT);
+  private ethStoreService = inject(EthStoreService);
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private renderer = inject(Renderer2);
+  private translate = inject(TranslateService);
 
-  constructor(
-    private ethStoreService:EthStoreService,
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private renderer: Renderer2,
-    private translate: TranslateService
-  ){
+  constructor() {
     this.destroyRef.onDestroy(() => this.disconnectObserver());
   }
 

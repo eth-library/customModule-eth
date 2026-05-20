@@ -5,7 +5,6 @@
 
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -21,15 +20,13 @@ import { SHELL_ROUTER } from "../injection-tokens";
     TranslateModule
   ]        
 })
+
 export class EthLogoSublineComponent implements OnInit {
   url: string  = '';
   private router = inject(SHELL_ROUTER);
-
-  constructor(
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private ethStoreService:EthStoreService,     
-    private translate: TranslateService    
-  ) {}
+  private ethErrorHandlingService = inject(EthErrorHandlingService);
+  private ethStoreService = inject(EthStoreService);
+  private translate = inject(TranslateService);
 
   ngOnInit() {
     try {
