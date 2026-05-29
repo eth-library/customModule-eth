@@ -1,7 +1,9 @@
 /* 
-  HSA web archive
-  change link text of resource link
-  add hint about usage of web archive
+For HSA web archive
+Example: 99117429500405503
+
+The existing link text will be changed from ‘Link to Online Resource’ to ‘Link to the web archive’ 
+An additional note is inserted below: 'In the web archive, select a year and a date marked in blue to access the archived website.' 
 */
 // https://jira.ethz.ch/browse/SLSP-2014
 
@@ -112,15 +114,16 @@ export class EthWaybackComponent {
   }
 
   private changeDom(forceUpdate = false) {
-    const btn = this.document.querySelector('nde-view-it-card button');
-    const btnHeading = btn?.querySelector('h5') || btn?.querySelector('h3');
-    const parent = btn?.parentNode as HTMLElement | null;
-    if (!btn || !btnHeading || !parent) return;
+    const viewitTextContainer = this.document.querySelector('nde-view-it-card .view-it-text');
+    const link = viewitTextContainer?.querySelector('a');
+    const linkTextSpan = viewitTextContainer?.querySelector('a span');
+    const parent = viewitTextContainer?.parentNode as HTMLElement | null;
+    if (!viewitTextContainer || !linkTextSpan || !parent) return;
     const existing = parent.querySelector(`#${WAYBACK_HINT_ID}`) as HTMLElement | null;
     if (
       !forceUpdate &&
       existing &&
-      btnHeading.textContent === this.translate.instant('eth.wayback.linkText') &&
+      linkTextSpan.textContent === this.translate.instant('eth.wayback.linkText') &&
       existing.textContent === this.translate.instant('eth.wayback.text')
     ) {
       return;
@@ -128,7 +131,8 @@ export class EthWaybackComponent {
 
     this.translate.get([
       'eth.wayback.text',
-      'eth.wayback.linkText'
+      'eth.wayback.linkText',
+      'nui.aria.newWindow'
     ])
     .pipe(
       take(1)
@@ -136,17 +140,18 @@ export class EthWaybackComponent {
     .subscribe(t => {
       const labelText = t['eth.wayback.text'];
       const labelLinkText = t['eth.wayback.linkText'];
+      const newWindow = t['nui.aria.newWindow'];
 
-      this.renderer.setProperty(btnHeading, 'textContent', labelLinkText);
-      this.renderer.setAttribute(btnHeading, 'aria-label', labelLinkText);
+      this.renderer.setProperty(linkTextSpan, 'textContent', labelLinkText);
+      this.renderer.setAttribute(link, 'aria-label', `${labelLinkText}${newWindow}`);
 
-      let hintDiv = parent.querySelector('#eth-wayback-hint') as HTMLElement | null;
+      let hintDiv = parent.querySelector(`#${WAYBACK_HINT_ID}`) as HTMLElement | null;
 
       if (!hintDiv) {
         hintDiv = this.renderer.createElement('div');
         this.renderer.addClass(hintDiv, WAYBACK_HINT_CLASS);
         this.renderer.setAttribute(hintDiv, 'id', WAYBACK_HINT_ID);
-        this.renderer.insertBefore(parent, hintDiv, btn.nextSibling);
+        this.renderer.insertBefore(parent, hintDiv, viewitTextContainer.nextSibling);
       }
       const safeHintDiv = hintDiv as HTMLElement;
       safeHintDiv.textContent = labelText;

@@ -1,4 +1,10 @@
-// For online resources, an email link is generated that can be used to report access problems.
+/*
+Example: 99117429500405503
+For online resources, an email link is generated which can be used to report access issues.
+The Alma MMS ID and the title are already included in the subject line of the email.
+The body of the email contains various metadata, the requesting URL and the user agent. 
+The email is sent to almakb@library.ethz.ch.
+*/
 // https://jira.ethz.ch/browse/SLSP-1997
 
 import { Component, inject } from '@angular/core';
@@ -6,10 +12,9 @@ import { CommonModule } from '@angular/common';
 import { catchError, defer, filter, map, Observable, of, tap } from 'rxjs';
 import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
-import {TranslateModule} from "@ngx-translate/core";
+import { TranslateModule } from "@ngx-translate/core";
+import { TranslateService } from "@ngx-translate/core";
 import { PnxDoc } from '../../models/eth.model';
-
-const ACCESS_PROBLEM_EMAIL = 'almakb@library.ethz.ch';
 
 @Component({
   selector: 'custom-eth-online-problem',
@@ -26,7 +31,8 @@ export class EthOnlineProblemComponent {
   mailLink = '';
   private ethStoreService = inject(EthStoreService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
-
+  private translate = inject(TranslateService);
+  
   readonly showLink$: Observable<boolean> = defer(() =>
     this.ethStoreService.getFullDisplayRecord$().pipe(
       filter((record): record is PnxDoc => record !== null),
@@ -40,6 +46,8 @@ export class EthOnlineProblemComponent {
   );
   
   private setMailLink(record:PnxDoc): void {
+    // instant instead of stream: email is not different for different languages -> one time is enough
+    const ACCESS_PROBLEM_EMAIL = this.translate.instant('eth.onlineProblem.mail');
     const mmsId = record?.pnx?.control?.recordid?.[0] ?? '';
     const title = record?.pnx?.display?.title?.[0] || '';
     const creationdate = record?.pnx?.display?.creationdate?.[0] || '';

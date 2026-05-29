@@ -49,6 +49,7 @@ export class EthIdpWarningComponent {
       })
     )
   );
+  
   private showWarning(email: string | null, profile: string | null, isETHMember: boolean): boolean {
     if (profile === 'Alma') return false;
     if (!email) return false;

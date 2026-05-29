@@ -1,7 +1,6 @@
 import { EthConnectedpapersComponent } from '../eth-connectedpapers/eth-connectedpapers.component';
 import { EthGitHintComponent } from '../eth-git-hint/eth-git-hint.component';
 import { EthMatomoComponent } from '../eth-matomo/eth-matomo.component';
-import { EthLocationAfterComponent } from '../eth-location-after/eth-location-after.component';
 import { EthFullDisplaySideBarAfterComponent } from '../eth-full-display-side-bar-after/eth-full-display-side-bar-after.component';
 import { EthBibNewsComponent } from '../eth-bib-news/eth-bib-news.component';
 import { EthRegistrationLinkComponent } from '../eth-registration-link/eth-registration-link.component';
@@ -18,10 +17,8 @@ import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
 import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
 import { EthRapidoEthmemberHintComponent } from '../eth-rapido-ethmember-hint/eth-rapido-ethmember-hint.component';
 import { EthRequestHintsComponent } from '../eth-request-hints/eth-request-hints.component';
-//import { EthThemeComponent } from '../eth-theme/eth-theme.component';
 import { EthOKMComponent } from '../eth-okm/eth-okm.component';
 //import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
-//import { EthFullDisplayServiceContainerAfterComponent } from '../eth-full-display-service-container-after/eth-full-display-service-container-after.component';
 
 // Define the map
 export const selectorComponentMap = new Map<string, any>([
@@ -37,7 +34,6 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-entity-layout-bottom', EthPersonPageComponent],
     ['nde-entity-layout-after', EthLocationPageComponent],
     ['nde-get-it-bottom',EthGetitLocationsfilterComponent],
-    ['nde-location-bottom', EthLocationAfterComponent],
     ['nde-login-form-content-bottom', EthRegistrationLinkComponent],
     ['nde-full-display-side-bar-bottom', EthFullDisplaySideBarAfterComponent],
     ['nde-personal-details-info-after', EthChangeAddressComponent],
@@ -46,9 +42,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-requests-after', EthIllLinkComponent],
     ['nde-ngrs-offer-drawer-before', EthRapidoEthmemberHintComponent],
     ['nde-base-request-form-top', EthRequestHintsComponent],
-    //['nde-login-dialog-after', EthRegistrationLinkComponent],
     ['nde-search-bar-presenter-after', EthOKMComponent],
-    //['nde-app-layout-top', EthThemeComponent],
     //['nde-full-display-details-bottom', EthMetagridComponent],
 ])
 

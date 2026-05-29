@@ -66,13 +66,13 @@ nde-loans .loans-divider-actions {
 }
 
 /*****************************************/
-/* Hide elements from slsp customizing */
+/* Hide elements from slsp central package */
 /*****************************************/
 /* edit account settings */
 /*nde-personal-details-view-bottom-from-remote-0{
   display:none;
 }*/
-.edit-details{
+.edit-details,.edit-details-divider{
   display:none;
 }
 /* login dialog: register/help */
@@ -80,17 +80,21 @@ nde-loans .loans-divider-actions {
   display:none;
 }
 
+.fees-link{
+  display:none;
+}
+
 /*****************************************/
 /* Theme */
 /*****************************************/
-
+/*:root{*/
 .custom-nde-theme{  
-  /*--slsp-color-primary: #1c667b;
+  --slsp-color-primary: #1c667b; /*#00FF00;*/
   --slsp-color-on-primary: #ffffff;
   --slsp-color-primary-shade: #6f9cab;
   --slsp-color-secondary: #4b626b;
   --slsp-color-on-secondary: #ffffff;
-  --slsp-color-secondary-shade: #8fa3aa;*/
+  --slsp-color-secondary-shade: #8fa3aa;
   --slsp-color-background: #f8f9fb;
   --slsp-color-on-background: #191c1d;
 }

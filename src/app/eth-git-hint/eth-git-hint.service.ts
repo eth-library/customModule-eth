@@ -16,8 +16,8 @@ export class EthGitHintService {
   ){}
 
   getHint(lang: keyof GitHintAPIResponse): Observable<GitHintVM> {
-    return this.httpClient.get<GitHintAPIResponse>('https://daas.library.ethz.ch/rib/v3/nde/git-hint').pipe(
-    //return this.httpClient.get<GitHintAPIResponse>('https://daas.library.ethz.ch/rib/v3/nde/git-hint-test').pipe(
+    //return this.httpClient.get<GitHintAPIResponse>('https://daas.library.ethz.ch/rib/v3/nde/git-hint').pipe(
+    return this.httpClient.get<GitHintAPIResponse>('https://daas.library.ethz.ch/rib/v3/nde/git-hint-test').pipe(
       map(response => response[lang]), 
       catchError(e => {
         this.ethErrorHandlingService.logError(e, 'EthGitHintService');

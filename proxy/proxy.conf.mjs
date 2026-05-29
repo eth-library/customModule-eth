@@ -2,13 +2,28 @@ import {PROXY_TARGET} from "./proxy.const.mjs";
 import {customizationConfigOverride} from "./customization_config_override.mjs";
 import {deepMerge} from "./proxy-utils.mjs";
 
+
+
+
+
+
 const proxyRules = [
+  {
+    context: [
+      '/nde/custom/41SLSP_NETWORK-CENTRAL_PACKAGE/**'
+    ],
+    target: PROXY_TARGET,
+    secure: true,
+    changeOrigin: true,
+    logLevel: 'debug',
+  },
   {
     context: [
       '/custom/*/assets',
       '/custom/*/assets/**',
       '/nde/custom/*/assets',
-      '/nde/custom/*/assets/**'
+      '/nde/custom/*/assets/**',
+      '!/nde/custom/41SLSP_NETWORK-CENTRAL_PACKAGE/**'
     ],
     target: 'not-needed',
     router: (req) => `${req.protocol}://${req.get('host')}`,
@@ -17,6 +32,17 @@ const proxyRules = [
     pathRewrite: (path) =>
       path.replace(/^\/(?:nde\/)?custom\/[^/]+\/assets\/?/, '/assets/'),
   },
+  {
+    context: [
+      '/nde/custom/*/CENTRAL_CODE.txt',
+      '!/nde/custom/41SLSP_NETWORK-CENTRAL_PACKAGE/**'
+    ],
+    target: PROXY_TARGET,
+    secure: true,
+    changeOrigin: true,
+    logLevel: 'debug',
+  },
+
   {
     context: ['/primaws/rest/pub/configuration/vid/'],
     target: PROXY_TARGET,
@@ -44,7 +70,8 @@ const proxyRules = [
   },
   {
     context: [
-      '/nde/custom/**'
+      '/nde/custom/**',
+      '!/nde/custom/41SLSP_NETWORK-CENTRAL_PACKAGE/**'
     ],
     target: 'not-needed',
     router: (req) => {
@@ -71,4 +98,6 @@ const proxyRules = [
 ];
 
 
+
 export default proxyRules;
+
