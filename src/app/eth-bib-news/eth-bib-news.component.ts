@@ -1,5 +1,7 @@
-// News feed on the home page
+// News items are displayed at the bottom of the home page.
+// The news items are retrieved via a DAAS route from an AEM API
 // https://jira.ethz.ch/browse/SLSP-2128
+
 import { Component, inject, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { EthBibNewsService } from './eth-bib-news.service';

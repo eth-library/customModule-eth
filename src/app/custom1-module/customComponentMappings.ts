@@ -14,7 +14,7 @@ import { EthGetitLocationsfilterComponent } from '../eth-getit-locationsfilter/e
 import { EthViewItAfterComponent } from '../eth-view-it-after/eth-view-it-after.component';
 import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offcampus-warning.component';
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
-import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
+//import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
 import { EthRapidoEthmemberHintComponent } from '../eth-rapido-ethmember-hint/eth-rapido-ethmember-hint.component';
 import { EthRequestHintsComponent } from '../eth-request-hints/eth-request-hints.component';
 import { EthOKMComponent } from '../eth-okm/eth-okm.component';
@@ -30,7 +30,6 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-view-it-after', EthViewItAfterComponent],
     ['nde-record-citations-indicators-top',EthConnectedpapersComponent],
     ['nde-record-availability-bottom', EthRecordAvailabilityAfterComponent],
-    ['nde-online-availability-before', EthOnlineButtonComponent],
     ['nde-entity-layout-bottom', EthPersonPageComponent],
     ['nde-entity-layout-after', EthLocationPageComponent],
     ['nde-get-it-bottom',EthGetitLocationsfilterComponent],
@@ -44,6 +43,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-base-request-form-top', EthRequestHintsComponent],
     ['nde-search-bar-presenter-after', EthOKMComponent],
     //['nde-full-display-details-bottom', EthMetagridComponent],
+    //['nde-online-availability-before', EthOnlineButtonComponent],
 ])
 
 

@@ -1,4 +1,7 @@
-// If a resource is assigned to one or more locations/POIs (based on the geodata graph) and if the location is assigned to Wikipedia, the corresponding location pages are linked in right sidebar.
+// If a resource is associated with one or more locations/POIs (based on the geodata graph)
+// and the location can be linked to Wikipedia, 
+// entity cards are displayed in the right sidebar and linked to the relevant location pages.
+
 // https://jira.ethz.ch/browse/SLSP-2004
 
 import { Component, inject, Input } from '@angular/core';

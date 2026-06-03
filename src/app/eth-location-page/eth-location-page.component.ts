@@ -1,4 +1,5 @@
 // EntityPage Place
+
 // https://jira.ethz.ch/browse/SLSP-1991
 import { Component, ElementRef, inject, ViewChild, ViewEncapsulation, DestroyRef } from '@angular/core';
 import { combineLatest, defer, forkJoin, map, Observable, of, startWith, switchMap, catchError, filter } from 'rxjs';

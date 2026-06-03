@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable, catchError, of, forkJoin } from 'rxjs';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
-import { GraphRelatedPlacesResponse, GraphGndPlacesResponse, EthoramaAPIResponse, EthoramaPoi, EnrichedPoiAPIResponse, GraphSinglePoiAPIResponse, LobidAPIResponse } from '../../models/eth.model';
+import { GraphGndPlacesResponse, EthoramaAPIResponse, EthoramaPoi, EnrichedPoiAPIResponse, GraphSinglePoiAPIResponse, LobidAPIResponse } from '../../models/eth.model';
 
 @Injectable({
   providedIn: 'root'

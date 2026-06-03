@@ -1,4 +1,4 @@
-// Person cards based on GND ID or IdRef in the right sidebar 
+// Person entity cards based on GND ID or IdRef in the right sidebar 
 // https://jira.ethz.ch/browse/SLSP-2095
 
 import { Component, ElementRef, inject, Input, ViewChild, DestroyRef } from '@angular/core';

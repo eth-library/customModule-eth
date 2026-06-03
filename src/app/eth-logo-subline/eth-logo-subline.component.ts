@@ -1,7 +1,5 @@
-// 
+// create a subline below ETH Logo
 // https://jira.ethz.ch/browse/SLSP-2009
-
-// id attribute is used for router.navigateByUrl() -> go to the top of the page  
 
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';

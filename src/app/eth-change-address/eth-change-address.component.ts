@@ -1,4 +1,5 @@
-// An option to change the address is added to the account settings page.
+// In the account settings, a section for changing your address has been added below “Personal details”.
+// There are two sections: one for ETH members and one for private individuals.
 // https://jira.ethz.ch/browse/SLSP-2007
 
 import { Component } from '@angular/core';

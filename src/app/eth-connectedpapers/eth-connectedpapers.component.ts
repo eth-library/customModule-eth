@@ -1,4 +1,6 @@
-// For articles and book_chapters, a link to Connected Papers is provided via the DOI.
+// For articles and book chapters (“article”, “articles”, “book_chapter”), a link to Connected Papers is provided via the DOI.
+// However, this only happens if either citationCount or referenceCount is > 0.
+// The API query is routed via a route that is also cached.
 // https://jira.ethz.ch/browse/SLSP-1981
 
 import { Component, inject, Input } from '@angular/core';
