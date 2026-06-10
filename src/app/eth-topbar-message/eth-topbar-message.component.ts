@@ -36,14 +36,12 @@ export class EthTopbarMessageComponent {
   private ethErrorHandlingService = inject(EthErrorHandlingService);
   private ethUtilsService = inject(EthUtilsService);
   private ethStoreService = inject(EthStoreService);
+
   vid = this.ethStoreService.getVid();
-
-
 
   message$: Observable<SafeHtml | null> = this.translate.stream('eth.topbarMessage.message')
       .pipe(
         map( (message) => {
-          console.error(message)
           // if NOT_DEFINED: message='' -> !message = falsy
           // if code does not exist: message = 'eth.topbarMessage.message'
           if(!message || message === 'eth.topbarMessage.message'){
