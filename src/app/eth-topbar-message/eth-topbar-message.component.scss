@@ -1,0 +1,24 @@
+.eth-topbar-message-container {
+    text-align: center;
+    border-radius: .5rem;
+    max-width: 100%;    
+    padding: .5rem;
+    color: var(--slsp-color-on-background);    
+    background-color: var(--slsp-color-background);  
+    font-family: var(--mat-sys-label-large-font);
+    font-size: var(--mat-expansion-container-text-size, var(--mat-sys-body-large-size));      
+    border-bottom: 1px solid #ccc;  
+}
+.eth-topbar-message-container a {
+    font-family: var(--mat-sys-label-large-font);
+    font-size: var(--mat-expansion-container-text-size, var(--mat-sys-body-large-size));        
+    color: var(--sys-primary);
+    margin-left: 0.25rem;
+    text-decoration: none;
+}
+.eth-topbar-message-container a:focus, .eth-topbar-message-container a:hover {
+    text-decoration: underline;
+}
+/*.eth-topbar-message-container + .eth-topbar-message-container {
+  border-top: 1px solid #ccc;
+}*/

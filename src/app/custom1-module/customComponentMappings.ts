@@ -1,5 +1,5 @@
 import { EthConnectedpapersComponent } from '../eth-connectedpapers/eth-connectedpapers.component';
-import { EthGitHintComponent } from '../eth-git-hint/eth-git-hint.component';
+import { EthTopbarMessageComponent } from '../eth-topbar-message/eth-topbar-message.component';
 import { EthMatomoComponent } from '../eth-matomo/eth-matomo.component';
 import { EthFullDisplaySideBarAfterComponent } from '../eth-full-display-side-bar-after/eth-full-display-side-bar-after.component';
 import { EthBibNewsComponent } from '../eth-bib-news/eth-bib-news.component';
@@ -14,16 +14,18 @@ import { EthGetitLocationsfilterComponent } from '../eth-getit-locationsfilter/e
 import { EthViewItAfterComponent } from '../eth-view-it-after/eth-view-it-after.component';
 import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offcampus-warning.component';
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
-//import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
 import { EthRapidoEthmemberHintComponent } from '../eth-rapido-ethmember-hint/eth-rapido-ethmember-hint.component';
 import { EthRequestHintsComponent } from '../eth-request-hints/eth-request-hints.component';
 import { EthOKMComponent } from '../eth-okm/eth-okm.component';
 //import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
+//import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
+//import { EthGitHintComponent } from '../../../bak/eth-git-hint/eth-git-hint.component';
+
 
 // Define the map
 export const selectorComponentMap = new Map<string, any>([
     ['nde-landing-page-bottom', EthBibNewsComponent],
-    ['nde-app-layout-before',EthGitHintComponent],
+    ['nde-app-layout-before',EthTopbarMessageComponent],
     ['nde-app-layout-after',EthMatomoComponent],
     ['nde-logo-bottom', EthLogoSublineComponent],
     ['nde-view-it-before', EthOffcampusWarningComponent],
@@ -44,6 +46,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-search-bar-presenter-after', EthOKMComponent],
     //['nde-full-display-details-bottom', EthMetagridComponent],
     //['nde-online-availability-before', EthOnlineButtonComponent],
+    //['nde-app-layout-before',EthGitHintComponent],
 ])
 
 

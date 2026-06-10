@@ -15,9 +15,9 @@ import { EthGitHintService } from './eth-git-hint.service'
 import { TranslateService } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { SafeHtml } from '@angular/platform-browser';
-import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { EthUtilsService } from '../services/eth-utils.service';
-import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
+import { EthErrorHandlingService } from '../../src/app/services/eth-error-handling.service';
+import { EthUtilsService } from '../../src/app/services/eth-utils.service';
+import { SafeTranslatePipe } from '../../src/app/pipes/safe-translate.pipe'; 
 
 type Language = 'de' | 'en'; 
 

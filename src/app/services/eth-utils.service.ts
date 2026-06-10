@@ -37,10 +37,19 @@ export class EthUtilsService {
             el.removeAttribute(attr.name);
           }
         });
-        // Validate href protocol
+        // Validate href protocol and clean escaped quotes/backslashes
         if (tag === 'a') {
-          const href = el.getAttribute('href');
+          let href = el.getAttribute('href');
           if (href) {
+            // Remove backslash escapes inserted by external systems (e.g. \"https...\")
+            href = href.replace(/\\+/g, '').trim();
+            // Strip surrounding single or double quotes if present
+            if ((href.startsWith('"') && href.endsWith('"')) || (href.startsWith("'") && href.endsWith("'"))) {
+              href = href.slice(1, -1).trim();
+            }
+            // Write cleaned href back (will be validated below)
+            el.setAttribute('href', href);
+
             try {
               const url = new URL(href, window.location.href);
               if (!safeProtocols.includes(url.protocol)) {
@@ -48,6 +57,20 @@ export class EthUtilsService {
               }
             } catch {
               el.removeAttribute('href');
+            }
+          }
+
+          // Clean target attribute if it was escaped like \"_blank\"
+          const target = el.getAttribute('target');
+          if (target) {
+            let cleanedTarget = target.replace(/\\+/g, '').trim();
+            if ((cleanedTarget.startsWith('"') && cleanedTarget.endsWith('"')) || (cleanedTarget.startsWith("'") && cleanedTarget.endsWith("'"))) {
+              cleanedTarget = cleanedTarget.slice(1, -1).trim();
+            }
+            el.setAttribute('target', cleanedTarget);
+            // Add rel when opening in new tab
+            if (cleanedTarget === '_blank' && !el.hasAttribute('rel')) {
+              el.setAttribute('rel', 'noopener noreferrer');
             }
           }
         }

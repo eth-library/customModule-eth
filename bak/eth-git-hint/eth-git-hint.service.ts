@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable, catchError, throwError  } from 'rxjs';
-import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { GitHintAPIResponse, GitHintVM } from '../models/eth.model';
+import { EthErrorHandlingService } from '../../src/app/services/eth-error-handling.service';
+import { GitHintAPIResponse, GitHintVM } from '../../src/app/models/eth.model';
 
 
 @Injectable({
