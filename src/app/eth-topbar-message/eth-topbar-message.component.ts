@@ -39,12 +39,14 @@ export class EthTopbarMessageComponent {
 
   vid = this.ethStoreService.getVid();
 
-  message$: Observable<SafeHtml | null> = this.translate.stream('eth.topbarMessage.message')
+  message$: Observable<SafeHtml | null> = this.translate.stream('slsp.topbarMessage.message')
       .pipe(
         map( (message) => {
           // if NOT_DEFINED: message='' -> !message = falsy
           // if code does not exist: message = 'eth.topbarMessage.message'
-          if(!message || message === 'eth.topbarMessage.message'){
+          console.error(11111111)
+          console.error(message)
+          if(!message || message === 'slsp.topbarMessage.message'){
             return null;
           }
           return this.ethUtilsService.sanitizeHtml(message);
