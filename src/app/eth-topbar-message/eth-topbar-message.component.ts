@@ -10,9 +10,10 @@ If the code does not exist: message = 'eth.topbarMessage.message'
 */
 // https://jira.ethz.ch/browse/SLSP-1958
 
+// corresponding mat-card has: height:695px
 
 import { Component, inject } from '@angular/core';
-import { catchError,  map, Observable, of, switchMap } from 'rxjs';
+import { catchError, map, Observable, of, defer } from 'rxjs';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { SafeHtml } from '@angular/platform-browser';
@@ -37,16 +38,12 @@ export class EthTopbarMessageComponent {
   private ethUtilsService = inject(EthUtilsService);
   private ethStoreService = inject(EthStoreService);
 
-  vid = this.ethStoreService.getVid();
-
-  message$: Observable<SafeHtml | null> = this.translate.stream('slsp.topbarMessage.message')
+  message$: Observable<SafeHtml | null> = defer(() => this.translate.stream('eth.topbarMessage.message')
       .pipe(
         map( (message) => {
           // if NOT_DEFINED: message='' -> !message = falsy
           // if code does not exist: message = 'eth.topbarMessage.message'
-          console.error(11111111)
-          console.error(message)
-          if(!message || message === 'slsp.topbarMessage.message'){
+          if(!message || message === 'eth.topbarMessage.message'){
             return null;
           }
           return this.ethUtilsService.sanitizeHtml(message);
@@ -55,7 +52,8 @@ export class EthTopbarMessageComponent {
           this.ethErrorHandlingService.logError(error, 'EthTopbarMessageComponent');
           return of(null);
         })
-      );
+      )
+  );
 }
 
 /*

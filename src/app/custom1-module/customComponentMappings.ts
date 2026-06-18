@@ -40,6 +40,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-full-display-side-bar-bottom', EthFullDisplaySideBarAfterComponent],
     ['nde-personal-details-info-after', EthChangeAddressComponent],
     //['nde-personal-details-bottom', EthChangeAddressComponent],
+    //['nde-personal-details-after', EthChangeAddressComponent],
     ['nde-personal-settings-before', EthIdpWarningComponent],
     ['nde-requests-top', EthIdpWarningComponent],
     ['nde-requests-after', EthIllLinkComponent],
