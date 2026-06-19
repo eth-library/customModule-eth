@@ -1,5 +1,4 @@
 import { EthConnectedpapersComponent } from '../eth-connectedpapers/eth-connectedpapers.component';
-import { EthTopbarMessageComponent } from '../eth-topbar-message/eth-topbar-message.component';
 import { EthMatomoComponent } from '../eth-matomo/eth-matomo.component';
 import { EthFullDisplaySideBarAfterComponent } from '../eth-full-display-side-bar-after/eth-full-display-side-bar-after.component';
 import { EthBibNewsComponent } from '../eth-bib-news/eth-bib-news.component';
@@ -27,7 +26,6 @@ import { EthChatComponent } from '../eth-chat/eth-chat.component';
 // Define the map
 export const selectorComponentMap = new Map<string, any>([
     ['nde-landing-page-bottom', EthBibNewsComponent],
-    ['nde-app-layout-before',EthTopbarMessageComponent],
     ['nde-app-layout-after',EthMatomoComponent],
     ['nde-view-it-before', EthOffcampusWarningComponent],
     ['nde-view-it-after', EthViewItAfterComponent],

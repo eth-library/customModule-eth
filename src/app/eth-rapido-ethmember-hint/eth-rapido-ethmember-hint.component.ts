@@ -1,9 +1,9 @@
 // Rapido digtal tile: If users are ETH members, a message is shown in Rapido’s digital tile: 
-// Please check in the top section of the order form whether an ETH Zurich library offers a ‘Digitisation’ service (free of charge).
+// "Please check in the top section of the order form whether an ETH Zurich library offers a ‘Digitisation’ service (free of charge).""
 // https://jira.ethz.ch/browse/SLSP-2012
 
 import { Component, inject, Input, ViewEncapsulation } from '@angular/core';
-import { BehaviorSubject, Observable, of, switchMap } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
 import { EthStoreService } from '../services/eth-store.service';
@@ -32,11 +32,11 @@ export class EthRapidoEthmemberHintComponent {
     this.hostComponent$.next(value);
   }
 
-  showHint$: Observable<boolean> = this.hostComponent$.pipe(
-    switchMap(host => {
-        return host?.physicalTile === false ? this.ethStoreService.isEthMember() : of(false)
-      }
-    )
+  showHint$: Observable<boolean> = combineLatest([
+    this.hostComponent$,
+    this.ethStoreService.isEthMember()
+  ]).pipe(
+    map(([hostComponent, isEthMember]) => hostComponent?.physicalTile != true && isEthMember)
   );
   
 }
