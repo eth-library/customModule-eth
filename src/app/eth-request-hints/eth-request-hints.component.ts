@@ -2,6 +2,7 @@
 // depending on whether the request is made via ETH-GetIt or ‘Collection from other institutions’, 
 // and varies for requests and digitisation.
 // https://jira.ethz.ch/browse/SLSP-2013
+
 // 990061118830205503 
 
 import { Component, inject, Input } from '@angular/core';
@@ -35,8 +36,6 @@ export class EthRequestHintsComponent {
     this.hostComponent$.next(value);
   }
 
-  // User Group for future use
-  // userGroup$: Observable<string | null> = this.ethStoreService.userGroup$;
   readonly state$: Observable<{ formType: string | null; pickupAtETH: boolean }> = this.hostComponent$.pipe(
     map(hc => ({
       formType: hc?.formType ?? null,
@@ -56,8 +55,6 @@ export class EthRequestHintsComponent {
     )
   );      
   
-
-
   private getHint(formType: string | null, pickupAtETH: boolean): Observable<string | null> {
     if (pickupAtETH && (formType === 'AlmaRequest' || formType === 'AlmaRequestOther' || formType === 'AlmaItemRequest')) {
       return this.translate.stream('eth.requestHint.request');

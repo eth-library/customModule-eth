@@ -230,7 +230,8 @@ export class EthStoreService {
                 'ETH_Member',
                 'ETH_E06_GESS-Member',
                 'ETH_E64_MATH-Member',
-                'ETH_Student'
+                'ETH_Student',
+                '99'
                 ];
                 return group ? ethMemberGroups.includes(group) : false;
             })

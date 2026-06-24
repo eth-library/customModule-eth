@@ -112,6 +112,21 @@ describe('EthIdpWarningComponent', () => {
   });
 
 
+  it('reacts to ETH member changes while logged in', async () => {
+    email$.next('student.bla@ethz.ch');
+    authenticationProfile$.next('Other');
+    isLoggedIn$.next(true);
+
+    const values: boolean[] = [];
+    const subscription = component.showWarning$.subscribe(value => values.push(value));
+
+    isEthMember$.next(false);
+
+    expect(values).toEqual([false, true]);
+    subscription.unsubscribe();
+  });
+
+
   it('should render warning', async () => {
     isEthMember$.next(false);
     email$.next('student.bla@ethz.ch');

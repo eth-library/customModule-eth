@@ -3,10 +3,10 @@
 
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { EthStoreService } from '../services/eth-store.service';
-import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { EthStoreService } from '../../src/app/services/eth-store.service';
+import { EthErrorHandlingService } from '../../src/app/services/eth-error-handling.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { SHELL_ROUTER } from "../injection-tokens";
+import { SHELL_ROUTER } from "../../src/app/injection-tokens";
 
 @Component({
   selector: 'custom-eth-logo-subline',
