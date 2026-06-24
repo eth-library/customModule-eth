@@ -58,9 +58,11 @@ nde-record-citations-indicators {
 nde-loans .loan-renew-btn {
     display: none;
 }
+
 nde-loans .renew-all-button {
     display: none;
 }
+
 nde-loans .loans-divider-actions {
     display: none;
 }
@@ -69,42 +71,44 @@ nde-loans .loans-divider-actions {
 /* Hide elements from slsp central package */
 /*****************************************/
 /* edit account settings */
-.slsp-edit-details,.slsp-edit-details-divider{
-  display:none;
+.slsp-edit-details,
+.slsp-edit-details-divider {
+    display: none;
 }
 
 /* login dialog: register/help */
-.slsp-login-box-links{
-  display:none;
+.slsp-login-box-links {
+    display: none;
 }
 
-/* fees link right of rapido header */ 
-.slsp-fees-link{
-  display:none;
+/* fees link right of rapido header */
+.slsp-fees-link {
+    display: none;
 }
 
 /*****************************************/
 /* override css from slsp central package */
 /*****************************************/
 nde-footer>div {
-  display: block!important;
-  background-color: #222!important;
-  text-align:inherit!important;
+    display: block !important;
+    background-color: #222 !important;
+    text-align: inherit !important;
 }
 
 /*****************************************/
 /* Theme */
 /*****************************************/
 /*:root{*/
-.custom-nde-theme{  
-  --slsp-color-primary: #1c667b; /*#00FF00;*/
-  --slsp-color-on-primary: #ffffff;
-  --slsp-color-primary-shade: #6f9cab;
-  --slsp-color-secondary: #4b626b;
-  --slsp-color-on-secondary: #ffffff;
-  --slsp-color-secondary-shade: #8fa3aa;
-  --slsp-color-background: #f8f9fb;
-  --slsp-color-on-background: #191c1d;
+.custom-nde-theme {
+    --slsp-color-primary: #1c667b;
+    /*#00FF00;*/
+    --slsp-color-on-primary: #ffffff;
+    --slsp-color-primary-shade: #6f9cab;
+    --slsp-color-secondary: #4b626b;
+    --slsp-color-on-secondary: #ffffff;
+    --slsp-color-secondary-shade: #8fa3aa;
+    --slsp-color-background: #f8f9fb;
+    --slsp-color-on-background: #191c1d;
 }
 
 /* Ende Bernd */
@@ -124,18 +128,17 @@ nde-back-to-top {
     display: none;
 } */
 
-/* Override background image for v2 design */
+/* Override background image for v2 design: fixed solid blue */
 body .top-bar-background-image {
+    position: relative;
     background-image: none !important;
-    background: none !important;
-    /* optional, setzt alles zurück */
+    background-color: #08407E !important;
 }
 
 /* Override background overlay opacity and color */
 body .custom-search-bar-container .background-overlay {
-    opacity: 1.0 !important;
-    background-color: #08407E !important;
-    /* Change to your desired color */
+    opacity: 0 !important;
+    background: transparent !important;
 }
 
 /* ==============================
@@ -376,6 +379,7 @@ header.top-bar.mat-elevation-z3 {
    ============================== */
 body nde-top-bar {
     background-color: #08407E !important;
+    background-image: none !important;
 }
 
 .search-bar-container .advanced-search-button {
