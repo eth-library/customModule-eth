@@ -111,7 +111,7 @@ describe('EthPersonService', () => {
 
   it('returns correct person page URL', () => {
     const url = service.getPersonPageUrl('Q123');
-    expect(url).toBe('/entity/person?entityId=Q123&vid=41SLSP_ETH:ETH_CUSTOMIZING');
+    expect(url).toBe('/entity/person?entityId=Q123&vid=41SLSP_ETH:ETH_NDE');
   });
 
 
@@ -459,7 +459,7 @@ describe('EthPersonService', () => {
     expect(person.students?.length).toBe(1);
     expect(person.wikipediaUrl).toBe('https://de.wikipedia.org/wiki/Entity');
     expect(person.wikiArchivesAtLinks?.[0].url).toBe('http://archives/1');
-    expect(person.url).toBe('/entity/person?entityId=LOC100&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=de');
+    expect(person.url).toBe('/entity/person?entityId=LOC100&vid=41SLSP_ETH:ETH_NDE&lang=de');
     expect(person.name).toBe('Entity Name');
     expect(person.qid).toBe('Q100');
   });
