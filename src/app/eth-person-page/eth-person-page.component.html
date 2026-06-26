@@ -94,21 +94,27 @@
 
         <section class="eth-expansion-panel-content">
           <ul role="list">
+              @if (person.searchVariants[0]) {
               <li role="listitem">
                 <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[0].url" (click)="navigate(person.searchVariants[0].url,$event)">
                   <span>{{'eth.personPage.searchName' | safeTranslate | async}} ({{ person.searchVariants[0].total }} {{'eth.personPage.results' | safeTranslate | async}})</span>
                 </a>
               </li>
+              }
+              @if (person.searchVariants[1]) {
               <li role="listitem">
                 <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[1].url" (click)="navigate(person.searchVariants[1].url,$event)">
                   <span>{{'eth.personPage.searchGnd' | safeTranslate | async}} ({{ person.searchVariants[1].total }} {{'eth.personPage.results' | safeTranslate | async}})</span>
                 </a>
               </li>
+              }
+              @if (person.searchVariants[2]) {
               <li role="listitem">
                 <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[2].url" (click)="navigate(person.searchVariants[2].url,$event)">
                   <span>{{'eth.personPage.searchGndBirth' | safeTranslate | async}} ({{ person.searchVariants[2].total }} {{'eth.personPage.results' | safeTranslate | async}})</span>
                 </a>
               </li>
+              }
           </ul>
         </section>
       </mat-expansion-panel>
@@ -140,7 +146,7 @@
           }
           @if (person.wiki && person.wiki.loc) {
             <li>
-              <a target="_blank" href="https://id.loc.gov/authorities/names/{{ person.wiki.loc }}.html" [attr.aria-label]="'Library of Congress' + ('nui.aria.newWindow' | safeTranslate | async)">
+              <a target="_blank" rel="noopener noreferrer" href="https://id.loc.gov/authorities/names/{{ person.wiki.loc }}.html" [attr.aria-label]="'Library of Congress' + ('nui.aria.newWindow' | safeTranslate | async)">
                 Library of Congress
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -240,7 +246,7 @@
 
         <section class="eth-expansion-panel-content">
           <p class="eth-person__links-hint">Links powered by 
-            <a href="https://www.metagrid.ch/" target="_blank" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'Metagrid' + ('nui.aria.newWindow' | safeTranslate | async)">
+            <a href="https://www.metagrid.ch/" target="_blank" rel="noopener noreferrer" class="wikidata-person__links-source md-default-theme" [attr.aria-label]="'Metagrid' + ('nui.aria.newWindow' | safeTranslate | async)">
               Metagrid
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>

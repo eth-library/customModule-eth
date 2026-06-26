@@ -15,7 +15,9 @@ type MatomoWindow = Window & {
 export class EthMatomoService {
 
   private readonly maxInitChecks = 300;
+  private readonly maxQueuedEvents = 200;
   private initialized = false;
+  private disabled = false;
   private initChecks = 0;
   private checkTimeoutId: number | null = null;
   private queue: MatomoCommand[] = [];   // Events that are fired before Matomo is fully initialized
@@ -65,6 +67,8 @@ export class EthMatomoService {
       } else {
         this.initChecks += 1;
         if (this.initChecks >= this.maxInitChecks) {
+          this.disabled = true;
+          this.queue = [];
           return;
         }
         // Retry until Matomo is ready (lightweight polling)
@@ -108,10 +112,17 @@ export class EthMatomoService {
     const w = this.getWindow();
     w._paq = w._paq || [];
 
+    if (this.disabled) {
+      return;
+    }
+
     if (this.initialized) {
       w._paq.push(event);
     } else {
       // Queue event until Matomo is ready
+      if (this.queue.length >= this.maxQueuedEvents) {
+        this.queue.shift();
+      }
       this.queue.push(event);
     }
   }

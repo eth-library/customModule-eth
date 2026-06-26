@@ -51,12 +51,12 @@
                     }
                     <div class="eth-person-copyright" (mouseenter)="open(person.gnd)" (mouseleave)="close()" (focus)="open(person.gnd)" (blur)="close()">
                       <button
-                        #licensePopoverTrigger
                         type="button"
                         class="eth-person-copyright-button"
+                        [attr.data-license-trigger]="person.gnd"
                         aria-haspopup="dialog"
                         [attr.aria-label]="'nui.aria.personEntity.imageInfo' | safeTranslate | async"
-                        aria-controls="license-popover"
+                        [attr.aria-controls]="getLicensePopoverId(person.gnd)"
                         [attr.aria-expanded]="isOpen(person.gnd)"
                         (click)="toggle(person.gnd)">
                         <svg width="100%" height="100%" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
@@ -65,7 +65,7 @@
                         </svg>
                       </button>
                       @if (isOpen(person.gnd)){
-                        <div #licensePopover class="eth-person-copyright-hint" role="dialog" aria-modal="false" tabindex="-1" id="license-popover" (keydown.escape)="close()" (focusout)="onFocusOut($event)">
+                        <div class="eth-person-copyright-hint" role="dialog" aria-modal="false" tabindex="-1" [attr.id]="getLicensePopoverId(person.gnd)" (keydown.escape)="close()" (focusout)="onFocusOut($event)">
                           <span>{{'eth.personCard.licence' | safeTranslate | async}} </span> 
                           @if (person.entityfacts?.image){
                             <a [href]="person.entityfacts?.image?.url" target="_blank" rel="noopener">Wikimedia Commons</a>

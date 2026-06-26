@@ -1,7 +1,7 @@
 // Person entity cards based on GND ID or IdRef in the right sidebar 
 // https://jira.ethz.ch/browse/SLSP-2095
 
-import { Component, ElementRef, inject, Input, ViewChild, DestroyRef } from '@angular/core';
+import { Component, DestroyRef, inject, Input } from '@angular/core';
 import { BehaviorSubject, catchError, combineLatest, defer, forkJoin, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { EthPersonService } from '../../services/eth-person.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -41,12 +41,14 @@ export class EthPersonCardsComponent {
     this.hostComponent$.next(value ?? {});
   }
 
-  @ViewChild('licensePopover') licensePopover?: ElementRef;
-  @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
-
   constructor() {
     this.destroyRef.onDestroy(() => this.clearPendingTimeouts());
   }
+
+    getLicensePopoverId(key: string): string {
+      const safeKey = (key || 'unknown').replace(/[^a-zA-Z0-9_-]/g, '_');
+      return `license-popover-${safeKey}`;
+    }
 
     private scheduleTask(task: () => void, delay = 0): void {
       const timeoutId = window.setTimeout(() => {
@@ -194,14 +196,20 @@ export class EthPersonCardsComponent {
     open(key: string) {
       this.openLicensePopover = key;
       this.scheduleTask(() => {
-        this.licensePopover?.nativeElement?.focus();
+        const popover = document.getElementById(this.getLicensePopoverId(key));
+        (popover as HTMLElement | null)?.focus();
       });
     }
 
     close() {
+      const keyToFocus = this.openLicensePopover;
       this.openLicensePopover = null;
       this.scheduleTask(() => {
-        this.licensePopoverTrigger?.nativeElement?.focus();
+        if (!keyToFocus) {
+          return;
+        }
+        const trigger = document.querySelector(`[data-license-trigger="${keyToFocus}"]`) as HTMLElement | null;
+        trigger?.focus();
       });
     }
 
@@ -215,7 +223,11 @@ export class EthPersonCardsComponent {
 
     onFocusOut(event: FocusEvent) {
       const next = event.relatedTarget as HTMLElement | null;
-      if (!this.licensePopover?.nativeElement.contains(next)) {
+      if (!this.openLicensePopover) {
+        return;
+      }
+      const popover = document.getElementById(this.getLicensePopoverId(this.openLicensePopover));
+      if (!(popover as HTMLElement | null)?.contains(next)) {
         this.close();
       }
     }    

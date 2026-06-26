@@ -253,7 +253,7 @@ describe('EthPersonPageComponent', () => {
     component.getPrecisionRecallLinks(person).subscribe(result => {
       expect(result.searchVariants?.length).toBe(3);
       const urls = result.searchVariants?.map(v => v.url) ?? [];
-      expect(urls[0]).toContain('query=Entity Name');
+      expect(urls[0]).toContain('query=Entity%20Name');
       expect(urls.some(url => url.includes('mode=advanced'))).toBeTrue();
       done();
     });
@@ -298,7 +298,7 @@ describe('EthPersonPageComponent', () => {
 
     component.getSearchLink('lds03,contains,GND123').pipe(take(1)).subscribe(link => {
       expect(link?.url).toContain('mode=advanced');
-      expect(link?.url).toContain('query=lds03,contains,GND123');
+      expect(link?.url).toContain('query=lds03%2Ccontains%2CGND123');
       done();
     });
   });
@@ -310,7 +310,7 @@ describe('EthPersonPageComponent', () => {
     personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 1 } } as any));
 
     component.getSearchLink('any,contains,Entity Name').pipe(take(1)).subscribe(link => {
-      expect(link?.url).toContain('query=Entity Name');
+      expect(link?.url).toContain('query=Entity%20Name');
       expect(link?.url).not.toContain('mode=advanced');
       done();
     });

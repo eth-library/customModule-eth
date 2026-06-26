@@ -168,7 +168,7 @@ export class EthPersonPageComponent {
         if (query.indexOf('lds03') === -1) {
           query = query.replace('any,contains,', '');
         }
-        let url = `/search?query=${query}&tab=${tab}&search_scope=${scope}&vid=${vid}&lang=${this.lang}`;
+        let url = `/search?query=${encodeURIComponent(query)}&tab=${encodeURIComponent(tab)}&search_scope=${encodeURIComponent(scope)}&vid=${encodeURIComponent(vid)}&lang=${encodeURIComponent(this.lang)}`;
         if (query.indexOf('lds03') > -1) {
           url += '&mode=advanced';
         }

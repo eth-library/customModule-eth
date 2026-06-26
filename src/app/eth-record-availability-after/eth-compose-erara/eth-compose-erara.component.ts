@@ -1,5 +1,7 @@
 // Resources from e-rara are linked reciprocally with their prints and possibly with e-maps.
+// covers maps and digitised first editions.
 // https://jira.ethz.ch/browse/SLSP-2002
+// https://jira.ethz.ch/browse/SLSP-2482
 
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
