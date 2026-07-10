@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EthOKMComponent } from './eth-okm.component';
-import { EthStoreService } from '../services/eth-store.service';
-import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { EthStoreService } from '../../src/app/services/eth-store.service';
+import { EthErrorHandlingService } from '../../src/app/services/eth-error-handling.service';
 import { firstValueFrom, of, throwError } from 'rxjs';
 
 describe('EthOKMComponent', () => {

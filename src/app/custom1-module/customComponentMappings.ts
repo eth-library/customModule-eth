@@ -14,7 +14,6 @@ import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offca
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
 import { EthRapidoEthmemberHintComponent } from '../eth-rapido-ethmember-hint/eth-rapido-ethmember-hint.component';
 import { EthRequestHintsComponent } from '../eth-request-hints/eth-request-hints.component';
-import { EthOKMComponent } from '../eth-okm/eth-okm.component';
 import { EthChatComponent } from '../eth-chat/eth-chat.component';
 //import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
 //import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
@@ -44,7 +43,6 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-requests-after', EthIllLinkComponent],
     ['nde-ngrs-offer-drawer-before', EthRapidoEthmemberHintComponent],
     ['nde-base-request-form-top', EthRequestHintsComponent],
-    ['nde-search-bar-presenter-after', EthOKMComponent],
     ['nde-footer-after', EthChatComponent],
     //['nde-full-display-details-bottom', EthMetagridComponent],
     //['nde-online-availability-before', EthOnlineButtonComponent],
