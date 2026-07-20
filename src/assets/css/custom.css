@@ -496,13 +496,13 @@ nde-footer {
 }
 
 /* ==============================
-   Font Styling temp (ETH custom)
+   Temp Font Styling main navigation (ETH custom)
    ============================== */
 
 .main-menu-container .mdc-button {
     --mdc-filled-button-label-text-transform: none;
     --mdc-text-button-label-text-transform: none;
-    font-size: 18px !important;
+    font-size: 20px !important;
     text-transform: none !important;
     font-weight: 400 !important;
     font-style: normal !important;
