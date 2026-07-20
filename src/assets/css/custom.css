@@ -100,19 +100,23 @@ nde-footer>div {
 /*****************************************/
 /*:root{*/
 .custom-nde-theme {
-    --slsp-color-primary: #1c667b;
+    --slsp-color-primary: #08407E;
     /*#00FF00;*/
     --slsp-color-on-primary: #ffffff;
-    --slsp-color-primary-shade: #6f9cab;
+    --slsp-color-primary-shade: #7A9DCF;
     --slsp-color-secondary: #4b626b;
     --slsp-color-on-secondary: #ffffff;
-    --slsp-color-secondary-shade: #8fa3aa;
+    --slsp-color-secondary-shade: #A6BEDF;
     --slsp-color-background: #f8f9fb;
     --slsp-color-on-background: #191c1d;
 }
 
 /* Ende Bernd */
 /* Anfang Germano */
+
+.back-to-top-button {
+    --mdc-fab-small-container-color: #08407E;
+}
 
 /***********************************/
 /* Dynamic Design Sections ETH-NDE */
