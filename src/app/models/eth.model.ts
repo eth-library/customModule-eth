@@ -507,7 +507,7 @@ export interface EraraEMapsMapAPIItem {
 export interface ComposeEraraLinkVM {
   url: string;
   label$: Observable<string>;
-  external: boolean;
+  external?: boolean;
 }
 
 /* eth-person-card: otb linked data recommendations */

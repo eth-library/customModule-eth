@@ -4,9 +4,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { catchError, defer, Observable, of, switchMap } from 'rxjs';
-import { EthStoreService } from '../services/eth-store.service';
+import { EthStoreService } from '../../src/app/services/eth-store.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { EthErrorHandlingService } from '../../src/app/services/eth-error-handling.service';
 
 @Component({
   selector: 'custom-eth-okm',

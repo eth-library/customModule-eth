@@ -72,13 +72,16 @@ describe('EthWaybackComponent', () => {
   const buildViewItDom = (doc: Document) => {
     const container = doc.createElement('nde-full-display-container');
     const card = doc.createElement('nde-view-it-card');
-    const button = doc.createElement('button');
-    const header = doc.createElement('h3');
-    button.appendChild(header);
-    card.appendChild(button);
+    const textContainer = doc.createElement('div');
+    textContainer.className = 'view-it-text';
+    const link = doc.createElement('a');
+    const span = doc.createElement('span');
+    link.appendChild(span);
+    textContainer.appendChild(link);
+    card.appendChild(textContainer);
     container.appendChild(card);
     doc.body.appendChild(container);
-    return { container, card, button, header };
+    return { container, card, textContainer, link, span };
   };
 
   it('should create', () => {
@@ -113,12 +116,12 @@ describe('EthWaybackComponent', () => {
 
 
   it('updates button label and hint text', () => {
-    const { container, card, header } = buildViewItDom(documentRef);
+    const { container, card, span } = buildViewItDom(documentRef);
 
     (component as any).changeDom();
 
     const hint = card.querySelector('#eth-wayback-hint');
-    expect(header.textContent).toBe('Wayback');
+    expect(span.textContent).toBe('Wayback');
     expect(hint?.textContent).toBe('Hint');
 
     documentRef.body.removeChild(container);
@@ -141,8 +144,8 @@ describe('EthWaybackComponent', () => {
 
 
   it('skips redundant DOM updates when link and hint already match translations', () => {
-    const { container, card, header, button } = buildViewItDom(documentRef);
-    header.textContent = 'Wayback';
+    const { container, card, span } = buildViewItDom(documentRef);
+    span.textContent = 'Wayback';
     const hint = documentRef.createElement('div');
     hint.id = 'eth-wayback-hint';
     hint.textContent = 'Hint';

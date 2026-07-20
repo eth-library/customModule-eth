@@ -78,8 +78,8 @@ export class EthLocationPageComponent {
   tab!: string | null;
   scope!: string | null;
   lang!: string;
-  map!: L.Map;
-  polygonsWithCenters!: L.LayerGroup;
+  map: L.Map | null = null;
+  polygonsWithCenters: L.LayerGroup | null = null;
   openWeight!: number;
 
   otbEntityStatus: Observable<string> = defer(() =>
@@ -93,7 +93,10 @@ export class EthLocationPageComponent {
   @ViewChild('licensePopover') licensePopover?: ElementRef;
   @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
   constructor() {
-    this.destroyRef.onDestroy(() => this.clearPendingTimeouts());
+    this.destroyRef.onDestroy(() => {
+      this.clearPendingTimeouts();
+      this.destroyMap();
+    });
   }
 
   private scheduleTask(task: () => void, delay = 0): void {
@@ -107,6 +110,12 @@ export class EthLocationPageComponent {
   private clearPendingTimeouts(): void {
     this.pendingTimeouts.forEach(timeoutId => globalThis.clearTimeout(timeoutId));
     this.pendingTimeouts.clear();
+  }
+
+  private destroyMap(): void {
+    this.map?.remove();
+    this.map = null;
+    this.polygonsWithCenters = null;
   }
 
   // our services can use gnd and qid, but not lccn --> map lccn to qid
@@ -248,6 +257,9 @@ export class EthLocationPageComponent {
 
 
   private onEachFeature(feature: MapFeature, layer: L.Layer) {
+    if (!this.polygonsWithCenters) {
+      return;
+    }
     const styledLayer = layer as StyledBoundsLayer;
     const center = styledLayer.getBounds().getCenter();
     const icon = L.icon({

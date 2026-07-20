@@ -432,11 +432,11 @@ export class EthPersonService {
 
             // URL der Entity
             if (person.wiki?.loc) {
-                person.url = `/entity/person?entityId=${person.wiki.loc}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
+                person.url = `/entity/person?entityId=${person.wiki.loc}&vid=41SLSP_ETH:ETH_NDE&lang=${lang}`;
             } else if (person.entityfacts?.lccn) {
-                person.url = `/entity/person?entityId=${person.entityfacts.lccn}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
+                person.url = `/entity/person?entityId=${person.entityfacts.lccn}&vid=41SLSP_ETH:ETH_NDE&lang=${lang}`;
             } else if (person.gnd) {
-                person.url = `/entity/person?entityId=${person.gnd}&vid=41SLSP_ETH:ETH_CUSTOMIZING&lang=${lang}`;
+                person.url = `/entity/person?entityId=${person.gnd}&vid=41SLSP_ETH:ETH_NDE&lang=${lang}`;
             }
 
             // Name
@@ -453,7 +453,7 @@ export class EthPersonService {
     }
 
     getPersonPageUrl(identifier:string): string{
-        let url = `/entity/person?entityId=${identifier}&vid=41SLSP_ETH:ETH_CUSTOMIZING`;
+        let url = `/entity/person?entityId=${identifier}&vid=41SLSP_ETH:ETH_NDE`;
         return url;
     }
 

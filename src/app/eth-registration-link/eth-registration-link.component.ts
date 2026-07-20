@@ -91,6 +91,7 @@ export class EthRegistrationLinkComponent {
       const link = this.renderer.createElement('a');
       this.renderer.setAttribute(link, 'href', REGISTRATION_URL);
       this.renderer.setAttribute(link, 'target', '_blank');
+      this.renderer.setAttribute(link, 'rel', 'noopener noreferrer');
       this.renderer.setAttribute(link, 'aria-label', `${linktext} ${newWindow}`);
       this.renderer.addClass(link, 'eth-registration-link');
       this.renderer.appendChild(link, this.renderer.createText(linktext));

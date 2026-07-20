@@ -4,12 +4,14 @@ import { EthOnlineProblemComponent } from './eth-online-problem.component';
 import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { PnxDoc, Sourcesystem } from '../../models/eth.model';
+import { TranslateService } from '@ngx-translate/core';
 
 describe('EthOnlineProblemComponent', () => {
   let component: EthOnlineProblemComponent;
   let fixture: ComponentFixture<EthOnlineProblemComponent>;
   let storeService: jasmine.SpyObj<EthStoreService>;
   let errorHandlingSpy: jasmine.SpyObj<EthErrorHandlingService>;
+  let translateMock: jasmine.SpyObj<TranslateService>;
 
   type PnxDocOverrides = {
     pnx?: {
@@ -43,6 +45,8 @@ describe('EthOnlineProblemComponent', () => {
       'getFullDisplayRecord$'
     ]);
     errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError']);
+    translateMock = jasmine.createSpyObj<TranslateService>('TranslateService', ['instant']);
+    translateMock.instant.and.returnValue('almakb@library.ethz.ch');
 
     storeService.getFullDisplayRecord$.and.returnValue(of(null as unknown as PnxDoc));
 
@@ -50,7 +54,8 @@ describe('EthOnlineProblemComponent', () => {
       imports: [EthOnlineProblemComponent],
       providers: [
         { provide: EthStoreService, useValue: storeService },
-        { provide: EthErrorHandlingService, useValue: errorHandlingSpy }
+        { provide: EthErrorHandlingService, useValue: errorHandlingSpy },
+        { provide: TranslateService, useValue: translateMock }
       ]
     })
     .compileComponents();

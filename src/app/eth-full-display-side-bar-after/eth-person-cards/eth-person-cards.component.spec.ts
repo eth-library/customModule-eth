@@ -240,20 +240,30 @@ describe('EthPersonCardsComponent', () => {
   });
 
   it('handles license popover open and close helpers', fakeAsync(() => {
-    const focusSpy = jasmine.createSpy('focus');
-    const triggerFocusSpy = jasmine.createSpy('triggerFocus');
-    (component as any).licensePopover = { nativeElement: { focus: focusSpy } };
-    (component as any).licensePopoverTrigger = { nativeElement: { focus: triggerFocusSpy } };
+    const popover = document.createElement('div');
+    popover.id = component.getLicensePopoverId('license');
+    document.body.appendChild(popover);
+    const focusSpy = spyOn(popover, 'focus');
 
-    component.open('license');
-    tick();
-    expect(component.isOpen('license')).toBeTrue();
-    expect(focusSpy).toHaveBeenCalled();
+    const trigger = document.createElement('button');
+    trigger.setAttribute('data-license-trigger', 'license');
+    document.body.appendChild(trigger);
+    const triggerFocusSpy = spyOn(trigger, 'focus');
 
-    component.close();
-    tick();
-    expect(component.isOpen('license')).toBeFalse();
-    expect(triggerFocusSpy).toHaveBeenCalled();
+    try {
+      component.open('license');
+      tick();
+      expect(component.isOpen('license')).toBeTrue();
+      expect(focusSpy).toHaveBeenCalled();
+
+      component.close();
+      tick();
+      expect(component.isOpen('license')).toBeFalse();
+      expect(triggerFocusSpy).toHaveBeenCalled();
+    } finally {
+      popover.remove();
+      trigger.remove();
+    }
   }));
 
   it('toggles popover state', () => {
@@ -265,12 +275,22 @@ describe('EthPersonCardsComponent', () => {
   });
 
   it('closes popover when focus leaves element', () => {
-    const containsSpy = jasmine.createSpy('contains').and.returnValue(false);
-    (component as any).licensePopover = { nativeElement: { contains: containsSpy } };
+    const popover = document.createElement('div');
+    popover.id = component.getLicensePopoverId('license');
+    document.body.appendChild(popover);
+
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+
     component.openLicensePopover = 'license';
 
-    component.onFocusOut({ relatedTarget: null } as FocusEvent);
+    try {
+      component.onFocusOut({ relatedTarget: outside } as unknown as FocusEvent);
 
-    expect(component.isOpen('license')).toBeFalse();
+      expect(component.isOpen('license')).toBeFalse();
+    } finally {
+      popover.remove();
+      outside.remove();
+    }
   });
 });
