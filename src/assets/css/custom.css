@@ -98,10 +98,9 @@ nde-footer>div {
 /*****************************************/
 /* Theme */
 /*****************************************/
-/*:root{*/
+/*:root{
 .custom-nde-theme {
     --slsp-color-primary: #08407E;
-    /*#00FF00;*/
     --slsp-color-on-primary: #ffffff;
     --slsp-color-primary-shade: #7A9DCF;
     --slsp-color-secondary: #4b626b;
@@ -109,23 +108,58 @@ nde-footer>div {
     --slsp-color-secondary-shade: #A6BEDF;
     --slsp-color-background: #f8f9fb;
     --slsp-color-on-background: #191c1d;
-}
+}*/
 
 /* Ende Bernd */
 /* Anfang Germano */
 
-.back-to-top-button {
-    --mdc-fab-small-container-color: #08407E;
+/** ==================================================
+ * ETH IZ – Color overrides
+ * Inherits Out-of-the-box and SLSP styles
+ * ================================================== */
+
+:root {
+    /* ETH brand colours */
+    --slsp-color-primary: #08407E !important;
+    --slsp-color-on-primary: #ffffff !important;
+    --slsp-color-primary-shade: #7A9DCF !important;
+
+    --slsp-color-secondary: #A6BEDF !important;
+    --slsp-color-on-secondary: #020202 !important;
+    --slsp-color-secondary-shade: #A6BEDF !important;
+
+    /* Neutral colours */
+    --slsp-color-background: #f8f9fb !important;
+    --slsp-color-on-background: #08407E !important;
 }
+
+/* Secondary metadata */
+
+.record-type {
+    color: #8C8C8C !important;
+}
+
+/* Selected slide toggles 
+
+.mat-mdc-slide-toggle {
+    --mdc-switch-selected-track-color: #215CAF !important;
+    --mdc-switch-selected-focus-track-color: #215CAF !important;
+    --mdc-switch-selected-hover-track-color: #215CAF !important;
+    --mdc-switch-selected-pressed-track-color: #215CAF !important;
+
+    --mdc-switch-selected-handle-color: #ffffff !important;
+    --mdc-switch-selected-focus-handle-color: #ffffff !important;
+    --mdc-switch-selected-hover-handle-color: #ffffff !important;
+}*/
 
 /***********************************/
 /* Dynamic Design Sections ETH-NDE */
 /***********************************/
 
-/* Hide the Userlike chatbot widget */
+/* Hide the Userlike chatbot widget 
 div[data-test-id="userlike-container"] {
     display: none !important;
-}
+}*/
 
 /* Hide BACK TO TOP
 nde-back-to-top {
@@ -506,7 +540,7 @@ nde-footer {
 .main-menu-container .mdc-button {
     --mdc-filled-button-label-text-transform: none;
     --mdc-text-button-label-text-transform: none;
-    font-size: 20px !important;
+    font-size: 18px !important;
     text-transform: none !important;
     font-weight: 400 !important;
     font-style: normal !important;
