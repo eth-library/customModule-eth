@@ -152,8 +152,16 @@ nde-footer>div {
     --mdc-switch-selected-hover-handle-color: #ffffff !important;
 }*/
 
+/*****************************************/
+/* override css from slsp central package */
+/******************************************/
+/*
+body .container .custom-search-bar-container nde-top-bar {
+    background-color: #08407E !important;
+}*/
+
 /***********************************/
-/* Dynamic Design Sections ETH-NDE */
+/* ETH specific Design ETH-NDE */
 /***********************************/
 
 /* Hide the Userlike chatbot widget 
@@ -534,7 +542,7 @@ nde-footer {
 }
 
 /* ==============================
-   Temp Font Styling main navigation (ETH custom)
+   Font Styling main navigation (ETH custom)
    ============================== */
 
 .main-menu-container .mdc-button {
