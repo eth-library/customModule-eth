@@ -160,6 +160,17 @@ body .container .custom-search-bar-container nde-top-bar {
     background-color: #08407E !important;
 }*/
 
+/* carousel-card styling auf home */
+mat-card {
+    border-color: var(--border) !important;
+    border-width: 1px !important;
+}
+
+.carousel-card .mat-mdc-card-header img {
+    padding-top: 1rem !important;
+}
+
+
 /***********************************/
 /* ETH specific Design ETH-NDE */
 /***********************************/
