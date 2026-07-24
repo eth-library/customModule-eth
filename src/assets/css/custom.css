@@ -160,7 +160,18 @@ body .container .custom-search-bar-container nde-top-bar {
     background-color: #08407E !important;
 }*/
 
-/* carousel-card styling auf home */
+/* Override Link Color */
+a:not(.link-reset) {
+    color: #215CAF !important;
+}
+
+nde-full-display-service-container a:visited,
+nde-full-display-service-container .package-name.visited {
+    color: #215CAF !important;
+}
+
+
+/* Display Showcase styling on Landing Page */
 mat-card {
     border-color: var(--border) !important;
     border-width: 1px !important;
@@ -168,6 +179,16 @@ mat-card {
 
 .carousel-card .mat-mdc-card-header img {
     padding-top: 1rem !important;
+}
+
+.showcase-container {
+    padding-top: 10px;
+}
+
+.mat-title-medium,
+.mat-typography .mat-title-medium {
+    color: #215CAF !important;
+    text-decoration: none;
 }
 
 
@@ -564,4 +585,246 @@ nde-footer {
     font-weight: 400 !important;
     font-style: normal !important;
     line-height: 26px !important;
+}
+
+/*****************************************/
+/* Featured Collections                  */
+/*****************************************/
+
+.featured-collections {
+    box-sizing: border-box;
+    margin: 0rem 0;
+}
+
+.featured-collections-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.featured-collections-title {
+    margin: 0;
+    color: #191c1d;
+}
+
+.featured-collections-intro {
+    margin: 0.5rem 0 0;
+    color: #4b626b;
+}
+
+.featured-collections-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.featured-collection-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    color: #191c1d;
+    text-decoration: none;
+    background-color: #ffffff;
+    border: 1px solid #d5dadd;
+    border-radius: 0.5rem;
+    transition:
+        border-color 160ms ease,
+        transform 160ms ease;
+}
+
+.featured-collection-card:hover {
+    border-color: #08407e;
+    transform: translateY(-2px);
+}
+
+.featured-collection-card:focus-visible {
+    outline: 3px solid rgba(8, 64, 126, 0.35);
+    outline-offset: 3px;
+}
+
+.featured-collection-image-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background-color: #f1f3f4;
+}
+
+.featured-collection-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 220ms ease;
+}
+
+.featured-collection-card:hover .featured-collection-image {
+    transform: scale(1.025);
+}
+
+.featured-collection-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+
+.featured-collection-card-title {
+    margin: 0;
+    color: #215CAF;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.featured-collection-description {
+    display: -webkit-box;
+    margin: 0.75rem 0 0;
+    overflow: hidden;
+    color: #4b626b;
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.featured-collection-description:empty {
+    display: none;
+}
+
+.featured-collection-link-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    color: #215CAF;
+    font-weight: 600;
+}
+
+.featured-collection-link-label::after {
+    content: "→";
+    transition: transform 160ms ease;
+}
+
+.featured-collection-card:hover .featured-collection-link-label::after {
+    transform: translateX(0.2rem);
+}
+
+/* Loading state */
+
+.featured-collections-loading {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 2rem;
+    color: #4b626b;
+    text-align: center;
+    background-color: #f8f9fb;
+    border: 1px solid #d5dadd;
+    border-radius: 0.5rem;
+}
+
+/* Hidden when loading fails or no suitable collections exist */
+
+.featured-collections[hidden] {
+    display: none !important;
+}
+
+/* Tablet */
+
+@media (max-width: 1024px) {
+    .featured-collections-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+    .featured-collections {
+        margin: 2rem 0;
+    }
+
+    .featured-collections-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .featured-collections-header {
+        margin-bottom: 1rem;
+    }
+
+    .featured-collection-content {
+        padding: 1rem;
+    }
+}
+
+/* Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .featured-collection-card,
+    .featured-collection-image,
+    .featured-collection-link-label::after {
+        transition: none;
+    }
+
+    .featured-collection-card:hover {
+        transform: none;
+    }
+
+    .featured-collection-card:hover .featured-collection-image {
+        transform: none;
+    }
+}
+
+/* Keine Unterstreichung auf der gesamten Kachel */
+a.featured-collection-card,
+a.featured-collection-card:hover,
+a.featured-collection-card:focus,
+a.featured-collection-card:active,
+a.featured-collection-card *,
+a.featured-collection-card:hover * {
+    text-decoration: none !important;
+}
+
+/* Nur Collection-Titel beim Hover unterstreichen */
+a.featured-collection-card:hover .featured-collection-card-title {
+    text-decoration: underline !important;
+    text-underline-offset: 0.15em;
+}
+
+/* Nur den eigentlichen Linktext unterstreichen */
+a.featured-collection-card:hover .featured-collection-link-label-text {
+    text-decoration: underline !important;
+    text-underline-offset: 0.15em;
+}
+
+/* Pfeil ausdrücklich nicht unterstreichen */
+a.featured-collection-card .featured-collection-link-label::after {
+    text-decoration: none !important;
+}
+
+
+/*****************************************/
+/* Main landing page spacing and layout  */
+/*****************************************/
+
+.main-landing-page {
+    gap: 3rem;
+    margin-block-end: 30px;
+}
+
+
+.eth-news-container {
+    /*   display: none;*/
+    padding: 0rem !important;
+}
+
+.eth-news {
+    max-width: 50% !important;
 }
