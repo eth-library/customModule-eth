@@ -12,110 +12,276 @@
 <body>
   <main class="main-landing-page display-flex flex-column flex-layout-center-center">
 
-    <div class="flex-row flex-layout-space-between width-100 welcome-announcements-container">
-      <div class="welcome display-flex flex-column flex-layout-start">
-        <h2 aria-level="2" role="heading" class="welcome-title mat-headline-medium">
-          Willkommen in der ETH-Bibliothek
-        </h2>
+    <!-- Informationen, Unterstützung und Services -->
+    <section class="eth-home-overview width-100" aria-label="Informationen und Unterstützung zur ETH-Bibliothek">
 
-        <span class="welcome-content">
-          Melden Sie sich an, um auf Ihr Bibliothekskonto und weitere Funktionen zuzugreifen.
-        </span>
+      <!-- Einführung mit Bild -->
+      <article class="eth-home-intro">
 
-        <a id="myLibraryCard" tabindex="0" aria-label="Zu meinem Bibliothekskonto" role="link">
-          Zu meinem Bibliothekskonto
-        </a>
-      </div>
+        <div class="eth-home-intro__content">
+          <p class="eth-home-eyebrow">ETH-Bibliothek</p>
 
-      <div class="announcements display-flex flex-column">
-        <header class="flex-column gap-1">
-          <h2 class="mat-title-medium" role="heading" aria-level="2">
-            Mitteilungen
+          <h2 class="eth-home-intro__title">
+            ETH @ swisscovery
           </h2>
 
-          <h3 role="heading" aria-level="3" class="announcements-item-title mat-headline-medium">
-            Neue Angebote der ETH-Bibliothek
-          </h3>
-        </header>
-
-        <article>
-          <p class="mat-body-large">
-            Entdecken Sie aktuelle Informationen, neue Angebote und wichtige Hinweise
-            der ETH-Bibliothek.
+          <p class="eth-home-intro__text">
+            ETH @ swisscovery ist der zentrale Einstieg für Ihre
+            Recherchen. Hier finden Sie die Medien aller Bibliotheken der ETH Zürich
+            und von rund 500 weiteren Institutionen, darunter die Bibliotheken der
+            Schweizer Hochschulen und Fachhochschulen.
           </p>
-        </article>
-      </div>
-    </div>
+        </div>
 
-    <!-- About -->
-    <section class="about display-flex width-100">
-      <div class="about-content flex-row">
-        <div class="about-text flex-column flex-space-between">
-          <h2 role="heading" aria-level="2" class="about-text-title mat-headline-large">
-            Über die ETH-Bibliothek
-          </h2>
+        <figure class="eth-home-intro__media">
+          <!-- Bildpfad durch ein eigenes Bibliotheksbild ersetzen -->
+          <img class="eth-home-intro__image" data-random-intro-image
+            src="/nde/custom/41SLSP_ETH-ETH_NDE3/assets/images/intro-home/1.jpg" alt="" decoding="async">
+        </figure>
 
-          <p class="about-text-description">
-            ETH Library @ swisscovery ermöglicht die zentrale Suche nach Büchern,
-            E-Books, Zeitschriftenartikeln, Bildern, Videos und weiteren
-            wissenschaftlichen Ressourcen.
-          </p>
+      </article>
 
-          <div class="help-sign-in-container flex-column gap-05">
-            <span>Nach der Anmeldung können Sie unter anderem:</span>
+      <!-- Featured Collections -->
+      <section id="featured-collections" class="featured-collections width-100" data-language="de"
+        aria-labelledby="featured-collections-title">
 
-            <ul role="list">
-              <li role="listitem">
-                <img alt="" aria-hidden="true" src="assets/images/homePageImages/success.svg">
-                <span>Medien bestellen und Ausleihen verlängern</span>
-              </li>
+        <div class="featured-collections-header">
+          <div>
+            <h2 id="featured-collections-title" class="featured-collections-title mat-headline-large">
+              Ausgewählte Sammlungen.
+            </h2>
 
-              <li role="listitem">
-                <img alt="" aria-hidden="true" src="assets/images/homePageImages/success.svg">
-                <span>Favoritenlisten erstellen</span>
-              </li>
-
-              <li role="listitem">
-                <img alt="" aria-hidden="true" src="assets/images/homePageImages/success.svg">
-                <span>Suchanfragen speichern</span>
-              </li>
-
-              <li role="listitem">
-                <img alt="" aria-hidden="true" src="assets/images/homePageImages/success.svg">
-                <span>Auf lizenzierte Inhalte zugreifen</span>
-              </li>
-            </ul>
+            <p class="featured-collections-intro mat-body-large">
+              Entdecken Sie thematische Sammlungen der ETH-Bibliothek.
+            </p>
           </div>
         </div>
 
-        <div class="about-image flex-layout-center-center">
-          <img alt="" src="assets/images/homePageImages/about_image.svg">
+        <div class="featured-collections-grid" data-featured-collections-grid aria-live="polite" aria-busy="true">
         </div>
+      </section>
+
+      <!-- Unterstützung und Merkblätter -->
+      <div class="eth-home-service-grid">
+
+        <!-- Information und Unterstützung -->
+        <section class="eth-home-support-card" aria-labelledby="eth-home-support-title">
+
+          <div>
+            <p class="eth-home-support-card__eyebrow">
+              Persönlich für Sie da
+            </p>
+
+            <h2 id="eth-home-support-title" class="eth-home-support-card__title">
+              Information und Unterstützung
+            </h2>
+
+            <p class="eth-home-support-card__text">
+              Sie haben Fragen zur Recherche, zur Nutzung von swisscovery oder zu
+              Ihrem Bibliothekskonto? Wir helfen Ihnen gerne weiter.
+            </p>
+          </div>
+
+          <div class="eth-home-support-card__actions">
+
+            <a class="eth-home-support-card__primary-action" href="https://library.ethz.ch/de/kontakt.html"
+              target="_blank" rel="noopener">
+              Chat starten
+              <span aria-hidden="true">→</span>
+            </a>
+
+            <ul class="eth-home-support-card__contact-list">
+              <li>
+                <span class="eth-home-support-card__contact-label">
+                  E-Mail
+                </span>
+
+                <a href="mailto:info@library.ethz.ch">
+                  info@library.ethz.ch
+                </a>
+              </li>
+
+              <li>
+                <span class="eth-home-support-card__contact-label">
+                  Telefon
+                </span>
+
+                <a href="tel:+41446322135">
+                  +41 44 632 21 35
+                </a>
+              </li>
+
+              <li>
+                <a href="https://eth-swissdiscovery.slsp.ch/help" target="_blank" rel="noopener">
+                  Hilfe auf einen Blick
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </li>
+            </ul>
+
+          </div>
+        </section>
+
+        <!-- Merkblätter und Links -->
+        <section class="eth-home-links-card" aria-labelledby="eth-home-links-title">
+
+          <div class="eth-home-links-card__header">
+            <p class="eth-home-links-card__eyebrow">
+              Alles an einem Ort
+            </p>
+
+            <h2 id="eth-home-links-title" class="eth-home-links-card__title">
+              Merkblätter und Services
+            </h2>
+
+            <p class="eth-home-links-card__intro">
+              Informationen zur Registrierung, Bestellung, zu Gebühren und
+              zusätzlichen Suchangeboten.
+            </p>
+          </div>
+
+          <div class="eth-home-link-groups">
+
+            <!-- Registrieren -->
+            <section class="eth-home-link-group">
+              <h3 class="eth-home-link-group__title">
+                Registrieren
+              </h3>
+
+              <ul class="eth-home-link-group__list">
+                <li>
+                  <a href="https://library.ethz.ch/de/benutzung/registrierung/eth-angehoerige.html" target="_blank"
+                    rel="noopener">
+                    <span>ETH-Angehörige</span>
+                    <span class="eth-home-link-badge">PDF</span>
+                  </a>
+                </li>
+
+                <li>
+                  <a href="https://library.ethz.ch/de/benutzung/registrierung/nicht-eth-angehoerige.html"
+                    target="_blank" rel="noopener">
+                    <span>Nicht-ETH-Angehörige</span>
+                    <span class="eth-home-link-badge">PDF</span>
+                  </a>
+                </li>
+
+                <li>
+                  <a href="https://library.ethz.ch/de/benutzung/registrierung/unternehmen-npos-bibliotheken.html"
+                    target="_blank" rel="noopener">
+                    <span>Unternehmen, NPOs und Bibliotheken</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              </ul>
+            </section>
+
+            <!-- Bestellen -->
+            <section class="eth-home-link-group">
+              <h3 class="eth-home-link-group__title">
+                Bestellen
+              </h3>
+
+              <ul class="eth-home-link-group__list">
+                <li>
+                  <a href="https://library.ethz.ch/de/benutzung/bestellen/eth-mitarbeitende-doktorierende.html"
+                    target="_blank" rel="noopener">
+                    <span>ETH-Mitarbeitende und Doktorierende</span>
+                    <span class="eth-home-link-badge">PDF</span>
+                  </a>
+                </li>
+
+                <li>
+                  <a href="https://library.ethz.ch/de/benutzung/bestellen/eth-studierende-nicht-eth-angehoerige.html"
+                    target="_blank" rel="noopener">
+                    <span>Studierende und externe Nutzende</span>
+                    <span class="eth-home-link-badge">PDF</span>
+                  </a>
+                </li>
+              </ul>
+            </section>
+
+            <!-- Gebühren -->
+            <section class="eth-home-link-group">
+              <h3 class="eth-home-link-group__title">
+                Gebühren
+              </h3>
+
+              <ul class="eth-home-link-group__list">
+                <li>
+                  <a href="https://library.ethz.ch/de/benutzung/gebuehren.html" target="_blank" rel="noopener">
+                    <span>Übersicht über Gebühren</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              </ul>
+            </section>
+
+            <!-- Zusätzliche Suchoptionen -->
+            <section class="eth-home-link-group">
+              <h3 class="eth-home-link-group__title">
+                Weitere Suchangebote
+              </h3>
+
+              <ul class="eth-home-link-group__list">
+                <li>
+                  <a href="https://library.ethz.ch/de/recherchieren/artikelsuche.html" target="_blank" rel="noopener">
+                    <span>Artikelsuche</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </li>
+
+                <li>
+                  <a href="https://library.ethz.ch/de/recherchieren/zeitschriftensuche.html" target="_blank"
+                    rel="noopener">
+                    <span>Zeitschriftensuche</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </li>
+
+                <li>
+                  <a href="https://library.ethz.ch/de/recherchieren/signatursuche.html" target="_blank" rel="noopener">
+                    <span>Signatursuche</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              </ul>
+            </section>
+
+          </div>
+        </section>
+
       </div>
-    </section>
 
-    <!-- Featured Collections -->
-    <section id="featured-collections" class="featured-collections width-100" data-language="de"
-      aria-labelledby="featured-collections-title">
+      <!-- Feedback -->
+      <aside class="eth-home-feedback" aria-labelledby="eth-home-feedback-title">
 
-      <div class="featured-collections-header">
-        <div>
-          <h2 id="featured-collections-title" class="featured-collections-title mat-headline-large">
-            Ausgewählte Sammlungen
+        <div class="eth-home-feedback__content">
+          <p class="eth-home-feedback__eyebrow">
+            ETH swisscovery mitgestalten
+          </p>
+
+          <h2 id="eth-home-feedback-title" class="eth-home-feedback__title">
+            Ihre Meinung ist uns wichtig
           </h2>
 
-          <p class="featured-collections-intro mat-body-large">
-            Entdecken Sie thematische Sammlungen der ETH-Bibliothek.
+          <p class="eth-home-feedback__text">
+            Teilen Sie uns mit, was gut funktioniert und wo wir unser Angebot
+            weiter verbessern können.
           </p>
         </div>
-      </div>
 
-      <div class="featured-collections-grid" data-featured-collections-grid aria-live="polite" aria-busy="true">
-      </div>
+        <a class="eth-home-feedback__button" href="https://library.ethz.ch/de/ueber-uns/feedbackwall.html"
+          target="_blank" rel="noopener">
+          Feedback geben
+          <span aria-hidden="true">→</span>
+        </a>
+
+      </aside>
+
     </section>
 
-    <!-- News
-    <custom-eth-bib-news></custom-eth-bib-news> -->
+    <!-- News  -->
+    <custom-eth-bib-news></custom-eth-bib-news>
 
   </main>
 </body>

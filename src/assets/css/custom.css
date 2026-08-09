@@ -1,3 +1,13 @@
+/**********************************/
+/* Import CSS from separate files */
+/**********************************/
+@import url("./header.css");
+@import url("./footer.css");
+@import url("./featured-collections.css");
+@import url("./custom-information-section.css");
+@import url("./main-navigation.css");
+
+
 /*************************/
 /* Fixed Design Sections */
 /*************************/
@@ -130,7 +140,7 @@ nde-footer>div {
 
     /* Neutral colours */
     --slsp-color-background: #f8f9fb !important;
-    --slsp-color-on-background: #08407E !important;
+    --slsp-color-on-background: #215CAF !important;
 }
 
 /* Secondary metadata */
@@ -170,6 +180,10 @@ nde-full-display-service-container .package-name.visited {
     color: #215CAF !important;
 }
 
+/* Override Container */
+.home-page-container {
+    margin-top: 3rem !important;
+}
 
 /* Display Showcase styling on Landing Page */
 mat-card {
@@ -219,238 +233,31 @@ body .custom-search-bar-container .background-overlay {
     background: transparent !important;
 }
 
-/* ==============================
-   Header File styling (ETH custom)
-   ============================== */
-
-/* Responsiveness for custom breadcrumb header */
-.breadcrumb-container {
-    width: 100%;
-    padding-left: 20px;
-    padding-right: 20px;
-}
-
-@media (min-width: 600px) and (max-width: 959.98px) {
-    .breadcrumb-container {
-        width: clamp(288px, 88.42544317%, 848px);
-        padding: 0;
-        margin: 0 auto;
-    }
-}
-
-@media (min-width: 960px) and (max-width: 1279.98px) {
-    .breadcrumb-container {
-        width: clamp(912px, 85%, 1088px);
-        padding: 0;
-        margin: 0 auto;
-    }
-}
-
-@media (min-width: 1280px) {
-    .breadcrumb-container {
-        /* User specified clamp */
-        width: clamp(1088px, 85%, 1368px);
-        padding: 0;
-        margin: 0 auto;
-    }
+/* Search dropdown container button text */
+span.search-dropdown-container-button-text {
+    color: #1A1C1F !important;
+    font-weight: 500 !important;
 }
 
 
-/* ==============================
-   Main-Navigation  styling (ETH custom)
-   ============================== */
-
-/* logo */
-nde-logo {
-    display: none !important;
+/* placeholder search bar */
+.landing-page-search-bar-wrapper input.search-input-field::placeholder {
+    color: #1A1C1F !important;
+    font-weight: 500 !important;
+    opacity: 1 !important;
 }
 
-/* Align first navigation item with logo */
-nde-main-menu .main-menu-container ul li:first-child a.main-manu-label,
-prm-main-menu .main-menu-container ul li:first-child a.main-manu-label {
-    padding-left: 0 !important;
+#main-search-bar {
+    color: #191c1d !important;
+    -webkit-text-fill-color: #191c1d !important;
+    font-weight: 500 !important;
+    opacity: 1 !important;
 }
 
-/* Ensure navigation container matches logo container widths */
-/* This ensures they stay aligned during resize */
-header .header-container {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    margin: 0 auto !important;
-    width: 100%;
+/* outline color */
+nde-quick-filters .quick-filter-btn-active.cdk-focused.cdk-keyboard-focused {
+    outline: none !important;
 }
-
-@media (min-width: 600px) and (max-width: 959.98px) {
-    header .header-container {
-        width: clamp(288px, 88.42544317%, 848px) !important;
-    }
-}
-
-@media (min-width: 960px) and (max-width: 1279.98px) {
-    header .header-container {
-        width: clamp(912px, 85%, 1088px) !important;
-    }
-}
-
-@media (min-width: 1280px) {
-    header .header-container {
-        width: clamp(1088px, 85%, 1368px) !important;
-    }
-}
-
-/* Align menu content to the left of the clamped container */
-header .header-container>.flex-row.flex-layout-center,
-header .header-container .top-nav-bar {
-    margin-left: 0 !important;
-    justify-content: space-between !important;
-}
-
-/* Override material button padding for navigation links */
-nde-main-menu .main-menu-container .mat-mdc-button {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
-
-/* Remove forced margin overrides from navigation */
-nde-main-menu .main-menu-container,
-prm-main-menu .main-menu-container {
-    margin-left: 0 !important;
-    width: auto;
-}
-
-/* Additional alignment fixes for all viewports */
-nde-main-menu .main-menu-container ul li a.main-manu-label {
-    padding-left: 0 !important;
-}
-
-/* Larger, non‑uppercase navigation text */
-.main-menu-container .mdc-button {
-    --mdc-filled-button-label-text-transform: none;
-    --mdc-text-button-label-text-transform: none;
-    font-size: 20px;
-    text-transform: none !important;
-    font-weight: 400 !important;
-    font-style: normal !important;
-    line-height: 26px !important;
-}
-
-/* remove divider between navigation items */
-.mat-divider.nde-divider.mat-divider-vertical {
-    display: none !important;
-}
-
-/* gap between navigation items */
-.main-menu-container {
-    gap: 1.8rem;
-
-}
-
-/* 1. Alle nativen Underlines entfernen */
-.main-menu-container a.mdc-button,
-.main-menu-container a.mdc-button:hover {
-    text-decoration: none !important;
-}
-
-/* 2. Material Hover Background deaktivieren */
-.main-menu-container .mdc-button:hover {
-    background-color: transparent !important;
-}
-
-/* 3. Material State Layer / Ripple Hover entfernen */
-.main-menu-container .mdc-button .mat-mdc-button-persistent-ripple,
-.main-menu-container .mdc-button .mat-mdc-button-ripple,
-.main-menu-container .mdc-button .mdc-button__ripple {
-    display: none !important;
-}
-
-/* 4. Label vorbereiten */
-.main-menu-container .mdc-button .mdc-button__label {
-    position: relative;
-}
-
-/* 5. Animierte Underline */
-.main-menu-container .mdc-button .mdc-button__label::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -4px;
-    width: 0;
-    height: 2px;
-    background-color: currentColor;
-    transition: width 0.2s ease;
-}
-
-/* 6. Hover & Active */
-.main-menu-container .mdc-button:hover .mdc-button__label::after,
-.main-menu-container .mdc-button.selected-page .mdc-button__label::after {
-    width: 100%;
-}
-
-/* JEDE text-decoration innerhalb des Menüs deaktivieren */
-.main-menu-container .mdc-button,
-.main-menu-container .mdc-button *,
-.main-menu-container .mdc-button:hover,
-.main-menu-container .mdc-button:hover * {
-    text-decoration: none !important;
-}
-
-/* Basisfarbe */
-.main-menu-container .mdc-button {
-    color: #222 !important;
-}
-
-/* Hover-Farbe */
-.main-menu-container .mdc-button:hover {
-    color: #335e9e !important;
-}
-
-/* Active Page bleibt dunkel */
-.main-menu-container .mdc-button.selected-page {
-    color: #222 !important;
-}
-
-/* Icons im Main Menu: Grundfarbe */
-.main-menu-container .mat-icon {
-    fill: #222 !important;
-}
-
-/* Icons im Main Menu: Hover-Farbe */
-.main-menu-container a.mdc-button:hover .mat-icon {
-    fill: #335e9e !important;
-}
-
-/* Active Page: wieder #222 */
-.main-menu-container a.mdc-button.selected-page .mat-icon {
-    fill: #222 !important;
-}
-
-/* Grundfarbe für SVG-Pfade im Main Menu (inkl. QR) */
-.main-menu-container .mat-icon svg path,
-.main-menu-container .mat-icon svg g path {
-    fill: #222 !important;
-    stroke: none !important;
-}
-
-/* Hover-Farbe */
-.main-menu-container .mdc-button:hover .mat-icon svg path,
-.main-menu-container .mdc-button:hover .mat-icon svg g path {
-    fill: #335e9e !important;
-    stroke: none !important;
-}
-
-/* Active/Selected wieder #222 */
-.main-menu-container .mdc-button.selected-page .mat-icon svg path,
-.main-menu-container .mdc-button.selected-page .mat-icon svg g path {
-    fill: #222 !important;
-    stroke: none !important;
-}
-
-/* Header Shadow entfernen */
-header.top-bar.mat-elevation-z3 {
-    box-shadow: none !important;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.08);
-}
-
 
 /* ==============================
    NDE Top Bar BG überschreiben
@@ -469,346 +276,6 @@ body nde-top-bar {
     fill: #f7f7f7 !important;
 }
 
-/* ==============================
-   FOOTER (ETH custom)
-   ============================== */
-
-nde-footer {
-    display: block;
-    /* Sicherheitshalber */
-    background: #222;
-}
-
-.eth-footer {
-    background: #222;
-    color: #fff;
-    font-family: 'DINPro', sans-serif, Arial;
-    font-size: .9rem;
-}
-
-.eth-footer__inner {
-    margin: 0 auto;
-    padding: 32px 0px 18px;
-}
-
-.eth-footer__grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 28px;
-    padding-bottom: 22px;
-    padding-top: 18px;
-    border-bottom: 1px solid rgba(255, 255, 255, .18);
-}
-
-.eth-footer__grid2 {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 28px;
-    padding-bottom: 22px;
-    padding-top: 18px;
-}
-
-.eth-footer__title {
-    margin: 0 0 12px;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: .2px;
-}
-
-.eth-footer__list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.eth-footer__text {
-    margin: 0;
-    line-height: 1.5;
-}
-
-.eth-footer a {
-    color: #fff;
-    text-decoration: none;
-    text-underline-offset: 4px;
-}
-
-.eth-footer a:hover {
-    color: #d8d8d8;
-    text-decoration: underline;
-}
-
-/* Bottom bar */
-.eth-footer__bottom {
-    padding-top: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.eth-footer__bottomlinks {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    font-size: .85rem;
-}
-
-.eth-footer__copyright {
-    font-size: .78rem;
-    opacity: .9;
-}
-
-/* Responsive */
-@media (max-width: 1100px) {
-    .eth-footer__grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 700px) {
-    .eth-footer__grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* ==============================
-   Font Styling main navigation (ETH custom)
-   ============================== */
-
-.main-menu-container .mdc-button {
-    --mdc-filled-button-label-text-transform: none;
-    --mdc-text-button-label-text-transform: none;
-    font-size: 18px !important;
-    text-transform: none !important;
-    font-weight: 400 !important;
-    font-style: normal !important;
-    line-height: 26px !important;
-}
-
-/*****************************************/
-/* Featured Collections                  */
-/*****************************************/
-
-.featured-collections {
-    box-sizing: border-box;
-    margin: 0rem 0;
-}
-
-.featured-collections-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.featured-collections-title {
-    margin: 0;
-    color: #191c1d;
-}
-
-.featured-collections-intro {
-    margin: 0.5rem 0 0;
-    color: #4b626b;
-}
-
-.featured-collections-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1.5rem;
-    width: 100%;
-}
-
-.featured-collection-card {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    overflow: hidden;
-    color: #191c1d;
-    text-decoration: none;
-    background-color: #ffffff;
-    border: 1px solid #d5dadd;
-    border-radius: 0.5rem;
-    transition:
-        border-color 160ms ease,
-        transform 160ms ease;
-}
-
-.featured-collection-card:hover {
-    border-color: #08407e;
-    transform: translateY(-2px);
-}
-
-.featured-collection-card:focus-visible {
-    outline: 3px solid rgba(8, 64, 126, 0.35);
-    outline-offset: 3px;
-}
-
-.featured-collection-image-wrapper {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-    background-color: #f1f3f4;
-}
-
-.featured-collection-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 220ms ease;
-}
-
-.featured-collection-card:hover .featured-collection-image {
-    transform: scale(1.025);
-}
-
-.featured-collection-content {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    padding: 1.25rem;
-}
-
-.featured-collection-card-title {
-    margin: 0;
-    color: #215CAF;
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.3;
-}
-
-.featured-collection-description {
-    display: -webkit-box;
-    margin: 0.75rem 0 0;
-    overflow: hidden;
-    color: #4b626b;
-    font-size: 1rem;
-    line-height: 1.5;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-}
-
-.featured-collection-description:empty {
-    display: none;
-}
-
-.featured-collection-link-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-top: auto;
-    padding-top: 1rem;
-    color: #215CAF;
-    font-weight: 600;
-}
-
-.featured-collection-link-label::after {
-    content: "→";
-    transition: transform 160ms ease;
-}
-
-.featured-collection-card:hover .featured-collection-link-label::after {
-    transform: translateX(0.2rem);
-}
-
-/* Loading state */
-
-.featured-collections-loading {
-    grid-column: 1 / -1;
-    margin: 0;
-    padding: 2rem;
-    color: #4b626b;
-    text-align: center;
-    background-color: #f8f9fb;
-    border: 1px solid #d5dadd;
-    border-radius: 0.5rem;
-}
-
-/* Hidden when loading fails or no suitable collections exist */
-
-.featured-collections[hidden] {
-    display: none !important;
-}
-
-/* Tablet */
-
-@media (max-width: 1024px) {
-    .featured-collections-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-/* Mobile */
-
-@media (max-width: 600px) {
-    .featured-collections {
-        margin: 2rem 0;
-    }
-
-    .featured-collections-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .featured-collections-header {
-        margin-bottom: 1rem;
-    }
-
-    .featured-collection-content {
-        padding: 1rem;
-    }
-}
-
-/* Reduced motion */
-
-@media (prefers-reduced-motion: reduce) {
-
-    .featured-collection-card,
-    .featured-collection-image,
-    .featured-collection-link-label::after {
-        transition: none;
-    }
-
-    .featured-collection-card:hover {
-        transform: none;
-    }
-
-    .featured-collection-card:hover .featured-collection-image {
-        transform: none;
-    }
-}
-
-/* Keine Unterstreichung auf der gesamten Kachel */
-a.featured-collection-card,
-a.featured-collection-card:hover,
-a.featured-collection-card:focus,
-a.featured-collection-card:active,
-a.featured-collection-card *,
-a.featured-collection-card:hover * {
-    text-decoration: none !important;
-}
-
-/* Nur Collection-Titel beim Hover unterstreichen */
-a.featured-collection-card:hover .featured-collection-card-title {
-    text-decoration: underline !important;
-    text-underline-offset: 0.15em;
-}
-
-/* Nur den eigentlichen Linktext unterstreichen */
-a.featured-collection-card:hover .featured-collection-link-label-text {
-    text-decoration: underline !important;
-    text-underline-offset: 0.15em;
-}
-
-/* Pfeil ausdrücklich nicht unterstreichen */
-a.featured-collection-card .featured-collection-link-label::after {
-    text-decoration: none !important;
-}
-
 
 /*****************************************/
 /* Main landing page spacing and layout  */
@@ -816,15 +283,17 @@ a.featured-collection-card .featured-collection-link-label::after {
 
 .main-landing-page {
     gap: 3rem;
-    margin-block-end: 30px;
+    margin-block-end: 0px;
 }
 
 
 .eth-news-container {
     /*   display: none;*/
+    margin: 0rem auto !important;
     padding: 0rem !important;
 }
 
 .eth-news {
     max-width: 50% !important;
+    border-color: #215CAF !important;
 }
