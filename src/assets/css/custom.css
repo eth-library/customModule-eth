@@ -64,6 +64,11 @@ nde-record-citations-indicators {
     display: flex;
 }
 
+/* divider between citation links */
+nde-record-citations-indicators>div {
+    align-items: center;
+}
+
 /* loans: hide renew buttons */
 nde-loans .loan-renew-btn {
     display: none;
@@ -75,6 +80,11 @@ nde-loans .renew-all-button {
 
 nde-loans .loans-divider-actions {
     display: none;
+}
+
+/* otb there is a fixedheight which causes overlapping with footer*/
+nde-personal-details>mat-card {
+    height: auto !important;
 }
 
 /*****************************************/

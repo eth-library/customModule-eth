@@ -1,15 +1,14 @@
 .eth-rapido-ethmember-hint{
-    /*position: absolute;
-    height: 100px;
-    top:0;
-    left:0;*/
-    background-color: var(--lightBG);
     background-color: #FEF3BE;
-    margin: 1rem;
+    margin: 1rem 0;
     padding: 1em;    
+    border-radius: 12px;
 }
-nde-ngrs-offer{
-    position: relative;
+.nde-ngrs-get-it-other-location-one-offer {
+    background-color: transparent!important;
+}
+.nde-ngrs-get-it-other-location-one-offer nde-ngrs-offer-drawer {
+    background-color: var(--lightBG);
 }
 .nde-ngrs-offer-drawer-offer-container{
     height: auto!important;

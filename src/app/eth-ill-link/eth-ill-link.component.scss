@@ -1,4 +1,4 @@
-.eth-ill-link{
+/* .eth-ill-link{
     color: var(--slsp-color-on-background);    
     background-color: var(--slsp-color-background);  
     font-size: var(--mat-expansion-container-text-size, var(--mat-sys-body-large-size));     
@@ -10,6 +10,12 @@
     border: 2px solid var(--slsp-color-primary) !important;
     border-radius: 12px !important;
     padding: 16px !important;
+}*/
+.eth-ill-link {
+    background-color: #FEF3BE;
+    margin: 1rem 0;
+    padding: 1em;    
+    border-radius: 12px;
 }
 .eth-ill-link a{
     text-decoration: none;
