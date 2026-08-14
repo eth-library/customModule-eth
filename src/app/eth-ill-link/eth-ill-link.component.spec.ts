@@ -140,6 +140,29 @@ describe('EthIllLinkComponent', () => {
   });
 
 
+  it('ill link when availability=no_inventory and rapido journal article element exists', async () => {
+    const record = createRecord();
+    const rapido = document.createElement('div');
+    rapido.setAttribute('data-qa', 'rapido.tiles.articleFromJournalLine2');
+    document.body.appendChild(rapido);
+
+    try {
+      await setupTest({
+        store: {
+          getFullDisplayRecord$: () => of(record),
+          getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } })
+        }
+      });
+
+      const qs = await firstValueFrom(component.qs$);
+      expect(qs).toContain('jtitle=Some%20Title');
+      expect(qs).toContain('au=Author');
+    } finally {
+      rapido.remove();
+    }
+  });
+
+
   it('url$ builds full url from translation when qs is present', async () => {
     const record = createRecord();
     const rapido = document.createElement('div');
@@ -240,7 +263,7 @@ describe('EthIllLinkComponent', () => {
   });
 
 
-  it('emits querystring once rapido appears later', async () => {
+  it('emits querystring once rapido journal article element appears later', async () => {
     const record = createRecord();
 
     await setupTest({
@@ -252,7 +275,7 @@ describe('EthIllLinkComponent', () => {
 
     const qsPromise = firstValueFrom(component.qs$);
     const rapido = document.createElement('div');
-    rapido.setAttribute('data-qa', 'rapido.tiles.noOfferTileLine1');
+    rapido.setAttribute('data-qa', 'rapido.tiles.articleFromJournalLine2');
 
     setTimeout(() => {
       document.body.appendChild(rapido);

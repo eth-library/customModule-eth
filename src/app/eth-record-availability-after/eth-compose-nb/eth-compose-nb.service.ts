@@ -14,7 +14,7 @@ export class EthComposeNbService {
   ) {}
 
   // https://daas.library.ethz.ch/rib/v3/mapping/redirect?result=map&id=ebi01_prod004464904
-  getPrintData(nebisId: string): Observable<NbPrintApiResponse | null> {
+    getPrintData(nebisId: string): Observable<NbPrintApiResponse | null> {
     const url = `${this.baseUrl}/mapping/redirect?result=map&id=${encodeURIComponent(nebisId)}`;
     return this.http.get<NbPrintApiResponse>(url).pipe(
       catchError(error => {

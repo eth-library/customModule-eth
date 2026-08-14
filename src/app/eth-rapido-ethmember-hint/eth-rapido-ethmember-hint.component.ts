@@ -1,5 +1,5 @@
 // Rapido digtal tile: If users are ETH members, a message is shown in Rapido’s digital tile: 
-// Domething like "Please check in the top section of the order form whether an ETH Zurich library offers a ‘Digitisation’ service (free of charge).""
+// Something like "Please check in the top section of the order form whether an ETH Zurich library offers a ‘Digitisation’ service (free of charge).""
 // https://jira.ethz.ch/browse/SLSP-2012
 
 import { Component, inject, Input, ViewEncapsulation } from '@angular/core';

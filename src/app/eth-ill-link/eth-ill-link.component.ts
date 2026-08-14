@@ -1,14 +1,13 @@
 // If a CDI resource has the status “no_inventory”, 
-// if there is no nde-get-it-from-other 
 // and if nothing is available via Rapido
 // -> an ILL link is displayed.
 // https://jira.ethz.ch/browse/SLSP-1986
 
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, of, combineLatest, defer } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { Observable, of, combineLatest, timer } from 'rxjs';
+import { catchError, defaultIfEmpty, filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { PnxDoc, StoreDeliveryEntity } from '../models/eth.model';
@@ -29,7 +28,6 @@ interface TranslationBundle {
   styleUrls: ['./eth-ill-link.component.scss']
 })
 export class EthIllLinkComponent {
-  private destroyRef = inject(DestroyRef);
   private document = inject(DOCUMENT);
   private ethStoreService = inject(EthStoreService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
@@ -93,6 +91,7 @@ export class EthIllLinkComponent {
       return of(null);
     })
   );
+
   // do we need an ILL link? If so, build querystring for ILL link
   private getIllQsOrNull(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
     try {
@@ -106,33 +105,22 @@ export class EthIllLinkComponent {
       }*/
 
       // Rapido already has "no offer"
-      if (this.document.querySelector('[data-qa="rapido.tiles.noOfferTileLine1"]')) {
+      if (this.document.querySelector('[data-qa="rapido.tiles.noOfferTileLine1"]') || this.document.querySelector('[data-qa="rapido.tiles.articleFromJournalLine2"]')) {
         return of(this.buildQs(record));
       }
 
-      // wait for rapido to appear
-      return new Observable<string>(observer => {
-        const obs = new MutationObserver((_m, obs) => { 
-          const rapidoNoOffer = this.document.querySelector(
-            '[data-qa="rapido.tiles.noOfferTileLine1"]'
-          );
-          if (rapidoNoOffer) {
-            obs.disconnect();
-            observer.next(this.buildQs(record));
-            observer.complete();
-          }
-        });
-
-        // Prefer a narrow shell-owned container when available; fallback avoids null target crashes.
-        const observeTarget =
-          this.document.getElementById('nde.request.title') ??
-          this.document.body;
-        obs.observe(observeTarget, { childList: true, subtree: true });
-
-        this.destroyRef.onDestroy(() => obs.disconnect());
-
-        return () => obs?.disconnect();
-      });
+      // Poll only the Rapido state for ten seconds.
+      return timer(100, 200).pipe(
+        take(50),
+        map(() =>
+          this.document.querySelector('[data-qa="rapido.tiles.noOfferTileLine1"]') ??
+          this.document.querySelector('[data-qa="rapido.tiles.articleFromJournalLine2"]')
+        ),
+        filter((rapidoState): rapidoState is Element => rapidoState !== null),
+        take(1),
+        map(() => this.buildQs(record)),
+        defaultIfEmpty(null)
+      );
     } catch (error) {
         this.ethErrorHandlingService.logError(error, 'EthIllLinkComponent.getIllQsOrNull()');
         return of(null);

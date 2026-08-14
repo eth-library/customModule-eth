@@ -71,7 +71,6 @@ export class EthPersonCardsComponent {
         map(event => event.lang),
         startWith(this.translate.currentLang)
       );
-
       return combineLatest([record$, lang$]).pipe(
         switchMap(([record, lang]) => this.loadPersons(record, lang || 'de')),
         switchMap((persons: PersonVM[]) =>
@@ -159,6 +158,7 @@ export class EthPersonCardsComponent {
         
     private getGndIds(record: PnxDoc): string[] {
       const lds03 = record?.pnx?.display?.['lds03'] ?? [];
+      //console.error(lds03)
       return lds03.map( l => {
         l = l.replace('(DE-588)', '');
         // Alma:   GND: <a target="_blank" href="https://explore.gnd.network/gnd/1271627787"> Compagno, Loris 1993-</a>
@@ -166,6 +166,7 @@ export class EthPersonCardsComponent {
           return l.substring(l.indexOf('gnd/') + 4, l.indexOf('">'));
         }
         // externe Daten:   GND: Prelog, Vladimir (rela): 119247496
+        // neu: "Author: Seelig, Carl (rcp); ID: 118612670" 
         else if (l.includes('GND:')) {
           return l.substring(l.lastIndexOf(': ') + 2).trim();
         }
