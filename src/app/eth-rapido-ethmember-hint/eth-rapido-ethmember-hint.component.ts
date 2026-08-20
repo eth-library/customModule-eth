@@ -1,9 +1,10 @@
-// Rapido digtal tile: If users are ETH members, a message is shown in Rapido’s digital tile: 
+// Rapido digtal tile (hostComponent?.physicalTile != true): If users are ETH members, a message is shown in Rapido’s digital tile: 
 // Something like "Please check in the top section of the order form whether an ETH Zurich library offers a ‘Digitisation’ service (free of charge).""
+// No message if there is no digital offer (qaIdPrefix != "rapido.tiles.noOfferTile")
 // https://jira.ethz.ch/browse/SLSP-2012
 
 import { Component, inject, Input, ViewEncapsulation } from '@angular/core';
-import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, tap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe'; 
 import { EthStoreService } from '../services/eth-store.service';
@@ -22,6 +23,7 @@ import { HostComponent } from '../models/eth.model';
   ]     
 })
 // 990050929800205503
+// 990002903850205503
 export class EthRapidoEthmemberHintComponent {
   
   private hostComponent$ = new BehaviorSubject<HostComponent>({});
@@ -36,7 +38,12 @@ export class EthRapidoEthmemberHintComponent {
     this.hostComponent$,
     this.ethStoreService.isEthMember()
   ]).pipe(
-    map(([hostComponent, isEthMember]) => hostComponent?.physicalTile != true && isEthMember)
+    /*tap(([hostComponent, isEthMember]) => {
+      console.error("hostComponent.qaIdPrefix",hostComponent.qaIdPrefix)
+      console.error("hostComponent",hostComponent)
+      console.error("isEthMember",isEthMember)
+    }),*/
+    map(([hostComponent, isEthMember]) => hostComponent?.physicalTile != true && isEthMember && hostComponent.qaIdPrefix != "rapido.tiles.noOfferTile" && hostComponent.qaIdPrefix != "rapido.tiles.loadingOffer")
   );
   
 }

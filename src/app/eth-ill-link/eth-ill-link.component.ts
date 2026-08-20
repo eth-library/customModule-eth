@@ -1,13 +1,18 @@
 // If a CDI resource has the status “no_inventory”, 
 // and if nothing is available via Rapido
 // -> an ILL link is displayed.
+// cdi_globaltitleindex_catalog_562266386
+// cdi_globaltitleindex_catalog_384431683
+// 991170442160705501 : physicalPolicy exists
+
 // https://jira.ethz.ch/browse/SLSP-1986
 
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, of, combineLatest, timer } from 'rxjs';
-import { catchError, defaultIfEmpty, filter, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { Observable, of, combineLatest } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { PnxDoc, StoreDeliveryEntity } from '../models/eth.model';
@@ -28,13 +33,12 @@ interface TranslationBundle {
   styleUrls: ['./eth-ill-link.component.scss']
 })
 export class EthIllLinkComponent {
-  private document = inject(DOCUMENT);
   private ethStoreService = inject(EthStoreService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
   private translate = inject(TranslateService);
+  private store = inject(Store);
 
-  // do we need an ILL link? In this case: create the querystring of the ILL link.
-  // 991076219509705501
+  // do we need an ILL link? In this case: create the querystring of the ILL link (metadata for form).
   qs$: Observable<string | null> = combineLatest([
     this.ethStoreService.getFullDisplayRecord$(),
     this.ethStoreService.getFullDisplayDeliveryEntity$()
@@ -98,28 +102,18 @@ export class EthIllLinkComponent {
       if ((deliveryEntity?.delivery?.availability?.[0] ?? '') !== 'no_inventory') {
         return of(null);
       }
-
+      // if ispartof (991076219509705501) return
+      if(record?.pnx?.display?.ispartof?.length && record?.pnx?.display?.ispartof?.[0]){
+        return of(null);
+      }
       // "GetIt from Other" exists → no ILL
       /*if (this.document.querySelector('nde-get-it-from-other')) {
         return of(null);
       }*/
 
-      // Rapido already has "no offer"
-      if (this.document.querySelector('[data-qa="rapido.tiles.noOfferTileLine1"]') || this.document.querySelector('[data-qa="rapido.tiles.articleFromJournalLine2"]')) {
-        return of(this.buildQs(record));
-      }
-
-      // Poll only the Rapido state for ten seconds.
-      return timer(100, 200).pipe(
-        take(50),
-        map(() =>
-          this.document.querySelector('[data-qa="rapido.tiles.noOfferTileLine1"]') ??
-          this.document.querySelector('[data-qa="rapido.tiles.articleFromJournalLine2"]')
-        ),
-        filter((rapidoState): rapidoState is Element => rapidoState !== null),
-        take(1),
-        map(() => this.buildQs(record)),
-        defaultIfEmpty(null)
+      // Wait for the Rapido offer data from the store, then build QS only if it has nothing to offer
+      return this.getRapidoOfferState$().pipe(
+        map(state => (state === 'noOffer' ? this.buildQs(record) : null))
       );
     } catch (error) {
         this.ethErrorHandlingService.logError(error, 'EthIllLinkComponent.getIllQsOrNull()');
@@ -127,6 +121,27 @@ export class EthIllLinkComponent {
     }
 
   }
+
+  // 'noOffer': no best policy resolved for digital/physical/ebook; 'hasOffer': at least one policy present
+  // Stays subscribed (no take(1)) so later updates to rapidoOfferWrapper on the same record are picked up too.
+  private getRapidoOfferState$(): Observable<'noOffer' | 'hasOffer'> {
+    return this.store.pipe(
+      map((state: any) => {
+        const recordId = (state?.['full-display']?.selectedRecordId ?? '').replace(/^alma/, '').replace(/^cdi_/, '');
+        const userGroup = state?.user?.decodedJwt?.userGroup ?? '';
+        return state?.['ngrs-record-data']?.entities?.[`${userGroup}_${recordId}`];
+      }),
+      filter(entity => entity?.rapidoOffersStatus === 'success' && entity?.rapidoDigitalOffersStatus === 'success'),
+      map(entity => {
+        const rapidoOfferWrapper = entity.rapidoOfferWrapper ?? {};
+        //console.error("rapidoOfferWrapper",rapidoOfferWrapper)
+        const hasOffer = !!(rapidoOfferWrapper.bestDigitalPolicy || rapidoOfferWrapper.bestPhysicalPolicy || rapidoOfferWrapper.bestEbookPolicy);
+        return hasOffer ? 'hasOffer' : 'noOffer';
+      }),
+      distinctUntilChanged()
+    );
+  }
+
 
   // build ILL link
   private buildQs(record: PnxDoc | null): string {

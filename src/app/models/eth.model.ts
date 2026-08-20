@@ -54,6 +54,7 @@ export interface HostComponent {
   formType?: string;
   physicalTile?: boolean;
   data?: any;
+  qaIdPrefix?: string;
 }
 export interface HostComponentService {
   type?: string;

@@ -36,7 +36,7 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-personal-settings-before', EthIdpWarningComponent],
     ['nde-requests-top', EthIdpWarningComponent],
     ['nde-requests-after', EthIllLinkComponent],
-    ['nde-ngrs-offer-drawer-before', EthRapidoEthmemberHintComponent],
+    ['nde-ngrs-offer-drawer-top', EthRapidoEthmemberHintComponent],
    
     ['nde-base-request-form-top', EthRequestHintsComponent],
     ['nde-footer-after', EthChatComponent]
