@@ -8,6 +8,7 @@ import { EthErrorHandlingService } from '../services/eth-error-handling.service'
 import { PnxDoc, StoreDeliveryEntity } from '../models/eth.model';
 
 interface StoreOverrides {
+  isLoggedIn$?: Observable<boolean>;
   getFullDisplayRecord$?: () => Observable<PnxDoc | null>;
   getFullDisplayDeliveryEntity$?: () => Observable<StoreDeliveryEntity | null>;
 }
@@ -75,6 +76,7 @@ describe('EthIllLinkComponent', () => {
   }) as PnxDoc;
 
   const baseStore = () => ({
+    isLoggedIn$: of(true),
     getFullDisplayRecord$: () => of(null),
     getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['available'] } })
   });
@@ -90,6 +92,7 @@ describe('EthIllLinkComponent', () => {
 
     const storeDefaults = baseStore();
     const storeServiceMock = {
+      isLoggedIn$: options.store?.isLoggedIn$ ?? storeDefaults.isLoggedIn$,
       getFullDisplayRecord$: options.store?.getFullDisplayRecord$ ?? storeDefaults.getFullDisplayRecord$,
       getFullDisplayDeliveryEntity$: options.store?.getFullDisplayDeliveryEntity$ ?? storeDefaults.getFullDisplayDeliveryEntity$
     };

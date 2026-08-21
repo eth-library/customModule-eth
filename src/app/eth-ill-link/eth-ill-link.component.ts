@@ -1,4 +1,5 @@
-// If a CDI resource has the status “no_inventory”, 
+// If user is loggedin
+// and a CDI resource has the status “no_inventory”, 
 // and if nothing is available via Rapido
 // -> an ILL link is displayed.
 // cdi_globaltitleindex_catalog_562266386
@@ -39,11 +40,17 @@ export class EthIllLinkComponent {
   private store = inject(Store);
 
   // do we need an ILL link? In this case: create the querystring of the ILL link (metadata for form).
-  qs$: Observable<string | null> = combineLatest([
-    this.ethStoreService.getFullDisplayRecord$(),
-    this.ethStoreService.getFullDisplayDeliveryEntity$()
-  ]).pipe(
-    switchMap(([record, deliveryEntity]) => this.getIllQsOrNull(record, deliveryEntity)),
+  qs$: Observable<string | null> = this.ethStoreService.isLoggedIn$.pipe(
+    switchMap(isLoggedIn =>
+      isLoggedIn
+        ? combineLatest([
+            this.ethStoreService.getFullDisplayRecord$(),
+            this.ethStoreService.getFullDisplayDeliveryEntity$()
+          ]).pipe(
+            switchMap(([record, deliveryEntity]) => this.getIllQsOrNull(record, deliveryEntity))
+          )
+        : of(null)
+    ),
     catchError(err => {
       this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.qs$');
       return of(null);
@@ -158,7 +165,13 @@ export class EthIllLinkComponent {
       const process = (field: string, value?: string | string[]) => {
         if (!value) return;
         const val = Array.isArray(value) ? value.join(', ') : value;
-        qsParts.push(`${field}=${encodeURIComponent(val)}`);
+        let normalizedVal = val;
+        try {
+          normalizedVal = decodeURIComponent(val);
+        } catch {
+          // Keep raw values that are not valid URI components.
+        }
+        qsParts.push(`${field}=${encodeURIComponent(normalizedVal)}`);
       };
 
       if (type && ['article', 'magazinearticle', 'articles'].includes(type)) {
