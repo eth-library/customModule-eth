@@ -10,15 +10,11 @@ import { EthLocationPageComponent } from '../eth-location-page/eth-location-page
 import { EthPersonPageComponent } from '../eth-person-page/eth-person-page.component';
 import { EthGetitLocationsfilterComponent } from '../eth-getit-locationsfilter/eth-getit-locationsfilter.component';
 import { EthViewItAfterComponent } from '../eth-view-it-after/eth-view-it-after.component';
-import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offcampus-warning.component';
+//import { EthOffcampusWarningComponent } from '../eth-offcampus-warning/eth-offcampus-warning.component';
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
-import { EthRapidoEthmemberHintComponent } from '../eth-rapido-ethmember-hint/eth-rapido-ethmember-hint.component';
+//import { EthRapidoEthmemberHintComponent } from '../eth-rapido-ethmember-hint/eth-rapido-ethmember-hint.component';
 import { EthRequestHintsComponent } from '../eth-request-hints/eth-request-hints.component';
 import { EthChatComponent } from '../eth-chat/eth-chat.component';
-//import { EthMetagridComponent } from '../eth-metagrid/eth-metagrid.component'
-//import { EthOnlineButtonComponent } from '../eth-online-button/eth-online-button.component';
-//import { EthGitHintComponent } from '../../../bak/eth-git-hint/eth-git-hint.component';
-//import { EthLogoSublineComponent } from '../eth-logo-subline/eth-logo-subline.component';
 
 
 
@@ -26,7 +22,7 @@ import { EthChatComponent } from '../eth-chat/eth-chat.component';
 export const selectorComponentMap = new Map<string, any>([
     ['nde-landing-page-bottom', EthBibNewsComponent],
     ['nde-app-layout-after',EthMatomoComponent],
-    ['nde-view-it-before', EthOffcampusWarningComponent],
+    //['nde-view-it-before', EthOffcampusWarningComponent],
     ['nde-view-it-after', EthViewItAfterComponent],
     ['nde-record-citations-indicators-top',EthConnectedpapersComponent],
     ['nde-record-availability-bottom', EthRecordAvailabilityAfterComponent],
@@ -34,21 +30,17 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-entity-layout-after', EthLocationPageComponent],
     ['nde-get-it-bottom',EthGetitLocationsfilterComponent],
     ['nde-login-form-content-bottom', EthRegistrationLinkComponent],
+    
     ['nde-full-display-side-bar-bottom', EthFullDisplaySideBarAfterComponent],
     ['nde-personal-details-info-after', EthChangeAddressComponent],
-    //['nde-personal-details-bottom', EthChangeAddressComponent],
-    //['nde-personal-details-after', EthChangeAddressComponent],
     ['nde-personal-settings-before', EthIdpWarningComponent],
     ['nde-requests-top', EthIdpWarningComponent],
     ['nde-requests-after', EthIllLinkComponent],
-    ['nde-ngrs-offer-drawer-before', EthRapidoEthmemberHintComponent],
+    //['nde-ngrs-offer-drawer-top', EthRapidoEthmemberHintComponent],
+   
     ['nde-base-request-form-top', EthRequestHintsComponent],
-    ['nde-footer-after', EthChatComponent],
-    //['nde-full-display-details-bottom', EthMetagridComponent],
-    //['nde-online-availability-before', EthOnlineButtonComponent],
-    //['nde-app-layout-before',EthGitHintComponent],
-    //['nde-logo-bottom', EthLogoSublineComponent],
-    
+    ['nde-footer-after', EthChatComponent]
+   
 ])
 
 

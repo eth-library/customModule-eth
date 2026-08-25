@@ -3,13 +3,13 @@
 // and varies for requests and digitisation.
 // https://jira.ethz.ch/browse/SLSP-2013
 
-// 990061118830205503 
+// 990061118830205503  
+// 990002638940205503
 
 import { Component, inject, Input } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-// import { EthStoreService } from '../services/eth-store.service';
 import { HostComponent } from '../models/eth.model';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { EthUtilsService } from '../services/eth-utils.service';
@@ -24,7 +24,6 @@ import { EthUtilsService } from '../services/eth-utils.service';
   styleUrl: './eth-request-hints.component.scss'
 })
 export class EthRequestHintsComponent {
-  // private ethStoreService = inject(EthStoreService);
   private translate = inject(TranslateService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
   private ethUtilsService = inject(EthUtilsService);

@@ -1,14 +1,19 @@
-// If a CDI resource has the status “no_inventory”, 
-// if there is no nde-get-it-from-other 
+// If user is loggedin
+// and a CDI resource has the status “no_inventory”, 
 // and if nothing is available via Rapido
 // -> an ILL link is displayed.
+// cdi_globaltitleindex_catalog_562266386
+// cdi_globaltitleindex_catalog_384431683
+// 991170442160705501 : physicalPolicy exists
+
 // https://jira.ethz.ch/browse/SLSP-1986
 
-import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, of, combineLatest, defer } from 'rxjs';
-import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { Observable, of, combineLatest } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { PnxDoc, StoreDeliveryEntity } from '../models/eth.model';
@@ -29,19 +34,23 @@ interface TranslationBundle {
   styleUrls: ['./eth-ill-link.component.scss']
 })
 export class EthIllLinkComponent {
-  private destroyRef = inject(DestroyRef);
-  private document = inject(DOCUMENT);
   private ethStoreService = inject(EthStoreService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
   private translate = inject(TranslateService);
+  private store = inject(Store);
 
-  // do we need an ILL link? In this case: create the querystring of the ILL link.
-  // 991076219509705501
-  qs$: Observable<string | null> = combineLatest([
-    this.ethStoreService.getFullDisplayRecord$(),
-    this.ethStoreService.getFullDisplayDeliveryEntity$()
-  ]).pipe(
-    switchMap(([record, deliveryEntity]) => this.getIllQsOrNull(record, deliveryEntity)),
+  // do we need an ILL link? In this case: create the querystring of the ILL link (metadata for form).
+  qs$: Observable<string | null> = this.ethStoreService.isLoggedIn$.pipe(
+    switchMap(isLoggedIn =>
+      isLoggedIn
+        ? combineLatest([
+            this.ethStoreService.getFullDisplayRecord$(),
+            this.ethStoreService.getFullDisplayDeliveryEntity$()
+          ]).pipe(
+            switchMap(([record, deliveryEntity]) => this.getIllQsOrNull(record, deliveryEntity))
+          )
+        : of(null)
+    ),
     catchError(err => {
       this.ethErrorHandlingService.logError(err, 'EthIllLinkComponent.qs$');
       return of(null);
@@ -93,52 +102,53 @@ export class EthIllLinkComponent {
       return of(null);
     })
   );
+
   // do we need an ILL link? If so, build querystring for ILL link
   private getIllQsOrNull(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
     try {
       if ((deliveryEntity?.delivery?.availability?.[0] ?? '') !== 'no_inventory') {
         return of(null);
       }
-
+      // if ispartof (991076219509705501) return
+      if(record?.pnx?.display?.ispartof?.length && record?.pnx?.display?.ispartof?.[0]){
+        return of(null);
+      }
       // "GetIt from Other" exists → no ILL
       /*if (this.document.querySelector('nde-get-it-from-other')) {
         return of(null);
       }*/
 
-      // Rapido already has "no offer"
-      if (this.document.querySelector('[data-qa="rapido.tiles.noOfferTileLine1"]')) {
-        return of(this.buildQs(record));
-      }
-
-      // wait for rapido to appear
-      return new Observable<string>(observer => {
-        const obs = new MutationObserver((_m, obs) => { 
-          const rapidoNoOffer = this.document.querySelector(
-            '[data-qa="rapido.tiles.noOfferTileLine1"]'
-          );
-          if (rapidoNoOffer) {
-            obs.disconnect();
-            observer.next(this.buildQs(record));
-            observer.complete();
-          }
-        });
-
-        // Prefer a narrow shell-owned container when available; fallback avoids null target crashes.
-        const observeTarget =
-          this.document.getElementById('nde.request.title') ??
-          this.document.body;
-        obs.observe(observeTarget, { childList: true, subtree: true });
-
-        this.destroyRef.onDestroy(() => obs.disconnect());
-
-        return () => obs?.disconnect();
-      });
+      // Wait for the Rapido offer data from the store, then build QS only if it has nothing to offer
+      return this.getRapidoOfferState$().pipe(
+        map(state => (state === 'noOffer' ? this.buildQs(record) : null))
+      );
     } catch (error) {
         this.ethErrorHandlingService.logError(error, 'EthIllLinkComponent.getIllQsOrNull()');
         return of(null);
     }
 
   }
+
+  // 'noOffer': no best policy resolved for digital/physical/ebook; 'hasOffer': at least one policy present
+  // Stays subscribed (no take(1)) so later updates to rapidoOfferWrapper on the same record are picked up too.
+  private getRapidoOfferState$(): Observable<'noOffer' | 'hasOffer'> {
+    return this.store.pipe(
+      map((state: any) => {
+        const recordId = (state?.['full-display']?.selectedRecordId ?? '').replace(/^alma/, '').replace(/^cdi_/, '');
+        const userGroup = state?.user?.decodedJwt?.userGroup ?? '';
+        return state?.['ngrs-record-data']?.entities?.[`${userGroup}_${recordId}`];
+      }),
+      filter(entity => entity?.rapidoOffersStatus === 'success' && entity?.rapidoDigitalOffersStatus === 'success'),
+      map(entity => {
+        const rapidoOfferWrapper = entity.rapidoOfferWrapper ?? {};
+        //console.error("rapidoOfferWrapper",rapidoOfferWrapper)
+        const hasOffer = !!(rapidoOfferWrapper.bestDigitalPolicy || rapidoOfferWrapper.bestPhysicalPolicy || rapidoOfferWrapper.bestEbookPolicy);
+        return hasOffer ? 'hasOffer' : 'noOffer';
+      }),
+      distinctUntilChanged()
+    );
+  }
+
 
   // build ILL link
   private buildQs(record: PnxDoc | null): string {
@@ -155,7 +165,13 @@ export class EthIllLinkComponent {
       const process = (field: string, value?: string | string[]) => {
         if (!value) return;
         const val = Array.isArray(value) ? value.join(', ') : value;
-        qsParts.push(`${field}=${encodeURIComponent(val)}`);
+        let normalizedVal = val;
+        try {
+          normalizedVal = decodeURIComponent(val);
+        } catch {
+          // Keep raw values that are not valid URI components.
+        }
+        qsParts.push(`${field}=${encodeURIComponent(normalizedVal)}`);
       };
 
       if (type && ['article', 'magazinearticle', 'articles'].includes(type)) {
