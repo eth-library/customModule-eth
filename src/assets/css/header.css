@@ -33,3 +33,41 @@
         margin: 0 auto;
     }
 }
+
+.header-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.header-tooltip::after {
+    content: attr(data-tooltip);
+
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 6px);
+    transform: translateX(-50%);
+
+    background-color: #215CAF;
+    color: #ffffff;
+
+    padding: 4px 8px;
+    border-radius: 4px;
+
+    font-family: 'DINPro', sans-serif, Arial;
+    font-size: 0.72rem;
+    font-weight: 400;
+    line-height: 1.15;
+    white-space: nowrap;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    z-index: 10000;
+}
+
+.header-tooltip:hover::after,
+.header-tooltip:focus-visible::after {
+    opacity: 1;
+    visibility: visible;
+}
