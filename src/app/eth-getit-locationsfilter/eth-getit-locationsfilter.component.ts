@@ -1,4 +1,4 @@
-// The location filter should be visible from the start
+// The filters by location, volume, etc. are displayed initially and are expanded by default.
 // https://jira.ethz.ch/browse/SLSP-2355
 
 import { CommonModule } from '@angular/common';
@@ -7,8 +7,7 @@ import { HostComponent } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-getit-locationsfilter',
-  templateUrl: './eth-getit-locationsfilter.component.html',
-  styleUrls: ['./eth-getit-locationsfilter.component.scss'],
+  template: '',
   standalone: true,   
   imports: [
     CommonModule

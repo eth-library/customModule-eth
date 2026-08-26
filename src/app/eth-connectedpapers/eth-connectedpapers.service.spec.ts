@@ -55,6 +55,20 @@ describe('EthConnectedpapersService', () => {
   });
 
 
+  it('encodes a doi as a query parameter', () => {
+    const doi = '10.1000/test?edition=1&format=full';
+
+    service.getPaper(doi).subscribe();
+
+    const req = httpMock.expectOne(request =>
+      request.url === 'https://daas.library.ethz.ch/rib/v3/enrichments/connectedpapers'
+      && request.params.get('doi') === doi
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush({ id: 'p1' });
+  });
+
+
   it('returns null for 404 responses without logging', () => {
     const doi = '10.404/none';
     const url = 'https://daas.library.ethz.ch/rib/v3/enrichments/connectedpapers?doi=' + doi;

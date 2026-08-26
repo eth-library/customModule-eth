@@ -40,11 +40,15 @@ export class EthIdpWarningComponent {
           this.ethStoreService.authenticationProfile$,
           this.ethStoreService.isEthMember()
         ]).pipe(
-          map(([email, profile, isETHMember]) => this.showWarning(email, profile, isETHMember))
+          map(([email, profile, isETHMember]) => this.showWarning(email, profile, isETHMember)),
+          catchError(error => {
+            this.ethErrorHandlingService.logError(error, 'EthIdpWarningComponent.showWarning$ map');
+            return of(false);
+          })
         );
       }),
       catchError(error => {
-        this.ethErrorHandlingService.logError(error, 'EthIdpWarningComponent.showWarning$');
+        this.ethErrorHandlingService.logError(error, 'EthIdpWarningComponent.showWarning$ outer');
         return of(false);
       })
     )
