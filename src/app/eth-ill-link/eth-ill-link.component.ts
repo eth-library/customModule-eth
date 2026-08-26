@@ -1,5 +1,6 @@
 // If user is loggedin
 // and a CDI resource has the status “no_inventory”, 
+// and there is no partOf
 // and if nothing is available via Rapido
 // -> an ILL link is displayed.
 // cdi_globaltitleindex_catalog_562266386
