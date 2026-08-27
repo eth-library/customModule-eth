@@ -4,6 +4,8 @@ Example: 99117429500405503
 
 The existing link text will be changed from ‘Link to Online Resource’ to ‘Link to the web archive’ 
 An additional note is inserted below: 'In the web archive, select a year and a date marked in blue to access the archived website.' 
+
+The MutationObserver is only created if there is a corresponding link in the Store, in order to bridge the gap until the OTB link is rendered.
 */
 // https://jira.ethz.ch/browse/SLSP-2014
 
@@ -36,6 +38,7 @@ export class EthWaybackComponent {
   private document = inject(DOCUMENT);
   private hasWayback = false;
   private observer: MutationObserver | null = null;
+  private containerWaitObserver: MutationObserver | null = null;
   private ethStoreService = inject(EthStoreService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
   private renderer = inject(Renderer2);
@@ -83,7 +86,6 @@ export class EthWaybackComponent {
   } 
 
   private hasWaybackLink(deliveryEntity: StoreDeliveryEntity | null): boolean {
-    console.error("11111", deliveryEntity?.delivery?.link)
     return deliveryEntity?.delivery?.link?.some(entry =>
       entry.linkURL?.includes(WAYBACK_URL_SNIPPET)
     ) ?? false;
@@ -91,12 +93,45 @@ export class EthWaybackComponent {
 
   private initObserver() {
     if (this.observer) return;
-    const fullDisplayContainer = this.document.querySelector('nde-full-display-container');
-    if (!fullDisplayContainer) return;
+    const viewitContainer = this.document.querySelector('nde-view-it');
+    if (!viewitContainer) {
+      this.observeContainerAppearance();
+      return;
+    }
 
-    this.observer = new MutationObserver(() => this.changeDom());
+    this.attachObserver(viewitContainer);
+  }
 
-    this.observer.observe(fullDisplayContainer, { childList: true, subtree: true });
+  // retries once the container shows up, since the store may flip to true before it's rendered
+  private observeContainerAppearance(): void {
+    if (this.containerWaitObserver) return;
+
+    this.containerWaitObserver = new MutationObserver(() => {
+      const viewitContainer = this.document.querySelector('nde-view-it');
+      if (!viewitContainer) return;
+
+      this.containerWaitObserver?.disconnect();
+      this.containerWaitObserver = null;
+      this.attachObserver(viewitContainer);
+    });
+
+    this.containerWaitObserver.observe(this.document.body, { childList: true, subtree: true });
+  }
+
+  private attachObserver(viewitContainer: Element): void {
+    this.observer = new MutationObserver(mutations => {
+      // only react to mutations that actually touch the view-it link text, not any change in the subtree
+      const isRelevant = mutations.some(m =>
+        Array.from(m.addedNodes).some(node =>
+          node instanceof HTMLElement && (node.matches?.('.view-it-text') || node.querySelector?.('.view-it-text'))
+        )
+      );
+      if (!isRelevant) return;
+
+      this.changeDom();
+    });
+
+    this.observer.observe(viewitContainer, { childList: true, subtree: true });
 
     // initial
     this.changeDom();
@@ -105,6 +140,8 @@ export class EthWaybackComponent {
   private disconnectObserver(): void {
     this.observer?.disconnect();
     this.observer = null;
+    this.containerWaitObserver?.disconnect();
+    this.containerWaitObserver = null;
   }
 
   private removeWaybackHint(): void {
