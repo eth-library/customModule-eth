@@ -80,9 +80,10 @@ export class EthWaybackComponent {
       if (!this.hasWayback) return;
       this.changeDom(true);
     });
-  }
+  } 
 
   private hasWaybackLink(deliveryEntity: StoreDeliveryEntity | null): boolean {
+    console.error("11111", deliveryEntity?.delivery?.link)
     return deliveryEntity?.delivery?.link?.some(entry =>
       entry.linkURL?.includes(WAYBACK_URL_SNIPPET)
     ) ?? false;

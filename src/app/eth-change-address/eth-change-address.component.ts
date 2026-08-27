@@ -3,9 +3,10 @@
 // https://jira.ethz.ch/browse/SLSP-2007
 
 import { Component } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
-import { TranslateModule } from '@ngx-translate/core';
+import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 
 @Component({
   selector: 'custom-eth-change-address',
@@ -15,7 +16,8 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [
     MatDividerModule,
     MatCardModule,
-    TranslateModule
+    SafeTranslatePipe,
+    AsyncPipe
   ]      
 })
 export class EthChangeAddressComponent {

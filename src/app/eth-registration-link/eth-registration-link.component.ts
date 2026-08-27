@@ -4,7 +4,7 @@
 import { Component, inject, Renderer2, DestroyRef } from '@angular/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { catchError, of, take, tap } from 'rxjs';
 
 const REGISTRATION_URL = 'https://library.ethz.ch/recherchieren-und-nutzen/ausleihen-und-nutzen/swisscovery-hilfe-auf-einen-blick.html#r';
@@ -17,8 +17,7 @@ const CONTENT_SELECTOR = 'nde-login-dialog .mat-mdc-dialog-content';
   styleUrls: ['./eth-registration-link.component.scss'],
   standalone: true,   
   imports: [
-    CommonModule,
-    TranslateModule
+    CommonModule
   ]      
 })
 export class EthRegistrationLinkComponent {

@@ -10,7 +10,7 @@ import { catchError, combineLatest, defer, map, Observable, of, switchMap } from
 import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from "@ngx-translate/core";
+import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 
 
 @Component({
@@ -20,7 +20,7 @@ import { TranslateModule } from "@ngx-translate/core";
   standalone: true,   
   imports: [
     CommonModule,
-    TranslateModule
+    SafeTranslatePipe
   ]      
 })
 

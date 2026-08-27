@@ -7,7 +7,6 @@ import { EthIdpWarningComponent } from '../eth-idp-warning/eth-idp-warning.compo
 import { EthRecordAvailabilityAfterComponent } from '../eth-record-availability-after/eth-record-availability-after.component';
 import { EthLocationPageComponent } from '../eth-location-page/eth-location-page.component';
 import { EthPersonPageComponent } from '../eth-person-page/eth-person-page.component';
-import { EthGetitLocationsfilterComponent } from '../eth-getit-locationsfilter/eth-getit-locationsfilter.component';
 import { EthViewItAfterComponent } from '../eth-view-it-after/eth-view-it-after.component';
 import { EthIllLinkComponent } from '../eth-ill-link/eth-ill-link.component';
 import { EthRequestHintsComponent } from '../eth-request-hints/eth-request-hints.component';
@@ -23,7 +22,6 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-record-availability-bottom', EthRecordAvailabilityAfterComponent],
     ['nde-entity-layout-bottom', EthPersonPageComponent],
     ['nde-entity-layout-after', EthLocationPageComponent],
-    ['nde-get-it-bottom',EthGetitLocationsfilterComponent],
     ['nde-login-form-content-bottom', EthRegistrationLinkComponent],
     ['nde-full-display-side-bar-bottom', EthFullDisplaySideBarAfterComponent],
     ['nde-personal-details-info-after', EthChangeAddressComponent],
@@ -32,7 +30,6 @@ export const selectorComponentMap = new Map<string, any>([
     ['nde-requests-after', EthIllLinkComponent],
     ['nde-base-request-form-top', EthRequestHintsComponent],
     ['nde-footer-after', EthChatComponent]
-   
 ])
 
 
