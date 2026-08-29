@@ -1,5 +1,5 @@
 // For articles and book chapters (“article”, “articles”, “book_chapter”), a link to Connected Papers is provided via the DOI.
-// However, this only happens if either citationCount or referenceCount is > 0.
+// This only happens if either citationCount or referenceCount is > 0.
 // The API query is routed via a route that is also cached.
 // https://jira.ethz.ch/browse/SLSP-1981
 
@@ -7,6 +7,7 @@ import { Component, inject, Input } from '@angular/core';
 import { EthConnectedpapersService } from './eth-connectedpapers.service'
 import { catchError, defer, filter, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import { ConnectedPapersAPIResponse, PnxDoc } from '../models/eth.model';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
@@ -20,6 +21,7 @@ import { HostComponent } from '../models/eth.model';
   standalone: true,
   imports: [
     CommonModule,
+    MatButtonModule,
     SafeTranslatePipe
   ]    
 })
@@ -60,12 +62,15 @@ export class EthConnectedpapersComponent{
     return this.ethConnectedpapersService.getPaper(doi).pipe(
       filter((response): response is ConnectedPapersAPIResponse => response !== null), 
       map(response => {
+        if (!this.isValidResponse(response)) {
+          return null;
+        }
         const hasCitations = !!response.citationCount && response.citationCount > 0;
         const hasReferences = !!response.referenceCount && response.referenceCount > 0;
         if (!hasCitations && !hasReferences) {
           return null;
         }
-        return `https://www.connectedpapers.com/main/${response.id}/graph?utm_source=primonde`;
+        return `https://www.connectedpapers.com/main/${encodeURIComponent(response.id)}/graph?utm_source=primonde`;
       }),
       catchError((error) => {
         this.ethErrorHandlingService.logError(error, 'EthConnectedpapersComponent ethConnectedpapersService.getPaper()')
@@ -81,6 +86,21 @@ export class EthConnectedpapersComponent{
   private getDoi(record: PnxDoc): string | null {
     return record?.pnx?.addata?.doi?.[0] || null;
   }  
+
+  private isValidResponse(response: ConnectedPapersAPIResponse): response is ConnectedPapersAPIResponse & {
+    id: string;
+    citationCount?: number;
+    referenceCount?: number;
+  } {
+    return typeof response.id === 'string'
+      && response.id.trim().length > 0
+      && (response.citationCount === undefined || this.isValidCount(response.citationCount))
+      && (response.referenceCount === undefined || this.isValidCount(response.referenceCount));
+  }
+
+  private isValidCount(value: unknown): value is number {
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+  }
 
 }
 

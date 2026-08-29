@@ -2,6 +2,8 @@
   Librarystack
   - change link text of resource link
   - add hint about usage of library stack (Password-protected access. Restricted to members of ETH Zurich only...)
+
+  The MutationObserver is only created if there is a corresponding link in the Store, in order to bridge the gap until the OTB link is rendered.
 */
 // https://jira.ethz.ch/browse/SLSP-1999
 
@@ -17,7 +19,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StoreDeliveryEntity } from '../../models/eth.model';
 
 const LIBRARYSTACK_URL_SNIPPET = 'www.librarystack.org';
-const FULL_DISPLAY_SELECTOR = 'nde-full-display-container';
 const VIEW_IT_BUTTON_SELECTOR = 'nde-view-it-card button';
 const TEXT1_CLASS = 'eth-librarystack-text1';
 const TEXT2_CLASS = 'eth-librarystack-text2';
@@ -37,6 +38,7 @@ export class EthLibraryStackComponent {
   private destroyRef = inject(DestroyRef);
   private hasLibraryStack = false;
   private observer: MutationObserver | null = null;
+  private containerWaitObserver: MutationObserver | null = null;
   private document = inject(DOCUMENT);
   private ethStoreService = inject(EthStoreService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
@@ -92,11 +94,44 @@ export class EthLibraryStackComponent {
   initObserver() {
     if (this.observer) return;
 
-    const fullDisplayContainer = this.document.querySelector(FULL_DISPLAY_SELECTOR);
-    if (!fullDisplayContainer) return;
+    const viewitContainer = this.document.querySelector('nde-view-it');
+    if (!viewitContainer) {
+      this.observeContainerAppearance();
+      return;
+    }
 
-    this.observer = new MutationObserver(() => this.changeDom());
-    this.observer.observe(fullDisplayContainer, { childList: true, subtree: true }); 
+    this.attachObserver(viewitContainer);
+  }
+
+  // retries once the container shows up, since the store may flip to true before it's rendered
+  private observeContainerAppearance(): void {
+    if (this.containerWaitObserver) return;
+
+    this.containerWaitObserver = new MutationObserver(() => {
+      const viewitContainer = this.document.querySelector('nde-view-it');
+      if (!viewitContainer) return;
+
+      this.containerWaitObserver?.disconnect();
+      this.containerWaitObserver = null;
+      this.attachObserver(viewitContainer);
+    });
+
+    this.containerWaitObserver.observe(this.document.body, { childList: true, subtree: true });
+  }
+
+  private attachObserver(viewitContainer: Element): void {
+    this.observer = new MutationObserver(mutations => {
+      // only react to mutations that actually touch the view-it button, not any change in the subtree
+      const isRelevant = mutations.some(m =>
+        Array.from(m.addedNodes).some(node =>
+          node instanceof HTMLElement && (node.matches?.('button') || node.querySelector?.('button'))
+        )
+      );
+      if (!isRelevant) return;
+
+      this.changeDom();
+    });
+    this.observer.observe(viewitContainer, { childList: true, subtree: true }); 
 
     // initial
     this.changeDom(); 
@@ -105,6 +140,8 @@ export class EthLibraryStackComponent {
   private disconnectObserver(): void {
     this.observer?.disconnect();
     this.observer = null;
+    this.containerWaitObserver?.disconnect();
+    this.containerWaitObserver = null;
   }
 
 

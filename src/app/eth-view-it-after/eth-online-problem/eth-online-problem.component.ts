@@ -12,8 +12,8 @@ import { CommonModule } from '@angular/common';
 import { catchError, defer, filter, map, Observable, of, tap } from 'rxjs';
 import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
-import { TranslateModule } from "@ngx-translate/core";
 import { TranslateService } from "@ngx-translate/core";
+import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { PnxDoc } from '../../models/eth.model';
 
 @Component({
@@ -21,7 +21,7 @@ import { PnxDoc } from '../../models/eth.model';
   standalone: true,
   imports: [
     CommonModule,
-    TranslateModule
+    SafeTranslatePipe
   ],
   templateUrl: './eth-online-problem.component.html',
   styleUrl: './eth-online-problem.component.scss'

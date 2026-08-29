@@ -1,19 +1,19 @@
 <mat-card appearance="outlined" class="mat-mdc-card mdc-card mat-mdc-card-outlined mdc-card--outlined eth-change-address">
     <mat-card-header class="mat-mdc-card-header">
         <div class="mat-mdc-card-header-text">
-            <mat-card-title class="mat-mdc-card-title mat-title-medium"><h3>{{'eth.changeAddress.heading' | translate}}</h3></mat-card-title>
+            <mat-card-title class="mat-mdc-card-title mat-title-medium"><h3>{{'eth.changeAddress.heading' | safeTranslate | async}}</h3></mat-card-title>
         </div>
     </mat-card-header>
     <mat-card-content class="mat-mdc-card-content">
       <div>
-        <h4>{{'eth.changeAddress.ethMembers' | translate}}</h4> 
-        <span>{{'eth.changeAddress.ethMembersIntro' | translate}}</span>
+        <h4>{{'eth.changeAddress.ethMembers' | safeTranslate | async}}</h4> 
+        <span>{{'eth.changeAddress.ethMembersIntro' | safeTranslate | async}}</span>
         <ol>
           <li>
-            {{'eth.changeAddress.ethMembersStep1' | translate}}
+            {{'eth.changeAddress.ethMembersStep1' | safeTranslate | async}}
             <div>
-              <a target="_blank" rel="noopener" [href]="'eth.changeAddress.ethMembersStep1Url' | translate" [attr.aria-label]="('eth.changeAddress.ethMembersStep1Url' | translate) + ('nui.aria.newWindow' | translate)">
-                {{'eth.changeAddress.ethMembersStep1Url' | translate}}
+              <a target="_blank" rel="noopener" [href]="'eth.changeAddress.ethMembersStep1Url' | safeTranslate | async" [attr.aria-label]="(('eth.changeAddress.ethMembersStep1Url' | safeTranslate | async) ?? '') + (('nui.aria.newWindow' | safeTranslate | async) ?? '')">
+                {{'eth.changeAddress.ethMembersStep1Url' | safeTranslate | async}}
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                 </svg>                
@@ -21,10 +21,10 @@
             </div>
           </li>
           <li>
-            {{'eth.changeAddress.ethMembersStep2' | translate}}
+            {{'eth.changeAddress.ethMembersStep2' | safeTranslate | async}}
             <div>
-              <a target="_blank" rel="noopener" [href]="'eth.changeAddress.ethMembersStep2Url' | translate" [attr.aria-label]="('eth.changeAddress.ethMembersStep2Url' | translate) + ('nui.aria.newWindow' | translate)">
-                {{'eth.changeAddress.ethMembersStep2Url' | translate}}
+              <a target="_blank" rel="noopener" [href]="'eth.changeAddress.ethMembersStep2Url' | safeTranslate | async" [attr.aria-label]="(('eth.changeAddress.ethMembersStep2Url' | safeTranslate | async) ?? '') + (('nui.aria.newWindow' | safeTranslate | async) ?? '')">
+                {{'eth.changeAddress.ethMembersStep2Url' | safeTranslate | async}}
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
                 </svg>                     
@@ -35,11 +35,11 @@
       </div>
       <mat-divider role="separator" tabindex="-1" aria-hidden="true" class="mat-divider mat-divider-horizontal ng-star-inserted" aria-orientation="horizontal"></mat-divider>
       <div>
-        <h4>{{'eth.changeAddress.otherCustomers' | translate}}</h4>
-        <span>{{'eth.changeAddress.otherCustomersIntro' | translate}}</span>
+        <h4>{{'eth.changeAddress.otherCustomers' | safeTranslate | async}}</h4>
+        <span>{{'eth.changeAddress.otherCustomersIntro' | safeTranslate | async}}</span>
         <div>
-          <a target="_blank" rel="noopener" [href]="'eth.changeAddress.otherCustomersUrl' | translate" [attr.aria-label]="('eth.changeAddress.otherCustomersUrl' | translate) + ('nui.aria.newWindow' | translate)">
-            {{'eth.changeAddress.otherCustomersUrl' | translate}}
+          <a target="_blank" rel="noopener" [href]="'eth.changeAddress.otherCustomersUrl' | safeTranslate | async" [attr.aria-label]="(('eth.changeAddress.otherCustomersUrl' | safeTranslate | async) ?? '') + (('nui.aria.newWindow' | safeTranslate | async) ?? '')">
+            {{'eth.changeAddress.otherCustomersUrl' | safeTranslate | async}}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
               <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
             </svg>                 

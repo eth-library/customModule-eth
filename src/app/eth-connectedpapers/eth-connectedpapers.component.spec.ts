@@ -136,6 +136,27 @@ describe('EthConnectedpapersComponent', () => {
   });
 
 
+  it('returns null for an invalid API response without an id', async () => {
+    storeServiceSpy.getRecord$.and.returnValue(
+      of({
+        pnx: {
+          addata: { doi: ['10.1093/nar/gkl986'] },
+          display: { type: ['article'] }
+        }
+      } as PnxDoc)
+    );
+
+    cpServiceSpy.getPaper.and.returnValue(of({
+      citationCount: 3,
+      referenceCount: 0
+    } as ConnectedPapersAPIResponse));
+
+    const result = await firstValueFrom(component.paperUrl$);
+
+    expect(result).toBeNull();
+  });
+
+
   it('type book: should return of(null) -> no link rendered', async () => {
     component.hostComponent = {searchResult: {}} as HostComponent;
 
