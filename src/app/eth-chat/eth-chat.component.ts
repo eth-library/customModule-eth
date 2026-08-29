@@ -1,8 +1,21 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { TranslateService, LangChangeEvent } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 
+/**
+ * Bindet den Lime Connect Website-Router ein. Der Router entscheidet anhand des
+ * lang-Parameters in der URL, ob das deutsche oder das englische Widget geladen
+ * wird - die Sprachlogik liegt in der Lime Connect Konfiguration, nicht hier.
+ *
+ * Der Router wertet auch bei URL-Aenderungen innerhalb der SPA neu aus und
+ * tauscht das Widget dabei sauber aus (verifiziert: Mount-Frames bleiben konstant,
+ * ein laufender Chat wird serverseitig wiederhergestellt und bleibt erhalten).
+ *
+ * Deshalb wird das Skript hier bewusst nur einmal geladen und nie wieder entfernt.
+ * Kein manuelles Sprach-Swapping einbauen: Das Userlike-SDK bietet keine
+ * Unmount-API, ein zweiter Skript-Aufruf hinterlaesst pro Sprachwechsel ein
+ * verwaistes Mount-Iframe, und der Mount-Guard des SDK verhindert obendrein,
+ * dass das sichtbare Widget die Sprache ueberhaupt wechselt.
+ */
 @Component({
   selector: 'custom-eth-chat',
   standalone: true,
@@ -11,71 +24,35 @@ import { EthErrorHandlingService } from '../services/eth-error-handling.service'
   styleUrl: './eth-chat.component.scss'
 })
 
-export class EthChatComponent implements OnInit, OnDestroy {
-  private readonly scriptUrlByLang: Record<string, string> = {
-    de: 'https://userlike-cdn-widgets.s3-eu-west-1.amazonaws.com/8140594cc7f34becb6378bc777e4b7f73d016a19bc4c4331a8425fe90b30aa2f.js',
-    en: 'https://userlike-cdn-widgets.s3-eu-west-1.amazonaws.com/9837dd46fb5a4969910c0e385d7c6f823c041f76db1d4556b6fea6e062ffa0b2.js'
-  };
-  private langChangeSub?: Subscription;
+export class EthChatComponent implements OnInit {
+  private readonly routerScriptUrl = 'https://userlike-cdn-widgets.s3-eu-west-1.amazonaws.com/9d7a3a39a18947d294a1dc2bfc2564e4db9f74187bd54ce6b0eaf86e9390bdd2.js';
 
   constructor(
-    private ethErrorHandlingService: EthErrorHandlingService,
-    private translate: TranslateService
+    private ethErrorHandlingService: EthErrorHandlingService
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     try {
-      const initialLang = this.translate.currentLang || 'de';
-      this.loadScript(initialLang);
+      if (document.querySelector(`script[src="${this.routerScriptUrl}"]`)) {
+        return;
+      }
 
-      this.langChangeSub = this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-        this.swapScript(event.lang);
-      });
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.async = true;
+      script.src = this.routerScriptUrl;
+
+      script.onerror = () => {
+        this.ethErrorHandlingService.logError(
+          'Failed to load Lime Connect website router script',
+          'EthChatComponent.ngOnInit()'
+        );
+      };
+
+      // Lime Connect verlangt die Einbindung im body, nicht im head.
+      document.body.appendChild(script);
     } catch (error) {
       this.ethErrorHandlingService.logError(error, 'EthChatComponent.ngOnInit()');
     }
-  }
-
-  ngOnDestroy(): void {
-    this.langChangeSub?.unsubscribe();
-    this.removeExistingScripts();
-  }
-
-  private swapScript(lang: string): void {
-    this.removeExistingScripts();
-    this.loadScript(lang);
-  }
-
-  private loadScript(lang: string): void {
-    const scriptUrl = this.scriptUrlByLang[lang] ?? this.scriptUrlByLang['de'];
-
-    if (!scriptUrl) {
-      this.ethErrorHandlingService.logError(`No chat script configured for language: ${lang}`, 'EthChatComponent.loadScript()');
-      return;
-    }
-
-    if (document.querySelector(`script[src="${scriptUrl}"]`)) {
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.async = true;
-    script.src = scriptUrl;
-
-    script.onerror = () => {
-      const message = `Failed to load Chat script for language ${lang}`;
-      console.error(message);
-      this.ethErrorHandlingService.logError(message, 'EthChatComponent.loadScript()');
-    };
-
-    document.head.appendChild(script);
-  }
-
-  private removeExistingScripts(): void {
-    Object.values(this.scriptUrlByLang).forEach(url => {
-      const script = document.querySelector(`script[src="${url}"]`);
-      script?.parentElement?.removeChild(script);
-    });
   }
 }
