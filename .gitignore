@@ -31,3 +31,7 @@ m3-theme.scss
 # test
 /coverage
 /test-results
+
+# Vorerst lokal, noch nicht im Team geteilt
+.github/workflows/upstream-check.yml
+CLAUDE.md

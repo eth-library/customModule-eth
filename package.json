@@ -14,6 +14,7 @@
     "test:coverage": "ng test --no-watch --code-coverage",    
     "postbuild": "node postbuild.js",
     "prebuild": "node prebuild.js",
+    "upstream:check": "node scripts/upstream-check.mjs",
     "run:all": "node node_modules/@angular-architects/module-federation/src/server/mf-dev-server.js"
   },
   "private": true,
