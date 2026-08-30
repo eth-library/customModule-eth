@@ -1,6 +1,6 @@
 {
   "_hinweis": "Zuletzt geprüfter Commit in ExLibrisGroup/customModule. Siehe docs/upstream-abgleich.md",
-  "lastReviewedSha": "e5133f5f",
+  "lastReviewedSha": "529e9aa8",
   "reviewedOn": "2026-08-29",
-  "note": "Vorlaeufiger Startpunkt, mit Bernd zu bestaetigen"
+  "note": "Konservativ gesetzt (Untergrenze). Belegt: Commit 838805c vom 11.11.2025 uebernahm die von upstream 93981726/9290f223 geaenderten Proxy-Dateien; Upstream-HEAD war damals 529e9aa8. Danach floss aber noch mehr ein: LICENSE (upstream 27.11.2025) ist bei uns bitgenau identisch, und assets-public-path.directive.ts stammt aus der Asset-Path-Umstellung Jan/Feb 2026. Der tatsaechliche Stand liegt also spaeter, eingegrenzt auf Feb bis Aug 2026. Bewusst aelter gesetzt, damit nichts durchrutscht. Von Bernd zu bestaetigen."
 }
