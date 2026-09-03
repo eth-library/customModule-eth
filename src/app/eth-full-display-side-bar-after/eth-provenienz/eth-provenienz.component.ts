@@ -8,7 +8,8 @@ These images are linked to:
 The provenance images are displayed in the detailed view of the respective print.
 */
 // https://jira.ethz.ch/browse/SLSP-2006
-// \eth-record-availability-after\eth-provenienz-erara-link\eth-provenienz-erara-link.component.ts
+
+// 99117339955005503
 
 import { Component, inject } from '@angular/core';
 import { Observable, catchError, defer, map, of, filter, switchMap, startWith } from 'rxjs';
@@ -34,9 +35,9 @@ import { EthProvenienzAPIItem } from '../../models/eth.model';
 })
 export class EthProvenienzComponent{
     private router = inject(SHELL_ROUTER);    
-  private ethProvenienzService = inject(EthProvenienzService);
-  private ethStoreService = inject(EthStoreService);
-  private ethErrorHandlingService = inject(EthErrorHandlingService);
+    private ethProvenienzService = inject(EthProvenienzService);
+    private ethStoreService = inject(EthStoreService);
+    private ethErrorHandlingService = inject(EthErrorHandlingService);
     
     items$: Observable<EthProvenienzAPIItem[]> = defer(() => {
       const vid = this.ethStoreService.getVid();
@@ -51,11 +52,9 @@ export class EthProvenienzComponent{
           const { delivery } = deliveryEntity;
           const url = delivery?.availabilityLinksUrl?.[0];
           const owner = delivery?.recordOwner;
-
           if (!(owner === '41SLSP_ETH' && url?.includes('doi.org/10.3931/e-rara-'))) {
             return null;
           }
-
           return url.split('doi.org/')[1];
         }),
         filter((doi): doi is string => !!doi),
@@ -63,10 +62,20 @@ export class EthProvenienzComponent{
           this.ethProvenienzService.getItems(doi).pipe(
             map(response => response?.items ?? []),
             map(items =>
-              items.map(i => ({
-                ...i,
-                url: `/search?vid=${vid}&tab=${tab}&search_scope=${scope}&query=${i.eth_doi_link.includes('doi.org/') ? i.eth_doi_link.split('doi.org/')[1] : ''}`
-              }))
+              items
+                .filter((item, index, allItems) =>
+                  allItems.findIndex(candidate => candidate.id === item.id) === index
+                )
+                .map(item => {
+                  const itemDoi = item.eth_doi_link.includes('doi.org/')
+                    ? item.eth_doi_link.split('doi.org/')[1]
+                    : '';
+
+                  return {
+                    ...item,
+                    url: `/search?vid=${encodeURIComponent(vid ?? '')}&tab=${encodeURIComponent(tab ?? '')}&search_scope=${encodeURIComponent(scope ?? '')}&query=${encodeURIComponent(itemDoi)}`
+                  };
+                })
             )
           )
         ),
@@ -77,6 +86,8 @@ export class EthProvenienzComponent{
         })
       );
     });
+
+
     navigate(url: string, event: Event){
       event.preventDefault();  
       this.router.navigateByUrl(url);

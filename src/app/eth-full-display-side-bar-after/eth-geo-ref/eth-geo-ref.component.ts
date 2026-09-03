@@ -8,7 +8,7 @@ import { Component, inject, Input } from '@angular/core';
 import { EthGeoRefService } from './eth-geo-ref.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
-import { catchError, defer, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, defer, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from '../../services/eth-store.service';
 import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
@@ -103,6 +103,7 @@ export class EthGeoRefComponent {
             }),
             catchError(error => {
               // no item found -> http 500
+              this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getPlacesFromETHorama()');
               return of([]); 
             })
           )
@@ -198,9 +199,9 @@ export class EthGeoRefComponent {
     const lds03 = record?.pnx?.display?.['lds03'] ?? [];
     return lds03.map( l => {
       l = l.replace('(DE-588)', '');
-      // Alma
-      if (l.includes('/gnd/')) {
-        return l.substring(l.indexOf('gnd/') + 4, l.indexOf('">'));
+      const gndUrlMatch = l.match(/\/gnd\/([^/"'<>\s]+)/);
+      if (gndUrlMatch) {
+        return gndUrlMatch[1];
       }
       // externe Daten
       else if (l.includes('GND:')) {
@@ -281,7 +282,7 @@ export class EthGeoRefComponent {
       else if (gnd) {
         entityId = `GND${gnd}`;
       }
-      return `/entity/location?vid=${context.vid}&lang=${context.lang}&entityId=${entityId}`;
+      return `/entity/location?vid=${encodeURIComponent(context.vid)}&lang=${encodeURIComponent(context.lang)}&entityId=${encodeURIComponent(entityId)}`;
     }
     else {
       return undefined

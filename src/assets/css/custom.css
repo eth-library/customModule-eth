@@ -78,8 +78,8 @@ nde-loans .renew-all-button {
     display: none;
 }
 
-nde-loans .loans-divider-actions {
-    display: none;
+nde-loans .loans-divider-actions mat-divider{
+    display: none!important;
 }
 
 /* otb there is a fixedheight which causes overlapping with footer*/
