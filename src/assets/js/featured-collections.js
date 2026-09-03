@@ -898,13 +898,16 @@
         collection,
         language
     ) {
-        const link =
-            document.createElement("a");
+        // A11y: Die Karte ist ein div, nicht ein Link. Nur der Titel ist verlinkt,
+        // ein CSS-Overlay macht die ganze Karte klickbar. Vorher war die gesamte
+        // Karte ein <a>, wodurch Titel, Beschreibung und CTA zu einem einzigen
+        // Linknamen verklebten und die Linkliste des Screenreaders unbrauchbar
+        // wurde. Siehe Audit 2026-09-02, Befund E2.
+        const card =
+            document.createElement("div");
 
-        link.className =
+        card.className =
             "featured-collection-card";
-
-        link.href = collection.url;
 
         const imageWrapper =
             document.createElement("div");
@@ -948,8 +951,18 @@
         title.className =
             "featured-collection-card-title mat-title-large";
 
-        title.textContent =
+        const titleLink =
+            document.createElement("a");
+
+        titleLink.className =
+            "featured-collection-card-link";
+
+        titleLink.href = collection.url;
+
+        titleLink.textContent =
             collection.title;
+
+        title.appendChild(titleLink);
 
         const description =
             document.createElement("p");
@@ -991,15 +1004,15 @@
             linkLabel
         );
 
-        link.appendChild(
+        card.appendChild(
             imageWrapper
         );
 
-        link.appendChild(
+        card.appendChild(
             content
         );
 
-        return link;
+        return card;
     }
 
     initialiseFeaturedCollections();

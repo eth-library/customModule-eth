@@ -33,6 +33,7 @@
 }
 
 .featured-collection-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -52,9 +53,37 @@
     transform: translateY(-2px);
 }
 
-.featured-collection-card:focus-visible {
-    outline: 3px solid rgba(8, 64, 126, 0.35);
+/* A11y (Befund E2): Der Fokus sitzt jetzt auf dem Titel-Link innerhalb der
+   Kachel, nicht mehr auf der Kachel selbst. focus-within zeichnet weiterhin die
+   ganze Kachel aus. */
+/* WCAG 1.4.11: Die Umrandung stand auf rgba(8,64,126,0.35) und erreichte damit
+   ueber Weiss nur 1.94:1. Deckend sind es 10.27:1. Siehe Audit-Nachtrag
+   2026-09-03. */
+.featured-collection-card:focus-within {
+    outline: 3px solid #08407E;
     outline-offset: 3px;
+}
+
+/* Die Kartenumrandung ist der Fokusindikator. Der browsereigene Ring am
+   Titel-Link wuerde daneben ein zweites Mal zeichnen; das Ausschalten ist hier
+   unbedenklich, weil focus-within oben einen konformen Indikator liefert. */
+.featured-collection-card-link:focus-visible {
+    outline: none !important;
+}
+
+/* A11y (Befund E2): Die Kachel ist ein div, nur der Titel ist ein Link. Das
+   Overlay macht die ganze Kachel klickbar, ohne dass Beschreibung und CTA Teil
+   des Linknamens werden. Vorher war die gesamte Kachel ein <a>, wodurch der
+   Linkname dreizeilig wurde. Siehe Audit 2026-09-02. */
+.featured-collection-card-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.featured-collection-card-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
 }
 
 .featured-collection-image-wrapper {
@@ -121,8 +150,10 @@
     font-weight: 400;
 }
 
+/* A11y (Befund E2): Der Schraegstrich setzt einen leeren Alternativtext. Der
+   Pfeil bleibt sichtbar, wird aber nicht mehr als eigener Inhalt angesagt. */
 .featured-collection-link-label::after {
-    content: "→";
+    content: "→" / "";
     transition: transform 160ms ease;
 }
 
@@ -199,28 +230,27 @@
 }
 
 /* Keine Unterstreichung auf der gesamten Kachel */
-a.featured-collection-card,
-a.featured-collection-card:hover,
-a.featured-collection-card:focus,
-a.featured-collection-card:active,
-a.featured-collection-card *,
-a.featured-collection-card:hover * {
+.featured-collection-card,
+.featured-collection-card *,
+.featured-collection-card:hover * {
     text-decoration: none !important;
 }
 
-/* Nur Collection-Titel beim Hover unterstreichen */
-a.featured-collection-card:hover .featured-collection-card-title {
+/* Nur Collection-Titel beim Hover unterstreichen. Zielt auf den Titel-Link,
+   nicht auf das h3 - die Regel oben wuerde den Link sonst zuruecksetzen. */
+.featured-collection-card:hover .featured-collection-card-link,
+.featured-collection-card:focus-within .featured-collection-card-link {
     text-decoration: underline !important;
     text-underline-offset: 0.15em;
 }
 
 /* Nur den eigentlichen Linktext unterstreichen */
-a.featured-collection-card:hover .featured-collection-link-label-text {
+.featured-collection-card:hover .featured-collection-link-label-text {
     text-decoration: underline !important;
     text-underline-offset: 0.15em;
 }
 
 /* Pfeil ausdrücklich nicht unterstreichen */
-a.featured-collection-card .featured-collection-link-label::after {
+.featured-collection-card .featured-collection-link-label::after {
     text-decoration: none !important;
 }
