@@ -7,8 +7,20 @@
 
     const CONFIG = {
         institution: "41SLSP_ETH",
+
+        // API-Parameter userInst des Collections-Endpunkts, keine View.
         userInstitution: "41SLSP_ETH_NDE",
-        viewId: "41SLSP_ETH:ETH_NDE",
+
+        // Die View-ID kommt aus der URL. Primo haelt die View ueber die
+        // gesamte Sitzung; ist sie hart verlinkt, reisst ein Klick auf eine
+        // Sammlungskarte die Nutzenden in eine andere View. Fallback ist
+        // ETH_NDE, die ab Sommer 2027 produktive View.
+        // Siehe Audit 2026-09-02, Befund E4.
+        viewId:
+            new URLSearchParams(
+                window.location.search
+            ).get("vid") ||
+            "41SLSP_ETH:ETH_NDE",
 
         numberOfCollections: 4,
 
