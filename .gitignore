@@ -32,6 +32,11 @@ m3-theme.scss
 /coverage
 /test-results
 
+# Playwright MCP: Snapshots, Konsolen-Logs und Screenshots aus a11y-Pruefungen
+.playwright-mcp/
+
 # Vorerst lokal, noch nicht im Team geteilt
 .github/workflows/upstream-check.yml
 CLAUDE.md
+.claude/
+/docs

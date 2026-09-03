@@ -92,13 +92,16 @@
     line-height: 1.3;
 }
 
+/* WCAG 1.4.12: line-height stand auf 1.4 !important und blockierte damit die
+   geforderte Anpassung auf mindestens das 1.5-fache. Ohne !important greift eine
+   nutzerseitige Anpassung wieder. Siehe Audit 2026-09-02. */
 .featured-collection-description {
     display: -webkit-box;
     margin: 0.75rem 0 0;
     overflow: hidden;
     color: #1A1C1F;
     font-size: 1rem !important;
-    line-height: 1.4 !important;
+    line-height: 1.5;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     padding-top: 6px;

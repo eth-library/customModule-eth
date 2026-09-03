@@ -9,6 +9,21 @@
     padding-right: 20px;
 }
 
+/* WCAG 1.4.10: Der Gap stand inline auf 80px und liess sich per Media Query nicht
+   ueberschreiben. Bei 320px schob er "ETH-Bibliothek" auf right: 430px und erzwang
+   horizontales Scrollen. header.css hatte unterhalb 600px keine Regel.
+   Siehe Audit 2026-09-02. */
+.header-breadcrumb .breadcrumb-container {
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+@media (min-width: 600px) {
+    .header-breadcrumb .breadcrumb-container {
+        gap: 80px;
+    }
+}
+
 @media (min-width: 600px) and (max-width: 959.98px) {
     .breadcrumb-container {
         width: clamp(288px, 88.42544317%, 848px);

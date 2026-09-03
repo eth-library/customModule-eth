@@ -144,9 +144,11 @@ nde-footer>div {
     --slsp-color-on-primary: #ffffff !important;
     --slsp-color-primary-shade: #7A9DCF !important;
 
-    --slsp-color-secondary: #A6BEDF !important;
+    /* WCAG 1.4.3: aufgehellt von #A6BEDF, damit --slsp-color-on-background (#215CAF)
+       darauf 4.68:1 erreicht. Vorher 3.44:1. Siehe Audit 2026-09-02. */
+    --slsp-color-secondary: #D6E2F2 !important;
     --slsp-color-on-secondary: #020202 !important;
-    --slsp-color-secondary-shade: #A6BEDF !important;
+    --slsp-color-secondary-shade: #D6E2F2 !important;
 
     /* Neutral colours */
     --slsp-color-background: #f8f9fb !important;
@@ -155,8 +157,10 @@ nde-footer>div {
 
 /* Secondary metadata */
 
+/* WCAG 1.4.3: #8C8C8C ergab nur 3.36:1 auf Weiss. #767676 erreicht 4.54:1
+   und ist der hellste zulaessige Grauwert. Siehe Audit 2026-09-02. */
 .record-type {
-    color: #8C8C8C !important;
+    color: #767676 !important;
 }
 
 /* Selected slide toggles 
