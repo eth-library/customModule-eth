@@ -1,3 +1,10 @@
+<!-- WCAG 2.4.1: The ETH breadcrumb precedes Primo's skip links. Without this
+     button, keyboard users have to tab through five links on every page
+     before reaching a bypass. Targets Primo's skip block so its own targets
+     stay available. Behaviour in eth-skip-link.js.
+     See audit 2026-09-02, finding E3. -->
+<button type="button" class="eth-skip-link" data-eth-skip-link>Skip header</button>
+
 <nav class="header-breadcrumb"
     aria-label="Breadcrumb navigation"
     style="background-color: #222; color: #ffffff; padding: 4px 0; font-family: 'DINPro', sans-serif, Arial; font-size: .8rem; width: 100%;">

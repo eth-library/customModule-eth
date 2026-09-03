@@ -86,3 +86,41 @@
     opacity: 1;
     visibility: visible;
 }
+
+/* ==============================
+   Skip-Link (WCAG 2.4.1)
+   ============================== */
+
+/* Aus dem Sichtfeld geschoben statt display:none, damit der Button
+   fokussierbar bleibt. Erscheint erst bei Tastaturfokus. */
+.eth-skip-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    padding: 0.65rem 1.25rem;
+    color: #ffffff;
+    font-family: 'DINPro', sans-serif, Arial;
+    font-size: 0.9rem;
+    background-color: #08407E;
+    border: 0;
+    border-radius: 0 0 0.25rem 0;
+    cursor: pointer;
+    transform: translateY(-110%);
+}
+
+.eth-skip-link:focus {
+    transform: translateY(0);
+}
+
+/* Weiss auf #08407E ergibt 10.27:1, deutlich ueber den geforderten 3:1. */
+.eth-skip-link:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: -7px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .eth-skip-link {
+        transition: none;
+    }
+}

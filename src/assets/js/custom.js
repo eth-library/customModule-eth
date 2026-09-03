@@ -39,3 +39,17 @@ informationSectionScript.src = new URL(
 ).href;
 
 document.head.appendChild(informationSectionScript);
+
+
+/***********************************************************************
+ * File loader: ETH Skip-Link
+ ***********************************************************************/
+
+const ethSkipLinkScript = document.createElement("script");
+
+ethSkipLinkScript.src = new URL(
+    "eth-skip-link.js",
+    document.currentScript.src
+).href;
+
+document.head.appendChild(ethSkipLinkScript);
