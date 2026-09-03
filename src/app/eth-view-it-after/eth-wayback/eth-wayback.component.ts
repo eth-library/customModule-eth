@@ -49,7 +49,6 @@ export class EthWaybackComponent {
   }
 
 
-  // 99117429500405503
   ngAfterViewInit() {
     this.observeWaybackLinks();
     this.observeLanguageChanges();
@@ -58,6 +57,10 @@ export class EthWaybackComponent {
   private observeWaybackLinks(): void {
     this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
       map(deliveryEntity => this.hasWaybackLink(deliveryEntity)),
+      catchError(err => {
+        this.ethErrorHandlingService.logError(err, 'EthWaybackComponent.observeWaybackLinks');
+        return of(false);
+      }),
       distinctUntilChanged(),
       tap(hasWaybackLink => {
         this.hasWayback = hasWaybackLink;
@@ -68,11 +71,7 @@ export class EthWaybackComponent {
           this.removeWaybackHint();
         }
       }),
-      takeUntilDestroyed(this.destroyRef),
-      catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthWaybackComponent.observeWaybackLinks');
-        return of(false);
-      })
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
@@ -173,7 +172,8 @@ export class EthWaybackComponent {
       'nui.aria.newWindow'
     ])
     .pipe(
-      take(1)
+      take(1),
+      takeUntilDestroyed(this.destroyRef)
     )
     .subscribe(t => {
       const labelText = t['eth.wayback.text'];

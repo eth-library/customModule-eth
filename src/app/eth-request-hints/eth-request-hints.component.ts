@@ -1,6 +1,6 @@
 // The order form displays information on fees (for different user groups),
-// depending on whether the request is made via ETH-GetIt or ‘Collection from other institutions’, 
-// and varies for requests and digitisation.
+// depending on whether the request is made via ETH-GetIt or Pickup from other institutions’, 
+// and varies for requests and digitisation (formType).
 // https://jira.ethz.ch/browse/SLSP-2013
 
 // 990061118830205503  
@@ -38,7 +38,7 @@ export class EthRequestHintsComponent {
   readonly state$: Observable<{ formType: string | null; pickupAtETH: boolean }> = this.hostComponent$.pipe(
     map(hc => ({
       formType: hc?.formType ?? null,
-      pickupAtETH: hc?.data?.request['link-to-service']?.includes('institution=41SLSP_ETH') ?? false,
+      pickupAtETH: hc?.data?.request?.['link-to-service']?.includes('institution=41SLSP_ETH') ?? false,
     }))
   );
 

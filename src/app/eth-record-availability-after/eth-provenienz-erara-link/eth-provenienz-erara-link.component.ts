@@ -5,8 +5,12 @@ These images are linked to:
 - Print in e-rara
 - Print and all its provenances in swisscovery
 2. eth-provenienz.component.ts: Print -> Image:
-The provenance images are displayed in the detailed view of the respective print.
+The provenance images are displayed in the detailed view of the respective print (context on the right).
 -> eth-full-display-side-bar-after\eth-provenienz\eth-provenienz.component.ts
+
+provenience cards: 99117339955005503
+links in fullview: 99117362226905503
+
 */
 // https://jira.ethz.ch/browse/SLSP-2006
 
@@ -76,15 +80,15 @@ export class EthProvenienzEraraLinkComponent {
     return lds09.find(link => link.includes('doi.org/10.3931/e-rara-')) ?? null;
   }
 
-
+  // example:  http://dx.doi.org/10.3931/e-rara-9423
   private makeSwisscoveryUrl(eraraLink: string): string | null {
-    const swisscoveryQuery = eraraLink.split('dx.doi.org/')[1] ?? null;
+    const swisscoveryQuery = eraraLink.split('doi.org/')[1] ?? null;
     if (!swisscoveryQuery) return null;
-
+    // example: 10.3931/e-rara-9423
     const tab = this.ethStoreService.getTab() || '';
     const scope = this.ethStoreService.getScope() || '';
     const vid = this.ethStoreService.getVid() || '';
-    return `/search?query=${swisscoveryQuery}&vid=${vid}&tab=${tab}&search_scope=${scope}`;
+    return `/search?query=${encodeURIComponent(swisscoveryQuery)}&vid=${encodeURIComponent(vid)}&tab=${encodeURIComponent(tab)}&search_scope=${encodeURIComponent(scope)}`;
   }
 
   navigate(url: string, event: Event){

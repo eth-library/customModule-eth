@@ -176,6 +176,52 @@ describe('EthComposeNbComponent', () => {
   });
 
 
+  it('online links: dedupes links with the same source record id', () => {
+    const docs = [
+      buildPnxDoc({
+        pnx: {
+          control: { sourcerecordid: ['990044649040205503'] },
+          display: { title: ['Band 1'] }
+        }
+      }),
+      buildPnxDoc({
+        pnx: {
+          control: { sourcerecordid: ['990044649040205503'] },
+          display: { title: ['Band 1 duplicate'] }
+        }
+      })
+    ];
+
+    const links = (component as any).mapOnlineDocs(docs);
+
+    expect(links.length).toBe(1);
+    expect(links[0].sortKey).toBe('Band 1');
+  });
+
+
+  it('online links: omits the title when only one valid link remains', async () => {
+    const docs = [
+      buildPnxDoc({
+        pnx: {
+          control: { sourcerecordid: ['990044649040205503'] },
+          display: { title: ['Band 1'] }
+        }
+      }),
+      buildPnxDoc({
+        pnx: {
+          control: { sourcerecordid: [] },
+          display: { title: ['Band 2'] }
+        }
+      })
+    ];
+
+    const links = (component as any).mapOnlineDocs(docs);
+
+    expect(links.length).toBe(1);
+    expect(await firstValueFrom(links[0].label$)).toBe('Online');
+  });
+
+
   it('function makePrimoUrl() composes expected full display url', () => {
     storeService.getVid.and.returnValue('41SLSP_ETH:ETH');
     storeService.getTab.and.returnValue('default_tab');

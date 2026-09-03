@@ -1,6 +1,7 @@
 // EntityPage Place
 
 // https://jira.ethz.ch/browse/SLSP-1991
+
 import { Component, ElementRef, inject, ViewChild, ViewEncapsulation, DestroyRef } from '@angular/core';
 import { combineLatest, defer, forkJoin, map, Observable, of, startWith, switchMap, catchError, filter } from 'rxjs';
 import { EthStoreService } from '../services/eth-store.service';
@@ -180,10 +181,10 @@ export class EthLocationPageComponent {
       }),
       switchMap((vm: PlacePageViewModel) => {
         const coord = vm.wikidata?.coordinates;
-        if (!coord) return of(vm);
+        const coordinates = coord ? this.parseCoordinates(coord) : null;
+        if (!coordinates) return of(vm);
 
-        const lng = coord.substring(6, coord.indexOf(' '));
-        const lat = coord.substring(coord.indexOf(' ') + 1, coord.length - 1);
+        const { lat, lng } = coordinates;
 
         return this.ethLocationPageService.getMapsFromGeoGraph(lat, lng).pipe(
           catchError(() => of({ features: [] })),
@@ -268,14 +269,19 @@ export class EthLocationPageComponent {
     });
     const title = feature.properties?.title ?? '';
     const marker = L.marker(center, { icon, alt: title });
-    marker.bindPopup(`<div>${title}</div>`);
+    const popupContent = this.document.createElement('div');
+    popupContent.textContent = title;
+    marker.bindPopup(popupContent);
 
     marker.on('mouseover', () => { marker.openPopup(); styledLayer.setStyle({ weight: this.openWeight }); });
     marker.on('mouseout', () => { marker.closePopup(); styledLayer.setStyle({ weight: 1 }); });
     marker.on('click', () => {
       const url = feature.properties?.url;
       if (url) {
-        globalThis.open?.(url, '_blank');
+        const openedWindow = globalThis.open?.(url, '_blank', 'noopener');
+        if (openedWindow) {
+          openedWindow.opener = null;
+        }
       }
     });
 
@@ -287,6 +293,16 @@ export class EthLocationPageComponent {
     event.preventDefault();  
     this.router.navigateByUrl(url);
   }      
+
+  private parseCoordinates(coordinates: string): { lat: string; lng: string } | null {
+    const match = coordinates.match(/^Point\(\s*([-+]?\d+(?:\.\d+)?)\s+([-+]?\d+(?:\.\d+)?)\s*\)$/);
+    if (!match) {
+      return null;
+    }
+
+    const [, lng, lat] = match;
+    return Number.isFinite(Number(lat)) && Number.isFinite(Number(lng)) ? { lat, lng } : null;
+  }
 
   open(key: string) {
     this.openLicensePopover = key;

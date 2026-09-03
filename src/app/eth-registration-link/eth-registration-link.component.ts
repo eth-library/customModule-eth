@@ -1,4 +1,5 @@
 // In the login box, there is a link that says “Not registered yet?”
+// 
 // https://jira.ethz.ch/browse/SLSP-1984
 
 import { Component, inject, Renderer2, DestroyRef } from '@angular/core';
@@ -6,6 +7,8 @@ import { EthErrorHandlingService } from '../services/eth-error-handling.service'
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { catchError, of, take, tap } from 'rxjs';
+import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 const REGISTRATION_URL = 'https://library.ethz.ch/recherchieren-und-nutzen/ausleihen-und-nutzen/swisscovery-hilfe-auf-einen-blick.html#r';
 const LINK_SELECTOR = 'nde-login-dialog .eth-registration-link';
@@ -22,12 +25,14 @@ const CONTENT_SELECTOR = 'nde-login-dialog .mat-mdc-dialog-content';
 })
 export class EthRegistrationLinkComponent {
   
+  private translationSubscription: Subscription | null = null;
   private destroyRef = inject(DestroyRef);
   private document = inject(DOCUMENT);
   private renderer = inject(Renderer2);
   private translate = inject(TranslateService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
 
+    // Inserts the link after the login form content is rendered.
     ngAfterViewInit(): void {
       const loginFormContent = this.document.querySelector('nde-login-form-content') as HTMLElement | null;
       if (!loginFormContent) return;
@@ -36,6 +41,7 @@ export class EthRegistrationLinkComponent {
       this.observeDialogChanges(loginFormContent);
     }
 
+    // Watches dialog mutations and retries insertion when authentication button appear.
     private observeDialogChanges(loginFormContent: HTMLElement): void {
       const observer = new MutationObserver((mutations) => {
         if (loginFormContent.querySelector('.eth-registration-link')) return;
@@ -43,7 +49,8 @@ export class EthRegistrationLinkComponent {
         const isMethodsDialog = mutations.some(m =>
           Array.from(m.addedNodes).some(node =>
             node instanceof HTMLElement &&
-            node.matches?.('.authentication-method-btn')
+            (node.matches?.('.authentication-method-btn') ||
+              node.querySelector?.('.authentication-method-btn'))
           )
         );
         if (isMethodsDialog) {
@@ -55,12 +62,15 @@ export class EthRegistrationLinkComponent {
       this.destroyRef.onDestroy(() => observer.disconnect());
     }
 
+    // Loads the translated label and inserts the registration link if it is missing.
     private insertEthRegistrationLink(loginFormContent: HTMLElement): void{
       try {
-        this.translate
+        this.translationSubscription?.unsubscribe();
+        this.translationSubscription = this.translate
           .get(['eth.registrationLink.linkText', 'nui.aria.newWindow'])
           .pipe(
             take(1),
+          takeUntilDestroyed(this.destroyRef),
             tap(translations => {
               const linktext = translations['eth.registrationLink.linkText'];
               const newWindow = translations['nui.aria.newWindow'];
@@ -69,7 +79,7 @@ export class EthRegistrationLinkComponent {
               if (existingLink) return;
 
               const container = loginFormContent.querySelector(CONTENT_SELECTOR);
-              if (!container) return;
+              if (!container?.parentNode) return;
 
               const link = this.buildRegistrationLink(linktext, newWindow);
               this.renderer.insertBefore(container.parentNode, link, container.nextSibling);
@@ -86,6 +96,7 @@ export class EthRegistrationLinkComponent {
       }
     }
 
+    // Creates the accessible external registration link element.
     private buildRegistrationLink(linktext: string, newWindow: string): HTMLElement {
       const link = this.renderer.createElement('a');
       this.renderer.setAttribute(link, 'href', REGISTRATION_URL);
@@ -101,6 +112,7 @@ export class EthRegistrationLinkComponent {
       return link;
     }
 
+    // Creates the decorative external-link icon used inside the registration link.
     private buildExternalLinkIcon(): HTMLElement {
       const svg = this.renderer.createElement('svg', 'svg');
       this.renderer.setAttribute(svg, 'xmlns', 'http://www.w3.org/2000/svg');

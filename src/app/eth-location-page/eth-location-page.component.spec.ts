@@ -223,6 +223,23 @@ describe('EthLocationPageComponent', () => {
   });
 
 
+  it('parses valid Wikidata coordinates', () => {
+    createComponent();
+
+    expect((component as any).parseCoordinates('Point(8.55 47.37)')).toEqual({
+      lat: '47.37',
+      lng: '8.55'
+    });
+  });
+
+
+  it('ignores malformed Wikidata coordinates', () => {
+    createComponent();
+
+    expect((component as any).parseCoordinates('8.55, 47.37')).toBeNull();
+  });
+
+
   it('logs errors and emits null when resolveEntityId fails', (done) => {
     createComponent();
 

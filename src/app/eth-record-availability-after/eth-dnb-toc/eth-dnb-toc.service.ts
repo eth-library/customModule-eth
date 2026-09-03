@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, of, throwError  } from 'rxjs';
+import { Observable } from 'rxjs';
 import { DnbTocApiResponse } from '../../models/eth.model';
 
 @Injectable({

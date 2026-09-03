@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { of, firstValueFrom } from 'rxjs';
+import { of, firstValueFrom, throwError } from 'rxjs';
 import { EthComposeEraraComponent } from './eth-compose-erara.component';
 import { EthComposeEraraService } from './eth-compose-erara.service';
 import { EthStoreService } from '../../services/eth-store.service';
@@ -98,6 +98,29 @@ describe('EthComposeEraraComponent', () => {
   });
 
 
+  it('keeps the print link when the optional online e-rara lookup fails', async () => {
+    storeSpy.getVid.and.returnValue('VID');
+    storeSpy.getTab.and.returnValue('TAB');
+    storeSpy.getScope.and.returnValue('SCOPE');
+    storeSpy.isFullview$.and.returnValue(of(true));
+    composeServiceSpy.getEraraRecordForEMap.and.returnValue(of([
+      { _fields: ['ignored', 'print123'] }
+    ] as any));
+    composeServiceSpy.getOnlineEraraRecord.and.returnValue(throwError(() => new Error('Network error')));
+    storeSpy.getFullDisplayRecord$.and.returnValue(of({
+      pnx: {
+        display: { mms: ['emap1'], type: ['map'], lds50: ['E01emaps'] },
+        control: { sourcesystem: ['Other'] }
+      }
+    } as any));
+
+    const result = await firstValueFrom(component.links$);
+
+    expect(result.length).toBe(1);
+    expect(result[0].url).toContain('docid=almaprint123');
+  });
+
+
   it('builds print link for e-rara online record with lds09 reference', async () => {
     storeSpy.getVid.and.returnValue('VID');
     storeSpy.getTab.and.returnValue('TAB');
@@ -155,6 +178,29 @@ describe('EthComposeEraraComponent', () => {
     expect(result[0]).toEqual({ label$: component.labelGeoTIFF$, url: 'https://emaps.example.test/file.tif', external: true });
     expect(result[1].url).toContain('docid=almaemap123');
     expect(result[2].url).toContain('docid=almaonline789');
+  });
+
+
+  it('handles an empty e-maps response without failing the online lookup', async () => {
+    storeSpy.getVid.and.returnValue('VID');
+    storeSpy.getTab.and.returnValue('TAB');
+    storeSpy.getScope.and.returnValue('SCOPE');
+    storeSpy.isFullview$.and.returnValue(of(true));
+    composeServiceSpy.getEMapsRecord.and.returnValue(of([]));
+    composeServiceSpy.getOnlineEraraRecord.and.returnValue(of({
+      docs: [{ pnx: { control: { sourcerecordid: ['online789'] } } }]
+    } as any));
+    storeSpy.getFullDisplayRecord$.and.returnValue(of({
+      pnx: {
+        display: { mms: ['990042488650205503'], type: ['map'] },
+        control: { sourcesystem: ['ILS'] }
+      }
+    } as any));
+
+    const result = await firstValueFrom(component.links$);
+
+    expect(result.length).toBe(1);
+    expect(result[0].url).toContain('docid=almaonline789');
   });
   
 
