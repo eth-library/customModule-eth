@@ -16,7 +16,7 @@
           </svg>
         </summary>
         <ul role="list">
-          @for (person of persons.filteredPersons; track person; let last = $last) {
+          @for (person of persons.filteredPersons; track person.gnd; let last = $last) {
             <li role="listitem">
               <div class="eth-person-card">
                 <div class="eth-person-card__text">
@@ -65,7 +65,7 @@
                         </svg>
                       </button>
                       @if (isOpen(person.gnd)){
-                        <div class="eth-person-copyright-hint" role="dialog" aria-modal="false" tabindex="-1" [attr.id]="getLicensePopoverId(person.gnd)" (keydown.escape)="close()" (focusout)="onFocusOut($event)">
+                        <div class="eth-person-copyright-hint" role="dialog" aria-modal="false" tabindex="-1" [attr.id]="getLicensePopoverId(person.gnd)" [attr.aria-label]="'nui.aria.personEntity.imageInfo' | safeTranslate | async" (keydown.escape)="close()" (focusout)="onFocusOut($event)">
                           <span>{{'eth.personCard.licence' | safeTranslate | async}} </span> 
                           @if (person.entityfacts?.image){
                             <a [href]="person.entityfacts?.image?.url" target="_blank" rel="noopener">Wikimedia Commons</a>

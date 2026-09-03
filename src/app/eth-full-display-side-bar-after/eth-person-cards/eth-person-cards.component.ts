@@ -2,7 +2,7 @@
 // https://jira.ethz.ch/browse/SLSP-2095
 
 import { Component, DestroyRef, inject, Input } from '@angular/core';
-import { BehaviorSubject, catchError, combineLatest, defer, forkJoin, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, defer, distinctUntilChanged, forkJoin, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { EthPersonService } from '../../services/eth-person.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
@@ -72,6 +72,9 @@ export class EthPersonCardsComponent {
         startWith(this.translate.currentLang)
       );
       return combineLatest([record$, lang$]).pipe(
+        distinctUntilChanged(([previousRecord, previousLanguage], [record, language]) =>
+          previousRecord === record && previousLanguage === language
+        ),
         switchMap(([record, lang]) => this.loadPersons(record, lang || 'de')),
         switchMap((persons: PersonVM[]) =>
           this.ethStoreService.linkedDataRecommendations$.pipe(
@@ -162,8 +165,9 @@ export class EthPersonCardsComponent {
       return lds03.map( l => {
         l = l.replace('(DE-588)', '');
         // Alma:   GND: <a target="_blank" href="https://explore.gnd.network/gnd/1271627787"> Compagno, Loris 1993-</a>
-        if (l.includes('/gnd/')) {
-          return l.substring(l.indexOf('gnd/') + 4, l.indexOf('">'));
+        const gndUrlMatch = l.match(/\/gnd\/([^/"'<>\s]+)/);
+        if (gndUrlMatch) {
+          return gndUrlMatch[1];
         }
         // externe Daten:   GND: Prelog, Vladimir (rela): 119247496
         // neu: "Author: Seelig, Carl (rcp); ID: 118612670" 

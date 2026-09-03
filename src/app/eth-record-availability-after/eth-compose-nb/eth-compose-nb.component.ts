@@ -1,6 +1,9 @@
 // links the print and online resources of the TMA Nachlassbibliothek.
 // https://jira.ethz.ch/browse/SLSP-2003
 
+// oai:agora.ch:004261444_08 (oai:agora.ch:000280096) - 99118814985305503  -> multiple online/one print
+// online: 99118815313805503; print: 990044649040205503  --  oai:agora.ch:004464904
+
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { defer, of, Observable } from 'rxjs';
@@ -12,8 +15,6 @@ import { EthErrorHandlingService } from '../../services/eth-error-handling.servi
 import { SHELL_ROUTER } from "../../injection-tokens";
 import { HostComponent, ComposeNbLinkVM, PnxDoc } from '../../models/eth.model';
 
-// oai:agora.ch:004261444_08 (oai:agora.ch:000280096) - 99118814985305503  -> multiple online/one print
-// online: 99118815313805503; print: 990044649040205503  --  oai:agora.ch:004464904
 @Component({
   selector: 'custom-eth-compose-nb',
   standalone: true,
@@ -37,7 +38,7 @@ export class EthComposeNbComponent {
       distinctUntilChanged(),
       switchMap(record => this.getLinks(record)),
       catchError(error => {
-        this.ethErrorHandlingService.logError(error, 'EthComposeNbComponent.linksStream');
+        this.ethErrorHandlingService.logError(error, 'EthComposeNbComponent.links$');
         return of([]);
       })
     )
@@ -82,6 +83,7 @@ export class EthComposeNbComponent {
     );
   }
 
+
   private buildOnlineLinks(record: PnxDoc): Observable<ComposeNbLinkVM[]> {
     const oaiId = this.extractOaiId(record?.pnx?.display?.lds02 ?? []);
     if (!oaiId) return of([]);
@@ -90,6 +92,7 @@ export class EthComposeNbComponent {
       map(data => this.mapOnlineDocs(data?.docs ?? []))
     );
   }
+
 
   private extractOaiId(lds02: string[]): string | null {
     const raw = lds02
@@ -100,12 +103,13 @@ export class EthComposeNbComponent {
     return raw ?? null;
   }
 
+  
   private mapOnlineDocs(docs: Array<{ pnx?: PnxDoc['pnx'] }>): ComposeNbLinkVM[] {
     if (docs.length === 0) return [];
 
     const label$ = this.translate.stream('eth.composeNb.online');
 
-    const onlineLinks: ComposeNbLinkVM[] = docs
+    const onlineLinks = docs
       .map(d => {
         const mmsId = d.pnx?.control?.sourcerecordid?.[0];
         if (!mmsId) return null;
@@ -114,16 +118,24 @@ export class EthComposeNbComponent {
 
         return {
           url: this.makePrimoUrl(mmsId),
-          sortKey: title,
-          label$: docs.length > 1
-            ? label$.pipe(map(v => `${v} - ${title}`))
-            : label$
+          sortKey: title
         };
       })
-      .filter((link): link is ComposeNbLinkVM => !!link);
+      .filter((link): link is { url: string; sortKey: string } => !!link)
+      .filter((link, index, links) =>
+        links.findIndex(candidate => candidate.url === link.url) === index
+      );
 
-    onlineLinks.sort((a, b) => this.extractBandNumber(a.sortKey) - this.extractBandNumber(b.sortKey));
-    return onlineLinks;
+    const hasMultipleLinks = onlineLinks.length > 1;
+    const links: ComposeNbLinkVM[] = onlineLinks.map(link => ({
+      ...link,
+      label$: hasMultipleLinks
+        ? label$.pipe(map(label => `${label} - ${link.sortKey}`))
+        : label$
+    }));
+
+    links.sort((a, b) => this.extractBandNumber(a.sortKey) - this.extractBandNumber(b.sortKey));
+    return links;
   }
 
   private extractBandNumber(text: string): number {

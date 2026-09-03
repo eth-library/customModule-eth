@@ -230,6 +230,20 @@ describe('EthPersonCardsComponent', () => {
     expect(ids).toEqual(['118527908']);
   });
 
+  it('parses gnd ids from plain GND URLs', () => {
+    const record = {
+      pnx: {
+        display: {
+          lds03: ['https://explore.gnd.network/gnd/118527908']
+        }
+      }
+    } as PnxDoc;
+
+    const ids = (component as any).getGndIds(record);
+
+    expect(ids).toEqual(['118527908']);
+  });
+
   it('navigates via router when navigate is called', () => {
     const event = { preventDefault: jasmine.createSpy('preventDefault') } as unknown as Event;
 

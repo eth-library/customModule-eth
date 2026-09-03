@@ -11,7 +11,7 @@
 
 import { Component, Renderer2, DestroyRef, inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { catchError, distinctUntilChanged, map, of, take, tap } from 'rxjs';
+import { catchError, distinctUntilChanged, map, of, Subscription, take, tap } from 'rxjs';
 import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -39,6 +39,7 @@ export class EthLibraryStackComponent {
   private hasLibraryStack = false;
   private observer: MutationObserver | null = null;
   private containerWaitObserver: MutationObserver | null = null;
+  private translationSubscription: Subscription | null = null;
   private document = inject(DOCUMENT);
   private ethStoreService = inject(EthStoreService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
@@ -46,7 +47,10 @@ export class EthLibraryStackComponent {
   private translate = inject(TranslateService);
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.disconnectObserver());
+    this.destroyRef.onDestroy(() => {
+      this.disconnectObserver();
+      this.translationSubscription?.unsubscribe();
+    });
   }
 
   // cdi_librarystack_primary_159090
@@ -58,6 +62,10 @@ export class EthLibraryStackComponent {
   private observeLibraryStackLinks(): void {
     this.ethStoreService.getFullDisplayDeliveryEntity$().pipe(
       map(deliveryEntity => this.hasLibraryStackLink(deliveryEntity)),
+      catchError(err => {
+        this.ethErrorHandlingService.logError(err, 'EthLibraryStackComponent.ngAfterViewInit');
+        return of(false);
+      }),
       distinctUntilChanged(),
       tap(hasLibraryStackLink => {
         this.hasLibraryStack = hasLibraryStackLink;
@@ -68,11 +76,7 @@ export class EthLibraryStackComponent {
           this.removeHints();
         }
       }),
-      takeUntilDestroyed(this.destroyRef),
-      catchError(err => {
-        this.ethErrorHandlingService.logError(err, 'EthLibraryStackComponent.ngAfterViewInit');
-        return of(false);
-      })
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
@@ -168,14 +172,17 @@ export class EthLibraryStackComponent {
     }
 
     // guard (multiple render + prevent loop dom changes)
-    if (!forceUpdate && existingText1) return;
+    if (!forceUpdate && existingText1 && existingText2) return;
 
-    this.translate.get([
+    this.translationSubscription?.unsubscribe();
+
+    this.translationSubscription = this.translate.get([
       'eth.libraryStack.text1',
       'eth.libraryStack.text2'
     ])
     .pipe(
-      take(1)
+      take(1),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(t => {
       const div1 = this.renderer.createElement('div');
       this.renderer.addClass(div1, TEXT1_CLASS);

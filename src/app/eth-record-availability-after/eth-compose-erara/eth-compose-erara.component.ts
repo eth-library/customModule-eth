@@ -1,8 +1,19 @@
 // Resources from e-rara are linked reciprocally with their prints and possibly with e-maps.
 // covers maps and digitised first editions.
+
 // https://jira.ethz.ch/browse/SLSP-2002
 // https://jira.ethz.ch/browse/SLSP-2482
 
+/**
+Maps:
+Online: 99117338116605503
+Print: 990042488650205503
+e-maps: 99117999030205503
+
+Digitalisierte Erstausgaben von Thomas Mann:
+Print: 990044391950205503
+Online: 99120881800505503
+ */
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, of, forkJoin, catchError, filter, map, switchMap, defer } from 'rxjs';
@@ -91,7 +102,8 @@ export class EthComposeEraraComponent {
                 });
               }
               return links;
-            })
+            }),
+            catchError(() => of(links))
           );
         }),
         catchError(() => of([]))                
@@ -111,7 +123,7 @@ export class EthComposeEraraComponent {
               //console.error("erara print; get emaps",url)
               if (url) out.push({ label$: this.labelGeoTIFF$ as Observable<string>, url, external: true });
 
-              const onlineIdEMaps = data?.[0]._fields[0];
+              const onlineIdEMaps = data?.[0]?._fields?.[0];
               //console.error("erara print; get swisscovery emaps",onlineIdEMaps)
               if (onlineIdEMaps) out.push({ label$: this.labelEMap$ as Observable<string>, url: this.makePrimoUrl(onlineIdEMaps),external: false });
               return out;
@@ -163,7 +175,7 @@ export class EthComposeEraraComponent {
                 //console.error("erara online; get emaps", emapsUrl)
               }
 
-              const onlineIdEMaps = data?.[0]._fields[0];
+              const onlineIdEMaps = data?.[0]?._fields?.[0];
               //console.error("erara online; get swisscovery emaps",onlineIdEMaps);
               if (onlineIdEMaps) out.push({ label$: this.labelEMap$ as Observable<string>, url:this.makePrimoUrl(onlineIdEMaps), external: false });
 

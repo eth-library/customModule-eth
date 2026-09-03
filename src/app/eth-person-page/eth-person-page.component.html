@@ -43,7 +43,7 @@
                     </svg>
                   </button>
                   @if (isOpen(person.gnd)){
-                    <div #licensePopover class="eth-person-copyright-hint" role="dialog" aria-modal="false" tabindex="-1" id="license-popover" (keydown.escape)="close()" (focusout)="onFocusOut($event)">
+                    <div #licensePopover class="eth-person-copyright-hint" role="dialog" aria-modal="false" tabindex="-1" id="license-popover" [attr.aria-label]="'nui.aria.personEntity.imageInfo' | safeTranslate | async" (keydown.escape)="close()" (focusout)="onFocusOut($event)">
                       <span>{{'eth.personCard.licence' | safeTranslate | async}} </span> 
                       @if (person.entityfacts?.image){
                         <a [href]="person.entityfacts?.image?.url" target="_blank" rel="noopener">Wikimedia Commons</a>
@@ -351,7 +351,7 @@
               </li>
             }
             <li>
-              <a class="arrow-link md-primoExplore-theme" [href]="'https://prometheus.lmu.de/gnd/' + person?.gnd" target="_blank" rel="noopener" [attr.aria-label]="('eth.personPage.prometheusAll' | safeTranslate | async) ?? '' + ('nui.aria.newWindow' | safeTranslate | async)">
+              <a class="arrow-link md-primoExplore-theme" [href]="'https://prometheus.lmu.de/gnd/' + person?.gnd" target="_blank" rel="noopener" [attr.aria-label]="(('eth.personPage.prometheusAll' | safeTranslate | async) ?? '') + ' ' + (('nui.aria.newWindow' | safeTranslate | async) ?? '')">
                 <span>{{'eth.personPage.prometheusAll' | safeTranslate | async}}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>

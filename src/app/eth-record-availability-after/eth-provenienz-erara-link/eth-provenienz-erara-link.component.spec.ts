@@ -113,7 +113,20 @@ describe('EthProvenienzEraraLinkComponent', () => {
     const links: ProvenanceEraraLinksVM = await firstValueFrom(component.links$);
 
     expect(links.erara).toBe('https://dx.doi.org/10.3931/e-rara-12345');
-    expect(links.swisscovery).toBe('/search?query=10.3931/e-rara-12345&vid=41SLSP_ETH:ETH&tab=default_tab&search_scope=default_scope');
+    expect(links.swisscovery).toBe('/search?query=10.3931%2Fe-rara-12345&vid=41SLSP_ETH%3AETH&tab=default_tab&search_scope=default_scope');
+  });
+
+
+  it('encodes swisscovery query parameters', () => {
+    storeService.getVid.and.returnValue('41SLSP_ETH&attacker=true');
+    storeService.getTab.and.returnValue('tab#fragment');
+    storeService.getScope.and.returnValue('scope with spaces');
+
+    const url = (component as any).makeSwisscoveryUrl(
+      'https://doi.org/10.3931/e-rara-123&injected=true'
+    );
+
+    expect(url).toBe('/search?query=10.3931%2Fe-rara-123%26injected%3Dtrue&vid=41SLSP_ETH%26attacker%3Dtrue&tab=tab%23fragment&search_scope=scope%20with%20spaces');
   });
 
   
@@ -233,7 +246,7 @@ describe('EthProvenienzEraraLinkComponent', () => {
     expect(eraraLinkElement.getAttribute('target')).toBe('_blank');
     expect(eraraLinkElement.getAttribute('rel')).toContain('noopener');
 
-    expect(swisscoveryLinkElement.getAttribute('href')).toBe('/nde/search?query=10.3931/e-rara-12345&vid=41SLSP_ETH:ETH&tab=default_tab&search_scope=default_scope');
+    expect(swisscoveryLinkElement.getAttribute('href')).toBe('/nde/search?query=10.3931%2Fe-rara-12345&vid=41SLSP_ETH%3AETH&tab=default_tab&search_scope=default_scope');
   });
 
 });

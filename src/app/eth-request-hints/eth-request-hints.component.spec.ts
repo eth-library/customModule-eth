@@ -53,6 +53,13 @@ describe('EthRequestHintsComponent', () => {
       expect(result).toEqual({ formType: null, pickupAtETH: false });
     });
 
+    it('should emit pickupAtETH=false when request is missing', () => {
+      component.hostComponent = { data: {} };
+      let result: { formType: string | null; pickupAtETH: boolean } | undefined;
+      component.state$.subscribe(v => (result = v));
+      expect(result).toEqual({ formType: null, pickupAtETH: false });
+    });
+
     it('should emit correct formType', () => {
       component.hostComponent = { formType: 'AlmaRequest' };
       let result: { formType: string | null; pickupAtETH: boolean } | undefined;

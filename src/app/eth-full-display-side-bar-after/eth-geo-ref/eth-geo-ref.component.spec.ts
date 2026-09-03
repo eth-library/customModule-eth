@@ -378,6 +378,14 @@ describe('EthGeoRefComponent', () => {
     expect(ids.length).toBe(2);
   });
 
+  it('parses a GND id from a plain URL', () => {
+    const record = createRecord(['https://explore.gnd.network/gnd/118527908']);
+
+    const ids = (component as any).getGndIds(record) as string[];
+
+    expect(ids).toEqual(['118527908']);
+  });
+
 
   it('merges places by shared ids', () => {
     const places = [
@@ -484,6 +492,16 @@ describe('EthGeoRefComponent', () => {
     it('builds from gnd when qid is missing', () => {
       const url = (component as any).buildLocationEntityUrl({ gnd: '123' }, { vid: 'vid', lang: 'de' });
       expect(url).toContain('entityId=GND123');
+    });
+
+    it('encodes entity URL parameters', () => {
+      const url = (component as any).buildLocationEntityUrl(
+        { qid: 'Q 1' },
+        { vid: 'vid&test', lang: 'de-CH' }
+      );
+
+      expect(url).toContain('vid=vid%26test');
+      expect(url).toContain('entityId=Q%201');
     });
 
     it('returns undefined when no identifiers exist', () => {

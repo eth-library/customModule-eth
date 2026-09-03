@@ -71,6 +71,7 @@ describe('EthWaybackComponent', () => {
 
   const buildViewItDom = (doc: Document) => {
     const container = doc.createElement('nde-full-display-container');
+    const viewIt = doc.createElement('nde-view-it');
     const card = doc.createElement('nde-view-it-card');
     const textContainer = doc.createElement('div');
     textContainer.className = 'view-it-text';
@@ -79,9 +80,10 @@ describe('EthWaybackComponent', () => {
     link.appendChild(span);
     textContainer.appendChild(link);
     card.appendChild(textContainer);
-    container.appendChild(card);
+    viewIt.appendChild(card);
+    container.appendChild(viewIt);
     doc.body.appendChild(container);
-    return { container, card, textContainer, link, span };
+    return { container, viewIt, card, textContainer, link, span };
   };
 
   it('should create', () => {
@@ -197,6 +199,45 @@ describe('EthWaybackComponent', () => {
   });
 
 
+  it('cleans up the wayback state when the delivery stream fails', () => {
+    const delivery$ = new Subject<any>();
+    const { container } = buildViewItDom(documentRef);
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(delivery$);
+
+    component.ngAfterViewInit();
+    delivery$.next({ delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/1' }] } });
+    expect(mockObservers.length).toBe(1);
+
+    delivery$.error(new Error('boom'));
+
+    expect(errorHandlingSpy.logError).toHaveBeenCalled();
+    expect(mockObservers[0].disconnect).toHaveBeenCalled();
+    expect(documentRef.querySelector('#eth-wayback-hint')).toBeNull();
+
+    documentRef.body.removeChild(container);
+  });
+
+
+  it('does not update the DOM when translation resolves after destroy', () => {
+    const translation$ = new Subject<Record<string, string>>();
+    const { container, span, card } = buildViewItDom(documentRef);
+    translateMock.get.and.returnValue(translation$ as any);
+
+    (component as any).changeDom();
+    fixture.destroy();
+    translation$.next({
+      'eth.wayback.text': 'Hint',
+      'eth.wayback.linkText': 'Wayback',
+      'nui.aria.newWindow': ' opens in a new window'
+    });
+
+    expect(span.textContent).toBe('');
+    expect(card.querySelector('#eth-wayback-hint')).toBeNull();
+
+    documentRef.body.removeChild(container);
+  });
+
+
   it('detects wayback links', () => {
     expect((component as any).hasWaybackLink({ delivery: { link: [{ linkURL: 'https://wayback.archive-It.org/foo' }] } })).toBeTrue();
     expect((component as any).hasWaybackLink({ delivery: { link: [{ linkURL: 'https://example.com' }] } })).toBeFalse();
@@ -219,16 +260,19 @@ describe('EthWaybackComponent', () => {
 
 
   it('observes DOM mutations and disconnects on destroy', () => {
-    const { container } = buildViewItDom(documentRef);
+    const { container, viewIt } = buildViewItDom(documentRef);
     const changeDomSpy = spyOn(component as any, 'changeDom');
 
     (component as any).initObserver();
 
     expect(mockObservers.length).toBe(1);
-    expect(mockObservers[0].observe).toHaveBeenCalledWith(container, { childList: true, subtree: true });
+    expect(mockObservers[0].observe).toHaveBeenCalledWith(viewIt, { childList: true, subtree: true });
     expect(changeDomSpy).toHaveBeenCalledTimes(1);
 
-    mutationCallbacks[0]?.([], mockObservers[0] as unknown as MutationObserver);
+    const relevantNode = documentRef.createElement('div');
+    relevantNode.className = 'view-it-text';
+    const mutation = { addedNodes: [relevantNode] } as unknown as MutationRecord;
+    mutationCallbacks[0]?.([mutation], mockObservers[0] as unknown as MutationObserver);
     expect(changeDomSpy).toHaveBeenCalledTimes(2);
 
     fixture.destroy();

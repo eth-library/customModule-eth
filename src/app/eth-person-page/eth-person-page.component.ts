@@ -2,7 +2,7 @@
 // https://jira.ethz.ch/browse/SLSP-1990
 
 import { Component, ElementRef, inject, ViewChild, ViewEncapsulation, DestroyRef } from '@angular/core';
-import { catchError, defer, filter, forkJoin, map, Observable, of, startWith, switchMap, tap } from 'rxjs';
+import { catchError, defer, distinctUntilChanged, filter, forkJoin, map, Observable, of, startWith, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../services/eth-person.service';
 import { EthStoreService } from '../services/eth-store.service';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
@@ -84,6 +84,7 @@ export class EthPersonPageComponent {
   private loadPerson(): Observable<PersonVM | null> {
     return this.ethStoreService.linkedDataEntityId$.pipe(
       filter(id => !!id),
+      distinctUntilChanged(),
       switchMap(id => {
         return this.ethPersonService.getPerson(id, this.lang).pipe(
           filter(data => !!data),

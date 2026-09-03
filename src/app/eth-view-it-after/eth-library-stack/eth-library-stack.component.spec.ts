@@ -66,12 +66,14 @@ describe('EthLibraryStackComponent', () => {
 
   const buildViewItDom = (doc: Document) => {
     const container = doc.createElement('nde-full-display-container');
+    const viewIt = doc.createElement('nde-view-it');
     const card = doc.createElement('nde-view-it-card');
     const button = doc.createElement('button');
     card.appendChild(button);
-    container.appendChild(card);
+    viewIt.appendChild(card);
+    container.appendChild(viewIt);
     doc.body.appendChild(container);
-    return { container, card, button };
+    return { container, viewIt, card, button };
   };
 
   it('should create', () => {
@@ -240,6 +242,68 @@ describe('EthLibraryStackComponent', () => {
     component.ngAfterViewInit();
 
     expect(errorHandlingSpy.logError).toHaveBeenCalled();
+  });
+
+
+  it('cleans up the library stack state when the delivery stream fails', () => {
+    const delivery$ = new Subject<any>();
+    const { container } = buildViewItDom(documentRef);
+    storeService.getFullDisplayDeliveryEntity$.and.returnValue(delivery$);
+    translateMock.get.and.returnValue(of({
+      'eth.libraryStack.text1': 'Text 1',
+      'eth.libraryStack.text2': 'Text 2'
+    }));
+
+    component.ngAfterViewInit();
+    delivery$.next({ delivery: { link: [{ linkURL: 'https://www.librarystack.org/item' }] } });
+    expect(mockObservers.length).toBe(1);
+
+    delivery$.error(new Error('boom'));
+
+    expect(errorHandlingSpy.logError).toHaveBeenCalled();
+    expect(mockObservers[0].disconnect).toHaveBeenCalled();
+    expect(documentRef.querySelector('.eth-librarystack-text1')).toBeNull();
+    expect(documentRef.querySelector('.eth-librarystack-text2')).toBeNull();
+
+    documentRef.body.removeChild(container);
+  });
+
+
+  it('does not update the DOM when translation resolves after destroy', () => {
+    const translation$ = new Subject<Record<string, string>>();
+    const { container, card } = buildViewItDom(documentRef);
+    translateMock.get.and.returnValue(translation$ as any);
+
+    (component as any).changeDom();
+    fixture.destroy();
+    translation$.next({
+      'eth.libraryStack.text1': 'Text 1',
+      'eth.libraryStack.text2': 'Text 2'
+    });
+
+    expect(card.querySelector('.eth-librarystack-text1')).toBeNull();
+    expect(card.querySelector('.eth-librarystack-text2')).toBeNull();
+
+    documentRef.body.removeChild(container);
+  });
+
+
+  it('renders hints only once when multiple translation requests overlap', () => {
+    const translation$ = new Subject<Record<string, string>>();
+    const { container, card } = buildViewItDom(documentRef);
+    translateMock.get.and.returnValue(translation$ as any);
+
+    (component as any).changeDom();
+    (component as any).changeDom();
+    translation$.next({
+      'eth.libraryStack.text1': 'Text 1',
+      'eth.libraryStack.text2': 'Text 2'
+    });
+
+    expect(card.querySelectorAll('.eth-librarystack-text1').length).toBe(1);
+    expect(card.querySelectorAll('.eth-librarystack-text2').length).toBe(1);
+
+    documentRef.body.removeChild(container);
   });
 
 });

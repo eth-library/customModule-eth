@@ -1,6 +1,15 @@
 // A DNB service is used to check whether there is a digitized table of contents
-// and a link to it is displayed (if there is no Alma TOC link).
+// and a link to it is rendered (if there is no Alma TOC link).
+// If there are Alma links, these are rendered in record availability section
 // https://jira.ethz.ch/browse/SLSP-1988
+
+/*
+991029346049705501
+990050929800205503
+990102508570205503
+991171276031605501
+990016261860205503
+*/
 
 import { Component, inject, Input } from '@angular/core';
 import { Observable, catchError, combineLatest, defer, distinctUntilChanged, filter, forkJoin, map, of, switchMap } from 'rxjs';
@@ -26,7 +35,7 @@ const EXCLUDED_ALMA_LINK_PREFIXES = [
   'doi.org/10.5169/seals-'
 ];
 
-// 991029346049705501
+
 @Component({
   selector: 'custom-eth-dnb-toc',
   templateUrl: './eth-dnb-toc.component.html',
@@ -66,6 +75,7 @@ export class EthDnbTocComponent {
       })
     )
   );
+
   private mapAlmaLinks(deliveryEntity: StoreDeliveryEntity | null): DnbTocLinksVM['almaLinks'] {
     const almaLinks = (deliveryEntity?.delivery?.link ?? []).filter(
       (link): link is { linkType: string; linkURL: string; displayLabel?: string } => {

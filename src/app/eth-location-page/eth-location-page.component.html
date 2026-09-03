@@ -35,7 +35,7 @@
                         </svg>
                       </button>
                       @if (isOpen(place.wikidata?.name || 'placepage')){
-                        <div #licensePopover class="eth-location-copyright-hint" role="dialog" aria-modal="false" tabindex="-1" id="license-popover" (keydown.escape)="close()" (focusout)="onFocusOut($event)">
+                        <div #licensePopover class="eth-location-copyright-hint" role="dialog" aria-modal="false" tabindex="-1" id="license-popover" [attr.aria-label]="'nui.aria.personEntity.imageInfo' | safeTranslate | async" (keydown.escape)="close()" (focusout)="onFocusOut($event)">
                           <span>{{'eth.personCard.licence' | safeTranslate | async}} </span> 
                           <a [href]="place.wikidata?.image_page" target="_blank" rel="noopener">Wikimedia Commons</a>
                         </div>
@@ -93,7 +93,7 @@
           <section class="eth-expansion-panel-content">
             @for (link of place.ethorama?.links; track link) {
                 @if (link.url){
-                    <div><a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
+                    <div><a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ' ' + (('nui.aria.newWindow' | safeTranslate | async) ?? '')">
                         <span>{{link.text}}</span>
                         <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                           <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -123,7 +123,7 @@
                 @for (link of place.poi?.dossiers; track link) {
                     @if (link.url){
                         <li>
-                            <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
+                            <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ' ' + (('nui.aria.newWindow' | safeTranslate | async) ?? '')">
                               <span>{{link.text}}</span>
                               <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                 <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -155,7 +155,7 @@
                 @for (link of place.poi?.routes; track link) {
                     @if (link.url){
                         <li>
-                            <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
+                            <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ' ' + (('nui.aria.newWindow' | safeTranslate | async) ?? '')">
                                 <span>{{link.text}}</span>
                                 <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -187,7 +187,7 @@
                 @for (link of place.wikidata?.links; track link) {
                     @if (link.url){
                         <li>
-                            <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ('nui.aria.newWindow' | safeTranslate | async)">
+                            <a [href]="link.url" target="_blank" rel="noopener" [attr.aria-label]="link.text + ' ' + (('nui.aria.newWindow' | safeTranslate | async) ?? '')">
                                 <span>{{link.text}}</span>
                                 <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
@@ -215,7 +215,7 @@
           </mat-expansion-panel-header>
 
           <section class="eth-expansion-panel-content">
-            <div id="mapid" class="map"></div>
+            <div id="mapid" class="map" role="region" [attr.aria-label]="'eth.placePage.maps' | safeTranslate | async"></div>
           </section>
         </mat-expansion-panel>  
 
@@ -236,7 +236,7 @@
                 @for (map of place.maps; track map) {
                     @if (map.url){
                         <li>
-                            <a [href]="map.url" target="_blank" rel="noopener" [attr.aria-label]="map.title + ('nui.aria.newWindow' | safeTranslate | async)">
+                            <a [href]="map.url" target="_blank" rel="noopener" [attr.aria-label]="map.title + ' ' + (('nui.aria.newWindow' | safeTranslate | async) ?? '')">
                                 {{map.title}}
                                 <svg class="eth-open-in-new" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
                                   <path d="m256-240-56-56 384-384H240v-80h480v480h-80v-344L256-240Z"></path>
