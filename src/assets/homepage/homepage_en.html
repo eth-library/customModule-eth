@@ -60,7 +60,14 @@
           </div>
         </div>
 
-        <div class="featured-collections-grid" data-featured-collections-grid aria-live="polite" aria-busy="true">
+        <!-- Deliberately not a live region: the four collections are ordinary
+             content, not a status message. With aria-live="polite" the screen
+             reader would announce the whole region when aria-busy flips -
+             roughly 1170 characters, cutting into whatever the user is doing.
+             Primo's own live region already reports "loading complete".
+             aria-busy stays; it still marks the incomplete state.
+             See audit 2026-09-02. -->
+        <div class="featured-collections-grid" data-featured-collections-grid aria-busy="true">
         </div>
       </section>
 

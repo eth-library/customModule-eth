@@ -61,7 +61,15 @@
           </div>
         </div>
 
-        <div class="featured-collections-grid" data-featured-collections-grid aria-live="polite" aria-busy="true">
+        <!-- Bewusst keine Live-Region: Die vier Sammlungen sind gewoehnlicher
+             Inhalt, keine Statusmeldung. Mit aria-live="polite" haette der
+             Screenreader beim Umschalten von aria-busy den gesamten Inhalt
+             angesagt - rund 1170 Zeichen, mitten in eine andere Taetigkeit
+             hinein. Das Ladesignal deckt Primos eigene Live-Region ab
+             ("Ladevorgang abgeschlossen"). aria-busy bleibt, es kennzeichnet
+             weiterhin den unvollstaendigen Zustand.
+             Siehe Audit 2026-09-02. -->
+        <div class="featured-collections-grid" data-featured-collections-grid aria-busy="true">
         </div>
       </section>
 
