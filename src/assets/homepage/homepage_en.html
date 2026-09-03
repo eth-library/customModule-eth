@@ -10,7 +10,11 @@
 </head>
 
 <body>
-  <main class="main-landing-page display-flex flex-column flex-layout-center-center">
+  <!-- WCAG 1.3.1: bewusst ein div, kein main. Primo rendert die Landing Page bereits
+       innerhalb eines eigenen <main>; ein zweites, verschachteltes main erzeugt zwei
+       Hauptbereiche, die Screenreader beide anbieten. Die Klasse bleibt erhalten,
+       das CSS haengt an ihr. Siehe Audit 2026-09-02, Befund E1. -->
+  <div class="main-landing-page display-flex flex-column flex-layout-center-center">
 
     <!-- Informationen, Unterstützung und Services -->
     <section class="eth-home-overview width-100" aria-label="Informationen und Unterstützung zur ETH-Bibliothek">
@@ -279,7 +283,7 @@
     <!-- News -->
     <custom-eth-bib-news></custom-eth-bib-news>
 
-  </main>
+  </div>
 </body>
 
 </html>
