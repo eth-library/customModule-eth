@@ -3,7 +3,7 @@
 // The API query is routed via a route that is also cached.
 // https://jira.ethz.ch/browse/SLSP-1981
 
-import { Component, inject, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { EthConnectedpapersService } from './eth-connectedpapers.service'
 import { catchError, defer, filter, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -23,7 +23,8 @@ import { HostComponent } from '../models/eth.model';
     CommonModule,
     MatButtonModule,
     SafeTranslatePipe
-  ]    
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createFeatureSelector, createSelector, select, Store } from '@ngrx/store';
-import { filter, map, Observable, of, switchMap, tap } from 'rxjs';
+import { distinctUntilChanged, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import type { Params, Data } from '@angular/router';
 import { StoreDeliveryEntity, HostComponent, PnxDoc, LinkedDataRecommendation } from '../models/eth.model';
 
@@ -34,6 +34,20 @@ type DeliveryEntity = Record<string, any>;
 type DeliveryObject = Record<string, DeliveryEntity>;
 type DeliveryEntities = {entities: DeliveryObject}
 type FullDisplayState = {selectedRecordId:string, linkedDataRecommendations: LinkedDataRecommendation[]};
+
+type RapidoOfferWrapper = {
+  bestDigitalPolicy?: unknown;
+  bestPhysicalPolicy?: unknown;
+  bestEbookPolicy?: unknown;
+};
+type RapidoRecordEntity = {
+  rapidoOffersStatus?: string;
+  rapidoDigitalOffersStatus?: string;
+  rapidoOfferWrapper?: RapidoOfferWrapper;
+};
+type NgrsRecordDataState = {
+  entities: Record<string, RapidoRecordEntity>;
+};
 
 type EncodedJwt = string;
 type UserState = {
@@ -79,6 +93,7 @@ const selectRouterState = createFeatureSelector<RouterState>('router');
 const selectDeliveryState = createFeatureSelector<DeliveryEntities>('Delivery');
 const selectFullDisplayState = createFeatureSelector<FullDisplayState>('full-display');
 const selectLDEntityState = createFeatureSelector<any>('linked-data-entity');
+const selectNgrsRecordDataState = createFeatureSelector<NgrsRecordDataState>('ngrs-record-data');
 
 const selectDeliveryEntities = createSelector(selectDeliveryState, state => state.entities);
 
@@ -89,6 +104,12 @@ const selectRouter = createSelector(selectRouterState,state => state.state);
 const selectQuery = createSelector(selectRouterState,state => state.state.root.queryParams['query']);
 
 const selectFullDisplayRecordId = createSelector(selectFullDisplayState, state => state.selectedRecordId);
+
+// strips the 'alma'/'cdi_' record-type prefixes to match the ngrs-record-data entity keys
+const selectNormalizedFullDisplayRecordId = createSelector(
+  selectFullDisplayRecordId,
+  recordId => (recordId ?? '').replace(/^alma/, '').replace(/^cdi_/, '')
+);
 
 const selectFullDisplayDeliveryEntities = createSelector(selectFullDisplayRecordId, selectDeliveryEntities, (recordId, deliveryEntities) => deliveryEntities[recordId]);
 
@@ -112,6 +133,13 @@ const selectOnCampus = createSelector(selectUserState, state => state?.decodedJw
 const selectUserName = createSelector(selectUserState, state => state?.decodedJwt?.userName);
 const selectUserGroup = createSelector(selectUserState, state => state?.decodedJwt?.userGroup);
 const selectAuthenticationProfile = createSelector(selectUserState, state => state?.decodedJwt?.authenticationProfile);
+
+const selectRapidoRecordEntity = createSelector(
+  selectNgrsRecordDataState,
+  selectNormalizedFullDisplayRecordId,
+  selectUserGroup,
+  (state, recordId, userGroup) => state?.entities?.[`${userGroup ?? ''}_${recordId}`]
+);
 
 
 const selectListviewRecord = (recordId: string) =>
@@ -287,5 +315,21 @@ export class EthStoreService {
         );
     }
 
+
+    // 'noOffer': no best policy resolved for digital/physical/ebook; 'hasOffer': at least one policy present
+    // Stays subscribed (no take(1)) so later updates to rapidoOfferWrapper on the same record are picked up too.
+    getRapidoOfferState$(): Observable<'noOffer' | 'hasOffer'> {
+        return this.store.select(selectRapidoRecordEntity).pipe(
+            filter((entity): entity is RapidoRecordEntity =>
+                entity?.rapidoOffersStatus === 'success' && entity?.rapidoDigitalOffersStatus === 'success'
+            ),
+            map(entity => {
+                const rapidoOfferWrapper = entity.rapidoOfferWrapper ?? {};
+                const hasOffer = !!(rapidoOfferWrapper.bestDigitalPolicy || rapidoOfferWrapper.bestPhysicalPolicy || rapidoOfferWrapper.bestEbookPolicy);
+                return hasOffer ? 'hasOffer' : 'noOffer';
+            }),
+            distinctUntilChanged()
+        );
+    }
 
 }

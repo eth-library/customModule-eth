@@ -6,7 +6,7 @@
 // 990061118830205503  
 // 990002638940205503
 
-import { Component, inject, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,7 +21,8 @@ import { EthUtilsService } from '../services/eth-utils.service';
     CommonModule,
   ],
   templateUrl: './eth-request-hints.component.html',
-  styleUrl: './eth-request-hints.component.scss'
+  styleUrl: './eth-request-hints.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthRequestHintsComponent {
   private translate = inject(TranslateService);

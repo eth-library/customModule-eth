@@ -14,7 +14,7 @@ links in fullview: 99117362226905503
 */
 // https://jira.ethz.ch/browse/SLSP-2006
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { EthStoreService } from '../../services/eth-store.service';
 import { CommonModule } from '@angular/common';
@@ -31,7 +31,8 @@ import { HostComponent, PnxDoc, ProvenanceEraraLinksVM } from '../../models/eth.
   imports: [
     CommonModule,
     SafeTranslatePipe
-  ]   
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthProvenienzEraraLinkComponent {
   @Input() hostComponent: HostComponent = {};

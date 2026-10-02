@@ -14,7 +14,7 @@ Digitalisierte Erstausgaben von Thomas Mann:
 Print: 990044391950205503
 Online: 99120881800505503
  */
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, of, forkJoin, catchError, filter, map, switchMap, defer } from 'rxjs';
 import { EthStoreService } from '../../services/eth-store.service';
@@ -29,7 +29,8 @@ import { HostComponent, ComposeEraraLinkVM, PnxDoc } from '../../models/eth.mode
   standalone: true,
   imports: [CommonModule],
   templateUrl: './eth-compose-erara.component.html',
-  styleUrls: ['./eth-compose-erara.component.scss']
+  styleUrls: ['./eth-compose-erara.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthComposeEraraComponent {
   @Input() hostComponent: HostComponent = {};

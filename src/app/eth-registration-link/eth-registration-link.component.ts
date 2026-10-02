@@ -2,7 +2,7 @@
 // 
 // https://jira.ethz.ch/browse/SLSP-1984
 
-import { Component, inject, Renderer2, DestroyRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Renderer2, DestroyRef } from '@angular/core';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,7 +21,8 @@ const CONTENT_SELECTOR = 'nde-login-dialog .mat-mdc-dialog-content';
   standalone: true,   
   imports: [
     CommonModule
-  ]      
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthRegistrationLinkComponent {
   

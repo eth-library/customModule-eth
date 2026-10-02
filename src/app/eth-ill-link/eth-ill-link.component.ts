@@ -10,11 +10,10 @@
 // https://jira.ethz.ch/browse/SLSP-1986
 
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Store } from '@ngrx/store';
 import { Observable, of, combineLatest } from 'rxjs';
-import { catchError, distinctUntilChanged, filter, map, shareReplay, switchMap } from 'rxjs/operators';
+import { catchError, map, shareReplay, switchMap } from 'rxjs/operators';
 import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { PnxDoc, StoreDeliveryEntity } from '../models/eth.model';
@@ -32,13 +31,13 @@ interface TranslationBundle {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './eth-ill-link.component.html',
-  styleUrls: ['./eth-ill-link.component.scss']
+  styleUrls: ['./eth-ill-link.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthIllLinkComponent {
   private ethStoreService = inject(EthStoreService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
   private translate = inject(TranslateService);
-  private store = inject(Store);
 
   // do we need an ILL link? In this case: create the querystring of the ILL link (metadata for form).
   qs$: Observable<string | null> = this.ethStoreService.isLoggedIn$.pipe(
@@ -133,21 +132,7 @@ export class EthIllLinkComponent {
   // 'noOffer': no best policy resolved for digital/physical/ebook; 'hasOffer': at least one policy present
   // Stays subscribed (no take(1)) so later updates to rapidoOfferWrapper on the same record are picked up too.
   private getRapidoOfferState$(): Observable<'noOffer' | 'hasOffer'> {
-    return this.store.pipe(
-      map((state: any) => {
-        const recordId = (state?.['full-display']?.selectedRecordId ?? '').replace(/^alma/, '').replace(/^cdi_/, '');
-        const userGroup = state?.user?.decodedJwt?.userGroup ?? '';
-        return state?.['ngrs-record-data']?.entities?.[`${userGroup}_${recordId}`];
-      }),
-      filter(entity => entity?.rapidoOffersStatus === 'success' && entity?.rapidoDigitalOffersStatus === 'success'),
-      map(entity => {
-        const rapidoOfferWrapper = entity.rapidoOfferWrapper ?? {};
-        //console.error("rapidoOfferWrapper",rapidoOfferWrapper)
-        const hasOffer = !!(rapidoOfferWrapper.bestDigitalPolicy || rapidoOfferWrapper.bestPhysicalPolicy || rapidoOfferWrapper.bestEbookPolicy);
-        return hasOffer ? 'hasOffer' : 'noOffer';
-      }),
-      distinctUntilChanged()
-    );
+    return this.ethStoreService.getRapidoOfferState$();
   }
 
 

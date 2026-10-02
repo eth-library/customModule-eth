@@ -5,7 +5,7 @@
 //    - Account - Settings
 // https://jira.ethz.ch/browse/SLSP-1985
 
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { catchError, combineLatest, defer, map, Observable, of, switchMap } from 'rxjs';
 import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
@@ -21,7 +21,8 @@ import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
   imports: [
     CommonModule,
     SafeTranslatePipe
-  ]      
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class EthIdpWarningComponent {

@@ -2,7 +2,7 @@
 // There are two sections: one for ETH members and one for private individuals.
 // https://jira.ethz.ch/browse/SLSP-2007
 
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
@@ -18,7 +18,8 @@ import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
     MatCardModule,
     SafeTranslatePipe,
     AsyncPipe
-  ]      
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthChangeAddressComponent {
 }

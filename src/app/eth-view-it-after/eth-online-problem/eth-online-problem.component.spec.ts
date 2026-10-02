@@ -86,13 +86,30 @@ describe('EthOnlineProblemComponent', () => {
       }
     })));
 
-    let showLink: boolean | undefined;
-    component.showLink$.subscribe(value => showLink = value);
+    let mailLink: string | null | undefined;
+    component.mailLink$.subscribe(value => mailLink = value);
 
-    expect(showLink).toBeTrue();
-    expect(component.mailLink).toContain('mailto:almakb@library.ethz.ch');
-    expect(component.mailLink).toContain('Report access problem: 991234');
-    expect(decodeURIComponent(component.mailLink)).toContain('ISBN 978-3-16-148410-0');
+    expect(mailLink).toContain('mailto:almakb@library.ethz.ch');
+    expect(decodeURIComponent(mailLink!)).toContain('Report access problem: 991234');
+    expect(decodeURIComponent(mailLink!)).toContain('ISBN 978-3-16-148410-0');
+  });
+
+
+  it('encodes special characters in the subject so they cannot inject mailto parameters', () => {
+    storeService.getFullDisplayRecord$.and.returnValue(of(buildPnxDoc({
+      pnx: {
+        control: { recordid: ['991234'] },
+        display: { title: ['A & B #1 ?cc=evil@example.com'] }
+      }
+    })));
+
+    let mailLink: string | null | undefined;
+    component.mailLink$.subscribe(value => mailLink = value);
+
+    const queryString = mailLink!.split('?')[1];
+    const paramNames = queryString.split('&').map(part => part.split('=')[0]);
+    expect(paramNames).toEqual(['subject', 'body']);
+    expect(new URLSearchParams(queryString).get('subject')).toBe('Report access problem: 991234 - "A & B #1 ?cc=evil@example.com"');
   });
 
 
@@ -110,20 +127,22 @@ describe('EthOnlineProblemComponent', () => {
       }
     });
 
-    (component as any).setMailLink(issnRecord);
-    expect(decodeURIComponent(component.mailLink)).toContain('ISSN: 1234-5678 ISSN');
+    const issnLink = (component as any).buildMailLink(issnRecord);
+    expect(decodeURIComponent(issnLink)).toContain('ISSN: 1234-5678 ISSN');
 
-    (component as any).setMailLink(doiRecord);
-    expect(decodeURIComponent(component.mailLink)).toContain('DOI: 10.1234/5678 DOI');
+    const doiLink = (component as any).buildMailLink(doiRecord);
+    expect(decodeURIComponent(doiLink)).toContain('DOI: 10.1234/5678 DOI');
   });
 
 
   it('logs errors when record stream fails', () => {
     storeService.getFullDisplayRecord$.and.returnValue(throwError(() => new Error('boom')));
 
-    component.showLink$.subscribe();
+    let mailLink: string | null | undefined;
+    component.mailLink$.subscribe(value => mailLink = value);
 
     expect(errorHandlingSpy.logError).toHaveBeenCalled();
+    expect(mailLink).toBeNull();
   });
   
 });

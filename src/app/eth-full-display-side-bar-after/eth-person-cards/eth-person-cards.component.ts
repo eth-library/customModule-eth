@@ -1,7 +1,7 @@
 // Person entity cards based on GND ID or IdRef in the right sidebar 
 // https://jira.ethz.ch/browse/SLSP-2095
 
-import { Component, DestroyRef, inject, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, Input } from '@angular/core';
 import { BehaviorSubject, catchError, combineLatest, defer, distinctUntilChanged, forkJoin, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { EthPersonService } from '../../services/eth-person.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -23,7 +23,8 @@ import { HostComponent, PersonCardVM, PersonVM, PersonApiResponse, PersonResult 
     CommonModule,
     MatDividerModule,
     SafeTranslatePipe
-  ]     
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class EthPersonCardsComponent {

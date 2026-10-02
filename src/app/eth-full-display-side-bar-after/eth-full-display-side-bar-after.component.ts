@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { EthGeoRefComponent } from './eth-geo-ref/eth-geo-ref.component';
 import { EthPersonCardsComponent } from './eth-person-cards/eth-person-cards.component';
 import { EthProvenienzComponent } from './eth-provenienz/eth-provenienz.component';
@@ -14,7 +14,8 @@ import { HostComponent } from '../models/eth.model';
     EthProvenienzComponent,
     EthPersonCardsComponent,
     EthGeoRefComponent
-  ]     
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthFullDisplaySideBarAfterComponent {
     @Input() hostComponent: HostComponent = {};

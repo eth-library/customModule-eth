@@ -4,7 +4,7 @@
 // oai:agora.ch:004261444_08 (oai:agora.ch:000280096) - 99118814985305503  -> multiple online/one print
 // online: 99118815313805503; print: 990044649040205503  --  oai:agora.ch:004464904
 
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { defer, of, Observable } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
@@ -20,7 +20,8 @@ import { HostComponent, ComposeNbLinkVM, PnxDoc } from '../../models/eth.model';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './eth-compose-nb.component.html',
-  styleUrls: ['./eth-compose-nb.component.scss']
+  styleUrls: ['./eth-compose-nb.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class EthComposeNbComponent {

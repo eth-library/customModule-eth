@@ -311,6 +311,7 @@ describe('EthGeoRefComponent', () => {
     component.getPlaces(record).subscribe(result => {
       expect(result.ethorama).toEqual([]);
       expect(geoRefServiceSpy.enrichPOIs).not.toHaveBeenCalled();
+      // ETHorama returns http 500 whenever no POI exists for the record - expected, not logged as an error
       expect(errorHandlingSpy.logError).not.toHaveBeenCalled();
       done();
     });
@@ -444,7 +445,7 @@ describe('EthGeoRefComponent', () => {
       const result = (component as any).mapGndPlacesLobidToVm(data, { vid: 'vid', lang: 'de' });
 
       expect(result[0].label).toBe('A Place');
-      expect(result[0].url).toContain('entityId=123,Q1');
+      expect(result[0].url).toContain('entityId=123%2CQ1');
       expect(result[1].lccn).toBe('n456');
     });
   });
@@ -481,7 +482,7 @@ describe('EthGeoRefComponent', () => {
 
     it('combines gnd and qid when both available', () => {
       const url = (component as any).buildLocationEntityUrl({ gnd: '123', qid: 'Q1' }, { vid: 'vid', lang: 'de' });
-      expect(url).toContain('entityId=123,Q1');
+      expect(url).toContain('entityId=123%2CQ1');
     });
 
     it('falls back to qid only', () => {

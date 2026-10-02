@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { EthDnbTocComponent } from './eth-dnb-toc/eth-dnb-toc.component';
 import { EthComposeEraraComponent } from './eth-compose-erara/eth-compose-erara.component';
 import { EthComposeNbComponent } from './eth-compose-nb/eth-compose-nb.component'
@@ -15,7 +15,8 @@ import { HostComponent } from '../models/eth.model';
     EthComposeEraraComponent,
     EthComposeNbComponent,
     EthProvenienzEraraLinkComponent,
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthRecordAvailabilityAfterComponent {
   @Input() hostComponent: HostComponent = {};

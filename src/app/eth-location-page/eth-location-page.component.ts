@@ -1,8 +1,7 @@
 // EntityPage Place
 
 // https://jira.ethz.ch/browse/SLSP-1991
-
-import { Component, ElementRef, inject, ViewChild, ViewEncapsulation, DestroyRef } from '@angular/core';
+import { ChangeDetectionStrategy,Component, ElementRef, inject, Injector, ViewChild, ViewEncapsulation, DestroyRef, afterNextRender } from '@angular/core';
 import { combineLatest, defer, forkJoin, map, Observable, of, startWith, switchMap, catchError, filter } from 'rxjs';
 import { EthStoreService } from '../services/eth-store.service';
 import { EthLocationPageService } from './eth-location-page.service';
@@ -31,18 +30,19 @@ type StyledBoundsLayer = L.Layer & {
   styleUrls: ['./eth-location-page.component.scss', '../../../node_modules/leaflet/dist/leaflet.css'],
   standalone: true,
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, MatDividerModule, MatExpansionModule, MatIconModule, SafeTranslatePipe]
 })
 
 export class EthLocationPageComponent {
   private router = inject(SHELL_ROUTER); 
   private destroyRef = inject(DestroyRef);
+  private injector = inject(Injector);
   private document = inject(DOCUMENT);
   private translate = inject(TranslateService);
   private ethStoreService = inject(EthStoreService);
   public ethLocationPageService = inject(EthLocationPageService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
-  private pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
 
   placePageData$: Observable<PlacePageViewModel | null> = defer(() => {
     if (!this.router.url.includes('/entity/location')) {
@@ -94,23 +94,7 @@ export class EthLocationPageComponent {
   @ViewChild('licensePopover') licensePopover?: ElementRef;
   @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
   constructor() {
-    this.destroyRef.onDestroy(() => {
-      this.clearPendingTimeouts();
-      this.destroyMap();
-    });
-  }
-
-  private scheduleTask(task: () => void, delay = 0): void {
-    const timeoutId = globalThis.setTimeout(() => {
-      this.pendingTimeouts.delete(timeoutId);
-      task();
-    }, delay);
-    this.pendingTimeouts.add(timeoutId);
-  }
-
-  private clearPendingTimeouts(): void {
-    this.pendingTimeouts.forEach(timeoutId => globalThis.clearTimeout(timeoutId));
-    this.pendingTimeouts.clear();
+    this.destroyRef.onDestroy(() => this.destroyMap());
   }
 
   private destroyMap(): void {
@@ -208,7 +192,7 @@ export class EthLocationPageComponent {
                 (a.properties?.title ?? '').localeCompare(b.properties?.title ?? '')
               );
             }
-            this.scheduleTask(() => this.initMap(filteredFeatures, lat, lng));                        
+            afterNextRender({ write: () => this.initMap(filteredFeatures, lat, lng) }, { injector: this.injector });
             return { 
               ...vm, maps: mapMaps({features: filteredFeatures})
             };            
@@ -306,16 +290,12 @@ export class EthLocationPageComponent {
 
   open(key: string) {
     this.openLicensePopover = key;
-    this.scheduleTask(() => {
-      this.licensePopover?.nativeElement?.focus();
-    });
+    afterNextRender({ write: () => this.licensePopover?.nativeElement?.focus() }, { injector: this.injector });
   }
 
   close() {
     this.openLicensePopover = null;
-    this.scheduleTask(() => {
-      this.licensePopoverTrigger?.nativeElement?.focus();
-    });
+    afterNextRender({ write: () => this.licensePopoverTrigger?.nativeElement?.focus() }, { injector: this.injector });
   }
 
   toggle(key: string) {

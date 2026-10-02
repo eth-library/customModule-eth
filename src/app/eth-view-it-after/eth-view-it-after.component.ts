@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { EthWaybackComponent } from './eth-wayback/eth-wayback.component';
 import { EthLibraryStackComponent } from './eth-library-stack/eth-library-stack.component';
@@ -14,7 +14,8 @@ import { EthOnlineProblemComponent } from './eth-online-problem/eth-online-probl
     EthLibraryStackComponent,
   ],
   templateUrl: './eth-view-it-after.component.html',
-  styleUrl: './eth-view-it-after.component.scss'
+  styleUrl: './eth-view-it-after.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthViewItAfterComponent {
 

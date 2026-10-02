@@ -357,11 +357,13 @@ describe('EthLocationPageComponent', () => {
     component.licensePopoverTrigger = { nativeElement: { focus: jasmine.createSpy('triggerFocus') } } as any;
 
     component.open('details');
+    fixture.detectChanges();
     tick();
     expect(component.isOpen('details')).toBeTrue();
     expect(component.licensePopover?.nativeElement.focus).toHaveBeenCalled();
 
     component.toggle('details');
+    fixture.detectChanges();
     tick();
     expect(component.isOpen('details')).toBeFalse();
     expect(component.licensePopoverTrigger?.nativeElement.focus).toHaveBeenCalled();

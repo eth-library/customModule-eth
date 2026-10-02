@@ -87,7 +87,7 @@ export interface PrimoApiResponse  {
     totalResultsLocal?: number;
   };
   docs?: PnxDoc[];
-  records?: unknown[]; // todo
+  records?: unknown[];
 }
 export interface PnxDoc  {
   pnx?: {

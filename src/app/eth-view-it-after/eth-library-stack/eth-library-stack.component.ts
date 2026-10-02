@@ -9,7 +9,7 @@
 
 // cdi_librarystack_primary_159090
 
-import { Component, Renderer2, DestroyRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Renderer2, DestroyRef, inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { catchError, distinctUntilChanged, map, of, Subscription, take, tap } from 'rxjs';
 import { EthStoreService } from '../../services/eth-store.service';
@@ -31,7 +31,8 @@ const TEXT2_CLASS = 'eth-librarystack-text2';
     CommonModule
   ],
   templateUrl: './eth-library-stack.component.html',
-  styleUrls: ['./eth-library-stack.component.scss']
+  styleUrls: ['./eth-library-stack.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthLibraryStackComponent {
 

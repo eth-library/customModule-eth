@@ -1,4 +1,4 @@
-@if (showLink$ | async) {
+@if (mailLink$ | async; as mailLink) {
     <div class="eth-online-problem">
         <span aria-hidden="true">✉ </span>
         <a [href]="mailLink" [attr.aria-label]="'eth.onlineProblem.ariaLabel' | safeTranslate | async">{{'eth.onlineProblem.linkText' | safeTranslate | async}}</a>

@@ -1,7 +1,7 @@
 // Integration Matomo
 // https://jira.ethz.ch/browse/SLSP-1954
 
-import { DestroyRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, DestroyRef, Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, map, catchError, EMPTY, filter } from 'rxjs';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
@@ -11,7 +11,8 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'custom-eth-matomo',
   templateUrl: './eth-matomo.component.html',
-  standalone: true,   
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 
@@ -82,7 +83,7 @@ export class EthMatomoComponent implements OnInit {
       .subscribe(url => {
         (window as any)._paq.push(['setCustomUrl', url]);
         (window as any)._paq.push(['trackPageView']);
-        console.log('Tracking PageView:', url);
+        //console.log('Tracking PageView:', url);
       });
   }
 

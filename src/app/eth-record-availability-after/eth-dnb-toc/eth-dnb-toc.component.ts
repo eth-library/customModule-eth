@@ -11,7 +11,7 @@
 990016261860205503
 */
 
-import { Component, inject, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { Observable, catchError, combineLatest, defer, distinctUntilChanged, filter, forkJoin, map, of, switchMap } from 'rxjs';
 import { EthDnbTocService } from './eth-dnb-toc.service'
 import { EthStoreService } from '../../services/eth-store.service';
@@ -44,7 +44,8 @@ const EXCLUDED_ALMA_LINK_PREFIXES = [
   imports: [
     CommonModule,
     SafeTranslatePipe
-  ]     
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthDnbTocComponent {
   @Input() hostComponent: HostComponent = {};

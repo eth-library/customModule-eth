@@ -11,7 +11,7 @@ The provenance images are displayed in the detailed view of the respective print
 
 // 99117339955005503
 
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Observable, catchError, defer, map, of, filter, switchMap, startWith } from 'rxjs';
 import { EthProvenienzService } from './eth-provenienz.service'
 import { EthStoreService } from '../../services/eth-store.service';
@@ -31,7 +31,8 @@ import { EthProvenienzAPIItem } from '../../models/eth.model';
     CommonModule,
     MatDividerModule,
     SafeTranslatePipe    
-  ]     
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthProvenienzComponent{
     private router = inject(SHELL_ROUTER);    

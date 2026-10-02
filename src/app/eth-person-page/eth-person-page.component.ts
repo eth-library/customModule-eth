@@ -1,7 +1,7 @@
 // EntityPage Person
 // https://jira.ethz.ch/browse/SLSP-1990
 
-import { Component, ElementRef, inject, ViewChild, ViewEncapsulation, DestroyRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, Injector, ViewChild, ViewEncapsulation, afterNextRender } from '@angular/core';
 import { catchError, defer, distinctUntilChanged, filter, forkJoin, map, Observable, of, startWith, switchMap, tap } from 'rxjs';
 import { EthPersonService } from '../services/eth-person.service';
 import { EthStoreService } from '../services/eth-store.service';
@@ -27,18 +27,18 @@ import { PersonVM, SearchVariantVM, PrimoApiResponse } from '../models/eth.model
     MatExpansionModule,
     MatIconModule,
     SafeTranslatePipe
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class EthPersonPageComponent {
   private router = inject(SHELL_ROUTER);
-  private destroyRef = inject(DestroyRef);
+  private injector = inject(Injector);
   private document = inject(DOCUMENT);
   private translate = inject(TranslateService);
   public ethPersonService = inject(EthPersonService);
   private ethStoreService = inject(EthStoreService);
   private ethErrorHandlingService = inject(EthErrorHandlingService);
-  private pendingTimeouts = new Set<ReturnType<typeof setTimeout>>();
   private lang!: string;
   openLicensePopover: string | null = null;
 
@@ -64,22 +64,6 @@ export class EthPersonPageComponent {
 
   @ViewChild('licensePopover') licensePopover?: ElementRef;
   @ViewChild('licensePopoverTrigger') licensePopoverTrigger?: ElementRef;
-  constructor() {
-    this.destroyRef.onDestroy(() => this.clearPendingTimeouts());
-  }
-
-  private scheduleTask(task: () => void, delay = 0): void {
-    const timeoutId = globalThis.setTimeout(() => {
-      this.pendingTimeouts.delete(timeoutId);
-      task();
-    }, delay);
-    this.pendingTimeouts.add(timeoutId);
-  }
-
-  private clearPendingTimeouts(): void {
-    this.pendingTimeouts.forEach(timeoutId => globalThis.clearTimeout(timeoutId));
-    this.pendingTimeouts.clear();
-  }
 
   private loadPerson(): Observable<PersonVM | null> {
     return this.ethStoreService.linkedDataEntityId$.pipe(
@@ -99,7 +83,7 @@ export class EthPersonPageComponent {
             return person;
           }),
           switchMap(person => this.getPrecisionRecallLinks(person)),
-          tap(() => this.scheduleTask(() => this.resetPanelIds(), 100))
+          tap(() => afterNextRender({ write: () => this.resetPanelIds() }, { injector: this.injector }))
         );
       }),
       catchError(error => {
@@ -189,16 +173,12 @@ export class EthPersonPageComponent {
 
   open(key: string) {
     this.openLicensePopover = key;
-    this.scheduleTask(() => {
-      this.licensePopover?.nativeElement?.focus();
-    });
+    afterNextRender({ write: () => this.licensePopover?.nativeElement?.focus() }, { injector: this.injector });
   }
 
   close() {
     this.openLicensePopover = null;
-    this.scheduleTask(() => {
-      this.licensePopoverTrigger?.nativeElement?.focus();
-    });
+    afterNextRender({ write: () => this.licensePopoverTrigger?.nativeElement?.focus() }, { injector: this.injector });
   }
 
   toggle(key: string) {

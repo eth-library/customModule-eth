@@ -9,7 +9,7 @@ The MutationObserver is only created if there is a corresponding link in the Sto
 */
 // https://jira.ethz.ch/browse/SLSP-2014
 
-import { Component, DestroyRef, inject, Renderer2 } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, Renderer2 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { catchError, distinctUntilChanged, map, of, take, tap } from 'rxjs';
 import { EthStoreService } from '../../services/eth-store.service';
@@ -30,7 +30,8 @@ const WAYBACK_HINT_CLASS = 'eth-wayback';
     CommonModule
   ],
   templateUrl: './eth-wayback.component.html',
-  styleUrls: ['./eth-wayback.component.scss']
+  styleUrls: ['./eth-wayback.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthWaybackComponent {
 

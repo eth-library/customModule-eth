@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { Store } from '@ngrx/store';
-import { BehaviorSubject, firstValueFrom, Observable, of, throwError } from 'rxjs';
+import { firstValueFrom, Observable, of, Subject, throwError } from 'rxjs';
 import { EthIllLinkComponent } from './eth-ill-link.component';
 import { EthStoreService } from '../services/eth-store.service';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
@@ -11,47 +10,18 @@ interface StoreOverrides {
   isLoggedIn$?: Observable<boolean>;
   getFullDisplayRecord$?: () => Observable<PnxDoc | null>;
   getFullDisplayDeliveryEntity$?: () => Observable<StoreDeliveryEntity | null>;
+  getRapidoOfferState$?: () => Observable<'noOffer' | 'hasOffer'>;
 }
 
 interface SetupOptions {
   store?: StoreOverrides;
   translate?: { stream: (key: string) => Observable<string> };
-  ngrxState?: any;
 }
-
-class MockNgrxStore {
-  private state$: BehaviorSubject<any>;
-
-  constructor(initialState: any) {
-    this.state$ = new BehaviorSubject(initialState);
-  }
-
-  setState(nextState: any) {
-    this.state$.next(nextState);
-  }
-
-  pipe(...ops: any[]): Observable<any> {
-    return ops.reduce((obs, op) => op(obs), this.state$.asObservable());
-  }
-}
-
-const makeNgrxState = (entity: any = null) => ({
-  'full-display': { selectedRecordId: 'alma123' },
-  user: { decodedJwt: { userGroup: 'GRP' } },
-  'ngrs-record-data': { entities: entity ? { GRP_123: entity } : {} }
-});
-
-const rapidoEntity = (rapidoOfferWrapper: any = {}, status: string = 'success') => ({
-  rapidoOffersStatus: status,
-  rapidoDigitalOffersStatus: status,
-  rapidoOfferWrapper
-});
 
 describe('EthIllLinkComponent', () => {
   let component: EthIllLinkComponent;
   let fixture: ComponentFixture<EthIllLinkComponent>;
   let errorHandlingSpy: jasmine.SpyObj<EthErrorHandlingService>;
-  let mockNgrxStore: MockNgrxStore;
 
   const defaultDisplay = {
     title: ['Some Title'],
@@ -78,7 +48,8 @@ describe('EthIllLinkComponent', () => {
   const baseStore = () => ({
     isLoggedIn$: of(true),
     getFullDisplayRecord$: () => of(null),
-    getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['available'] } })
+    getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['available'] } }),
+    getRapidoOfferState$: () => of('noOffer' as const)
   });
 
 
@@ -94,12 +65,11 @@ describe('EthIllLinkComponent', () => {
     const storeServiceMock = {
       isLoggedIn$: options.store?.isLoggedIn$ ?? storeDefaults.isLoggedIn$,
       getFullDisplayRecord$: options.store?.getFullDisplayRecord$ ?? storeDefaults.getFullDisplayRecord$,
-      getFullDisplayDeliveryEntity$: options.store?.getFullDisplayDeliveryEntity$ ?? storeDefaults.getFullDisplayDeliveryEntity$
+      getFullDisplayDeliveryEntity$: options.store?.getFullDisplayDeliveryEntity$ ?? storeDefaults.getFullDisplayDeliveryEntity$,
+      getRapidoOfferState$: options.store?.getRapidoOfferState$ ?? storeDefaults.getRapidoOfferState$
     };
 
     const translateServiceMock = options.translate ?? defaultTranslate;
-
-    mockNgrxStore = new MockNgrxStore(options.ngrxState ?? makeNgrxState());
 
     errorHandlingSpy = jasmine.createSpyObj<EthErrorHandlingService>('EthErrorHandlingService', ['logError', 'logError']);
 
@@ -108,8 +78,7 @@ describe('EthIllLinkComponent', () => {
       providers: [
         { provide: EthStoreService, useValue: storeServiceMock },
         { provide: TranslateService, useValue: translateServiceMock },
-        { provide: EthErrorHandlingService, useValue: errorHandlingSpy },
-        { provide: Store, useValue: mockNgrxStore }
+        { provide: EthErrorHandlingService, useValue: errorHandlingSpy }
       ]
     }).compileComponents();
 
@@ -156,9 +125,9 @@ describe('EthIllLinkComponent', () => {
     await setupTest({
       store: {
         getFullDisplayRecord$: () => of(record),
-        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } })
-      },
-      ngrxState: makeNgrxState(rapidoEntity({}))
+        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } }),
+        getRapidoOfferState$: () => of('noOffer')
+      }
     });
 
     const qs = await firstValueFrom(component.qs$);
@@ -173,9 +142,9 @@ describe('EthIllLinkComponent', () => {
     await setupTest({
       store: {
         getFullDisplayRecord$: () => of(record),
-        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } })
-      },
-      ngrxState: makeNgrxState(rapidoEntity({ bestPhysicalPolicy: 'SOME_POLICY' }))
+        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } }),
+        getRapidoOfferState$: () => of('hasOffer')
+      }
     });
 
     const qs = await firstValueFrom(component.qs$);
@@ -193,10 +162,10 @@ describe('EthIllLinkComponent', () => {
     await setupTest({
       store: {
         getFullDisplayRecord$: () => of(record),
-        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } })
+        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } }),
+        getRapidoOfferState$: () => of('noOffer')
       },
-      translate: translateMock,
-      ngrxState: makeNgrxState(rapidoEntity({}))
+      translate: translateMock
     });
 
     const qs = await firstValueFrom(component.qs$);
@@ -230,10 +199,10 @@ describe('EthIllLinkComponent', () => {
     await setupTest({
       store: {
         getFullDisplayRecord$: () => of(record),
-        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } })
+        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } }),
+        getRapidoOfferState$: () => of('noOffer')
       },
-      translate: translateMock,
-      ngrxState: makeNgrxState(rapidoEntity({}))
+      translate: translateMock
     });
 
     const bundle = await firstValueFrom(component.translations$);
@@ -253,10 +222,10 @@ describe('EthIllLinkComponent', () => {
     await setupTest({
       store: {
         getFullDisplayRecord$: () => of(record),
-        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } })
+        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } }),
+        getRapidoOfferState$: () => of('noOffer')
       },
-      translate: translateMock,
-      ngrxState: makeNgrxState(rapidoEntity({}))
+      translate: translateMock
     });
 
     const url = await firstValueFrom(component.url$);
@@ -267,19 +236,20 @@ describe('EthIllLinkComponent', () => {
 
   it('emits querystring once rapido store data resolves later', async () => {
     const record = createRecord();
+    const rapidoState$ = new Subject<'noOffer' | 'hasOffer'>();
 
     await setupTest({
       store: {
         getFullDisplayRecord$: () => of(record),
-        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } })
-      },
-      ngrxState: makeNgrxState(rapidoEntity({}, 'pending'))
+        getFullDisplayDeliveryEntity$: () => of({ delivery: { availability: ['no_inventory'] } }),
+        getRapidoOfferState$: () => rapidoState$.asObservable()
+      }
     });
 
     const qsPromise = firstValueFrom(component.qs$);
 
     setTimeout(() => {
-      mockNgrxStore.setState(makeNgrxState(rapidoEntity({})));
+      rapidoState$.next('noOffer');
     }, 0);
 
     const qs = await qsPromise;

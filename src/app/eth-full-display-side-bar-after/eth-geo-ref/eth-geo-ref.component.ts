@@ -4,7 +4,7 @@
 
 // https://jira.ethz.ch/browse/SLSP-2004
 
-import { Component, inject, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { EthGeoRefService } from './eth-geo-ref.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -25,7 +25,8 @@ import { HostComponent, PnxDoc, PlacesGeoRefVM, PlaceGeoRefVM, LobidAPIResponse,
     CommonModule,
     MatDividerModule,
     SafeTranslatePipe
-  ]     
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EthGeoRefComponent {
   private router = inject(SHELL_ROUTER);
@@ -103,7 +104,7 @@ export class EthGeoRefComponent {
             }),
             catchError(error => {
               // no item found -> http 500
-              this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getPlacesFromETHorama()');
+              // this.ethErrorHandlingService.logError(error, 'EthGeoRefComponent.getPlacesFromETHorama()');
               return of([]); 
             })
           )
