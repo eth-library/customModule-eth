@@ -3,7 +3,7 @@
     <div class="eth-provenance-cards" role="region" aria-labelledby="ethProvenanceCards">
       <details open>
         <summary>
-          <h4 id="ethProvenanceCards">{{'eth.provenance.heading' | safeTranslate | async}} ({{items.length}})</h4>
+          <h2 id="ethProvenanceCards">{{'eth.provenance.heading' | safeTranslate | async}} ({{items.length}})</h2>
           <svg class="marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
             <path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"></path>
           </svg>
@@ -14,7 +14,7 @@
               <div class="eth-provenance-card">
                 <div class="eth-provenance-card__text">
                     @if (item.description) {
-                        <h5><a [href]="'/nde'+item.url" (click)="navigate(item.url,$event)">{{ item.description }}</a></h5>
+                        <h3><a [href]="'/nde'+item.url" (click)="navigate(item.url,$event)">{{ item.description }}</a></h3>
                     }
                     <div>{{'eth.provenance.date' | safeTranslate | async}} {{ item.eth_dating || 'Unbekannt' }}</div>
                     <div>

@@ -23,7 +23,7 @@ summary:hover, summary:focus {
     background: var(--mat-expansion-header-hover-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-hover-state-layer-opacity) * 100%), transparent));
 }
 
-summary h4{
+summary h2{
     color: var(--darkText);
     font-weight: 600;
     font-size: 1rem;
@@ -45,7 +45,7 @@ summary::marker {
 .eth-person-cards details[open] .marker {
     transform: rotate(180deg);
 }
-.eth-person-cards h5{
+.eth-person-cards h3{
     all: unset;
     color: var(--sys-primary);
     font-weight: 600;

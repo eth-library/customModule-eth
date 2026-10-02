@@ -4,7 +4,7 @@
     <div class="eth-place-cards" role="region" aria-labelledby="ethGeoRefCards">
       <details open>
         <summary>
-          <h4 id="ethGeoRefCards">{{'eth.geoRef.heading' | safeTranslate | async}} ({{places.allPlaces.length}})</h4>
+          <h2 id="ethGeoRefCards">{{'eth.geoRef.heading' | safeTranslate | async}} ({{places.allPlaces.length}})</h2>
           <svg class="marker" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" aria-hidden="true" focusable="false">
             <path d="M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z"></path>
           </svg>
@@ -14,7 +14,7 @@
             <li role="listitem">
               <div class="eth-place-card">
                 <div class="eth-place-card__text">
-                    <h5>
+                    <h3>
                       @if (place.url) {
                         <a [href]="'/nde' + place.url" (click)="navigate(place.url,$event)">
                           {{ place.label }}
@@ -22,7 +22,7 @@
                       } @else {
                         <span>{{ place.label }}</span>
                       }
-                    </h5>
+                    </h3>
                     <div *ngIf="place.description">{{place.description}}</div>
                     <div class="eth-entity-type-wrapper"><span class="entity-type">{{'eth.geoRef.entity' | safeTranslate | async}}</span></div>
                 </div>
