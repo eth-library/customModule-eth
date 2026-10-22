@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createFeatureSelector, createSelector, select, Store } from '@ngrx/store';
-import { distinctUntilChanged, filter, map, Observable, of, switchMap, tap } from 'rxjs';
+import { distinctUntilChanged, filter, map, Observable, of, switchMap, tap, timer } from 'rxjs';
 import type { Params, Data } from '@angular/router';
 import { StoreDeliveryEntity, HostComponent, PnxDoc, LinkedDataRecommendation } from '../models/eth.model';
 
@@ -328,7 +328,13 @@ export class EthStoreService {
                 const hasOffer = !!(rapidoOfferWrapper.bestDigitalPolicy || rapidoOfferWrapper.bestPhysicalPolicy || rapidoOfferWrapper.bestEbookPolicy);
                 return hasOffer ? 'hasOffer' : 'noOffer';
             }),
-            distinctUntilChanged()
+            distinctUntilChanged(),
+            // 'hasOffer' passes immediately; 'noOffer' only after it stayed stable, so a transient
+            // empty wrapper (policies resolved shortly after the status flags) doesn't flash the ILL hint.
+            switchMap(state => state === 'hasOffer'
+                ? of(state)
+                : timer(1000).pipe(map(() => state))
+            )
         );
     }
 

@@ -106,7 +106,8 @@ export class EthIllLinkComponent {
   // do we need an ILL link? If so, build querystring for ILL link
   private getIllQsOrNull(record: PnxDoc | null, deliveryEntity: StoreDeliveryEntity  | null): Observable<string | null> {
     try {
-      if ((deliveryEntity?.delivery?.availability?.[0] ?? '') !== 'no_inventory') {
+      const availability = deliveryEntity?.delivery?.availability;
+      if (!availability?.length || availability.some(a => a !== 'no_inventory')) {
         return of(null);
       }
       // if ispartof (991076219509705501) return
@@ -120,7 +121,9 @@ export class EthIllLinkComponent {
 
       // Wait for the Rapido offer data from the store, then build QS only if it has nothing to offer
       return this.getRapidoOfferState$().pipe(
-        map(state => (state === 'noOffer' ? this.buildQs(record) : null))
+        map(state => {
+          return state === 'noOffer' ? this.buildQs(record) : null;
+        })
       );
     } catch (error) {
         this.ethErrorHandlingService.logError(error, 'EthIllLinkComponent.getIllQsOrNull()');

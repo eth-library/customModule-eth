@@ -183,16 +183,10 @@ describe('EthProvenienzComponent', () => {
   });
 
 
-  it('renders provenance cards in the template', (done) => {
+  it('renders provenance links in the template', (done) => {
     provenienzService.getItems.and.returnValue(of({
       items: [
-        {
-          id: '1',
-          title: 'Title 1',
-          description: 'Desc 1',
-          eth_dating: '1900',
-          eth_doi_link: 'https://doi.org/10.3931/e-rara-123'
-        }
+        { id: '1', description: 'Desc 1', eth_doi_link: 'https://doi.org/10.3931/e-rara-123' }
       ]
     } as any));
 
@@ -204,17 +198,77 @@ describe('EthProvenienzComponent', () => {
     });
 
     fixture.detectChanges();
-    
+
     fixture.whenStable().then(() => {
       fixture.detectChanges();
 
-      const container = fixture.debugElement.query(By.css('.eth-provenance-cards'));
-      const cardTitle = fixture.debugElement.query(By.css('.eth-provenance-card h5 a'));
+      const container = fixture.debugElement.query(By.css('.eth-provenance-links'));
+      const link = fixture.debugElement.query(By.css('.eth-provenance-link a'));
 
       expect(container).toBeTruthy();
-      expect(cardTitle).toBeTruthy();
-      expect((cardTitle.nativeElement as HTMLElement).textContent).toContain('Desc 1');
+      expect(link).toBeTruthy();
+      expect((link.nativeElement as HTMLElement).textContent?.trim()).toBe('Desc 1');
+      expect((link.nativeElement as HTMLAnchorElement).getAttribute('href')).toContain('/nde/search?vid=VID');
       done();
+    });
+  });
+
+
+  it('uses the translated fallback text when description is missing', (done) => {
+    provenienzService.getItems.and.returnValue(of({
+      items: [
+        { id: '1', eth_doi_link: 'https://doi.org/10.3931/e-rara-123' },
+        { id: '2', description: '   ', eth_doi_link: 'https://doi.org/10.3931/e-rara-456' }
+      ]
+    } as any));
+
+    deliveryEntity$.next({
+      delivery: {
+        recordOwner: '41SLSP_ETH',
+        availabilityLinksUrl: ['https://doi.org/10.3931/e-rara-123']
+      }
+    });
+
+    fixture.detectChanges();
+
+    fixture.whenStable().then(() => {
+      fixture.detectChanges();
+
+      const links = fixture.debugElement.queryAll(By.css('.eth-provenance-link a'));
+
+      expect(links.length).toBe(2);
+      links.forEach(link =>
+        expect((link.nativeElement as HTMLElement).textContent?.trim()).toBe('eth.provenance.linkText')
+      );
+      done();
+    });
+  });
+
+
+  it('maps items to id, description and a search url, removing duplicates', (done) => {
+    provenienzService.getItems.and.returnValue(of({
+      items: [
+        { id: '1', description: 'Desc 1', eth_doi_link: 'https://doi.org/10.3931/e-rara-123' },
+        { id: '1', description: 'Desc 1 duplicate', eth_doi_link: 'https://doi.org/10.3931/e-rara-123' },
+        { id: '2', description: 'Desc 2' }
+      ]
+    } as any));
+
+    component.items$.pipe(skip(1), take(1)).subscribe(items => {
+      expect(items.length).toBe(2);
+      expect(items[0].id).toBe('1');
+      expect(items[0].description).toBe('Desc 1');
+      expect(items[0].url).toContain(`query=${encodeURIComponent('10.3931/e-rara-123')}`);
+      expect(items[1].url).toContain('query=');
+      expect(items[1].url).not.toContain('e-rara');
+      done();
+    });
+
+    deliveryEntity$.next({
+      delivery: {
+        recordOwner: '41SLSP_ETH',
+        availabilityLinksUrl: ['https://doi.org/10.3931/e-rara-123']
+      }
     });
   });
 });

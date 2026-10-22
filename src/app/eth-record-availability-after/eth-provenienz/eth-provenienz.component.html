@@ -1,0 +1,14 @@
+@if (items$ | async; as items)
+{
+  @if (items.length > 0)
+  {
+    <div class="eth-provenance-links">
+      @for (item of items; track item.id)
+      {
+        <div class="eth-provenance-link">
+          <a [href]="'/nde'+item.url" (click)="navigate(item.url,$event)">{{ item?.description?.trim() || ('eth.provenance.linkText' | safeTranslate | async) }}</a>
+        </div>
+      }
+    </div>
+  }
+}

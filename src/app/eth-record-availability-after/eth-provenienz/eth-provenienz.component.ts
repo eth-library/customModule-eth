@@ -5,7 +5,7 @@ These images are linked to:
 - Print in e-rara
 - Print and all its provenances in swisscovery
 2. Print -> Image:
-The provenance images are displayed in the detailed view of the respective print.
+The links to the provenance images are displayed in the fullview of the respective print.
 */
 // https://jira.ethz.ch/browse/SLSP-2006
 
@@ -17,10 +17,14 @@ import { EthProvenienzService } from './eth-provenienz.service'
 import { EthStoreService } from '../../services/eth-store.service';
 import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { CommonModule } from '@angular/common';
-import { MatDividerModule } from '@angular/material/divider';
 import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../../injection-tokens";
-import { EthProvenienzAPIItem } from '../../models/eth.model';
+
+interface ProvenienzLink {
+  id: string;
+  description?: string | null;
+  url: string;
+}
 
 @Component({
   selector: 'custom-eth-provenienz',
@@ -29,7 +33,6 @@ import { EthProvenienzAPIItem } from '../../models/eth.model';
   standalone: true,   
   imports: [
     CommonModule,
-    MatDividerModule,
     SafeTranslatePipe    
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -40,7 +43,7 @@ export class EthProvenienzComponent{
     private ethStoreService = inject(EthStoreService);
     private ethErrorHandlingService = inject(EthErrorHandlingService);
     
-    items$: Observable<EthProvenienzAPIItem[]> = defer(() => {
+    items$: Observable<ProvenienzLink[]> = defer(() => {
       const vid = this.ethStoreService.getVid();
       const tab = this.ethStoreService.getTab();
       const scope = this.ethStoreService.getScope();
@@ -67,13 +70,12 @@ export class EthProvenienzComponent{
                 .filter((item, index, allItems) =>
                   allItems.findIndex(candidate => candidate.id === item.id) === index
                 )
-                .map(item => {
-                  const itemDoi = item.eth_doi_link.includes('doi.org/')
-                    ? item.eth_doi_link.split('doi.org/')[1]
-                    : '';
+                .map(({ id, description, eth_doi_link }): ProvenienzLink => {
+                  const itemDoi = eth_doi_link?.split('doi.org/')[1] ?? '';
 
                   return {
-                    ...item,
+                    id,
+                    description,
                     url: `/search?vid=${encodeURIComponent(vid ?? '')}&tab=${encodeURIComponent(tab ?? '')}&search_scope=${encodeURIComponent(scope ?? '')}&query=${encodeURIComponent(itemDoi)}`
                   };
                 })

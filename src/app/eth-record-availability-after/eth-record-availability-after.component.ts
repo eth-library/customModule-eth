@@ -3,6 +3,7 @@ import { EthDnbTocComponent } from './eth-dnb-toc/eth-dnb-toc.component';
 import { EthComposeEraraComponent } from './eth-compose-erara/eth-compose-erara.component';
 import { EthComposeNbComponent } from './eth-compose-nb/eth-compose-nb.component'
 import { EthProvenienzEraraLinkComponent } from './eth-provenienz-erara-link/eth-provenienz-erara-link.component';
+import { EthProvenienzComponent } from './eth-provenienz/eth-provenienz.component';
 import { HostComponent } from '../models/eth.model';
 
 @Component({
@@ -11,6 +12,7 @@ import { HostComponent } from '../models/eth.model';
   templateUrl: './eth-record-availability-after.component.html',
   styleUrls: ['./eth-record-availability-after.component.scss'],
   imports: [
+    EthProvenienzComponent,
     EthDnbTocComponent,
     EthComposeEraraComponent,
     EthComposeNbComponent,
