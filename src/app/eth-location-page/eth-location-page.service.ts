@@ -14,8 +14,7 @@ export class EthLocationPageService {
     private baseurlTopics = 'https://api.library.ethz.ch/geo/v1/geo-topics';
     private baseurlMaps = 'https://api.library.ethz.ch/geo/v1/maps';
     private baseurlPoi = 'https://api.library.ethz.ch/geo/v1/pois';
-    private baseurlWikidataByQID = 'https://daas.library.ethz.ch/rib/v3/places/';
-    private baseurlWikidataByGND = '// https://daas.library.ethz.ch/rib/v3/places/gnd/'
+    private baseurlWikidataByQID = 'https://daas.library.ethz.ch/rib/v3/places';
     private baseUrlIdentifierForLccn = 'https://daas.library.ethz.ch/rib/v3/places/lccn-identifier';
 
     constructor(
@@ -25,7 +24,7 @@ export class EthLocationPageService {
 
     // https://api.library.ethz.ch/ethorama/v1/pois?apikey=XKosnD8xM5AuyvuovfebqpHUzkrMi0qqlVKcM5gHYDANCyds&details=false&qId=Q15283
     getPlaceFromETHorama(qid: string): Observable<EthoramaAPIResponse> {
-      const url = `${this.baseurlETHorama}?apikey=XKosnD8xM5AuyvuovfebqpHUzkrMi0qqlVKcM5gHYDANCyds&details=false&qId=${qid}`;
+      const url = `${this.baseurlETHorama}?apikey=XKosnD8xM5AuyvuovfebqpHUzkrMi0qqlVKcM5gHYDANCyds&details=false&qId=${encodeURIComponent(qid)}`;
       return this.http.get<EthoramaAPIResponse>(url).pipe(
         catchError((e) => {
           // if not found: HTTP 500
@@ -38,7 +37,7 @@ export class EthLocationPageService {
 
     // https://api.library.ethz.ch/geo/v1/pois?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&qid=Q15283
     getPoiFromGeoGraph(gnd: string | undefined, qid: string | undefined): Observable<GraphGeoInfoAPIResponse> {
-      const url = `${this.baseurlPoi}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&qid=${qid}&gnd=${gnd}`;
+      const url = `${this.baseurlPoi}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&qid=${encodeURIComponent(qid ?? '')}&gnd=${encodeURIComponent(gnd ?? '')}`;
       return this.http.get<GraphGeoInfoAPIResponse>(url).pipe(
         catchError((e) => {
           this.ethErrorHandlingService.logError(e, 'EthLocationPageService.getPoiFromGeoGraph');
@@ -50,7 +49,7 @@ export class EthLocationPageService {
 
     // https://api.library.ethz.ch/geo/v1/geo-topics/?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&q=Q15283
     getTopicsFromGeoGraph(gnd: string | undefined, qid: string | undefined): Observable<GraphGeoInfoAPIResponse> {
-      const url = `${this.baseurlTopics}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=false&qid=${qid}&gnd=${gnd}`;
+      const url = `${this.baseurlTopics}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=false&qid=${encodeURIComponent(qid ?? '')}&gnd=${encodeURIComponent(gnd ?? '')}`;
       return this.http.get<GraphGeoInfoAPIResponse>(url).pipe(
         catchError((e) => {
           this.ethErrorHandlingService.logError(e, 'EthLocationPageService.getTopicsFromGeoGraph');
@@ -62,7 +61,7 @@ export class EthLocationPageService {
 
     // https://daas.library.ethz.ch/rib/v3/graph/maps?lat=47.349952&lon=8.490838
     getMapsFromGeoGraph(lat: string, lng: string): Observable<GraphGeoInfoAPIResponse> {
-      const url = `${this.baseurlMaps}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&lat=${lat}&lon=${lng}`;
+      const url = `${this.baseurlMaps}?apikey=Hnwc3kaBnR51pXTenynY7BnG10cgtsDf4YWIA5AbA0Lm9Uq9&edges=true&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`;
       return this.http.get<GraphGeoInfoAPIResponse>(url).pipe(
         catchError((e) => {
           this.ethErrorHandlingService.logError(e, 'EthLocationPageService.getMapsFromGeoGraph');
@@ -76,10 +75,10 @@ export class EthLocationPageService {
     getPlaceFromWikidata(gnd: string | undefined, qid: string | undefined, lang: string): Observable<WikidataPlaceAPIResponse> {
       let url;
       if(qid){
-        url = `${this.baseurlWikidataByQID}/${qid}?lang=${lang}`;
+        url = `${this.baseurlWikidataByQID}/${encodeURIComponent(qid)}?lang=${encodeURIComponent(lang)}`;
       }
       else{
-        url = `${this.baseurlWikidataByQID}/gnd/${gnd}?lang=${lang}`;
+        url = `${this.baseurlWikidataByQID}/gnd/${encodeURIComponent(gnd ?? '')}?lang=${encodeURIComponent(lang)}`;
       }
       return this.http.get<WikidataPlaceAPIResponse>(url).pipe(
           map(response => {
@@ -94,7 +93,7 @@ export class EthLocationPageService {
 
     // https://daas.library.ethz.ch/rib/v3/places/lccn-identifier/n79007751
     getIdentifierForLccn(lccn: string): Observable<WikiIdentifierForLccnAPIResponse> {
-      const url = `${this.baseUrlIdentifierForLccn}/${lccn}`;
+      const url = `${this.baseUrlIdentifierForLccn}/${encodeURIComponent(lccn)}`;
       return this.http.get<WikiIdentifierForLccnAPIResponse>(url).pipe(
           map(response => {
             return response;

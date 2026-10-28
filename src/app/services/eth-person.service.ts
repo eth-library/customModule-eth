@@ -23,7 +23,7 @@ export class EthPersonService {
 
    
     getPersons(gnds: string, lang: string): Observable<PersonApiResponse> {
-        const url = `${this.baseurlRIB}/persons/person-gnd-short?gnd=${gnds}&lang=${lang}`;
+        const url = `${this.baseurlRIB}/persons/person-gnd-short?gnd=${this.encodeGndList(gnds)}&lang=${encodeURIComponent(lang)}`;
         return this.http.get<PersonApiResponse>(url).pipe(
             catchError(e => {
                 // no persons found
@@ -48,7 +48,7 @@ export class EthPersonService {
     }
 
     private getPersonByQid(qid: string, lang: string): Observable<PersonApiResponse> {
-        const url = `${this.baseurlRIB}/persons/person-qid?qid=${qid}&lang=${lang}`;
+        const url = `${this.baseurlRIB}/persons/person-qid?qid=${encodeURIComponent(qid)}&lang=${encodeURIComponent(lang)}`;
         return this.http.get<PersonApiResponse>(url).pipe(
             catchError(e => {
                 this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersonByQid');
@@ -59,7 +59,7 @@ export class EthPersonService {
     }
 
     private getPersonByGnd(gnd: string, lang: string): Observable<PersonApiResponse> {
-        const url = `${this.baseurlRIB}/persons/person-gnd?gnd=${gnd}&lang=${lang}`;
+        const url = `${this.baseurlRIB}/persons/person-gnd?gnd=${encodeURIComponent(gnd)}&lang=${encodeURIComponent(lang)}`;
         return this.http.get<PersonApiResponse>(url).pipe(
             catchError(e => {
                 this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersonByGnd');
@@ -71,7 +71,7 @@ export class EthPersonService {
 
     // https://daas.library.ethz.ch/rib/v3/persons/person-lccn?lccn=nr92018830&lang=en
     private getPersonByLccn(lccn: string, lang: string): Observable<PersonApiResponse> {
-        const url = `${this.baseurlRIB}/persons/person-lccn?lccn=${lccn}&lang=${lang}`;
+        const url = `${this.baseurlRIB}/persons/person-lccn?lccn=${encodeURIComponent(lccn)}&lang=${encodeURIComponent(lang)}`;
         return this.http.get<PersonApiResponse>(url).pipe(
             catchError(e => {
                 this.ethErrorHandlingService.logError(e, 'EthPersonService.getPersonByLccn');
@@ -81,8 +81,13 @@ export class EthPersonService {
         );
     }
 
+    // comma-separated list: encode each id, keep the separators
+    private encodeGndList(gnds: string): string {
+        return gnds.split(',').map(encodeURIComponent).join(',');
+    }
+
     getGndByIdRef(idref: string): Observable<string | null>  {
-        const url = `https://daas.library.ethz.ch/rib/v3/persons/gnd/sudoc/${idref}`;
+        const url = `https://daas.library.ethz.ch/rib/v3/persons/gnd/sudoc/${encodeURIComponent(idref)}`;
         return this.http.get<GndByIdRefApiResponse>(url).pipe(
             map(response => response?.gnd ?? null),
             catchError(e => {
@@ -93,7 +98,7 @@ export class EthPersonService {
     }
  
     searchPrimoData(q: string, tab: string, scope: string, lang: string = 'de'): Observable<PrimoApiResponse> {
-        const url = `${this.baseurlRIB}/search?lang=${lang}&limit=1&skipDelivery=true&disableSplitFacets=false&q=${encodeURIComponent(q)}`;
+        const url = `${this.baseurlRIB}/search?lang=${encodeURIComponent(lang)}&limit=1&skipDelivery=true&disableSplitFacets=false&q=${encodeURIComponent(q)}`;
         return this.http.get<PrimoApiResponse>(url).pipe(
             catchError((e) => {
                 this.ethErrorHandlingService.logError(e, 'EthPersonService.searchPrimoData');
@@ -236,11 +241,11 @@ export class EthPersonService {
 
     private mapProfileUrl(key: string, value: string): string {
         switch(key){
-            case 'orcid': return `https://orcid.org/${value}`;
-            case 'scholar': return `https://scholar.google.com/citations?user=${value}`;
-            case 'scopus': return `https://www.scopus.com/authid/detail.uri?authorId=${value}`;
-            case 'researchgate': return `https://www.researchgate.net/profile/${value}`;
-            case 'dimension': return `https://app.dimensions.ai/discover/publication?and_facet_researcher=ur.${value}`;
+            case 'orcid': return `https://orcid.org/${encodeURIComponent(value)}`;
+            case 'scholar': return `https://scholar.google.com/citations?user=${encodeURIComponent(value)}`;
+            case 'scopus': return `https://www.scopus.com/authid/detail.uri?authorId=${encodeURIComponent(value)}`;
+            case 'researchgate': return `https://www.researchgate.net/profile/${encodeURIComponent(value)}`;
+            case 'dimension': return `https://app.dimensions.ai/discover/publication?and_facet_researcher=ur.${encodeURIComponent(value)}`;
             default: return '';
         }
     }
@@ -432,11 +437,11 @@ export class EthPersonService {
 
             // URL der Entity
             if (person.wiki?.loc) {
-                person.url = `/entity/person?entityId=${person.wiki.loc}&vid=41SLSP_ETH:ETH_NDE&lang=${lang}`;
+                person.url = `/entity/person?entityId=${encodeURIComponent(person.wiki.loc)}&vid=41SLSP_ETH:ETH_NDE&lang=${encodeURIComponent(lang)}`;
             } else if (person.entityfacts?.lccn) {
-                person.url = `/entity/person?entityId=${person.entityfacts.lccn}&vid=41SLSP_ETH:ETH_NDE&lang=${lang}`;
+                person.url = `/entity/person?entityId=${encodeURIComponent(person.entityfacts.lccn)}&vid=41SLSP_ETH:ETH_NDE&lang=${encodeURIComponent(lang)}`;
             } else if (person.gnd) {
-                person.url = `/entity/person?entityId=${person.gnd}&vid=41SLSP_ETH:ETH_NDE&lang=${lang}`;
+                person.url = `/entity/person?entityId=${encodeURIComponent(person.gnd)}&vid=41SLSP_ETH:ETH_NDE&lang=${encodeURIComponent(lang)}`;
             }
 
             // Name
@@ -453,12 +458,12 @@ export class EthPersonService {
     }
 
     getPersonPageUrl(identifier:string): string{
-        let url = `/entity/person?entityId=${identifier}&vid=41SLSP_ETH:ETH_NDE`;
+        let url = `/entity/person?entityId=${encodeURIComponent(identifier)}&vid=41SLSP_ETH:ETH_NDE`;
         return url;
     }
 
     getPlacePageLink(identifier:string): string{
-        let query = '[wd/place]' + identifier;
+        let query = '[wd/place]' + encodeURIComponent(identifier);
         let url = `/nde/search?query=${query}&tab=${this.tab}&search_scope=${this.scope}&vid=${this.vid}`;
         return url;
     }

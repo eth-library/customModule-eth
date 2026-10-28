@@ -171,7 +171,7 @@ describe('EthPersonCardsComponent', () => {
       fixture.detectChanges();
 
       const container = fixture.debugElement.query(By.css('.eth-person-cards'));
-      const cardTitle = fixture.debugElement.query(By.css('.eth-person-card h5 a'));
+      const cardTitle = fixture.debugElement.query(By.css('.eth-person-card h3 a'));
 
       expect(container).toBeTruthy();
       expect(cardTitle).toBeTruthy();

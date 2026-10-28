@@ -74,7 +74,7 @@ describe('EthLocationPageService', () => {
   it('requests wikidata place by qid', () => {
     service.getPlaceFromWikidata(undefined, 'Q72', 'de').subscribe();
 
-    const req = httpMock.expectOne('https://daas.library.ethz.ch/rib/v3/places//Q72?lang=de');
+    const req = httpMock.expectOne('https://daas.library.ethz.ch/rib/v3/places/Q72?lang=de');
     expect(req.request.method).toBe('GET');
     req.flush({ results: { bindings: [] } });
   });
@@ -96,7 +96,7 @@ describe('EthLocationPageService', () => {
       }
     });
 
-    const req = httpMock.expectOne('https://daas.library.ethz.ch/rib/v3/places//gnd/G1?lang=de');
+    const req = httpMock.expectOne('https://daas.library.ethz.ch/rib/v3/places/gnd/G1?lang=de');
     req.flush('boom', { status: 500, statusText: 'Server Error' });
 
     expect(errorHandlingSpy.logError).toHaveBeenCalled();

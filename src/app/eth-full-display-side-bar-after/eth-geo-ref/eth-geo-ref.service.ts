@@ -23,18 +23,18 @@ export class EthGeoRefService {
 
   // https://daas.library.ethz.ch/rib/v3/places/lobid/gnds?gnds=4066337-1,117561940,4759171-7
   getPlacesFromLobid(gnds: string): Observable<LobidAPIResponse> {
-    return this.httpClient.get<LobidAPIResponse>(`${this.lobidUrl}?gnds=${gnds}`);
+    return this.httpClient.get<LobidAPIResponse>(`${this.lobidUrl}?gnds=${gnds.split(',').map(encodeURIComponent).join(',')}`);
   }
 
   // https://api.library.ethz.ch/ethorama/v1/pois?apikey=BKFefOQWF3VGq2sreNcyLqK7Gob61xO9jnLQAd0wy82ktIYn&pageSize=100&details=false&docId=990038990900205503
   getPlacesFromETHorama(docId: string): Observable<EthoramaAPIResponse> {
-    return this.httpClient.get<EthoramaAPIResponse>(`${this.ethoramaUrl}&docId=${docId}`);
+    return this.httpClient.get<EthoramaAPIResponse>(`${this.ethoramaUrl}&docId=${encodeURIComponent(docId)}`);
   }
   
 
   // https://daas.library.ethz.ch/rib/v3/graph/places?gnd=4018272-1
   getGndPlacesFromGraph(gnds: string): Observable<GraphGndPlacesResponse> {
-    const url = `${this.graphUrlGnd}?gnd=${gnds}`;
+    const url = `${this.graphUrlGnd}?gnd=${gnds.split(',').map(encodeURIComponent).join(',')}`;
     return this.httpClient.get<GraphGndPlacesResponse>(url);
   }  
 
@@ -46,7 +46,7 @@ export class EthGeoRefService {
     }    
 
     const enrichedPois$ = pois.map(poi =>
-      this.httpClient.get<GraphSinglePoiAPIResponse>(`${this.graphUrlPois}/${poi.id}`).pipe(
+      this.httpClient.get<GraphSinglePoiAPIResponse>(`${this.graphUrlPois}/${encodeURIComponent(poi.id)}`).pipe(
         map(response => {
           const feature = response?.features?.[0]?.properties;
           const enriched: EnrichedPoiAPIResponse = {
