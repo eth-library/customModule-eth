@@ -79,14 +79,14 @@ export class EthProvenienzComponent{
                     url: `/search?vid=${encodeURIComponent(vid ?? '')}&tab=${encodeURIComponent(tab ?? '')}&search_scope=${encodeURIComponent(scope ?? '')}&query=${encodeURIComponent(itemDoi)}`
                   };
                 })
-            )
+            ),
+            catchError(error => {
+              this.ethErrorHandlingService.logError(error,'EthProvenienzComponent.items$');
+              return of([] as ProvenienzLink[]);
+            })
           )
         ),
-        startWith([]),
-        catchError(error => {
-          this.ethErrorHandlingService.logError(error,'EthProvenienzComponent.items$');
-          return of([]);
-        })
+        startWith([] as ProvenienzLink[])
       );
     });
 
