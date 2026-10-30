@@ -6,7 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, map, catchError, EMPTY, filter } from 'rxjs';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { SHELL_ROUTER } from "../injection-tokens";
-import { Router } from '@angular/router';
+import { EventType, NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'custom-eth-matomo',
@@ -72,8 +72,8 @@ export class EthMatomoComponent implements OnInit {
     this.router.events
       .pipe(
         takeUntilDestroyed(this.destroyRef),  
-        filter((event: any) => 'urlAfterRedirects' in event && typeof event.urlAfterRedirects === 'string'),
-        map(event => { return event.urlAfterRedirects; }),        
+        filter((event): event is NavigationEnd => event.type === EventType.NavigationEnd),
+        map(event => event.urlAfterRedirects),
         distinctUntilChanged(),
         catchError(error => {
           this.ethErrorHandlingService.logError(error,'EthMatomoComponent.initializeTracking');
@@ -81,10 +81,13 @@ export class EthMatomoComponent implements OnInit {
         })
       )
       .subscribe(url => {
-        (window as any)._paq.push(['setCustomUrl', url]);
-        (window as any)._paq.push(['trackPageView']);
-        //console.log('Tracking PageView:', url);
+        // Der Titel wird vom Host erst nach NavigationEnd gesetzt
+        setTimeout(() => {
+          const paq = (window as any)._paq;
+          paq.push(['setCustomUrl', url]);
+          paq.push(['setDocumentTitle', document.title]);
+          paq.push(['trackPageView']);
+        }, 500);
       });
   }
-
 }
