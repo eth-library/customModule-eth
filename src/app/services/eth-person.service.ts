@@ -97,16 +97,6 @@ export class EthPersonService {
         );
     }
  
-    searchPrimoData(q: string, tab: string, scope: string, lang: string = 'de'): Observable<PrimoApiResponse> {
-        const url = `${this.baseurlRIB}/search?lang=${encodeURIComponent(lang)}&limit=1&skipDelivery=true&disableSplitFacets=false&q=${encodeURIComponent(q)}`;
-        return this.http.get<PrimoApiResponse>(url).pipe(
-            catchError((e) => {
-                this.ethErrorHandlingService.logError(e, 'EthPersonService.searchPrimoData');
-                return throwError(() => e);           
-            })
-        );
-    }
-
     private processPrometheusResponse(resp: PrometheusApiResponse): ExternalLinkVM[] {
         try {
             const sourcesWhitelist = [

@@ -56,9 +56,12 @@
     height: 0;
     margin-bottom: 0;
 }
+.eth-expansion-panel-students li, .eth-expansion-panel-teachers li{
+    margin-bottom: 1em;
+}
 .eth-personpage-links .eth-expansion-panel.mat-expanded > .mat-expansion-panel-content {
     visibility: visible;
-    height: auto;
+    height: auto; 
     margin-bottom: 1rem;    
 }
 .eth-personpage-links a{

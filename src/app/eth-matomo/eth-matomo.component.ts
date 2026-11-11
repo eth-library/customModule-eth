@@ -3,7 +3,7 @@
 
 import { ChangeDetectionStrategy, DestroyRef, Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { distinctUntilChanged, map, catchError, EMPTY, filter } from 'rxjs';
+import { distinctUntilChanged, map, catchError, EMPTY, filter, mergeMap, timer } from 'rxjs';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { SHELL_ROUTER } from "../injection-tokens";
 import { EventType, NavigationEnd, Router } from '@angular/router';
@@ -45,7 +45,6 @@ export class EthMatomoComponent implements OnInit {
       document.head.appendChild(matomoScript);
 
       matomoScript.onload = () => {
-        console.log('Matomo script loaded successfully');
         // initialize automatic page tracking after script is ready
         this.initializeTracking();
       };
@@ -71,23 +70,22 @@ export class EthMatomoComponent implements OnInit {
     (window as any)._paq.push(['enableLinkTracking']);
     this.router.events
       .pipe(
-        takeUntilDestroyed(this.destroyRef),  
         filter((event): event is NavigationEnd => event.type === EventType.NavigationEnd),
         map(event => event.urlAfterRedirects),
         distinctUntilChanged(),
+        // short delay so the shell has updated the document title; pending timers are cancelled on destroy
+        mergeMap(url => timer(500).pipe(map(() => url))),
+        takeUntilDestroyed(this.destroyRef),
         catchError(error => {
           this.ethErrorHandlingService.logError(error,'EthMatomoComponent.initializeTracking');
           return EMPTY;
         })
       )
       .subscribe(url => {
-        // Der Titel wird vom Host erst nach NavigationEnd gesetzt
-        setTimeout(() => {
-          const paq = (window as any)._paq;
-          paq.push(['setCustomUrl', url]);
-          paq.push(['setDocumentTitle', document.title]);
-          paq.push(['trackPageView']);
-        }, 500);
+        const paq = (window as any)._paq;
+        paq.push(['setCustomUrl', url]);
+        paq.push(['setDocumentTitle', document.title]);
+        paq.push(['trackPageView']);
       });
   }
 }

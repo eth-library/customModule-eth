@@ -13,7 +13,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
 import { SHELL_ROUTER } from "../injection-tokens";
-import { PersonVM, SearchVariantVM, PrimoApiResponse } from '../models/eth.model';
+import { PersonVM } from '../models/eth.model';
 
 @Component({
   selector: 'custom-eth-person-page',
@@ -82,7 +82,7 @@ export class EthPersonPageComponent {
                                 || '';
             return person;
           }),
-          switchMap(person => this.getPrecisionRecallLinks(person)),
+          map(person => this.addPrecisionRecallLinks(person)),
           tap(() => afterNextRender({ write: () => this.resetPanelIds() }, { injector: this.injector }))
         );
       }),
@@ -115,7 +115,7 @@ export class EthPersonPageComponent {
     });
   }
 
-  getPrecisionRecallLinks(person: PersonVM): Observable<PersonVM> {
+  addPrecisionRecallLinks(person: PersonVM): PersonVM {
     const queries = [];
     queries.push(this.getSearchLink(`any,contains,${person.label}`));
 
@@ -133,37 +133,27 @@ export class EthPersonPageComponent {
     }
     queries.push(this.getSearchLink(`any,contains,${birthyearQuery}`));
 
-    return forkJoin(queries).pipe(
-      map(results => {
-        person.searchVariants = results.filter(
-          (r): r is SearchVariantVM => r !== null
-        );
-        return person;
-      })
+    console.error(queries)
+    person.searchVariants = queries.filter(
+      (query) => query !== null && query !== ''
     );
+    return person;
+
   }
 
-  getSearchLink(query: string): Observable<SearchVariantVM | null> {
+  getSearchLink(query: string): string {
     const tab = this.ethStoreService.getTab() || '';
     const scope = this.ethStoreService.getScope() || '';
     const vid = this.ethStoreService.getVid() || '';
-    return this.ethPersonService.searchPrimoData(query, tab, scope, this.lang).pipe(
-      map((data: PrimoApiResponse) => {
-        const total = data?.info?.totalResultsLocal ?? 0;
-        if (query.indexOf('lds03') === -1) {
-          query = query.replace('any,contains,', '');
-        }
-        let url = `/search?query=${encodeURIComponent(query)}&tab=${encodeURIComponent(tab)}&search_scope=${encodeURIComponent(scope)}&vid=${encodeURIComponent(vid)}&lang=${encodeURIComponent(this.lang)}`;
-        if (query.indexOf('lds03') > -1) {
-          url += '&mode=advanced';
-        }
-        return { url, total };
-      }),
-      catchError((error) => {
-        this.ethErrorHandlingService.logError(error, 'EthPersonPageComponent.getSearchLink');
-        return of(null);
-      })
-    );
+    if (query.indexOf('lds03') === -1) {
+      query = query.replace('any,contains,', '');
+    }
+    let url = `/search?query=${encodeURIComponent(query)}&tab=${encodeURIComponent(tab)}&search_scope=${encodeURIComponent(scope)}&vid=${encodeURIComponent(vid)}&lang=${encodeURIComponent(this.lang)}`;
+    if (query.indexOf('lds03') > -1) {
+      url += '&mode=advanced';
+    }
+    return url;
+    
   }
 
   navigate(url: string, event: Event) {

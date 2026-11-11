@@ -693,7 +693,7 @@ export interface PersonVM {
   wikipediaUrl?: string;
   wikiArchivesAtLinks?: WikiArchivesAtLinksVM[];
   url: string;                  
-  searchVariants?: SearchVariantVM[];
+  searchVariants?: string[];
   teachers?: WikiRelatedPersonVM[];
   students?: WikiRelatedPersonVM[];
 }
@@ -736,10 +736,6 @@ export interface MetagridLinksVM {
   url: string;
   label: string;
   slug: string;                 
-}
-export interface SearchVariantVM {
-  url: string;
-  total: number;
 }
 
 export interface WikiVM {

@@ -96,22 +96,22 @@
           <ul role="list">
               @if (person.searchVariants[0]) {
               <li role="listitem">
-                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[0].url" (click)="navigate(person.searchVariants[0].url,$event)">
-                  <span>{{'eth.personPage.searchName' | safeTranslate | async}} ({{ person.searchVariants[0].total }} {{'eth.personPage.results' | safeTranslate | async}})</span>
+                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[0]" (click)="navigate(person.searchVariants[0],$event)">
+                  <span>{{'eth.personPage.searchName' | safeTranslate | async}}</span>
                 </a>
               </li>
               }
               @if (person.searchVariants[1]) {
               <li role="listitem">
-                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[1].url" (click)="navigate(person.searchVariants[1].url,$event)">
-                  <span>{{'eth.personPage.searchGnd' | safeTranslate | async}} ({{ person.searchVariants[1].total }} {{'eth.personPage.results' | safeTranslate | async}})</span>
+                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[1]" (click)="navigate(person.searchVariants[1],$event)">
+                  <span>{{'eth.personPage.searchGnd' | safeTranslate | async}}</span>
                 </a>
               </li>
               }
               @if (person.searchVariants[2]) {
               <li role="listitem">
-                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[2].url" (click)="navigate(person.searchVariants[2].url,$event)">
-                  <span>{{'eth.personPage.searchGndBirth' | safeTranslate | async}} ({{ person.searchVariants[2].total }} {{'eth.personPage.results' | safeTranslate | async}})</span>
+                <a class="arrow-link md-primoExplore-theme" [href]="'/nde' + person.searchVariants[2]" (click)="navigate(person.searchVariants[2],$event)">
+                  <span>{{'eth.personPage.searchGndBirth' | safeTranslate | async}}</span>
                 </a>
               </li>
               }
@@ -377,7 +377,7 @@
             </mat-panel-description>
           </mat-expansion-panel-header>
 
-          <section class="eth-expansion-panel-content">
+          <section class="eth-expansion-panel-content eth-expansion-panel-students">
             <ul role="list">
               @for (object of person?.students; track object.gnd) {
                 <li class="clearfix">
@@ -412,7 +412,7 @@
             </mat-panel-description>
           </mat-expansion-panel-header>
 
-          <section class="eth-expansion-panel-content">
+          <section class="eth-expansion-panel-content eth-expansion-panel-teachers">
             <ul role="list">
               @for (object of person?.teachers; track object.gnd) {
                 <li class="clearfix">
