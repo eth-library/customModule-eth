@@ -57,10 +57,11 @@ describe('EthMatomoComponent', () => {
     tick();
 
     routerEvents$.next(new NavigationEnd(1, '/from', '/target'));
-    tick();
+    tick(500);
 
     expect(appendChildSpy).toHaveBeenCalled();
     expect((globalThis as any)._paq.some((entry: any[]) => entry[0] === 'setTrackerUrl')).toBeTrue();
+    expect((globalThis as any)._paq.some((entry: any[]) => entry[0] === 'setCustomUrl' && entry[1] === '/target')).toBeTrue();
     expect((globalThis as any)._paq.some((entry: any[]) => entry[0] === 'trackPageView')).toBeTrue();
   }));
 
@@ -96,7 +97,7 @@ describe('EthMatomoComponent', () => {
     tick();
 
     routerEvents$.next(new NavigationEnd(1, '/from', '/once'));
-    tick();
+    tick(500);
 
     const enableLinkTrackingCalls = (globalThis as any)._paq.filter((entry: any[]) => entry[0] === 'enableLinkTracking').length;
 

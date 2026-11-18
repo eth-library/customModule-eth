@@ -36,7 +36,6 @@ describe('EthPersonPageComponent', () => {
     personService = jasmine.createSpyObj<EthPersonService>('EthPersonService', [
       'getPerson',
       'processPersonsResponse',
-      'searchPrimoData',
       'getProviderLabel'
     ]);
     storeService = jasmine.createSpyObj<EthStoreService>('EthStoreService', [
@@ -113,7 +112,6 @@ describe('EthPersonPageComponent', () => {
       wiki: { label: 'Wiki Name', birth: '1900-01-01' },
       entityfacts: { preferredName: 'Entity Name' }
     } as any);
-    personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 1 } } as any));
 
     createComponent();
 
@@ -135,7 +133,6 @@ describe('EthPersonPageComponent', () => {
       entityfacts: { preferredName: 'Entity Name' },
       searchVariants: []
     } as any);
-    personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 1 } } as any));
 
     createComponent();
     fixture.whenStable().then(() => {
@@ -157,7 +154,6 @@ describe('EthPersonPageComponent', () => {
       wiki: { label: 'Wiki Name', birth: '1900-01-01' },
       entityfacts: { preferredName: 'Entity Name' }
     } as any);
-    personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 1 } } as any));
 
     createComponent();
 
@@ -188,7 +184,6 @@ describe('EthPersonPageComponent', () => {
       wiki: { label: 'Wiki Name', birth: '1900-01-01' },
       entityfacts: {}
     } as any);
-    personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 1 } } as any));
 
     createComponent();
 
@@ -202,7 +197,6 @@ describe('EthPersonPageComponent', () => {
   it('returns null and logs when person loading fails', (done) => {
     personService.getPerson.and.returnValue(throwError(() => new Error('boom')));
     personService.processPersonsResponse.and.stub();
-    personService.searchPrimoData.and.stub();
 
     createComponent();
 
@@ -221,7 +215,6 @@ describe('EthPersonPageComponent', () => {
       entityfacts: { preferredName: 'Entity Name' },
       wiki: {}
     } as any);
-    personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 0 } } as any));
 
     createComponent({ detectChanges: false });
 
@@ -244,92 +237,68 @@ describe('EthPersonPageComponent', () => {
   });
 
 
-  it('builds precision recall links with gnd and birthyear combinations', (done) => {
+  it('builds precision recall links with gnd and birthyear combinations', () => {
     createComponent({ detectChanges: false });
-    personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 5 } } as any));
     const person: any = { label: 'Entity Name', gnd: 'GND123', yearOfBirth: '1900' };
     (component as any).lang = 'de';
 
-    component.getPrecisionRecallLinks(person).subscribe(result => {
-      expect(result.searchVariants?.length).toBe(3);
-      const urls = result.searchVariants?.map(v => v.url) ?? [];
-      expect(urls[0]).toContain('query=Entity%20Name');
-      expect(urls.some(url => url.includes('mode=advanced'))).toBeTrue();
-      done();
-    });
+    const result = component.addPrecisionRecallLinks(person);
+
+    const urls = result.searchVariants ?? [];
+    expect(urls.length).toBe(3);
+    expect(urls[0]).toContain('query=Entity%20Name&');
+    expect(urls[1]).toContain('mode=advanced');
+    expect(urls[2]).toContain(`query=${encodeURIComponent('Entity Name AND (1900 OR GND123)')}`);
   });
 
 
-  it('adds precision recall query with year when gnd is missing', (done) => {
+  it('adds precision recall query with year when gnd is missing', () => {
     createComponent({ detectChanges: false });
-    personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 0 } } as any));
     const person: any = { label: 'Entity Name', yearOfBirth: '1950' };
     (component as any).lang = 'de';
 
-    component.getPrecisionRecallLinks(person).subscribe(() => {
-      const queries = personService.searchPrimoData.calls.allArgs().map(args => args[0]);
-      expect(queries).toContain('any,contains,Entity Name 1950');
-      done();
-    });
+    const result = component.addPrecisionRecallLinks(person);
+
+    expect(result.searchVariants?.length).toBe(2);
+    expect(result.searchVariants?.[1]).toContain(`query=${encodeURIComponent('Entity Name 1950')}`);
   });
 
 
-  it('adds precision recall query with gnd when year is missing', (done) => {
+  it('adds precision recall query with gnd when year is missing', () => {
     createComponent({ detectChanges: false });
-    personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 0 } } as any));
     const person: any = { label: 'Entity Name', gnd: 'GND123' };
     (component as any).lang = 'de';
 
-    component.getPrecisionRecallLinks(person).subscribe(() => {
-      const queries = personService.searchPrimoData.calls.allArgs().map(args => args[0]);
-      expect(queries).toContain('any,contains,Entity Name GND123');
-      done();
-    });
+    const result = component.addPrecisionRecallLinks(person);
+
+    expect(result.searchVariants?.length).toBe(3);
+    expect(result.searchVariants?.[2]).toContain(`query=${encodeURIComponent('Entity Name GND123')}`);
   });
 
 
-  it('builds advanced search link for authority queries', (done) => {
+  it('builds advanced search link for authority queries', () => {
     createComponent({ detectChanges: false });
     (component as any).lang = 'de';
     storeService.getTab.and.returnValue(undefined as any);
     storeService.getScope.and.returnValue(undefined as any);
     storeService.getVid.and.returnValue(undefined as any);
-    personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 2 } } as any));
 
-    component.getSearchLink('lds03,contains,GND123').pipe(take(1)).subscribe(link => {
-      expect(link?.url).toContain('mode=advanced');
-      expect(link?.url).toContain('query=lds03%2Ccontains%2CGND123');
-      done();
-    });
+    const url = component.getSearchLink('lds03,contains,GND123');
+
+    expect(url).toContain('mode=advanced');
+    expect(url).toContain('query=lds03%2Ccontains%2CGND123');
   });
 
 
-  it('trims any,contains prefix for normal searches', (done) => {
+  it('trims any,contains prefix for normal searches', () => {
     createComponent({ detectChanges: false });
     (component as any).lang = 'de';
-    personService.searchPrimoData.and.returnValue(of({ info: { totalResultsLocal: 1 } } as any));
 
-    component.getSearchLink('any,contains,Entity Name').pipe(take(1)).subscribe(link => {
-      expect(link?.url).toContain('query=Entity%20Name');
-      expect(link?.url).not.toContain('mode=advanced');
-      done();
-    });
+    const url = component.getSearchLink('any,contains,Entity Name');
+
+    expect(url).toContain('query=Entity%20Name');
+    expect(url).not.toContain('mode=advanced');
   });
-
-
-  it('logs errors when search link lookup fails', (done) => {
-    createComponent({ detectChanges: false });
-    (component as any).lang = 'de';
-    personService.searchPrimoData.and.returnValue(throwError(() => new Error('fail')));
-    errorHandlingService.logError.calls.reset();
-
-    component.getSearchLink('any,contains,Entity Name').pipe(take(1)).subscribe(link => {
-      expect(link).toBeNull();
-      expect(errorHandlingService.logError).toHaveBeenCalledWith(jasmine.any(Error), 'EthPersonPageComponent.getSearchLink');
-      done();
-    });
-  });
-
 
   it('navigates via router for internal links', () => {
     createComponent();

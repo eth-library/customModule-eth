@@ -132,8 +132,6 @@ export class EthPersonPageComponent {
       birthyearQuery += ` ${person.gnd}`;
     }
     queries.push(this.getSearchLink(`any,contains,${birthyearQuery}`));
-
-    console.error(queries)
     person.searchVariants = queries.filter(
       (query) => query !== null && query !== ''
     );

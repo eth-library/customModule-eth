@@ -84,17 +84,6 @@ describe('EthPersonService', () => {
   });
 
 
-  it('encodes search queries', () => {
-    service.searchPrimoData('any,contains,Name A', 'TAB', 'SCOPE', 'de').subscribe();
-
-    const req = httpMock.expectOne((request) =>
-      request.url.startsWith('https://daas.library.ethz.ch/rib/v3/search')
-    );
-    expect(req.request.urlWithParams).toContain('q=any%2Ccontains%2CName%20A');
-    req.flush({ info: { totalResultsLocal: 0 } });
-  });
-
-
   it('logs errors from getPersonByGnd', () => {
     service.getPerson('123', 'de').subscribe({
       error: () => {
@@ -153,18 +142,6 @@ describe('EthPersonService', () => {
   });
 
 
-  it('searchPrimoData propagates errors', (done) => {
-    service.searchPrimoData('foo', 'TAB', 'SCOPE', 'de').subscribe({
-      next: () => fail('should error'),
-      error: (err) => {
-        expect(err.status).toBe(500);
-        expect(errorHandlingSpy.logError).toHaveBeenCalled();
-        done();
-      }
-    });
-    const req = httpMock.expectOne((request) => request.url.includes('/search'));
-    req.flush('fail', { status: 500, statusText: 'Server Error' });
-  });  
 
 
   it('logs non-500 errors from getPersons()', () => {
