@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { EthConnectedpapersService } from './eth-connectedpapers.service';
-import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { ConnectedPapersAPIResponse } from '../models/eth.model';
+import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
+import { ConnectedPapersAPIResponse } from '../../models/eth.model';
 
 describe('EthConnectedpapersService', () => {
   let service: EthConnectedpapersService;

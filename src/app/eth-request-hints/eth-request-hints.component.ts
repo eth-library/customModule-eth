@@ -9,7 +9,7 @@
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HostComponent } from '../models/eth.model';
 import { EthErrorHandlingService } from '../services/eth-error-handling.service';
 import { EthUtilsService } from '../services/eth-utils.service';
@@ -19,6 +19,7 @@ import { EthUtilsService } from '../services/eth-utils.service';
   standalone: true,
   imports: [
     CommonModule,
+    TranslateModule,
   ],
   templateUrl: './eth-request-hints.component.html',
   styleUrl: './eth-request-hints.component.scss',

@@ -1,3 +1,4 @@
 @if (hint$ | async; as hint) {
+    <h2 class="eth-visually-hidden">{{'eth.requestHint.heading' | translate}}</h2>
     <p class="eth-request-hint-container" [innerHTML]="hint"></p>
 }

@@ -4,6 +4,8 @@ import { EthComposeEraraComponent } from './eth-compose-erara/eth-compose-erara.
 import { EthComposeNbComponent } from './eth-compose-nb/eth-compose-nb.component'
 import { EthProvenienzEraraLinkComponent } from './eth-provenienz-erara-link/eth-provenienz-erara-link.component';
 import { EthProvenienzComponent } from './eth-provenienz/eth-provenienz.component';
+import { EthConnectedpapersComponent } from './eth-connectedpapers/eth-connectedpapers.component';
+
 import { HostComponent } from '../models/eth.model';
 
 @Component({
@@ -17,6 +19,7 @@ import { HostComponent } from '../models/eth.model';
     EthComposeEraraComponent,
     EthComposeNbComponent,
     EthProvenienzEraraLinkComponent,
+    EthConnectedpapersComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

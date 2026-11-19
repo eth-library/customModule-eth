@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError, of, throwError } from 'rxjs';
-import { ConnectedPapersAPIResponse } from '../models/eth.model';
-import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { ConnectedPapersAPIResponse } from '../../models/eth.model';
+import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 
 @Injectable({
   providedIn: 'root'

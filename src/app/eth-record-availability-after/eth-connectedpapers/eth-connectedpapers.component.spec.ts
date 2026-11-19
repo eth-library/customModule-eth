@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { EthConnectedpapersComponent } from './eth-connectedpapers.component';
 import { EthConnectedpapersService } from './eth-connectedpapers.service';
-import { ConnectedPapersAPIResponse, PnxDoc, HostComponent } from '../models/eth.model';
-import { EthStoreService } from '../services/eth-store.service';
+import { ConnectedPapersAPIResponse, PnxDoc, HostComponent } from '../../models/eth.model';
+import { EthStoreService } from '../../services/eth-store.service';
 import { TranslateService } from '@ngx-translate/core';
-import { EthErrorHandlingService } from '../services/eth-error-handling.service';
+import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
 import { firstValueFrom, of, throwError } from 'rxjs';
 
 
@@ -23,7 +23,8 @@ describe('EthConnectedpapersComponent', () => {
 
   beforeEach(async () => {
     cpServiceSpy = jasmine.createSpyObj('EthConnectedpapersService', ['getPaper']);
-    storeServiceSpy = jasmine.createSpyObj('EthStoreService', ['getRecord$']);
+    storeServiceSpy = jasmine.createSpyObj('EthStoreService', ['getRecord$', 'isFullview$']);
+    storeServiceSpy.isFullview$.and.returnValue(of(true));
     errorHandlingSpy = jasmine.createSpyObj('EthErrorHandlingService', ['logError', 'logError']);
 
     await TestBed.configureTestingModule({
@@ -55,6 +56,17 @@ describe('EthConnectedpapersComponent', () => {
 
     const result = await firstValueFrom(component.paperUrl$);
     expect(result).toBeNull();
+  });
+
+
+  it('does nothing when not in fullview', async () => {
+    storeServiceSpy.isFullview$.and.returnValue(of(false));
+
+    const result = await firstValueFrom(component.paperUrl$, { defaultValue: null });
+
+    expect(result).toBeNull();
+    expect(storeServiceSpy.getRecord$).not.toHaveBeenCalled();
+    expect(cpServiceSpy.getPaper).not.toHaveBeenCalled();
   });
 
 

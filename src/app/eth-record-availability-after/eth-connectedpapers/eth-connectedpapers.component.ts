@@ -1,6 +1,7 @@
-// For articles and book chapters (“article”, “articles”, “book_chapter”), a link to Connected Papers is provided via the DOI.
+// Only fullview: For articles and book chapters (“article”, “articles”, “book_chapter”), a link to Connected Papers is provided via the DOI.
 // This only happens if either citationCount or referenceCount is > 0.
 // The API query is routed via a route that is also cached.
+
 // https://jira.ethz.ch/browse/SLSP-1981
 
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
@@ -8,11 +9,11 @@ import { EthConnectedpapersService } from './eth-connectedpapers.service'
 import { catchError, defer, filter, map, Observable, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { SafeTranslatePipe } from '../pipes/safe-translate.pipe';
-import { ConnectedPapersAPIResponse, PnxDoc } from '../models/eth.model';
-import { EthErrorHandlingService } from '../services/eth-error-handling.service';
-import { EthStoreService } from '../services/eth-store.service';
-import { HostComponent } from '../models/eth.model';
+import { SafeTranslatePipe } from '../../pipes/safe-translate.pipe';
+import { ConnectedPapersAPIResponse, PnxDoc } from '../../models/eth.model';
+import { EthErrorHandlingService } from '../../services/eth-error-handling.service';
+import { EthStoreService } from '../../services/eth-store.service';
+import { HostComponent } from '../../models/eth.model';
 
 @Component({
   selector: 'custom-eth-connectedpapers',
@@ -38,7 +39,9 @@ export class EthConnectedpapersComponent{
     if (!this.hostComponent?.searchResult) {
       return of(null);
     }
-    return this.ethStoreService.getRecord$(this.hostComponent).pipe(
+    return this.ethStoreService.isFullview$().pipe(
+      filter(isFullview => !!isFullview),
+      switchMap(() => this.ethStoreService.getRecord$(this.hostComponent)),
       switchMap(record => this.getPaper(record)),
       catchError(err => {
         this.ethErrorHandlingService.logError(err, 'EthConnectedpapersComponent.paperUrl$');
@@ -59,7 +62,6 @@ export class EthConnectedpapersComponent{
     if (!type || !allowedTypes.has(type)) {
       return of(null);
     }
-
     return this.ethConnectedpapersService.getPaper(doi).pipe(
       filter((response): response is ConnectedPapersAPIResponse => response !== null), 
       map(response => {
