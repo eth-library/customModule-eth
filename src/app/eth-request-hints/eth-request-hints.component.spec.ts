@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 import { EthRequestHintsComponent } from './eth-request-hints.component';
@@ -28,7 +28,16 @@ describe('EthRequestHintsComponent', () => {
       imports: [EthRequestHintsComponent],
       providers: [
         { provide: EthStoreService, useValue: { userGroup$: of('ETH_Member') } },
-        { provide: TranslateService, useValue: { stream: (key: string) => of(key) } },
+        {
+          provide: TranslateService,
+          useValue: {
+            stream: (key: string) => of(key),
+            get: (key: string) => of(key),
+            onLangChange: NEVER,
+            onTranslationChange: NEVER,
+            onDefaultLangChange: NEVER,
+          },
+        },
         { provide: EthErrorHandlingService, useValue: ethErrorHandlingServiceMock },
         { provide: EthUtilsService, useValue: ethUtilsServiceMock },
       ],

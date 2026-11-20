@@ -1,4 +1,5 @@
-// Only fullview: For articles and book chapters (“article”, “articles”, “book_chapter”), a link to Connected Papers is provided via the DOI.
+// Only fullview: For articles and book chapters (“article”, “articles”, “book_chapter”),
+// a link to Connected Papers is provided via the DOI.
 // This only happens if either citationCount or referenceCount is > 0.
 // The API query is routed via a route that is also cached.
 

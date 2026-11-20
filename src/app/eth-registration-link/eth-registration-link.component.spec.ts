@@ -49,6 +49,7 @@ describe('EthRegistrationLinkComponent', () => {
   it('does nothing when login form content is missing', () => {
     translateMock.get.and.returnValue(of({
       'eth.registrationLink.linkText': 'Register',
+      'eth.registrationLink.link': 'https://example.org/swisscovery-hilfe-auf-einen-blick.html#r',
       'nui.aria.newWindow': 'new window'
     }));
 
@@ -63,6 +64,7 @@ describe('EthRegistrationLinkComponent', () => {
 
     translateMock.get.and.returnValue(of({
       'eth.registrationLink.linkText': 'Register',
+      'eth.registrationLink.link': 'https://example.org/swisscovery-hilfe-auf-einen-blick.html#r',
       'nui.aria.newWindow': 'new window'
     }));
 
@@ -81,6 +83,7 @@ describe('EthRegistrationLinkComponent', () => {
 
     translateMock.get.and.returnValue(of({
       'eth.registrationLink.linkText': 'Register',
+      'eth.registrationLink.link': 'https://example.org/swisscovery-hilfe-auf-einen-blick.html#r',
       'nui.aria.newWindow': 'new window'
     }));
 
@@ -103,6 +106,7 @@ describe('EthRegistrationLinkComponent', () => {
 
     translateMock.get.and.returnValue(of({
       'eth.registrationLink.linkText': 'Register',
+      'eth.registrationLink.link': 'https://example.org/swisscovery-hilfe-auf-einen-blick.html#r',
       'nui.aria.newWindow': 'new window'
     }));
 
@@ -120,6 +124,7 @@ describe('EthRegistrationLinkComponent', () => {
 
     translateMock.get.and.returnValue(of({
       'eth.registrationLink.linkText': 'Register',
+      'eth.registrationLink.link': 'https://example.org/swisscovery-hilfe-auf-einen-blick.html#r',
       'nui.aria.newWindow': 'new window'
     }));
 

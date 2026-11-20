@@ -1,10 +1,13 @@
-// The order form displays information on fees (for different user groups),
-// depending on whether the request is made via ETH-GetIt or Pickup from other institutions’, 
-// and varies for requests and digitisation (formType).
-// https://jira.ethz.ch/browse/SLSP-2013
+// Information on the fees is displayed on the order form.
+// The display shown includes the relevant user groups.
+// What is displayed depends on:
+// - whether it is in ETH-GetIt or ‘Collect from other institutions’
+// - Request or Digitisation.
+// Example:
+// Pickup: cdi_jstor_primary_44014815
+// Request + RequestOtherLibraries: 990060457100205503
 
-// 990061118830205503  
-// 990002638940205503
+// https://jira.ethz.ch/browse/SLSP-2013
 
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { BehaviorSubject, catchError, map, Observable, of, switchMap } from 'rxjs';

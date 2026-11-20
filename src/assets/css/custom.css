@@ -59,16 +59,6 @@ nde-logo img {
     }
 }
 
-/* connectedpapers parent container */
-nde-record-citations-indicators {
-    display: flex;
-}
-
-/* divider between citation links */
-nde-record-citations-indicators>div {
-    align-items: center;
-}
-
 /* loans: hide renew buttons */
 nde-loans .loan-renew-btn {
     display: none;
@@ -141,6 +131,11 @@ nde-personal-details>mat-card {
 
 /* fees link right of rapido header */
 .slsp-fees-link {
+    display: none;
+}
+
+/* fees lin digitization / ill form */
+.slsp-form-fees-link {
     display: none;
 }
 

@@ -1,5 +1,9 @@
-// In the login box, there is a link that says “Not registered yet?”
-// 
+// In the login box, there is an additional link ‘Not registered yet?’, which leads to
+//
+// de: https://library.ethz.ch/recherchieren-und-nutzen/ausleihen-und-nutzen/swisscovery-hilfe-auf-einen-blick.html#r
+// en: https://library.ethz.ch/en/find-media/borrowing-and-using/swisscovery-hilfe-auf-einen-blick.html#re
+// The links from the Central Package (Register, Help) are set to be hidden.
+
 // https://jira.ethz.ch/browse/SLSP-1984
 
 import { ChangeDetectionStrategy, Component, inject, Renderer2, DestroyRef } from '@angular/core';
@@ -10,7 +14,6 @@ import { catchError, of, take, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-const REGISTRATION_URL = 'https://library.ethz.ch/recherchieren-und-nutzen/ausleihen-und-nutzen/swisscovery-hilfe-auf-einen-blick.html#r';
 const LINK_SELECTOR = 'nde-login-dialog .eth-registration-link';
 const CONTENT_SELECTOR = 'nde-login-dialog .mat-mdc-dialog-content';
 
@@ -68,13 +71,17 @@ export class EthRegistrationLinkComponent {
       try {
         this.translationSubscription?.unsubscribe();
         this.translationSubscription = this.translate
-          .get(['eth.registrationLink.linkText', 'nui.aria.newWindow'])
+          .get(['eth.registrationLink.linkText', 'eth.registrationLink.link', 'nui.aria.newWindow'])
           .pipe(
             take(1),
-          takeUntilDestroyed(this.destroyRef),
+            takeUntilDestroyed(this.destroyRef),
             tap(translations => {
               const linktext = translations['eth.registrationLink.linkText'];
+              const url = translations['eth.registrationLink.link'];
               const newWindow = translations['nui.aria.newWindow'];
+
+              // ngx-translate returns the key itself when a translation is missing
+              if (!url || url === 'eth.registrationLink.link') return;
               
               const existingLink = loginFormContent.querySelector(LINK_SELECTOR);
               if (existingLink) return;
@@ -82,7 +89,7 @@ export class EthRegistrationLinkComponent {
               const container = loginFormContent.querySelector(CONTENT_SELECTOR);
               if (!container?.parentNode) return;
 
-              const link = this.buildRegistrationLink(linktext, newWindow);
+              const link = this.buildRegistrationLink(linktext, url, newWindow);
               this.renderer.insertBefore(container.parentNode, link, container.nextSibling);
             }),
             catchError(err => {
@@ -98,9 +105,9 @@ export class EthRegistrationLinkComponent {
     }
 
     // Creates the accessible external registration link element.
-    private buildRegistrationLink(linktext: string, newWindow: string): HTMLElement {
+    private buildRegistrationLink(linktext: string, url: string, newWindow: string): HTMLElement {
       const link = this.renderer.createElement('a');
-      this.renderer.setAttribute(link, 'href', REGISTRATION_URL);
+      this.renderer.setAttribute(link, 'href', url);
       this.renderer.setAttribute(link, 'target', '_blank');
       this.renderer.setAttribute(link, 'rel', 'noopener noreferrer');
       this.renderer.setAttribute(link, 'aria-label', `${linktext} ${newWindow}`);
